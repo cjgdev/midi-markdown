@@ -46,9 +46,17 @@ def compile(
         int,
         typer.Option(help="Pulses per quarter note / resolution (default: 480)"),
     ] = 480,
-    format: Annotated[
+    output_format: Annotated[
+        str,
+        typer.Option(
+            "--format",
+            "-f",
+            help="Output format: midi, table, csv, json, json-simple (default: midi)",
+        ),
+    ] = "midi",
+    midi_format: Annotated[
         int,
-        typer.Option(help="MIDI file format: 0=single track, 1=multi-track, 2=async"),
+        typer.Option("--midi-format", help="MIDI file format: 0=single track, 1=multi-track, 2=async"),
     ] = 1,
     validate: Annotated[
         bool,
@@ -78,18 +86,24 @@ def compile(
     # Create console with appropriate settings
     output_console = Console(no_color=no_color, force_terminal=not no_color)
 
-    if output is None:
+    # For MIDI format, default output file; for other formats, output to stdout
+    if output is None and output_format == "midi":
         output = input_file.with_suffix(".mid")
 
-    if not no_color:
-        output_console.print(f"[cyan]Compiling:[/cyan] {input_file}")
-        output_console.print(f"[cyan]Output:[/cyan] {output}")
-    else:
-        output_console.print(f"Compiling: {input_file}")
-        output_console.print(f"Output: {output}")
+    # Print compilation info (but not for non-MIDI formats that go to stdout)
+    if output_format == "midi" or output is not None:
+        if not no_color:
+            output_console.print(f"[cyan]Compiling:[/cyan] {input_file}")
+            if output:
+                output_console.print(f"[cyan]Output:[/cyan] {output}")
+        else:
+            output_console.print(f"Compiling: {input_file}")
+            if output:
+                output_console.print(f"Output: {output}")
 
-    # Create progress indicator for non-verbose mode
-    show_progress = not verbose and not no_color
+    # Create progress indicator for non-verbose mode (but not when outputting to stdout)
+    outputs_to_stdout = output_format != "midi" and output is None
+    show_progress = not verbose and not no_color and not outputs_to_stdout
 
     try:
         # Start compilation timer
@@ -400,20 +414,86 @@ def compile(
                 output_console.print(f"  [dim]Duration: {ir_program.duration_seconds:.2f}s[/dim]")
                 output_console.print(f"  [dim]Tracks: {ir_program.track_count}[/dim]")
 
-            # 7. Write MIDI file
-            if show_progress:
-                progress.update(task, description="Writing MIDI file...")
+            # 7. Generate output based on format
+            if output_format == "midi":
+                # Write MIDI file
+                if show_progress:
+                    progress.update(task, description="Writing MIDI file...")
 
-            if verbose:
-                output_console.print("  [dim]Writing MIDI file...[/dim]")
+                if verbose:
+                    output_console.print("  [dim]Writing MIDI file...[/dim]")
 
-            from midi_markdown.codegen import generate_midi_file
+                from midi_markdown.codegen import generate_midi_file
 
-            # Generate MIDI file bytes
-            midi_bytes = generate_midi_file(ir_program, midi_format=format)
+                # Generate MIDI file bytes
+                midi_bytes = generate_midi_file(ir_program, midi_format=midi_format)
 
-            # Write to disk
-            output.write_bytes(midi_bytes)
+                # Write to disk
+                output.write_bytes(midi_bytes)
+
+            elif output_format == "table":
+                # Display as Rich table
+                if show_progress:
+                    progress.update(task, description="Generating table...")
+
+                from midi_markdown.diagnostics import display_events_table
+
+                output_console.print()  # Blank line
+                display_events_table(
+                    ir_program, max_events=100, show_stats=True, console=output_console
+                )
+
+            elif output_format == "csv":
+                # Export to CSV
+                if show_progress:
+                    progress.update(task, description="Generating CSV...")
+
+                from midi_markdown.codegen import export_to_csv
+
+                csv_output = export_to_csv(ir_program, include_header=True)
+
+                if output is None:
+                    # Write to stdout (plain print, no formatting)
+                    print(csv_output)
+                else:
+                    # Write to file
+                    output.write_text(csv_output)
+
+            elif output_format == "json":
+                # Export to JSON (complete format)
+                if show_progress:
+                    progress.update(task, description="Generating JSON...")
+
+                from midi_markdown.codegen import export_to_json
+
+                json_output = export_to_json(ir_program, format="complete", pretty=True)
+
+                if output is None:
+                    # Write to stdout (plain print, no formatting)
+                    print(json_output)
+                else:
+                    # Write to file
+                    output.write_text(json_output)
+
+            elif output_format == "json-simple":
+                # Export to JSON (simplified format)
+                if show_progress:
+                    progress.update(task, description="Generating JSON...")
+
+                from midi_markdown.codegen import export_to_json
+
+                json_output = export_to_json(ir_program, format="simplified", pretty=True)
+
+                if output is None:
+                    # Write to stdout (plain print, no formatting)
+                    print(json_output)
+                else:
+                    # Write to file
+                    output.write_text(json_output)
+
+            else:
+                output_console.print(f"[red]Error:[/] Unknown format: {output_format}")
+                raise typer.Exit(1)
 
             # Calculate compilation time
             elapsed = time.time() - start_time
@@ -431,9 +511,9 @@ def compile(
                 f"{int(duration_seconds // 60)}:{int(duration_seconds % 60):02d}"
             )
 
-            # Get file sizes
+            # Get file sizes (only if output file exists)
             input_size = input_file.stat().st_size
-            output_size = output.stat().st_size
+            output_size = output.stat().st_size if output else 0
 
             # Build stats dictionary for success display
             success_stats = {
@@ -441,7 +521,7 @@ def compile(
                 "tracks": ir_program.track_count,
                 "track_names": track_names,
                 "ppq": ppq_value,
-                "format": format,
+                "format": midi_format,
                 "elapsed": elapsed,
                 "duration_seconds": int(duration_seconds),
                 "duration_formatted": duration_formatted,
@@ -458,8 +538,9 @@ def compile(
             if stats.variables_substituted > 0:
                 success_stats["variables_substituted"] = stats.variables_substituted
 
-        # Use structured success display (outside progress context)
-        show_success(output, success_stats, output_console, no_color=no_color, no_emoji=no_emoji)
+        # Use structured success display (only for MIDI format)
+        if output_format == "midi":
+            show_success(output, success_stats, output_console, no_color=no_color, no_emoji=no_emoji)
 
     except typer.Exit:
         # Re-raise typer.Exit to preserve exit codes

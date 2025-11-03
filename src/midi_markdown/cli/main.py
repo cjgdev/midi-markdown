@@ -15,6 +15,7 @@ from midi_markdown import __version__
 from .commands import (
     check,
     compile,
+    inspect,
     library_info,
     library_list,
     library_validate,
@@ -63,6 +64,7 @@ def main(
 
 # Register main commands
 app.command()(compile)
+app.command()(inspect)
 app.command()(validate)
 app.command()(check)
 app.command()(version)

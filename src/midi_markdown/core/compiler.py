@@ -56,9 +56,16 @@ def compile_ast_to_ir(
     # Convert event dicts to MIDIEvent objects
     events = []
     for event_dict in expanded_dicts:
+        # Skip meta events that are handled specially or not in EventType enum
+        # - end_of_track: automatically added by MIDI file writer
+        # - trackname/instrumentname: handled separately by MIDI file writer
+        event_type = event_dict["type"]
+        if event_type in ("end_of_track", "trackname", "instrumentname"):
+            continue
+
         midi_event = MIDIEvent(
             time=event_dict["time"],
-            type=string_to_event_type(event_dict["type"]),
+            type=string_to_event_type(event_type),
             channel=event_dict.get("channel", 0),
             data1=event_dict.get("data1", 0),
             data2=event_dict.get("data2", 0),
