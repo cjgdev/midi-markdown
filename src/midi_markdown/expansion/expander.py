@@ -611,9 +611,15 @@ class CommandExpander:
                 cmd_dict["note"] = node.note
             if hasattr(node, "velocity"):
                 cmd_dict["velocity"] = node.velocity
+            # Extract duration from params if present
+            duration_value = None
+            if hasattr(node, "params") and node.params:
+                duration_value = node.params.get("duration")
         elif isinstance(node, dict):
             cmd_dict = node.copy()
             cmd_dict["time"] = self.current_time
+            # Extract duration from dict params if present
+            duration_value = cmd_dict.get("params", {}).get("duration")
         else:
             return  # Skip unknown node types
 
@@ -622,6 +628,28 @@ class CommandExpander:
 
         # Add to events
         self.events.append(cmd_dict)
+
+        # Handle note_on with duration: auto-generate note_off
+        if cmd_dict.get("type") == "note_on" and duration_value is not None:
+            # Parse duration to ticks
+            from midi_markdown.expansion.loops import parse_interval
+
+            try:
+                interval = parse_interval(duration_value)
+                duration_ticks = interval.to_ticks(self.ppq, self.tempo, self.time_signature)
+            except (ValueError, AttributeError):
+                # If parsing fails, skip note_off generation
+                return
+
+            # Create note_off event
+            note_off_dict = {
+                "type": "note_off",
+                "channel": cmd_dict["channel"],
+                "data1": cmd_dict["data1"],  # Same note number
+                "data2": 0,  # Note off velocity typically 0
+                "time": self.current_time + duration_ticks,
+            }
+            self.events.append(note_off_dict)
 
     def _substitute_variables(self, event: dict) -> dict:
         """

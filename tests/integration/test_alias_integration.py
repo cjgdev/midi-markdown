@@ -5,6 +5,9 @@ Tests end-to-end alias expansion in real MIDI compilation scenarios.
 
 import pytest
 
+from midi_markdown.expansion.expander import CommandExpander
+from midi_markdown.midi.events import MIDIEvent, string_to_event_type
+
 
 class TestAliasIntegration:
     """Test complete alias expansion pipeline."""
@@ -13,7 +16,7 @@ class TestAliasIntegration:
     # Basic Alias Expansion Tests
     # ============================================
 
-    def test_simple_alias_expansion(self, parser, event_generator, resolve_aliases):
+    def test_simple_alias_expansion(self, parser, resolve_aliases):
         """Test simple alias expands to MIDI command."""
         source = """---
 title: Simple Alias Test
@@ -29,7 +32,11 @@ title: Simple Alias Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have one program change event
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
@@ -37,7 +44,7 @@ title: Simple Alias Test
         assert pc_events[0].channel == 1
         assert pc_events[0].data1 == 10
 
-    def test_multi_command_alias(self, parser, event_generator, resolve_aliases):
+    def test_multi_command_alias(self, parser, resolve_aliases):
         """Test alias that expands to multiple commands."""
         source = """---
 title: Multi-Command Alias
@@ -55,7 +62,11 @@ title: Multi-Command Alias
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have 2 CC + 1 PC = 3 events
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -82,7 +93,7 @@ title: Multi-Command Alias
     # Timing Preservation Tests
     # ============================================
 
-    def test_alias_preserves_timing(self, parser, event_generator, resolve_aliases):
+    def test_alias_preserves_timing(self, parser, resolve_aliases):
         """Test that alias expansion preserves timing."""
         source = """---
 title: Timing Test
@@ -102,7 +113,11 @@ title: Timing Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 4
@@ -122,7 +137,7 @@ title: Timing Test
     # Nested Alias Tests
     # ============================================
 
-    def test_nested_alias_expansion(self, parser, event_generator, resolve_aliases):
+    def test_nested_alias_expansion(self, parser, resolve_aliases):
         """Test nested alias (alias calling alias)."""
         source = """---
 title: Nested Alias Test
@@ -143,7 +158,11 @@ title: Nested Alias Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 2
@@ -162,7 +181,7 @@ title: Nested Alias Test
     # Computed Value Tests
     # ============================================
 
-    def test_alias_with_computed_values(self, parser, event_generator, resolve_aliases):
+    def test_alias_with_computed_values(self, parser, resolve_aliases):
         """Test alias with computed value (Stage 6 integration)."""
         source = """---
 title: Computed Value Test
@@ -179,7 +198,11 @@ title: Computed Value Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -191,7 +214,7 @@ title: Computed Value Test
     # Conditional Alias Tests
     # ============================================
 
-    def test_alias_with_conditionals(self, parser, event_generator, resolve_aliases):
+    def test_alias_with_conditionals(self, parser, resolve_aliases):
         """Test alias with conditional logic (Stage 7 integration)."""
         source = """---
 title: Conditional Alias Test
@@ -219,7 +242,11 @@ title: Conditional Alias Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -245,7 +272,7 @@ title: Conditional Alias Test
     # Parameter Type Tests
     # ============================================
 
-    def test_alias_with_note_parameter(self, parser, event_generator, resolve_aliases):
+    def test_alias_with_note_parameter(self, parser, resolve_aliases):
         """Test alias with note name parameter (Stage 2 integration)."""
         source = """---
 title: Note Parameter Test
@@ -261,7 +288,11 @@ title: Note Parameter Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         note_on_events = [e for e in events if e.type.name == "NOTE_ON"]
         note_off_events = [e for e in events if e.type.name == "NOTE_OFF"]
@@ -273,7 +304,7 @@ title: Note Parameter Test
         assert note_on_events[0].data1 == 60
         assert note_on_events[0].data2 == 100
 
-    def test_alias_with_percent_parameter(self, parser, event_generator, resolve_aliases):
+    def test_alias_with_percent_parameter(self, parser, resolve_aliases):
         """Test alias with percentage parameter (Stage 2 integration)."""
         source = """---
 title: Percent Parameter Test
@@ -289,7 +320,11 @@ title: Percent Parameter Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -297,7 +332,7 @@ title: Percent Parameter Test
         # 75% → 75 * 127 / 100 = 95.25 → 95
         assert cc_events[0].data2 == 95
 
-    def test_alias_with_enum_parameter(self, parser, event_generator, resolve_aliases):
+    def test_alias_with_enum_parameter(self, parser, resolve_aliases):
         """Test alias with enum parameter (Stage 2 integration)."""
         source = """---
 title: Enum Parameter Test
@@ -316,7 +351,11 @@ title: Enum Parameter Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 2
@@ -331,7 +370,7 @@ title: Enum Parameter Test
     # Multi-Track Tests
     # ============================================
 
-    def test_alias_in_multi_track(self, parser, event_generator, resolve_aliases):
+    def test_alias_in_multi_track(self, parser, resolve_aliases):
         """Test alias usage in multi-track document."""
         source = """---
 title: Multi-Track Alias Test
@@ -356,7 +395,11 @@ title: Multi-Track Alias Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         note_on_events = [e for e in events if e.type.name == "NOTE_ON"]
 
@@ -374,7 +417,7 @@ title: Multi-Track Alias Test
     # Error Handling Tests
     # ============================================
 
-    def test_undefined_alias_error(self, parser, event_generator, resolve_aliases):
+    def test_undefined_alias_error(self, parser, resolve_aliases):
         """Test error when calling undefined alias."""
         source = """---
 title: Error Test
@@ -390,7 +433,7 @@ title: Error Test
 
         assert "undefined_alias" in str(exc_info.value).lower()
 
-    def test_wrong_argument_count_error(self, parser, event_generator, resolve_aliases):
+    def test_wrong_argument_count_error(self, parser, resolve_aliases):
         """Test error when providing wrong number of arguments."""
         source = """---
 title: Error Test
@@ -416,7 +459,7 @@ title: Error Test
     # Real-World Scenario Tests
     # ============================================
 
-    def test_quad_cortex_scene_change(self, parser, event_generator, resolve_aliases):
+    def test_quad_cortex_scene_change(self, parser, resolve_aliases):
         """Test real Quad Cortex scene change scenario."""
         source = """---
 title: Quad Cortex Scene Test
@@ -438,7 +481,11 @@ title: Quad Cortex Scene Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 3
@@ -451,7 +498,7 @@ title: Quad Cortex Scene Test
         assert cc_events[1].data2 == 1
         assert cc_events[2].data2 == 2
 
-    def test_h90_dual_algo_setup(self, parser, event_generator, resolve_aliases):
+    def test_h90_dual_algo_setup(self, parser, resolve_aliases):
         """Test Eventide H90 dual algorithm setup."""
         source = """---
 title: H90 Dual Setup
@@ -477,7 +524,11 @@ title: H90 Dual Setup
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 3
@@ -494,7 +545,7 @@ title: H90 Dual Setup
         assert cc_events[2].data1 == 84
         assert cc_events[2].data2 == 63
 
-    def test_complex_live_performance(self, parser, event_generator, resolve_aliases):
+    def test_complex_live_performance(self, parser, resolve_aliases):
         """Test complex live performance scenario with multiple features."""
         source = """---
 title: Live Performance
@@ -532,7 +583,11 @@ tempo: 120
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]

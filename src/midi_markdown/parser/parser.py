@@ -92,6 +92,46 @@ class MMLParser:
             self._format_parse_error(e, content, filename)
             raise
 
+    def parse_interactive(self, text: str) -> tuple[bool, MMLDocument | Exception | None]:
+        """Parse MML text for REPL, handling incomplete input.
+
+        This method supports interactive parsing where input may be incomplete
+        (e.g., user is still typing). It distinguishes between:
+        - Incomplete input: Need more text (returns False, None)
+        - Invalid but complete: Syntax error (returns True, Exception)
+        - Valid and complete: Success (returns True, MMLDocument)
+
+        Args:
+            text: MML source text (may be incomplete)
+
+        Returns:
+            Tuple of (complete, result):
+            - (False, None): Input incomplete, need more
+            - (True, Exception): Input complete but invalid
+            - (True, MMLDocument): Input complete and valid
+
+        Example:
+            >>> parser = MMLParser()
+            >>> complete, result = parser.parse_interactive("[00:01.0")
+            >>> assert not complete  # Incomplete timing marker
+            >>> complete, result = parser.parse_interactive("[00:01.000]\\n- cc 1.7.64")
+            >>> assert complete and isinstance(result, MMLDocument)
+        """
+        from lark import UnexpectedEOF, UnexpectedInput
+
+        try:
+            doc = self.parse_string(text)
+            return True, doc
+        except UnexpectedEOF:
+            # Need more input
+            return False, None
+        except UnexpectedInput as e:
+            # Complete but invalid
+            return True, e
+        except Exception as e:
+            # Other errors (file not found, etc.)
+            return True, e
+
     def _format_parse_error(self, error, content: str, filename: str):
         """Format a parse error with context"""
         # Extract line information if available

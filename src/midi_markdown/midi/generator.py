@@ -10,8 +10,7 @@ from pathlib import Path
 from mido import Message, MetaMessage, MidiFile, MidiTrack
 
 from midi_markdown.constants import DEFAULT_PPQ, MIDI_FORMAT_MULTI_TRACK
-
-from .events import EventType, MIDIEvent
+from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
 
 
 class MIDIGenerator:
@@ -30,16 +29,25 @@ class MIDIGenerator:
         self.ppq = ppq
         self.midi_format = midi_format
 
-    def generate(self, events: list[MIDIEvent], output_path: Path) -> None:
-        """Generate MIDI file from events.
+    def generate(self, events_or_ir: list[MIDIEvent] | IRProgram, output_path: Path) -> None:
+        """Generate MIDI file from events or IR program.
 
         Args:
-            events: List of MIDI events
+            events_or_ir: List of MIDI events or IRProgram
             output_path: Path to write MIDI file
 
         Raises:
             Exception: If generation fails
         """
+        # Extract events from IRProgram if needed (backward compatible)
+        if isinstance(events_or_ir, IRProgram):
+            events = events_or_ir.events
+            # Use resolution from IRProgram if available
+            if events_or_ir.resolution:
+                self.ppq = events_or_ir.resolution
+        else:
+            events = events_or_ir
+
         # Create MIDI file
         mid = MidiFile(type=self.midi_format, ticks_per_beat=self.ppq)
 

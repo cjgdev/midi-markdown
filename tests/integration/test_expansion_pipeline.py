@@ -6,9 +6,9 @@ Tests the full flow: Parse → Expand → Generate → Write MIDI
 
 import pytest
 
+from midi_markdown.codegen import generate_midi_file
+from midi_markdown.core.ir import MIDIEvent, create_ir_program, string_to_event_type
 from midi_markdown.expansion.expander import CommandExpander
-from midi_markdown.midi.events import MIDIEvent
-from midi_markdown.midi.generator import MIDIGenerator
 from midi_markdown.parser.parser import MMLParser
 
 
@@ -55,7 +55,7 @@ ppq: 480
         for event_dict in expanded_events:
             midi_event = MIDIEvent(
                 time=event_dict["time"],
-                type=event_dict["type"],
+                type=string_to_event_type(event_dict["type"]),
                 channel=event_dict.get("channel", 0),
                 data1=event_dict.get("data1", 0),
                 data2=event_dict.get("data2", 0),
@@ -66,8 +66,9 @@ ppq: 480
 
         # Write MIDI file
         output_file = tmp_path / "test_variables.mid"
-        midi_gen = MIDIGenerator(ppq=480, midi_format=1)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=480, initial_tempo=120)
+        midi_bytes = generate_midi_file(ir_program, midi_format=1)
+        output_file.write_bytes(midi_bytes)
 
         assert output_file.exists()
         assert output_file.stat().st_size > 0
@@ -337,7 +338,7 @@ ppq: 480
         for event_dict in expanded_events:
             midi_event = MIDIEvent(
                 time=event_dict["time"],
-                type=event_dict["type"],
+                type=string_to_event_type(event_dict["type"]),
                 channel=event_dict.get("channel", 0),
                 data1=event_dict.get("data1", 0),
                 data2=event_dict.get("data2", 0),
@@ -348,8 +349,9 @@ ppq: 480
 
         # 4. Write MIDI file
         output_file = tmp_path / "full_pipeline_test.mid"
-        midi_gen = MIDIGenerator(ppq=ppq, midi_format=1)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=ppq, initial_tempo=int(tempo))
+        midi_bytes = generate_midi_file(ir_program, midi_format=1)
+        output_file.write_bytes(midi_bytes)
 
         # Verify file was created
         assert output_file.exists()

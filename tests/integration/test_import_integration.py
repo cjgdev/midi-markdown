@@ -8,7 +8,8 @@ from pathlib import Path
 import pytest
 
 from midi_markdown.alias.imports import CircularImportError, ImportError, ImportManager
-from midi_markdown.midi.events import EventGenerator
+from midi_markdown.expansion.expander import CommandExpander
+from midi_markdown.midi.events import MIDIEvent, string_to_event_type
 
 
 class TestImportIntegration:
@@ -37,8 +38,9 @@ class TestImportIntegration:
         doc.events = resolved_events
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have generated events from alias expansion
         assert len(events) > 0
@@ -64,8 +66,9 @@ class TestImportIntegration:
         doc.events = resolved_events
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have imported from both libraries
         assert "device_a_init" in imported_aliases
@@ -227,8 +230,9 @@ tempo: 120
         doc.events = resolved_events
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have generated MIDI events
         assert len(events) > 0
@@ -270,8 +274,9 @@ tempo: 120
         doc.events = resolved_events
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have generated MIDI events
         assert len(events) > 0

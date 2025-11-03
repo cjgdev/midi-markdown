@@ -8,7 +8,8 @@ macros, and alias calls.
 import pytest
 
 from midi_markdown.alias.resolver import AliasError, AliasResolver
-from midi_markdown.midi.events import EventGenerator
+from midi_markdown.expansion.expander import CommandExpander
+from midi_markdown.midi.events import MIDIEvent, string_to_event_type
 
 
 class TestAliases:
@@ -187,8 +188,9 @@ class TestAliases:
         doc.events = resolved_events
 
         # Generate MIDI events
-        generator = EventGenerator()
-        events = generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have one program change event
         assert len(events) == 1

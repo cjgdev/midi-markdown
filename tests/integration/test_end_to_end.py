@@ -2,8 +2,9 @@
 
 import mido
 
-from midi_markdown.midi.events import EventGenerator
-from midi_markdown.midi.generator import MIDIGenerator
+from midi_markdown.codegen import generate_midi_file
+from midi_markdown.core.ir import MIDIEvent, create_ir_program, string_to_event_type
+from midi_markdown.expansion.expander import CommandExpander
 from midi_markdown.parser.parser import MMLParser
 
 
@@ -33,9 +34,19 @@ ppq: 480
 
         assert len(doc.events) > 0
 
-        # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        # Expand and generate events
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         assert len(events) == 4  # tempo, pc, 2x cc
         assert events[0].type.name == "TEMPO"
@@ -45,8 +56,9 @@ ppq: 480
 
         # Write MIDI file
         output_file = tmp_path / "test.mid"
-        midi_gen = MIDIGenerator(ppq=480)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=480, initial_tempo=120)
+        midi_bytes = generate_midi_file(ir_program)
+        output_file.write_bytes(midi_bytes)
 
         # Verify file exists
         assert output_file.exists()
@@ -92,8 +104,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have note_on and auto-generated note_off
         assert len(events) == 2
@@ -122,8 +135,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         assert len(events) == 3
 
@@ -148,8 +162,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         assert len(events) == 3
 
@@ -174,8 +189,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         assert len(events) == 2
 
@@ -199,13 +215,15 @@ title: Format 0 Test
         doc = parser.parse_string(mml_content)
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Write MIDI file with format 0
         output_file = tmp_path / "format0.mid"
-        midi_gen = MIDIGenerator(ppq=480, midi_format=0)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=480, initial_tempo=120)
+        midi_bytes = generate_midi_file(ir_program, midi_format=0)
+        output_file.write_bytes(midi_bytes)
 
         # Verify file exists
         assert output_file.exists()
@@ -249,13 +267,15 @@ title: Format 2 Test
         doc = parser.parse_string(mml_content)
 
         # Generate events
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Write MIDI file with format 2
         output_file = tmp_path / "format2.mid"
-        midi_gen = MIDIGenerator(ppq=480, midi_format=2)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=480, initial_tempo=120)
+        midi_bytes = generate_midi_file(ir_program, midi_format=2)
+        output_file.write_bytes(midi_bytes)
 
         # Verify file exists
         assert output_file.exists()
@@ -288,8 +308,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Verify tick values
         # 00:00.000 = 0 ticks
@@ -311,8 +332,9 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # All three events should have same time
         assert events[0].time == events[1].time == events[2].time == 0
@@ -338,13 +360,15 @@ ppq: 480
         parser = MMLParser()
         doc = parser.parse_string(mml_content)
 
-        event_gen = EventGenerator(ppq=480)
-        events = event_gen.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+        expanded_dicts = expander.process_ast(doc.events)
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Write MIDI file
         output_file = tmp_path / "complete.mid"
-        midi_gen = MIDIGenerator(ppq=480)
-        midi_gen.generate(events, output_file)
+        ir_program = create_ir_program(events=events, ppq=480, initial_tempo=120)
+        midi_bytes = generate_midi_file(ir_program)
+        output_file.write_bytes(midi_bytes)
 
         # Verify file and messages
         mid = mido.MidiFile(str(output_file))

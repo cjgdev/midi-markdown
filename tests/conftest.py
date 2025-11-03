@@ -6,7 +6,7 @@ import pytest
 
 from midi_markdown.alias.resolver import AliasResolver
 from midi_markdown.expansion.expander import CommandExpander
-from midi_markdown.midi.events import EventGenerator
+# EventGenerator removed - tests now use CommandExpander directly
 from midi_markdown.parser.parser import MMLParser
 from midi_markdown.utils.validation.timing_validator import TimingValidator
 
@@ -215,16 +215,5 @@ def validator() -> TimingValidator:
     return TimingValidator()
 
 
-@pytest.fixture(scope="session")
-def event_generator() -> EventGenerator:
-    """Provide EventGenerator instance.
-
-    Commonly used fixture for event generation tests.
-    Previously duplicated in 3+ test files.
-
-    Session-scoped for performance - EventGenerator is stateless.
-
-    Returns:
-        Reusable EventGenerator instance with standard 480 PPQ
-    """
-    return EventGenerator(ppq=480)
+# event_generator fixture removed - EventGenerator class deleted
+# Tests now use CommandExpander directly for event generation

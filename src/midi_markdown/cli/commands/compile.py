@@ -358,23 +358,26 @@ def compile(
                     output_console.print(f"[dim]{traceback.format_exc()}[/dim]")
                 raise typer.Exit(code=1)
 
-            # 6. Generate MIDI events from expanded events
+            # 6. Compile to IR program
             if show_progress:
-                progress.update(task, description="Generating MIDI events...")
+                progress.update(task, description="Compiling to IR...")
 
             if verbose:
-                output_console.print("  [dim]Generating MIDI events...[/dim]")
+                output_console.print("  [dim]Compiling to IR...[/dim]")
 
-            from midi_markdown.midi.events import EventGenerator, MIDIEvent
-
-            event_gen = EventGenerator(ppq=ppq_value)
+            from midi_markdown.core.ir import MIDIEvent, create_ir_program, string_to_event_type
 
             # Convert expanded dicts to MIDIEvent objects
+            # Filter out end_of_track commands (automatically added by MIDI writer)
             events = []
             for event_dict in expanded_events:
+                # Skip end_of_track - it's automatically added
+                if event_dict["type"] == "end_of_track":
+                    continue
+
                 midi_event = MIDIEvent(
                     time=event_dict["time"],
-                    type=event_dict["type"],
+                    type=string_to_event_type(event_dict["type"]),
                     channel=event_dict.get("channel", 0),
                     data1=event_dict.get("data1", 0),
                     data2=event_dict.get("data2", 0),
@@ -385,6 +388,18 @@ def compile(
             if verbose:
                 output_console.print(f"  [dim]Generated: {len(events)} MIDI events[/dim]")
 
+            # Create IR program (adds time_seconds and metadata)
+            ir_program = create_ir_program(
+                events=events,
+                ppq=ppq_value,
+                initial_tempo=int(tempo_value),
+                frontmatter=doc.frontmatter,
+            )
+
+            if verbose:
+                output_console.print(f"  [dim]Duration: {ir_program.duration_seconds:.2f}s[/dim]")
+                output_console.print(f"  [dim]Tracks: {ir_program.track_count}[/dim]")
+
             # 7. Write MIDI file
             if show_progress:
                 progress.update(task, description="Writing MIDI file...")
@@ -392,10 +407,13 @@ def compile(
             if verbose:
                 output_console.print("  [dim]Writing MIDI file...[/dim]")
 
-            from midi_markdown.midi.generator import MIDIGenerator
+            from midi_markdown.codegen import generate_midi_file
 
-            midi_gen = MIDIGenerator(ppq=ppq_value, midi_format=format)
-            midi_gen.generate(events, output)
+            # Generate MIDI file bytes
+            midi_bytes = generate_midi_file(ir_program, midi_format=format)
+
+            # Write to disk
+            output.write_bytes(midi_bytes)
 
             # Calculate compilation time
             elapsed = time.time() - start_time
@@ -404,18 +422,14 @@ def compile(
             track_names = []
             if doc.tracks:
                 track_names = [t.get("name", f"Track {i + 1}") for i, t in enumerate(doc.tracks)]
-            elif len(events) > 0:
+            elif ir_program.event_count > 0:
                 track_names = ["Main"]
 
-            # Calculate duration
-            duration_seconds = 0
-            duration_formatted = "0:00"
-            if events:
-                max_ticks = max(e.time for e in events)
-                duration_seconds = (max_ticks / ppq_value) * (60.0 / tempo_value)
-                duration_formatted = (
-                    f"{int(duration_seconds // 60)}:{int(duration_seconds % 60):02d}"
-                )
+            # Get duration from IR program
+            duration_seconds = ir_program.duration_seconds
+            duration_formatted = (
+                f"{int(duration_seconds // 60)}:{int(duration_seconds % 60):02d}"
+            )
 
             # Get file sizes
             input_size = input_file.stat().st_size
@@ -423,8 +437,8 @@ def compile(
 
             # Build stats dictionary for success display
             success_stats = {
-                "events": len(events),
-                "tracks": len(track_names) if track_names else 1,
+                "events": ir_program.event_count,
+                "tracks": ir_program.track_count,
                 "track_names": track_names,
                 "ppq": ppq_value,
                 "format": format,

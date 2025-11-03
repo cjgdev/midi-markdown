@@ -4,6 +4,9 @@ from pathlib import Path
 
 import pytest
 
+from midi_markdown.expansion.expander import CommandExpander
+from midi_markdown.midi.events import MIDIEvent, string_to_event_type
+
 
 class TestDeviceLibraries:
     """Test that device libraries parse correctly and can be used."""
@@ -133,7 +136,7 @@ class TestDeviceLibraries:
     # Alias Usage Tests (Quad Cortex)
     # ============================================
 
-    def test_cortex_preset_change(self, parser, event_generator, resolve_aliases):
+    def test_cortex_preset_change(self, parser, resolve_aliases):
         """Test Quad Cortex preset change alias."""
         source = """---
 title: Cortex Preset Test
@@ -149,14 +152,18 @@ title: Cortex Preset Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         assert len(pc_events) == 1
         assert pc_events[0].channel == 1
         assert pc_events[0].data1 == 42
 
-    def test_cortex_scene_switch(self, parser, event_generator, resolve_aliases):
+    def test_cortex_scene_switch(self, parser, resolve_aliases):
         """Test Quad Cortex scene switching."""
         source = """---
 title: Cortex Scene Test
@@ -172,7 +179,11 @@ title: Cortex Scene Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -180,7 +191,7 @@ title: Cortex Scene Test
         assert cc_events[0].data1 == 34  # CC number
         assert cc_events[0].data2 == 3  # Scene D
 
-    def test_cortex_complete_load(self, parser, event_generator, resolve_aliases):
+    def test_cortex_complete_load(self, parser, resolve_aliases):
         """Test Quad Cortex complete preset load sequence."""
         source = """---
 title: Cortex Complete Load Test
@@ -198,7 +209,11 @@ title: Cortex Complete Load Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have 2 CC events and 1 PC event
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -222,7 +237,7 @@ title: Cortex Complete Load Test
     # Alias Usage Tests (Helix)
     # ============================================
 
-    def test_helix_snapshot_change(self, parser, event_generator, resolve_aliases):
+    def test_helix_snapshot_change(self, parser, resolve_aliases):
         """Test Helix snapshot change."""
         source = """---
 title: Helix Snapshot Test
@@ -238,7 +253,11 @@ title: Helix Snapshot Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -246,7 +265,7 @@ title: Helix Snapshot Test
         assert cc_events[0].data1 == 69  # Snapshot CC
         assert cc_events[0].data2 == 2  # Snapshot 3
 
-    def test_helix_bank_preset(self, parser, event_generator, resolve_aliases):
+    def test_helix_bank_preset(self, parser, resolve_aliases):
         """Test Helix bank + preset change."""
         source = """---
 title: Helix Bank Preset Test
@@ -263,7 +282,11 @@ title: Helix Bank Preset Test
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
@@ -282,7 +305,7 @@ title: Helix Bank Preset Test
     # Real-World Scenario Tests
     # ============================================
 
-    def test_live_performance_multi_device(self, parser, event_generator, resolve_aliases):
+    def test_live_performance_multi_device(self, parser, resolve_aliases):
         """Test a realistic live performance scenario with multiple devices."""
         source = """---
 title: Multi-Device Live Performance
@@ -320,7 +343,11 @@ tempo: 120
         doc = parser.parse_string(source)
         resolved_events = resolve_aliases(doc)
         doc.events = resolved_events
-        events = event_generator.generate(doc)
+        expander = CommandExpander(ppq=480, tempo=120)
+
+        expanded_dicts = expander.process_ast(doc.events)
+
+        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
 
         # Should have 8 CC events (4 cortex + 4 helix)
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
