@@ -1,0 +1,266 @@
+---
+title: Live Performance with Quad Cortex
+description: Complete live song automation using aliases
+author: Example Band
+tempo: 128
+time_signature: 4/4
+---
+
+# ============================================
+# Live Performance Example
+# ============================================
+#
+# This example shows a realistic live performance setup using the
+# Quad Cortex device library aliases. It demonstrates how to use
+# aliases for clean, readable performance automation.
+#
+# Song: "Electric Dreams" (Example)
+# Duration: ~4 minutes
+# Device: Neural DSP Quad Cortex (MIDI Channel 1)
+
+# ============================================
+# Define Reusable Aliases for This Song
+# ============================================
+
+@alias cortex_scene {ch} {scene:0-7} "Switch to scene (0-7 = A-H)"
+  - cc {ch}.34.{scene}
+@end
+
+@alias cortex_exp {ch} {level:percent} "Expression pedal level"
+  - cc {ch}.11.{level}
+@end
+
+@alias cortex_stomp_a {ch} {state:bool} "Toggle Stomp A (Drive)"
+  - cc {ch}.81.{state}
+@end
+
+@alias cortex_stomp_b {ch} {state:bool} "Toggle Stomp B (Chorus)"
+  - cc {ch}.82.{state}
+@end
+
+# ============================================
+# Song-Specific Macros
+# ============================================
+
+@alias clean_tone {ch} "Clean tone with light reverb (Scene A)"
+  - cortex_scene {ch} 0
+  - cortex_exp {ch} 0
+  - cortex_stomp_a {ch} off
+  - cortex_stomp_b {ch} off
+@end
+
+@alias rhythm_tone {ch} "Rhythm crunch tone (Scene B)"
+  - cortex_scene {ch} 1
+  - cortex_exp {ch} 20
+  - cortex_stomp_a {ch} off
+  - cortex_stomp_b {ch} off
+@end
+
+@alias chorus_tone {ch} "Chorus with drive and chorus (Scene C)"
+  - cortex_scene {ch} 2
+  - cortex_exp {ch} 40
+  - cortex_stomp_a {ch} on
+  - cortex_stomp_b {ch} on
+@end
+
+@alias lead_tone {ch} "Lead with full boost (Scene D)"
+  - cortex_scene {ch} 3
+  - cortex_exp {ch} 100
+  - cortex_stomp_a {ch} on
+  - cortex_stomp_b {ch} off
+@end
+
+@alias ambient_tone {ch} "Ambient with delay and reverb (Scene E)"
+  - cortex_scene {ch} 4
+  - cortex_exp {ch} 60
+  - cortex_stomp_a {ch} off
+  - cortex_stomp_b {ch} off
+@end
+
+# ============================================
+# Song Structure: "Electric Dreams"
+# ============================================
+
+# === INTRO (8 bars) ===
+# Clean arpeggios with light reverb
+[00:00.000]
+- tempo 128
+- clean_tone 1
+
+# Subtle swell
+[00:04.000]
+- cortex_exp 1 10
+
+[00:08.000]
+- cortex_exp 1 20
+
+# === VERSE 1 (16 bars) ===
+# Clean with slight breakup
+[00:15.000]
+- clean_tone 1
+
+# Add expression for dynamics
+[00:23.000]
+- cortex_exp 1 30
+
+# === PRE-CHORUS (8 bars) ===
+# Switch to rhythm crunch, build intensity
+[00:30.000]
+- rhythm_tone 1
+
+# Build expression
+[00:34.000]
+- cortex_exp 1 40
+
+[00:37.000]
+- cortex_exp 1 60
+
+# === CHORUS (16 bars) ===
+# Full tone with drive and chorus
+[00:45.000]
+- chorus_tone 1
+
+# Maintain high expression
+[00:52.000]
+- cortex_exp 1 50
+
+# === VERSE 2 (16 bars) ===
+# Back to clean, more dynamic
+[01:00.000]
+- clean_tone 1
+
+[01:07.000]
+- cortex_exp 1 35
+
+# === PRE-CHORUS 2 (8 bars) ===
+[01:15.000]
+- rhythm_tone 1
+
+# Quick build
+[01:20.000]
+- cortex_exp 1 70
+
+# === CHORUS 2 (16 bars) ===
+[01:22.000]
+- chorus_tone 1
+
+# === BRIDGE (16 bars) ===
+# Ambient, spacious tone
+[01:37.000]
+- ambient_tone 1
+
+# Dynamic swell during bridge
+[01:42.000]
+- cortex_exp 1 40
+
+[01:46.000]
+- cortex_exp 1 80
+
+[01:50.000]
+- cortex_exp 1 100
+
+# === GUITAR SOLO (16 bars) ===
+# Lead tone with full expression
+[01:52.000]
+- lead_tone 1
+
+# Solo dynamics - expression automation
+[01:56.000]
+- cortex_exp 1 90
+
+[02:00.000]
+- cortex_exp 1 100
+
+[02:04.000]
+- cortex_exp 1 85
+
+[02:07.000]
+- cortex_exp 1 100
+
+# === FINAL CHORUS (16 bars) ===
+[02:07.000]
+- chorus_tone 1
+
+# Full intensity
+[02:10.000]
+- cortex_exp 1 80
+
+# === BREAKDOWN (8 bars) ===
+# Drop to clean for dynamics
+[02:22.000]
+- clean_tone 1
+
+# Slow build
+[02:26.000]
+- cortex_exp 1 10
+
+[02:28.000]
+- cortex_exp 1 30
+
+[02:30.000]
+- cortex_exp 1 50
+
+# === FINAL BUILD (8 bars) ===
+[02:32.000]
+- rhythm_tone 1
+
+[02:35.000]
+- cortex_exp 1 70
+
+[02:37.000]
+- cortex_exp 1 90
+
+# === OUTRO/FINAL CHORUS (16 bars) ===
+[02:37.000]
+- chorus_tone 1
+
+[02:40.000]
+- cortex_exp 1 100
+
+# === ENDING (8 bars) ===
+# Fade with ambient tone
+[02:52.000]
+- ambient_tone 1
+
+# Gradual fade
+[02:56.000]
+- cortex_exp 1 80
+
+[03:00.000]
+- cortex_exp 1 60
+
+[03:04.000]
+- cortex_exp 1 40
+
+[03:08.000]
+- cortex_exp 1 20
+
+[03:12.000]
+- cortex_exp 1 5
+
+[03:15.000]
+- cortex_exp 1 0
+
+# === END ===
+# Total duration: ~3:15
+
+# ============================================
+# Notes for Live Performance
+# ============================================
+#
+# 1. Set Quad Cortex to MIDI Channel 1
+# 2. Load this MIDI file into your DAW or MIDI player
+# 3. Start playback when song starts
+# 4. All tone changes and expression automation are handled automatically
+# 5. You can still override manually if needed (e.g., expression pedal)
+#
+# Scene Assignments:
+# - Scene A (0): Clean with reverb
+# - Scene B (1): Rhythm crunch
+# - Scene C (2): Chorus drive + chorus
+# - Scene D (3): Lead boost
+# - Scene E (4): Ambient delay/reverb
+#
+# Stomp Assignments:
+# - Stomp A (CC 81): Overdrive/boost
+# - Stomp B (CC 82): Chorus effect

@@ -1,0 +1,22 @@
+---
+title: "Invalid Example"
+midi_format: 1
+---
+
+# This file contains intentional syntax errors for testing
+
+# Missing dash
+[00:00.000]
+pc 1.5
+
+# Invalid timing format
+[99:99.999]
+- cc 1.7.100
+
+# Value out of range
+[00:01.000]
+- cc 1.7.999
+
+# Invalid channel
+[00:02.000]
+- pc 99.5

@@ -1,0 +1,10 @@
+---
+title: "Meta Events"
+---
+
+[00:00.000]
+- tempo 120
+- time_signature 4/4
+- key_signature C
+- marker "Start"
+- text "Test meta events"

@@ -1,0 +1,50 @@
+---
+title: "Invalid Macro Alias Examples"
+---
+
+# ERROR: Missing @end terminator
+@alias broken_macro {ch} "Missing end"
+  - cc {ch}.0.0
+  - pc {ch}.1
+
+# This should cause parse error due to missing @end above
+
+# ERROR: Missing required description (Stage 3 requirement)
+@alias no_description {ch}
+  - cc {ch}.0.0
+@end
+
+# ERROR: Undefined parameter reference
+@alias bad_param {ch} "Uses undefined parameter"
+  - cc {ch}.0.{undefined_param}
+@end
+
+# ERROR: Empty macro (no commands)
+@alias empty_macro {ch} "No commands between alias and end"
+@end
+
+# ERROR: Invalid note name (Stage 3 typed parameters)
+@alias bad_note {ch} {note:note} "Invalid note name"
+  - note_on {ch}.{note}.100
+@end
+
+[00:00.000]
+- bad_note 1 H4  # H is not a valid note
+
+# ERROR: Percent value out of range
+@alias bad_percent {ch} {mix:percent} "Out of range percent"
+  - cc {ch}.91.{mix}
+@end
+
+[00:01.000]
+- bad_percent 1 150  # 150% is > 100%
+
+# ERROR: Invalid boolean value
+@alias bad_bool {ch} {enabled:bool} "Invalid boolean"
+  - cc {ch}.80.{enabled}
+@end
+
+[00:02.000]
+- bad_bool 1 maybe  # "maybe" is not a valid boolean
+
+# Note: These errors may or may not be caught depending on parser strictness

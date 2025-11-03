@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v0.1.0, v1.2.3, etc.
+
+permissions:
+  contents: write  # Required for creating releases
+
+jobs:
+  build-executables:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: midimarkup-linux-x86_64
+            asset_extension: .tar.gz
+          - os: windows-latest
+            artifact_name: midimarkup-windows-x86_64
+            asset_extension: .zip
+          - os: macos-latest
+            artifact_name: midimarkup-macos-universal
+            asset_extension: .zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install --group build
+
+      - name: Build executable with PyInstaller
+        run: uv run pyinstaller midimarkup.spec --clean --noconfirm
+
+      - name: Test executable (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/midimarkup/midimarkup --version
+          ./dist/midimarkup/midimarkup compile examples/basic_usage.mml -o /tmp/test.mid
+
+      - name: Test executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\dist\midimarkup\midimarkup.exe --version
+          .\dist\midimarkup\midimarkup.exe compile examples\basic_usage.mml -o test.mid
+
+      - name: Create archive (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd dist
+          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          cd ..
+          mv dist/${{ matrix.artifact_name }}${{ matrix.asset_extension }} .
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd dist
+          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup\
+          cd ..
+
+      - name: Create archive (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          cd ..
+
+      - name: Calculate checksums (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          shasum -a 256 ${{ matrix.artifact_name }}${{ matrix.asset_extension }} > ${{ matrix.artifact_name }}.sha256
+
+      - name: Calculate checksums (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          certutil -hashfile ${{ matrix.artifact_name }}${{ matrix.asset_extension }} SHA256 > ${{ matrix.artifact_name }}.sha256
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            ${{ matrix.artifact_name }}${{ matrix.asset_extension }}
+            ${{ matrix.artifact_name }}.sha256
+          retention-days: 7
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-executables
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Move artifacts to release directory
+        run: |
+          mkdir -p release
+          find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.sha256" \) -exec mv {} release/ \;
+          ls -lh release/
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## MIDI Markup Language Compiler ${{ github.ref_name }}
+
+            ### Installation
+
+            Download the appropriate executable for your platform:
+
+            - **Linux**: `midimarkup-linux-x86_64.tar.gz`
+            - **Windows**: `midimarkup-windows-x86_64.zip`
+            - **macOS**: `midimarkup-macos-universal.zip`
+
+            Extract the archive and run the `midimarkup` executable.
+
+            **Verify checksums** using the `.sha256` files to ensure download integrity.
+
+            ### Installation via pipx (Recommended for Python users)
+
+            ```bash
+            pipx install midimarkup
+            ```
+
+            ### Windows Security Warning
+
+            Windows SmartScreen may show a warning for unsigned executables. Click "More info" then "Run anyway" to proceed. This is normal for open-source software without expensive code signing certificates.
+
+            ### macOS Gatekeeper
+
+            macOS may block the executable. Right-click the app and select "Open" to bypass Gatekeeper, or run:
+
+            ```bash
+            xattr -cr midimarkup
+            ```
+
+            ### What's Changed
+
+            See below for detailed changes.
+
+          files: |
+            release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

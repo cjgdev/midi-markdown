@@ -1,0 +1,70 @@
+---
+title: "Loops and Patterns"
+description: "Demonstrates @loop feature for repetitive patterns"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example 10: Loops and Patterns
+# ============================================================================
+#
+# This example demonstrates the @loop feature which allows you to repeat
+# commands without writing them out manually.
+#
+# @loop syntax:
+#   @loop N times every DURATION
+#     - commands to repeat
+#   @end
+#
+# ============================================================================
+
+
+# ============================================================================
+# Simple Loop: Click Track
+# ============================================================================
+
+[00:00.000]
+- marker "Click Track"
+- text "16 beats using @loop"
+
+@loop 16 times every 1b
+  - note_on 1.42 100 0.1s
+@end
+
+
+# ============================================================================
+# Polyrhythm Example
+# ============================================================================
+
+[00:04.000]
+- marker "Polyrhythm"
+- text "Different loop intervals"
+
+@loop 12 times every 0.333b
+  - note_on 1.60 80 0.2s
+@end
+
+
+# ============================================================================
+# Sustained Pattern
+# ============================================================================
+
+[00:08.000]
+- marker "Sustained Pattern"
+- text "8-bar bass line"
+
+@loop 32 times every 1b
+  - note_on 1.36 85 0.9b
+@end
+
+
+# ============================================================================
+# End
+# ============================================================================
+
+[00:24.000]
+- text "End of loops demonstration"
+- end_of_track

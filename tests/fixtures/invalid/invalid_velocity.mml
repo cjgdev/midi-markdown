@@ -1,0 +1,7 @@
+---
+title: "Invalid Velocity"
+---
+
+# Velocity must be 0-127
+[00:00.000]
+- note_on 1.C4 200 1000ms

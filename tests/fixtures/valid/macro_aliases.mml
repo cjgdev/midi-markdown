@@ -1,0 +1,76 @@
+---
+title: "Multi-Command Macro Alias Examples"
+ppq: 480
+---
+
+# Multi-Command Macro Aliases Test Fixture
+# Demonstrates Stage 3 features: multi-command macros with typed parameters
+
+# Simple two-command macro with defaults
+@alias cortex_load {ch=1} {preset=0} "Load Quad Cortex preset"
+  - cc {ch}.32.0
+  - pc {ch}.{preset}
+@end
+
+# Three-command initialization macro
+@alias full_init {ch} "Initialize device to factory defaults"
+  - cc {ch}.0.0
+  - cc {ch}.32.0
+  - pc {ch}.0
+@end
+
+# Macro with enum parameter (Stage 2 feature)
+@alias h90_routing {ch} {mode=series:0,parallel:1,a_only:2,b_only:3} "Set H90 routing mode"
+  - cc {ch}.85.{mode}
+  - cc {ch}.86.0
+@end
+
+# Complex preset load sequence with optional volume
+@alias complex_load {ch} {bank} {preset} {vol=127} "Load preset with bank select and volume"
+  - cc {ch}.0.{bank}
+  - pc {ch}.{preset}
+  - cc {ch}.7.{vol}
+@end
+
+# Multi-CC macro for mixer settings
+@alias mixer_setup {ch} "Configure reverb and delay mix"
+  - cc {ch}.90.50
+  - cc {ch}.91.75
+  - cc {ch}.93.100
+@end
+
+# NEW: Macro with note parameter type (Stage 3 typed parameters)
+@alias play_chord {ch} {root:note} {vel} "Play major chord from root note"
+  - note_on {ch}.{root}.{vel}
+  - note_on {ch}.64.{vel}
+  - note_on {ch}.67.{vel}
+@end
+
+# NEW: Macro with percent parameter type
+@alias set_mix {ch} {dry:percent} {wet:percent} "Set effect dry/wet mix as percentages"
+  - cc {ch}.90.{dry}
+  - cc {ch}.91.{wet}
+@end
+
+# NEW: Macro with bool parameter type
+@alias toggle_effects {ch} {enabled:bool} "Enable or disable effect bypass"
+  - cc {ch}.80.{enabled}
+  - cc {ch}.81.{enabled}
+@end
+
+# Usage examples
+[00:00.000]
+# Basic macros
+- cortex_load 1 5
+- full_init 2
+- h90_routing 3 parallel
+- complex_load 4 0 10 100
+- mixer_setup 1
+
+[00:01.000]
+# Typed parameter macros (NEW in Stage 3)
+- play_chord 1 C4 100     # Note name parameter
+- play_chord 1 D#5 80     # Sharp note
+- set_mix 2 50 75         # Percent parameters (50% dry, 75% wet)
+- toggle_effects 1 true   # Boolean parameter (on)
+- toggle_effects 2 false  # Boolean parameter (off)

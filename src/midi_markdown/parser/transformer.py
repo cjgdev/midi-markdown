@@ -1,0 +1,1422 @@
+"""
+MIDI Markup Language (MML) Parser Implementation
+
+This module provides the complete parser for MML files using the Lark parsing library.
+It transforms MML text into an Abstract Syntax Tree (AST) and provides utilities
+for working with parsed MML documents.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+import yaml
+from lark import Transformer, v_args
+
+from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
+from midi_markdown.expansion.variables import SymbolTable
+from midi_markdown.utils.parameter_types import note_to_midi, percent_to_midi
+
+from .ast_nodes import AliasDefinition, MIDICommand, MMLDocument, Timing, Track
+
+# ============================================================================
+# Lark Transformer
+# ============================================================================
+
+
+@v_args(inline=True)
+class MMLTransformer(Transformer):
+    """
+    Transforms the Lark parse tree into structured Python objects.
+    Each method corresponds to a grammar rule and transforms it into
+    a meaningful data structure.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.current_track: Track | None = None
+        self.line_number = 0
+        self.symbol_table = SymbolTable()
+        self.computation_engine = SafeComputationEngine()
+
+    # Document Structure
+    def document(self, *args):
+        """Handle document with optional frontmatter"""
+        doc = MMLDocument()
+
+        # Handle empty document
+        if not args:
+            return doc
+
+        # Parse arguments - frontmatter may or may not be present
+        # First arg is either frontmatter (dict without 'type') or a statement
+        first_arg = args[0]
+        statements_start = 0
+
+        if first_arg and isinstance(first_arg, dict) and "type" not in first_arg:
+            # It's actual YAML frontmatter
+            doc.frontmatter = first_arg
+            statements_start = 1
+
+        # Process statements
+        for stmt in args[statements_start:]:
+            if stmt is None:
+                continue
+            if isinstance(stmt, tuple) and len(stmt) >= 2:
+                if stmt[0] == "import":
+                    doc.imports.append(stmt[1])
+                elif stmt[0] == "define":
+                    doc.defines[stmt[1]] = stmt[2]
+            elif isinstance(stmt, AliasDefinition):
+                doc.aliases[stmt.name] = stmt
+            elif isinstance(stmt, Track):
+                doc.tracks.append(stmt)
+            else:
+                # Everything else goes to events
+                doc.events.append(stmt)
+
+        return doc
+
+    def yaml_content(self, content):
+        """Extract YAML content from token"""
+        return str(content)
+
+    def frontmatter(self, yaml_text):
+        """Parse YAML frontmatter"""
+        try:
+            return yaml.safe_load(yaml_text)
+        except yaml.YAMLError:
+            return {}
+
+    # Imports and Definitions
+    def import_stmt(self, path):
+        return ("import", str(path).strip("\"'"))
+
+    def define_stmt(self, name, value):
+        """Handle @define statement - store in symbol table and return tuple."""
+        var_name = str(name)
+
+        # Resolve the value - could be literal, string, or expression tree
+        resolved_value = self._resolve_define_value(value)
+
+        # Store in symbol table
+        try:
+            self.symbol_table.define(var_name, resolved_value)
+        except ValueError as e:
+            # Re-raise with line number if available
+            raise ValueError(f"Error in @define {var_name}: {e}")
+
+        # Still return tuple for doc.defines
+        return ("define", var_name, resolved_value)
+
+    # Timing (now terminals)
+    def ABSOLUTE_TIME(self, token):
+        """Handle terminal ABSOLUTE_TIME"""
+        time_str = str(token).strip("[]")
+        return Timing("absolute", self._parse_absolute_time(time_str), str(token))
+
+    def MUSICAL_TIME(self, token):
+        """Handle terminal MUSICAL_TIME"""
+        time_str = str(token).strip("[]")
+        parts = time_str.split(".")
+        return Timing("musical", (int(parts[0]), int(parts[1]), int(parts[2])), str(token))
+
+    def RELATIVE_TIME(self, token):
+        """Handle terminal RELATIVE_TIME
+
+        Supports two formats:
+        - Relative musical time: [+bars.beats.ticks] e.g., [+2.1.0]
+        - Relative time with unit: [+value(unit)] e.g., [+1b], [+500ms], [+2.5s]
+        """
+        time_str = str(token).strip("[+]")
+        import re
+
+        # Try matching as relative musical time first (bars.beats.ticks)
+        musical_match = re.match(r"^(\d+)\.(\d+)\.(\d+)$", time_str)
+        if musical_match:
+            bars, beats, ticks = musical_match.groups()
+            return Timing("relative", (int(bars), int(beats), int(ticks)), str(token))
+
+        # Fall back to relative time with unit (value + unit)
+        # ms must be checked before s in the pattern
+        unit_match = re.match(r"^([\d.]+)(ms|[smbt])$", time_str)
+        if unit_match:
+            value, unit = unit_match.groups()
+            return Timing("relative", (float(value), unit), str(token))
+
+        # Default fallback (should not reach here with correct grammar)
+        return Timing("relative", (0, "s"), str(token))
+
+    def simultaneous(self):
+        return Timing("simultaneous", None, "[@]")
+
+    def timing(self, time_spec):
+        """Handle timing rule - just return the timing object"""
+        return time_spec
+
+    # Terminal transformers
+    def STRING(self, token):
+        """Strip quotes from STRING tokens"""
+        return str(token).strip("\"'")
+
+    def INT(self, token):
+        """Convert INT tokens to int"""
+        return int(token)
+
+    def NUMBER(self, token):
+        """Convert NUMBER tokens to float"""
+        return float(token)
+
+    def cc_value(self, value):
+        """Extract CC value from rule"""
+        return value
+
+    def timed_event(self, timing, command_list=None):
+        """Handle timed events with optional commands"""
+        if command_list is None:
+            # Just timing, no commands
+            return {"type": "timed_event", "timing": timing, "commands": []}
+        # Timing with commands
+        return {"type": "timed_event", "timing": timing, "commands": command_list}
+
+    def command_list(self, *commands):
+        """Handle command list"""
+        return list(commands)
+
+    # MIDI Commands
+    def velocity(self, value):
+        """Handle velocity rule"""
+        return int(value)
+
+    def pb_value(self, value):
+        """Handle pitch bend value rule"""
+        return self._parse_pitch_bend(value)
+
+    def channel_note(self, channel, note):
+        """Handle channel_note rule"""
+        return f"{channel}.{note}"
+
+    def note_value(self, value):
+        """Handle note_value rule"""
+        return str(value)
+
+    def duration(self, *args):
+        """Handle duration rule"""
+        # Grammar: duration: NUMBER ("s" | "ms" | "b" | "t")
+        # With inline=True, string literals are consumed
+        # We only receive the NUMBER
+        if len(args) >= 1:
+            number = args[0]
+            # Convert float to int if it's a whole number
+            if isinstance(number, float) and number.is_integer():
+                number = int(number)
+            # Try to infer unit from context - for now assume 'b' (beats) if not specified
+            # In practice, we'd need to modify the grammar to capture the unit
+            unit = args[1] if len(args) > 1 else "b"
+            return f"{number}{unit}"
+        return "1b"  # Default
+
+    @v_args(inline=False)
+    def note_command(self, args):
+        """Handle note_command - extract note type from grammar alternative"""
+        # args will be [note_type_token, channel_note, velocity, duration?]
+        # The first arg is the NOTE_ON or NOTE_OFF terminal
+        note_type_token = args[0]
+        note_type = str(note_type_token).lower()  # "note_on" or "note_off"
+
+        channel_note = args[1]
+        velocity = args[2]
+        duration = args[3] if len(args) > 3 else None
+
+        channel, note = self._parse_channel_note(channel_note)
+
+        # Resolve velocity (can be int or variable reference)
+        velocity_val = self._resolve_param(velocity)
+        velocity_int = int(velocity_val) if not isinstance(velocity_val, tuple) else velocity_val
+
+        return MIDICommand(
+            type=note_type,
+            channel=channel,
+            data1=note,
+            data2=velocity_int,
+            params={"duration": duration} if duration else {},
+        )
+
+    def program_change(self, channel, program):
+        # Resolve variables if present
+        channel_val = self._resolve_param(channel)
+        program_val = self._resolve_param(program)
+
+        # Only convert to int if not a tuple (forward reference)
+        channel_int = int(channel_val) if not isinstance(channel_val, tuple) else channel_val
+        program_int = int(program_val) if not isinstance(program_val, tuple) else program_val
+
+        return MIDICommand(type="pc", channel=channel_int, data1=program_int)
+
+    def control_change(self, channel, controller, value):
+        # Resolve variables if present
+        channel_val = self._resolve_param(channel)
+        controller_val = self._resolve_param(controller)
+
+        # Only convert to int if not a tuple (forward reference)
+        channel_int = int(channel_val) if not isinstance(channel_val, tuple) else channel_val
+        controller_int = (
+            int(controller_val) if not isinstance(controller_val, tuple) else controller_val
+        )
+
+        return MIDICommand(
+            type="cc", channel=channel_int, data1=controller_int, data2=self._parse_cc_value(value)
+        )
+
+    def pitch_bend(self, channel, value):
+        return MIDICommand(
+            type="pitch_bend", channel=int(channel), data1=self._parse_pitch_bend(value)
+        )
+
+    def pressure_command(self, *args):
+        """Handle pressure commands (channel_pressure or poly_pressure)"""
+        # Distinguish by number of arguments:
+        # channel_pressure: 2 args (channel, pressure_value)
+        # poly_pressure: 3 args (channel, note, pressure_value)
+        if len(args) == 2:
+            # channel_pressure 1.64 → args = (1, 64)
+            return MIDICommand(type="channel_pressure", channel=int(args[0]), data1=int(args[1]))
+        # len(args) == 3
+        # poly_pressure 1.C4.80 → args = (1, 'C4', 80)
+        channel = int(args[0])
+        note = self._note_to_midi(args[1]) if not str(args[1]).isdigit() else int(args[1])
+        return MIDICommand(type="poly_pressure", channel=channel, data1=note, data2=int(args[2]))
+
+    @v_args(inline=False)
+    def meta_event(self, args):
+        """Handle meta_event - extract event type from grammar alternative"""
+        # args will be [meta_type_token, value?]
+        # The first arg is the META_* terminal (META_TEMPO, META_MARKER, etc.)
+        meta_type_token = args[0]
+        meta_type_str = str(meta_type_token).lower()  # e.g., "tempo", "marker", "text"
+
+        # Strip META_ prefix if present
+        if meta_type_str.startswith("meta_"):
+            meta_type_str = meta_type_str[5:]  # Remove "META_"
+
+        # Handle different meta event types
+        if meta_type_str in ("tempo", "META_TEMPO"):
+            # tempo event: args = [META_TEMPO, NUMBER]
+            return MIDICommand(type="tempo", data1=int(args[1]))
+        if meta_type_str in (
+            "text",
+            "marker",
+            "lyric",
+            "cue_point",
+            "copyright",
+            "track_name",
+            "instrument_name",
+            "device_name",
+            "META_TEXT",
+            "META_MARKER",
+            "META_LYRIC",
+            "META_CUE_POINT",
+            "META_COPYRIGHT",
+            "META_TRACK_NAME",
+            "META_INSTRUMENT_NAME",
+            "META_DEVICE_NAME",
+        ):
+            # String-based meta events: args = [META_TYPE, STRING]
+            # Extract the base type (e.g., "text" from "META_TEXT")
+            base_type = meta_type_str.replace("meta_", "").replace("_", "")
+            text_value = str(args[1]).strip("\"'")
+            return MIDICommand(type=base_type, params={"text": text_value})
+        if meta_type_str in ("time_signature", "META_TIME_SIG"):
+            # time_signature event: args = [META_TIME_SIG, time_sig_tree]
+            return MIDICommand(type="time_signature", params={"time_sig": args[1]})
+        if meta_type_str in ("key_signature", "META_KEY_SIG"):
+            # key_signature event: args = [META_KEY_SIG, key_sig_tree]
+            return MIDICommand(type="key_signature", params={"key_sig": args[1]})
+        if meta_type_str in ("end_of_track", "META_END_OF_TRACK"):
+            # end_of_track event: args = [META_END_OF_TRACK]
+            return MIDICommand(type="end_of_track")
+        # Unknown meta event type
+        return MIDICommand(type="meta_event", params={"args": args})
+
+    def sysex_command(self, *hex_bytes):
+        return MIDICommand(type="sysex", params={"bytes": [str(b) for b in hex_bytes]})
+
+    def channel_reset(self, *args):
+        """Handle channel mode/reset messages"""
+        # First arg is the command type terminal (CHAN_*)
+        # Remaining args are the parameters
+        # args is a list of tokens
+        cmd_token = args[0][0] if isinstance(args[0], list) else args[0]
+        cmd_type = cmd_token.type if hasattr(cmd_token, "type") else str(cmd_token)
+        channel = int(args[0][1] if isinstance(args[0], list) else args[1])
+
+        # Map terminal name to MIDI command type
+        type_map = {
+            "CHAN_ALL_NOTES_OFF": "all_notes_off",
+            "CHAN_ALL_SOUND_OFF": "all_sound_off",
+            "CHAN_RESET_CONTROLLERS": "reset_all_controllers",
+            "CHAN_LOCAL_CONTROL": "local_control",
+            "CHAN_MONO_MODE": "mono_mode",
+            "CHAN_POLY_MODE": "poly_mode",
+        }
+
+        midi_type = type_map.get(cmd_type, "channel_reset")
+
+        # Handle special cases with extra parameters
+        token_list = args[0] if isinstance(args[0], list) else args
+        if cmd_type == "CHAN_LOCAL_CONTROL" and len(token_list) > 2:
+            # local_control has on/off parameter
+            on_off = str(token_list[2]).lower()
+            return MIDICommand(type=midi_type, channel=channel, data1=127 if on_off == "on" else 0)
+        if cmd_type == "CHAN_MONO_MODE" and len(token_list) > 2:
+            # mono_mode has channel count parameter
+            return MIDICommand(type=midi_type, channel=channel, data1=int(token_list[2]))
+        # Simple channel reset command
+        return MIDICommand(type=midi_type, channel=channel)
+
+    def system_common(self, *args):
+        """Handle system common messages"""
+        # args is a list of tokens
+        token_list = args[0] if isinstance(args[0], list) else args
+        cmd_token = token_list[0]
+        cmd_type = cmd_token.type if hasattr(cmd_token, "type") else str(cmd_token)
+
+        # Map terminal name to MIDI command type
+        type_map = {
+            "SYS_MTC_QUARTER_FRAME": "mtc_quarter_frame",
+            "SYS_SONG_POSITION": "song_position",
+            "SYS_SONG_SELECT": "song_select",
+            "SYS_TUNE_REQUEST": "tune_request",
+        }
+
+        midi_type = type_map.get(cmd_type, "system_common")
+
+        # tune_request has no parameters
+        if cmd_type == "SYS_TUNE_REQUEST":
+            return MIDICommand(type=midi_type)
+
+        # Other commands have an integer parameter
+        if len(token_list) > 1:
+            value = int(token_list[1])
+            return MIDICommand(type=midi_type, data1=value)
+
+        # Fallback
+        return MIDICommand(type=midi_type)
+
+    def system_realtime(self, *args):
+        """Handle system real-time messages"""
+        # args is a list of tokens
+        # All system realtime commands have no parameters
+        token_list = args[0] if isinstance(args[0], list) else args
+        cmd_token = token_list[0]
+        cmd_type = cmd_token.type if hasattr(cmd_token, "type") else str(cmd_token)
+
+        # Map terminal name to MIDI command type
+        type_map = {
+            "SYS_CLOCK_START": "clock_start",
+            "SYS_CLOCK_STOP": "clock_stop",
+            "SYS_CLOCK_CONTINUE": "clock_continue",
+            "SYS_CLOCK_TICK": "timing_clock",
+            "SYS_ACTIVE_SENSING": "active_sensing",
+            "SYS_SYSTEM_RESET": "system_reset",
+        }
+
+        midi_type = type_map.get(cmd_type, "system_realtime")
+        return MIDICommand(type=midi_type)
+
+    # Alias System
+    def simple_alias(self, *args):
+        """Handle all simple_alias variants"""
+        name = str(args[0])
+
+        # Extract template string - might be a Tree or Token
+        template_arg = args[1]
+        if hasattr(template_arg, "children") and len(template_arg.children) > 0:
+            # It's a Tree, extract the token value
+            template = str(template_arg.children[0])
+        else:
+            template = str(template_arg)
+
+        description = None
+        computed = {}
+
+        # Parse remaining arguments
+        for arg in args[2:]:
+            if isinstance(arg, str) and (arg.startswith('"') or arg.startswith("'")):
+                description = arg.strip("\"'")
+            elif isinstance(arg, dict):
+                computed = arg
+
+        params = self._extract_params(template)
+        return AliasDefinition(
+            name=name,
+            parameters=params,
+            commands=[template],  # Store as string, not Tree
+            description=description,
+            computed_values=computed,
+            is_macro=False,
+        )
+
+    def command_template(self, *args):
+        """Handle command template - capture as string for later parsing with params"""
+        # Lark passes the regex match as multiple args (one per character)
+        # Rejoin them to get the full command string
+        # The args tuple contains the matched text from the regex: /[^\n]+/
+        command_str = "".join(str(arg) for arg in args).strip()
+        return command_str
+
+    def alias_body_content(self, *items):
+        """Handle alias_body_content - unwrap the single child.
+
+        This rule exists to allow mixing commands and conditionals in alias bodies.
+        Just pass through the single child (either alias_body_item or conditional_stmt).
+        """
+        return items[0]
+
+    def alias_body_item(self, *items):
+        """Handle alias_body_item - timing, define, sweep, or command_template.
+
+        Returns:
+            Timing, DefineStatement, SweepStatement, or command template string
+        """
+        # Lark passes transformed children as args
+        # Should be exactly one item
+        item = items[0]
+
+        # If it's a tuple from define_stmt, convert to DefineStatement
+        if isinstance(item, tuple) and len(item) >= 2 and item[0] == "define":
+            from .ast_nodes import DefineStatement
+
+            return DefineStatement(name=item[1], value=item[2] if len(item) > 2 else None)
+
+        # If it's a dict from sweep_stmt, convert to SweepStatement
+        if isinstance(item, dict) and item.get("type") == "sweep":
+            from .ast_nodes import SweepStatement
+
+            return SweepStatement(
+                start_time=item["start_time"],
+                end_time=item["end_time"],
+                interval=item["interval"],
+                commands=item["commands"],
+                source_line=item.get("source_line", 0),
+            )
+
+        # Otherwise it's Timing or command template string
+        return item
+
+    def macro_alias(self, *args):
+        """Handle macro_alias - description is now required.
+
+        Structure changed in Stage 7:
+        args[0]: name
+        args[1]: params
+        args[2]: description
+        args[3+]: computed_values (dict objects) and alias_body (list or conditional dict)
+        """
+        from .ast_nodes import ConditionalBranch
+
+        name = str(args[0])
+        params = args[1]
+        description = args[2].strip("\"'") if args[2] else None
+
+        # Separate computed values from the body
+        computed_values = {}
+        alias_body = None
+
+        for item in args[3:]:
+            if (
+                isinstance(item, dict)
+                and len(item) == 1
+                and not any(k in item for k in ["type", "branches"])
+            ):
+                # It's a computed value (single key-value pair from computed_value())
+                computed_values.update(item)
+            elif isinstance(item, dict) and item.get("type") == "alias_conditional":
+                # It's a conditional structure (Stage 7)
+                alias_body = item
+            elif isinstance(item, list):
+                # It's a list of commands (non-conditional)
+                alias_body = item
+            elif isinstance(item, str):
+                # Single command string
+                if alias_body is None:
+                    alias_body = []
+                if isinstance(alias_body, list):
+                    alias_body.append(item)
+
+        # Build the AliasDefinition
+        if (
+            alias_body is not None
+            and isinstance(alias_body, dict)
+            and alias_body.get("type") == "alias_conditional"
+        ):
+            # Conditional alias (Stage 7)
+            branches = []
+            for branch_dict in alias_body["branches"]:
+                branches.append(
+                    ConditionalBranch(
+                        condition=branch_dict.get("condition"),
+                        commands=branch_dict["commands"],
+                        branch_type=branch_dict["type"],
+                    )
+                )
+
+            return AliasDefinition(
+                name=name,
+                parameters=self._parse_params(params),
+                commands=[],  # Empty for conditional aliases
+                description=description,
+                computed_values=computed_values,
+                conditional_branches=branches,
+                is_macro=True,
+                has_conditionals=True,
+            )
+        # Non-conditional alias
+        commands = alias_body if isinstance(alias_body, list) else []
+        return AliasDefinition(
+            name=name,
+            parameters=self._parse_params(params),
+            commands=commands,
+            description=description,
+            computed_values=computed_values,
+            is_macro=True,
+            has_conditionals=False,
+        )
+
+    def computed_value(self, name, expr):
+        """Parse computed value from braces"""
+        return {str(name): expr}
+
+    # Stage 7: Conditional transformation methods
+    def alias_body(self, *items):
+        """Handle alias body - either commands or conditionals.
+
+        Returns either a list of command strings or a conditional dict.
+        """
+        # If there's only one item and it's a dict with 'type'='alias_conditional', return it
+        if (
+            len(items) == 1
+            and isinstance(items[0], dict)
+            and items[0].get("type") == "alias_conditional"
+        ):
+            return items[0]
+        # Otherwise, return list of commands
+        return list(items)
+
+    def alias_conditional_stmt(self, if_clause, *other_clauses):
+        """Handle conditional statement within alias (Stage 7).
+
+        Args:
+            if_clause: The @if clause (dict)
+            other_clauses: Zero or more @elif or @else clauses
+
+        Returns:
+            Dict with type='alias_conditional' and list of branches
+        """
+        branches = [if_clause]
+        for clause in other_clauses:
+            branches.append(clause)
+
+        return {"type": "alias_conditional", "branches": branches}
+
+    def alias_if_clause(self, condition, *commands):
+        """Handle @if clause in alias conditional."""
+        return {"type": "if", "condition": condition, "commands": list(commands)}
+
+    def alias_elif_clause(self, condition, *commands):
+        """Handle @elif clause in alias conditional."""
+        return {"type": "elif", "condition": condition, "commands": list(commands)}
+
+    def alias_else_clause(self, *commands):
+        """Handle @else clause in alias conditional."""
+        return {
+            "type": "else",
+            "condition": None,  # No condition for else
+            "commands": list(commands),
+        }
+
+    def alias_condition(self, *args):
+        """Parse condition expression for alias conditional.
+
+        Args can be:
+        - param_ref, operator, value
+        - IDENTIFIER, operator, value
+
+        Returns:
+            Dict with 'left', 'operator', 'right' keys
+        """
+        if len(args) != 3:
+            raise ValueError(f"Expected 3 args for alias_condition, got {len(args)}: {args}")
+
+        left_arg = args[0]
+        operator_arg = args[1]
+        right_arg = args[2]
+
+        # Extract left value (parameter name)
+        if hasattr(left_arg, "data") and left_arg.data == "param_ref":
+            # It's a {param} reference - extract the parameter name
+            left = self._extract_param_name(left_arg)
+        else:
+            # It's an IDENTIFIER
+            left = str(left_arg)
+
+        # Extract operator - should be a Token now (COMPARE_OP terminal)
+        operator = str(operator_arg)
+
+        # Extract right value
+        right = self._extract_condition_value(right_arg)
+
+        return {"left": left, "operator": operator, "right": right}
+
+    def alias_cond_value(self, value):
+        """Extract value from alias_cond_value node."""
+        return self._extract_condition_value(value)
+
+    def _extract_param_name(self, param_ref_tree):
+        """Extract parameter name from param_ref tree."""
+        # param_ref contains param_spec which contains IDENTIFIER
+        for child in param_ref_tree.children:
+            if hasattr(child, "data") and child.data == "param_spec":
+                # First child of param_spec is the IDENTIFIER
+                return str(child.children[0])
+            if isinstance(child, str):
+                return str(child)
+        # Fallback
+        return str(param_ref_tree.children[0])
+
+    def _extract_condition_value(self, value_node):
+        """Extract value from condition value node (string, int, param, etc)."""
+        if hasattr(value_node, "data"):
+            # It's a tree node
+            if value_node.data == "param_ref":
+                return self._extract_param_name(value_node)
+            if value_node.data == "STRING":
+                # STRING node - extract and strip quotes
+                return str(value_node.children[0]).strip("\"'")
+            if value_node.data in ("INT", "FLOAT"):
+                # Numeric value
+                return value_node.children[0]
+            # Other nodes - try first child
+            return value_node.children[0] if value_node.children else str(value_node)
+        if hasattr(value_node, "type"):
+            # It's a Token
+            if value_node.type == "STRING":
+                return str(value_node).strip("\"'")
+            if value_node.type in ("INT", "FLOAT"):
+                return int(value_node) if value_node.type == "INT" else float(value_node)
+            return str(value_node)
+        # Plain value
+        return value_node
+
+    def alias_call(self, name, *args):
+        """Parse alias invocation"""
+        # Flatten args if they come wrapped in alias_args tree
+        flat_args = []
+        for arg in args:
+            if hasattr(arg, "children"):
+                # It's a Tree node (alias_args), extract children
+                for child in arg.children:
+                    if hasattr(child, "children") and len(child.children) == 1:
+                        # alias_arg wrapper
+                        flat_args.append(child.children[0])
+                    else:
+                        flat_args.append(child)
+            else:
+                flat_args.append(arg)
+
+        return MIDICommand(type="alias_call", params={"alias_name": str(name), "args": flat_args})
+
+    def alias_def(self, alias):
+        """Unwrap alias definition (simple_alias or macro_alias)"""
+        return alias
+
+    # Advanced Features
+    def track_def(self, *args):
+        """Handle both track definition formats"""
+        if len(args) == 1:
+            # Just identifier or markdown style string
+            return Track(name=str(args[0]))
+        if len(args) == 2:
+            # identifier + channel number
+            # (keywords "channel" and "=" are consumed by grammar)
+            return Track(name=str(args[0]), channel=int(args[1]))
+        return Track(name=str(args[0]))
+
+    def loop_stmt(self, *args):
+        """
+        Handle all loop_stmt variants.
+
+        Phase 3: Returns a loop dictionary that will be expanded by LoopExpander
+        in the EventGenerator.
+
+        Grammar variants:
+        - @loop INT times at timing every duration ... @end
+        - @loop INT times every duration ... @end
+        - @loop INT times at timing ... @end
+        - @loop INT times ... @end
+        """
+        count = int(args[0])
+        timing = None
+        interval = None
+        statements = []
+
+        i = 1
+        # Check for timing
+        if i < len(args) and isinstance(args[i], Timing):
+            timing = args[i]
+            i += 1
+
+        # Check for interval (duration) - can be string or Duration object
+        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track)):
+            interval = args[i]
+            i += 1
+
+        # Rest are statements
+        statements = list(args[i:])
+
+        return {
+            "type": "loop",
+            "count": count,
+            "start_time": timing,  # Can be None
+            "interval": interval,  # Can be None - default to 1 beat
+            "statements": statements,
+            "source_line": self.line_number,
+        }
+
+    def sweep_stmt(self, start_time, end_time, interval, *commands):
+        """
+        Handle sweep statement.
+
+        Phase 3: Returns a sweep dictionary that will be expanded by SweepExpander
+        in the EventGenerator.
+
+        Grammar:
+        - @sweep from timing to timing every duration ... @end
+
+        Note: The actual sweep expansion (ramp type, CC controller, etc.) will be
+        extracted from the commands during EventGenerator processing.
+        """
+        return {
+            "type": "sweep",
+            "start_time": start_time,
+            "end_time": end_time,
+            "interval": interval,
+            "commands": list(commands),
+            "source_line": self.line_number,
+        }
+
+    def conditional_stmt(self, if_clause, *other_clauses):
+        return {
+            "type": "conditional",
+            "if": if_clause,
+            "elif": [c for c in other_clauses if c[0] == "elif"],
+            "else": next((c for c in other_clauses if c[0] == "else"), None),
+        }
+
+    # Expressions
+    def add(self, left, right):
+        return ("add", left, right)
+
+    def sub(self, left, right):
+        return ("sub", left, right)
+
+    def mul(self, left, right):
+        return ("mul", left, right)
+
+    def div(self, left, right):
+        return ("div", left, right)
+
+    def mod(self, left, right):
+        return ("mod", left, right)
+
+    def variable_ref(self, name):
+        """Resolve variable reference ${VAR} to its value."""
+        var_name = str(name)
+        try:
+            return self.symbol_table.resolve(var_name)
+        except ValueError:
+            # If variable not found, return tuple for later resolution
+            # This handles forward references where variable is defined after use
+            return ("var", var_name)
+
+    def param(self, value):
+        """Handle parameter - can be INT or variable_ref."""
+        # Value is already transformed by child rule (INT or variable_ref)
+        return value
+
+    def tempo_value(self, value):
+        """Handle tempo value - can be NUMBER or param."""
+        # Value is already transformed by child rule
+        return value
+
+    def function_call(self, func_name, *args):
+        """Transform function call in expression."""
+        return ("func_call", str(func_name), list(args))
+
+    def number(self, n):
+        return float(n)
+
+    def integer(self, n):
+        return int(n)
+
+    def param_ref_expr(self, param_ref):
+        """Transform param_ref in expression context.
+
+        Returns a tuple marking this as a parameter reference.
+        """
+        # param_ref is already transformed (dict with 'name', 'type', etc.)
+        return ("param_ref", param_ref)
+
+    def percent(self, value):
+        return ("percent", int(value))
+
+    def ramp_expr(self, start, end, ramp_type="linear"):
+        return {
+            "type": "ramp",
+            "start": int(start),
+            "end": int(end),
+            "ramp_type": str(ramp_type) if ramp_type else "linear",
+        }
+
+    def random_expr(self, min_val, max_val):
+        return {"type": "random", "min": min_val, "max": max_val}
+
+    # Helper Methods
+    def _resolve_define_value(self, value):
+        """Resolve a value for @define - handles literals, strings, and expressions.
+
+        Phase 2: Now uses SafeComputationEngine for full expression evaluation.
+
+        Args:
+            value: Can be a literal (int/float/string), Lark Tree, or tuple
+
+        Returns:
+            Resolved value (int, float, or string)
+
+        Raises:
+            ValueError: If expression evaluation fails
+        """
+        # If it's a string literal, strip quotes
+        if isinstance(value, str):
+            return value.strip("\"'")
+
+        # If it's a simple number, return it
+        if isinstance(value, (int, float)):
+            return value
+
+        # Handle Lark Tree objects (expressions from grammar)
+        if hasattr(value, "data"):
+            from lark import Tree
+
+            if isinstance(value, Tree):
+                # Check if it's an expression tree that needs evaluation
+                if self._is_expression_tree(value):
+                    return self._evaluate_expression_tree(value)
+                # Simple value tree (like a plain number or string)
+                return self._eval_tree(value)
+
+        # If it's an expression tuple (from Phase 1)
+        if isinstance(value, tuple):
+            # Variable reference
+            if value[0] == "var":
+                return self.symbol_table.resolve(value[1])
+            # Expression tuple - evaluate it
+            return self._simple_eval(value)
+
+        # Default: return as-is
+        return value
+
+    def _simple_eval(self, expr_tree):
+        """Simple expression evaluator for Phase 1."""
+        # Handle Lark Tree objects
+        if hasattr(expr_tree, "data"):
+            from lark import Tree
+
+            if isinstance(expr_tree, Tree):
+                return self._eval_tree(expr_tree)
+
+        if isinstance(expr_tree, (int, float)):
+            return expr_tree
+
+        if not isinstance(expr_tree, tuple) or len(expr_tree) == 0:
+            return expr_tree
+
+        op = expr_tree[0]
+
+        # Variable reference
+        if op == "var":
+            return self.symbol_table.resolve(expr_tree[1])
+
+        # Binary operations
+        if op == "add" and len(expr_tree) == 3:
+            left = self._simple_eval(expr_tree[1])
+            right = self._simple_eval(expr_tree[2])
+            return left + right
+        if op == "sub" and len(expr_tree) == 3:
+            left = self._simple_eval(expr_tree[1])
+            right = self._simple_eval(expr_tree[2])
+            return left - right
+        if op == "mul" and len(expr_tree) == 3:
+            left = self._simple_eval(expr_tree[1])
+            right = self._simple_eval(expr_tree[2])
+            return left * right
+        if op == "div" and len(expr_tree) == 3:
+            left = self._simple_eval(expr_tree[1])
+            right = self._simple_eval(expr_tree[2])
+            return left / right
+        if op == "mod" and len(expr_tree) == 3:
+            left = self._simple_eval(expr_tree[1])
+            right = self._simple_eval(expr_tree[2])
+            return left % right
+
+        # Unrecognized - return as is
+        return expr_tree
+
+    def _resolve_param(self, value):
+        """Resolve a parameter value which may be an int, variable reference tuple, or Tree object.
+
+        Phase 2: Enhanced to use SafeComputationEngine for expression evaluation.
+
+        Args:
+            value: Can be int, ('var', name) tuple, or Lark Tree object
+
+        Returns:
+            Resolved value (int or tuple for forward references)
+
+        Note:
+            Forward references (undefined variables) are preserved as tuples
+            to be resolved later during MIDI generation.
+        """
+        # Handle Lark Tree objects
+        if hasattr(value, "data"):
+            # It's a Lark Tree - could be from expression
+            from lark import Tree
+
+            if isinstance(value, Tree):
+                # Check if it's an expression that needs evaluation
+                if self._is_expression_tree(value):
+                    try:
+                        return self._evaluate_expression_tree(value)
+                    except ValueError:
+                        # If evaluation fails (e.g., undefined variable), preserve as tuple
+                        # This allows forward references
+                        return value
+                else:
+                    # Simple value tree
+                    try:
+                        return self._eval_tree(value)
+                    except ValueError:
+                        return value
+
+        # If it's already an int, return it
+        if isinstance(value, int):
+            return value
+
+        # If it's a tuple, it could be a variable reference or expression
+        if isinstance(value, tuple):
+            # Preserve tuples as-is for now - they will be resolved later
+            # This includes both ('var', name) and expression tuples
+            return value
+
+        # Try to convert to int
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            # If conversion fails, return as-is
+            return value
+
+    def _eval_tree(self, tree):
+        """Evaluate a Lark Tree object to a numeric value."""
+        from lark import Token, Tree
+
+        if isinstance(tree, Token):
+            return int(tree)
+
+        if not isinstance(tree, Tree):
+            return tree
+
+        # Handle expression trees
+        if tree.data in ("add", "sub", "mul", "div", "mod"):
+            left = self._eval_tree(tree.children[0])
+            right = self._eval_tree(tree.children[1])
+
+            if tree.data == "add":
+                return left + right
+            if tree.data == "sub":
+                return left - right
+            if tree.data == "mul":
+                return left * right
+            if tree.data == "div":
+                return left / right
+            if tree.data == "mod":
+                return left % right
+
+        # Handle variable references
+        if tree.data == "variable_ref":
+            # Extract variable name and resolve
+            var_name = str(tree.children[0])
+            return self.symbol_table.resolve(var_name)
+
+        # Handle numeric values
+        if tree.data in ("integer", "number"):
+            return self._eval_tree(tree.children[0])
+
+        # If we can't handle it, try the first child
+        if tree.children:
+            return self._eval_tree(tree.children[0])
+
+        return 0
+
+    def _is_expression_tree(self, tree) -> bool:
+        """Check if a Lark Tree represents an expression that needs computation.
+
+        Args:
+            tree: Lark Tree object
+
+        Returns:
+            True if tree contains operators that need evaluation
+        """
+        from lark import Tree
+
+        if not isinstance(tree, Tree):
+            return False
+
+        # Expression operators that require SafeComputationEngine
+        expression_types = {
+            "add",
+            "sub",
+            "mul",
+            "div",
+            "mod",
+            "pow",
+            "floordiv",
+            "neg",
+            "pos",  # Unary operators
+            "variable_ref",  # Variable references might be in expressions
+        }
+
+        # Check if this tree or any child contains expression operators
+        if tree.data in expression_types:
+            return True
+
+        # Recursively check children
+        for child in tree.children:
+            if isinstance(child, Tree) and self._is_expression_tree(child):
+                return True
+
+        return False
+
+    def _evaluate_expression_tree(self, tree):
+        """Evaluate a Lark expression tree using SafeComputationEngine.
+
+        Phase 2: Full expression evaluation with security and proper error handling.
+
+        Args:
+            tree: Lark Tree object representing an expression
+
+        Returns:
+            Evaluated result (int or float)
+
+        Raises:
+            ValueError: If expression evaluation fails
+        """
+        try:
+            # Convert Lark tree to Python expression string
+            python_expr = self.computation_engine.lark_tree_to_python(tree)
+
+            # Prepare input parameters: all defined variables + constants
+            input_params = {}
+
+            # Add all defined variables
+            for name, var in self.symbol_table.symbols.items():
+                input_params[name] = var.value
+
+            # Add built-in constants
+            input_params.update(self.symbol_table.CONSTANTS)
+
+            # Evaluate the expression
+            result = self.computation_engine.evaluate_expression(python_expr, input_params)
+
+            # Return the result (SafeComputationEngine handles int/float conversion)
+            return result
+
+        except ComputationError as e:
+            # Enhance error message with context
+            raise ValueError(f"Expression evaluation error: {e}") from e
+        except Exception as e:
+            # Catch any other errors and provide helpful message
+            raise ValueError(f"Failed to evaluate expression: {e}") from e
+
+    def _parse_absolute_time(self, time_str: str) -> float:
+        """Parse mm:ss.mmm format to seconds"""
+        parts = time_str.strip("[]").split(":")
+        minutes = int(parts[0])
+        seconds = float(parts[1])
+        return minutes * 60 + seconds
+
+    def _parse_channel_note(self, channel_note) -> tuple:
+        """Parse channel.note format"""
+        # This handles both numeric notes, note names (C4, D#5, etc.), and variables
+        parts = str(channel_note).split(".")
+        channel = int(parts[0])
+
+        # Check if parts[1] is a variable reference (contains ${})
+        note_str = parts[1]
+        if "${" in note_str:
+            # It's a variable reference, extract the variable name
+            # Format: ${VAR_NAME}
+            var_name = note_str.strip()[2:-1]  # Remove ${ and }
+            # Return as tuple to be resolved later
+            note = ("var", var_name)
+        elif note_str.isdigit():
+            note = int(note_str)
+        else:
+            # Try to parse as note name (C4, D#5, etc.)
+            try:
+                note = self._note_to_midi(note_str)
+            except (ValueError, KeyError):
+                # If it fails, it might be a variable without ${}, treat as literal string
+                note = note_str
+        return channel, note
+
+    def _note_to_midi(self, note_name: str) -> int:
+        """Convert note name (e.g., 'C4') to MIDI number.
+
+        This method now delegates to the shared utility function.
+        """
+        return note_to_midi(note_name)
+
+    def _parse_cc_value(self, value) -> int | dict:
+        """Parse CC value (can be int, percent, ramp, etc.)"""
+        # Handle Token objects and strings
+        if isinstance(value, (int, float)):
+            return int(value)
+        if isinstance(value, str):
+            try:
+                return int(value)
+            except ValueError:
+                pass
+        if isinstance(value, tuple) and value[0] == "percent":
+            # Use shared utility for percent conversion
+            return percent_to_midi(value[1])
+        # Handle ramp and random expressions
+        if isinstance(value, dict) and value.get("type") in ("ramp", "random"):
+            return value
+        # Try converting to string then int as fallback
+        try:
+            return int(str(value))
+        except (ValueError, TypeError):
+            # For unknown types, return a placeholder
+            return 0
+
+    def _parse_pitch_bend(self, value) -> int:
+        """Parse pitch bend value.
+
+        Pitch bend values can be:
+        - Absolute: -8192 to +8191 (full range)
+        - String offsets: "+2000", "-2000" (offset from center 8192)
+        - Integer offsets: 2000, -2000 (offset from center 8192)
+        - Center: 0 (maps to 8192)
+
+        Returns:
+            int: Pitch bend value (validation happens later)
+        """
+        if isinstance(value, str):
+            if value.startswith("+") or value.startswith("-"):
+                # String with explicit sign: treat as offset from center
+                return int(value)
+
+        # Convert to int and return as-is (let validator check range)
+        return int(value)
+
+    def _extract_params(self, template) -> List[Dict[str, Any]]:
+        """
+        Extract parameter definitions from alias template string.
+
+        Parses {param} placeholders with specifications like:
+        - {name} - basic parameter
+        - {name:0-127} - parameter with range
+        - {name:note} - typed parameter
+        - {name=64} - parameter with default
+        - {name=opt1:0,opt2:1} - enum parameter
+        """
+        import re
+
+        params = []
+        seen_names = set()
+
+        # Match {param_spec} patterns
+        for match in re.finditer(r"\{([^}]+)\}", str(template)):
+            param_spec = match.group(1)
+            param_dict = self._parse_single_param_spec(param_spec)
+
+            # Only add each parameter once (may appear multiple times in template)
+            if param_dict["name"] not in seen_names:
+                params.append(param_dict)
+                seen_names.add(param_dict["name"])
+
+        return params
+
+    def _parse_single_param_spec(self, spec: str) -> Dict[str, Any]:
+        """
+        Parse a single parameter specification string.
+
+        Format: name[:type|range][=default|enum_options]
+        Examples:
+          - velocity
+          - velocity:0-127
+          - velocity:velocity
+          - velocity=100
+          - mode=series:0,parallel:1
+        """
+
+        param = {
+            "name": "",
+            "type": "generic",
+            "min": 0,
+            "max": 127,
+            "default": None,
+            "enum_values": None,
+        }
+
+        # Split on = to separate name/type from default/enum
+        if "=" in spec:
+            name_part, value_part = spec.split("=", 1)
+
+            # Check if value_part contains enums (has : and ,)
+            if ":" in value_part and "," in value_part:
+                # Parse enum: opt1:val1,opt2:val2
+                param["enum_values"] = {}
+                for enum_option in value_part.split(","):
+                    if ":" in enum_option:
+                        opt_name, opt_val = enum_option.split(":", 1)
+                        param["enum_values"][opt_name.strip()] = int(opt_val.strip())
+                param["type"] = "enum"
+            else:
+                # Simple default value
+                param["default"] = value_part.strip()
+                # Try to convert to int if possible
+                try:
+                    param["default"] = int(param["default"])
+                except ValueError:
+                    pass  # Keep as string
+        else:
+            name_part = spec
+
+        # Parse name and optional type/range
+        if ":" in name_part:
+            name, type_spec = name_part.split(":", 1)
+            param["name"] = name.strip()
+
+            # Check if type_spec is a range (INT-INT)
+            if "-" in type_spec and type_spec.replace("-", "").replace(" ", "").isdigit():
+                # Parse range: 0-127
+                min_val, max_val = type_spec.split("-", 1)
+                param["type"] = "range"
+                param["min"] = int(min_val.strip())
+                param["max"] = int(max_val.strip())
+            else:
+                # Named type: note, channel, bool, percent, velocity
+                param["type"] = type_spec.strip()
+                # Set appropriate ranges for known types
+                if param["type"] == "channel":
+                    param["min"] = 1
+                    param["max"] = 16
+                elif param["type"] == "bool":
+                    param["min"] = 0
+                    param["max"] = 1
+                elif param["type"] == "percent":
+                    param["min"] = 0
+                    param["max"] = 100
+                elif param["type"] in ("note", "velocity"):
+                    param["min"] = 0
+                    param["max"] = 127
+        else:
+            param["name"] = name_part.strip()
+
+        return param
+
+    def _parse_params(self, params_tree) -> List[Dict[str, Any]]:
+        """
+        Parse parameter specifications from Lark tree (for macro aliases).
+
+        The params_tree contains param_ref nodes, each with a param_spec child.
+        """
+        params = []
+
+        # params_tree is an alias_params node containing param_ref children
+        for param_ref in params_tree.find_data("param_ref"):
+            # Get the param_spec child
+            param_spec = param_ref.children[0]
+            param_dict = self._parse_param_spec_tree(param_spec)
+            params.append(param_dict)
+
+        return params
+
+    def _parse_param_spec_tree(self, param_spec_tree) -> Dict[str, Any]:
+        """
+        Parse a param_spec tree node into a parameter dictionary.
+
+        param_spec: IDENTIFIER param_type? param_default? param_enum?
+        """
+        param = {
+            "name": "",
+            "type": "generic",
+            "min": 0,
+            "max": 127,
+            "default": None,
+            "enum_values": None,
+        }
+
+        children = list(param_spec_tree.children)
+
+        # First child is always the parameter name
+        param["name"] = str(children[0])
+
+        # Process optional children
+        for child in children[1:]:
+            if child.data == "param_type":
+                # param_type: ":" INT "-" INT | ":" param_type_name
+                type_children = list(child.children)
+                if len(type_children) == 2:
+                    # Range: min-max
+                    param["type"] = "range"
+                    param["min"] = int(type_children[0])
+                    param["max"] = int(type_children[1])
+                else:
+                    # Named type: Since param_type_name is inline (?),
+                    # type_children[0] should be a Token with the literal value
+                    param["type"] = str(type_children[0])
+                    # Set appropriate ranges
+                    if param["type"] == "channel":
+                        param["min"] = 1
+                        param["max"] = 16
+                    elif param["type"] == "bool":
+                        param["min"] = 0
+                        param["max"] = 1
+                    elif param["type"] == "percent":
+                        param["min"] = 0
+                        param["max"] = 100
+                    elif param["type"] in ("note", "velocity"):
+                        param["min"] = 0
+                        param["max"] = 127
+
+            elif child.data == "param_default":
+                # param_default: "=" (INT | IDENTIFIER)
+                default_val = child.children[0]
+                try:
+                    param["default"] = int(default_val)
+                except (ValueError, TypeError):
+                    param["default"] = str(default_val)
+
+            elif child.data == "param_enum":
+                # param_enum: "=" enum_option ("," enum_option)*
+                param["type"] = "enum"
+                param["enum_values"] = {}
+                for enum_option in child.find_data("enum_option"):
+                    # enum_option: IDENTIFIER ":" INT
+                    opt_name = str(enum_option.children[0])
+                    opt_value = int(enum_option.children[1])
+                    param["enum_values"][opt_name] = opt_value
+
+        return param

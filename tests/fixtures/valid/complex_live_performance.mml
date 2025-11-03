@@ -1,0 +1,36 @@
+---
+title: Live Performance
+description: Complex live performance scenario with nested aliases
+ppq: 480
+tempo: 120
+---
+
+# Define device-specific aliases for preset and expression control
+@alias cortex_preset {ch} {preset} "Load Cortex preset"
+  - pc {ch}.{preset}
+@end
+
+@alias expression {ch} {cc} {percent:percent} "Expression pedal"
+  - cc {ch}.{cc}.{percent}
+@end
+
+# Nested alias that combines scene change with expression pedal
+@alias scene_with_exp {ch} {scene} {exp_val} "Scene + expression"
+  - cc {ch}.43.{scene}
+  - expression {ch} 100 {exp_val}
+@end
+
+# Performance sequence with preset changes and expression control
+[00:00.000]
+- cortex_preset 1 5
+- expression 1 100 0
+
+[00:04.000]
+- scene_with_exp 1 1 75
+
+[00:08.000]
+- scene_with_exp 1 2 50
+
+[00:12.000]
+- cortex_preset 1 10
+- expression 1 100 100

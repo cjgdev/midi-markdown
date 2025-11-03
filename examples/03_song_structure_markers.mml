@@ -1,0 +1,44 @@
+---
+title: "Basic Song Structure"
+author: "Songwriter"
+midi_format: 1
+ppq: 480
+---
+
+# Basic Song Structure with Markers
+# Demonstrates using markers to define song sections
+
+# Setup
+[00:00.000]
+- tempo 120
+- time_signature 4/4
+- key_signature Am
+- marker "Intro"
+
+[00:08.000]
+- marker "Verse 1"
+
+[00:24.000]
+- marker "Chorus"
+
+[00:40.000]
+- marker "Verse 2"
+
+[00:56.000]
+- marker "Chorus"
+
+[01:12.000]
+- marker "Bridge"
+
+[01:28.000]
+- marker "Guitar Solo"
+
+[01:44.000]
+- marker "Final Chorus"
+
+[02:00.000]
+- marker "Outro"
+
+[02:16.000]
+- text "End of song"
+- end_of_track

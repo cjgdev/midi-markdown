@@ -1,0 +1,26 @@
+---
+title: Conditional Alias Test
+description: Demonstrates conditional logic within aliases using @if/@elif/@else
+---
+
+# Device-aware preset loading with conditional MIDI commands
+# Different devices use different MIDI messages for preset loading
+@alias device_load {ch} {preset} {device=cortex:0,h90:1,other:2} "Device-aware load"
+  @if {device} == 0
+    - pc {ch}.{preset}
+  @elif {device} == 1
+    - cc {ch}.71.{preset}
+  @else
+    - pc {ch}.{preset}
+  @end
+@end
+
+# Test different device types
+[00:00.000]
+- device_load 1 10 cortex
+
+[00:01.000]
+- device_load 2 20 h90
+
+[00:02.000]
+- device_load 3 30 other

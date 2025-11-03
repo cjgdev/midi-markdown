@@ -1,0 +1,35 @@
+---
+title: Multi-Device Live Performance
+description: Realistic live performance with synchronized control of two guitar processors
+tempo: 120
+---
+
+# Neural DSP Quad Cortex scene switching
+@alias cortex_scene {ch} {scene:0-7} "Cortex scene"
+  - cc {ch}.34.{scene}
+@end
+
+# Line 6 Helix snapshot switching
+@alias helix_snapshot {ch} {snapshot:0-7} "Helix snapshot"
+  - cc {ch}.69.{snapshot}
+@end
+
+# Intro - Clean tones
+[00:00.000]
+- cortex_scene 1 0
+- helix_snapshot 2 0
+
+# Verse - Rhythm tones
+[00:08.000]
+- cortex_scene 1 1
+- helix_snapshot 2 1
+
+# Chorus - Full band
+[00:16.000]
+- cortex_scene 1 2
+- helix_snapshot 2 2
+
+# Solo - Lead tones
+[00:24.000]
+- cortex_scene 1 3
+- helix_snapshot 2 3

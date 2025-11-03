@@ -1,0 +1,96 @@
+---
+title: "Conditional Alias Test Fixture"
+ppq: 480
+---
+
+# ============================================
+# Simple if/else conditional
+# ============================================
+
+@alias simple_if {value} "Simple if/else"
+  @if {value} == 1
+    - pc 1.0
+  @else
+    - pc 2.0
+  @end
+@end
+
+# ============================================
+# Full if/elif/else chain
+# ============================================
+
+@alias full_conditional {mode} "Full conditional chain"
+  @if {mode} == 0
+    - pc 1.0
+  @elif {mode} == 1
+    - pc 1.1
+  @elif {mode} == 2
+    - pc 1.2
+  @else
+    - pc 1.9
+  @end
+@end
+
+# ============================================
+# String-based conditional (device routing)
+# ============================================
+
+@alias device_load {ch} {preset} {device} "Device-specific preset load"
+  @if {device} == "cortex"
+    - pc {ch}.{preset}
+  @elif {device} == "h90"
+    - cc {ch}.71.{preset}
+  @else
+    - pc {ch}.{preset}
+  @end
+@end
+
+# ============================================
+# Range-based conditional (velocity curves)
+# ============================================
+
+@alias dynamic_note {ch} {note} {velocity} "Range-based velocity"
+  @if {velocity} < 60
+    - note {ch}.{note}.{velocity}
+    - cc {ch}.11.40
+  @elif {velocity} < 100
+    - note {ch}.{note}.{velocity}
+    - cc {ch}.11.80
+  @else
+    - note {ch}.{note}.{velocity}
+    - cc {ch}.11.127
+  @end
+@end
+
+# ============================================
+# Multiple commands per branch
+# ============================================
+
+@alias routing_setup {ch} {mode} "Multi-command branches"
+  @if {mode} == 0
+    - cc {ch}.85.0
+    - cc {ch}.84.64
+    - cc {ch}.86.0
+  @elif {mode} == 1
+    - cc {ch}.85.1
+    - cc {ch}.84.64
+    - cc {ch}.86.1
+  @else
+    - cc {ch}.85.2
+    - cc {ch}.84.0
+    - cc {ch}.86.2
+  @end
+@end
+
+# ============================================
+# Test calls
+# ============================================
+
+[00:00.000]
+- simple_if 1
+- simple_if 2
+- full_conditional 1
+- device_load 1 10 cortex
+- device_load 2 20 h90
+- dynamic_note 1 60 80
+- routing_setup 3 0

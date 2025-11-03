@@ -1,0 +1,23 @@
+---
+title: Simple Alias Test
+tempo: 120
+ppq: 480
+---
+
+# Simple alias definitions
+@alias cortex_preset pc.{channel}.{preset} "Load preset"
+@alias h90_mix cc.{channel}.84.{value:0-127} "Set A/B mix"
+@alias volume cc.{channel}.7.{level=127} "Set volume with default"
+
+# Using the aliases
+[00:00.000]
+- cortex_preset 1 5
+
+[00:01.000]
+- h90_mix 2 64
+
+[00:02.000]
+- volume 1          # Uses default value of 127
+
+[00:03.000]
+- volume 3 100      # Overrides default

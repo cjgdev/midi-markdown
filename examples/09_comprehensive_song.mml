@@ -1,0 +1,342 @@
+---
+title: "Comprehensive Song Example"
+author: "Full Stack MIDI Developer"
+midi_format: 1
+ppq: 480
+description: "Demonstrates most implemented MML features in a realistic song context"
+---
+
+# Comprehensive Song Example
+# Combines timing, notes, CC automation, pitch bend, markers, and meta events
+
+@define LEAD_CHANNEL 1
+@define BASS_CHANNEL 2
+@define PAD_CHANNEL 3
+
+# ============================================
+# Song Structure
+# ============================================
+
+[00:00.000]
+- tempo 128
+- time_signature 4/4
+- key_signature Dm
+- marker "Intro"
+- track_name "Master"
+
+[00:08.000]
+- marker "Verse 1"
+
+[00:24.000]
+- marker "Pre-Chorus"
+
+[00:32.000]
+- marker "Chorus"
+
+[00:48.000]
+- marker "Verse 2"
+
+[01:04.000]
+- marker "Bridge"
+- tempo 100
+
+[01:20.000]
+- marker "Final Chorus"
+- tempo 132
+
+[01:36.000]
+- marker "Outro"
+
+# ============================================
+# Lead Synth (Channel 1) - Melody
+# ============================================
+
+# Intro - atmospheric entrance
+[00:00.000]
+- cc 1.7.40
+- cc 1.10.64
+[@]
+- note_on 1.D4 60 2000ms
+
+[00:02.000]
+- note_on 1.F4 65 2000ms
+
+[00:04.000]
+- note_on 1.A4 70 4000ms
+
+# Verse 1 - melodic line
+[00:08.000]
+- cc 1.7.70
+[@]
+- note_on 1.D5 80 500ms
+
+[00:08.500]
+- note_on 1.C5 80 500ms
+
+[00:09.000]
+- note_on 1.A4 85 1000ms
+
+[00:10.000]
+- note_on 1.F4 80 500ms
+
+[00:10.500]
+- note_on 1.D4 80 500ms
+
+[00:11.000]
+- note_on 1.C4 85 2000ms
+
+# Add vibrato with pitch bend
+[00:11.250]
+- pb 1.200
+
+[00:11.500]
+- pb 1.-200
+
+[00:11.750]
+- pb 1.200
+
+[00:12.000]
+- pb 1.0
+
+# Pre-Chorus - building intensity
+[00:24.000]
+- cc 1.7.90
+- cc 1.1.20
+[@]
+- note_on 1.A4 95 1000ms
+[@]
+- note_on 1.D5 95 1000ms
+
+[00:25.000]
+- cc 1.1.40
+
+[00:26.000]
+- cc 1.1.60
+[@]
+- note_on 1.F5 100 2000ms
+[@]
+- note_on 1.A5 100 2000ms
+
+[00:28.000]
+- cc 1.1.80
+
+# Chorus - full energy
+[00:32.000]
+- cc 1.7.110
+- cc 1.1.100
+[@]
+- note_on 1.D5 110 1000ms
+
+[00:33.000]
+- note_on 1.E5 110 1000ms
+
+[00:34.000]
+- note_on 1.F5 115 2000ms
+
+[00:36.000]
+- note_on 1.A5 120 4000ms
+
+# Pitch bend expression
+[00:37.000]
+- pb 1.1000
+
+[00:38.000]
+- pb 1.2000
+
+[00:39.000]
+- pb 1.0
+
+# ============================================
+# Bass (Channel 2) - Foundation
+# ============================================
+
+# Verse 1 - simple bass line
+[00:08.000]
+- cc 2.7.90
+[@]
+- note_on 2.D2 100 900ms
+
+[00:09.000]
+- note_on 2.D2 95 900ms
+
+[00:10.000]
+- note_on 2.F2 100 900ms
+
+[00:11.000]
+- note_on 2.A2 100 900ms
+
+[00:12.000]
+- note_on 2.D2 100 900ms
+
+[00:13.000]
+- note_on 2.D2 95 900ms
+
+[00:14.000]
+- note_on 2.C2 100 900ms
+
+[00:15.000]
+- note_on 2.A1 100 900ms
+
+# Chorus - driving eighth notes
+[00:32.000]
+- cc 2.7.110
+
+[@]
+- note_on 2.D2 110 450ms
+
+[00:32.500]
+- note_on 2.D2 100 450ms
+
+[00:33.000]
+- note_on 2.D2 110 450ms
+
+[00:33.500]
+- note_on 2.D2 100 450ms
+
+[00:34.000]
+- note_on 2.F2 110 450ms
+
+[00:34.500]
+- note_on 2.F2 100 450ms
+
+[00:35.000]
+- note_on 2.A2 110 450ms
+
+[00:35.500]
+- note_on 2.A2 100 450ms
+
+# ============================================
+# Pad (Channel 3) - Atmosphere
+# ============================================
+
+# Intro - sustained chords
+[00:00.000]
+- cc 3.7.50
+- cc 3.10.64
+[@]
+- note_on 3.D3 50 8000ms
+[@]
+- note_on 3.F3 50 8000ms
+[@]
+- note_on 3.A3 50 8000ms
+
+# Gradual volume swell
+[00:02.000]
+- cc 3.7.60
+
+[00:04.000]
+- cc 3.7.70
+
+[00:06.000]
+- cc 3.7.80
+
+# Verse - lighter pad
+[00:08.000]
+- cc 3.7.60
+[@]
+- note_on 3.D3 55 8000ms
+[@]
+- note_on 3.F3 55 8000ms
+[@]
+- note_on 3.A3 55 8000ms
+
+[00:16.000]
+- note_on 3.C3 55 8000ms
+[@]
+- note_on 3.E3 55 8000ms
+[@]
+- note_on 3.G3 55 8000ms
+
+# Chorus - full pad
+[00:32.000]
+- cc 3.7.90
+[@]
+- note_on 3.D3 70 16000ms
+[@]
+- note_on 3.F3 70 16000ms
+[@]
+- note_on 3.A3 70 16000ms
+[@]
+- note_on 3.D4 70 16000ms
+
+# ============================================
+# Bridge - Tempo Change and Dynamic Shift
+# ============================================
+
+[01:04.000]
+- cc 1.7.60
+- cc 2.7.70
+- cc 3.7.80
+
+# Sparse, atmospheric notes
+[@]
+- note_on 1.D5 65 4000ms
+
+[01:08.000]
+- note_on 1.A4 65 4000ms
+
+[01:12.000]
+- note_on 1.F4 65 8000ms
+
+# ============================================
+# Final Chorus - Explosive Return
+# ============================================
+
+[01:20.000]
+- cc 1.7.120
+- cc 2.7.115
+- cc 3.7.100
+
+[@]
+- note_on 1.D5 120 2000ms
+[@]
+- note_on 2.D2 120 1900ms
+[@]
+- note_on 3.D3 80 8000ms
+[@]
+- note_on 3.F3 80 8000ms
+[@]
+- note_on 3.A3 80 8000ms
+
+# ============================================
+# Outro - Fade to Silence
+# ============================================
+
+[01:36.000]
+- cc 1.7.100
+
+[01:38.000]
+- cc 1.7.80
+- cc 2.7.70
+- cc 3.7.60
+
+[01:40.000]
+- cc 1.7.60
+- cc 2.7.50
+- cc 3.7.40
+
+[01:42.000]
+- cc 1.7.40
+- cc 2.7.30
+- cc 3.7.20
+
+[01:44.000]
+- cc 1.7.20
+- cc 2.7.10
+- cc 3.7.10
+
+[01:46.000]
+- cc 1.7.0
+- cc 2.7.0
+- cc 3.7.0
+
+[@]
+- all_notes_off 1
+[@]
+- all_notes_off 2
+[@]
+- all_notes_off 3
+
+[01:48.000]
+- text "End of comprehensive song"
+- end_of_track

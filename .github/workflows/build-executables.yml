@@ -1,0 +1,107 @@
+name: Build Executables
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: midimarkup-linux-x86_64
+            asset_extension: .tar.gz
+          - os: windows-latest
+            artifact_name: midimarkup-windows-x86_64
+            asset_extension: .zip
+          - os: macos-latest
+            artifact_name: midimarkup-macos-universal
+            asset_extension: .zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv sync --group build
+
+      - name: Build executable with PyInstaller
+        run: uv run pyinstaller midimarkup.spec --clean --noconfirm
+
+      - name: Test executable (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/midimarkup/midimarkup --version
+          ./dist/midimarkup/midimarkup compile ${{ github.workspace }}/examples/00_hello_world.mml -o /tmp/test.mid
+          ls -lh /tmp/test.mid
+
+      - name: Test executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\dist\midimarkup\midimarkup.exe --version
+          .\dist\midimarkup\midimarkup.exe compile ${{ github.workspace }}\examples\00_hello_world.mml -o test.mid
+          dir test.mid
+
+      - name: Create archive (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd dist
+          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          cd ..
+          mv dist/${{ matrix.artifact_name }}${{ matrix.asset_extension }} .
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd dist
+          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup\
+          cd ..
+
+      - name: Create archive (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          cd ..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_name }}${{ matrix.asset_extension }}
+          retention-days: 30
+
+      - name: Calculate checksums
+        if: runner.os != 'Windows'
+        run: |
+          shasum -a 256 ${{ matrix.artifact_name }}${{ matrix.asset_extension }} > ${{ matrix.artifact_name }}.sha256
+          cat ${{ matrix.artifact_name }}.sha256
+
+      - name: Calculate checksums (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          certutil -hashfile ${{ matrix.artifact_name }}${{ matrix.asset_extension }} SHA256 > ${{ matrix.artifact_name }}.sha256
+          type ${{ matrix.artifact_name }}.sha256
+
+      - name: Upload checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-checksum
+          path: ${{ matrix.artifact_name }}.sha256
+          retention-days: 30

@@ -1,0 +1,10 @@
+---
+device: Library with Duplicate Alias
+---
+
+# This library has an alias named "device_a_init" which conflicts
+# with test_device_a.mml
+
+@alias device_a_init {ch} "Duplicate alias name"
+  - cc {ch}.99.99
+@end

@@ -1,0 +1,958 @@
+---
+device: Eventide H90
+manufacturer: Eventide
+firmware_version: 1.8.6 (recommended for MIDI) / 1.9.4+ (latest features)
+version: 1.0.0
+default_channel: 2
+midi_din: true
+midi_usb: true
+midi_din_out_modes: "Off, Transmit, Thru"
+documentation: https://www.eventideaudio.com/h90
+manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
+---
+
+/*
+ * ============================================================================
+ * EVENTIDE H90 HARMONIZER - MML DEVICE LIBRARY
+ * ============================================================================
+ *
+ * *** CRITICAL: READ THIS BEFORE USING ***
+ *
+ * THE H90 HAS ZERO DEFAULT MIDI CC ASSIGNMENTS!
+ *
+ * This library provides aliases for all available MIDI control parameters,
+ * but YOU MUST MANUALLY CONFIGURE each CC mapping in the H90's System Menu
+ * or H90 Control software before these aliases will work.
+ *
+ * This "no defaults" architecture provides complete customization freedom
+ * but requires initial setup effort.
+ *
+ * ============================================================================
+ * CRITICAL FIRMWARE BUG - READ THIS NOW
+ * ============================================================================
+ *
+ * **FIRMWARE 1.9.4 AND LATER HAS A SEVERE BUG:**
+ *
+ * Sending Program Change and Control Change messages simultaneously causes
+ * the H90 to IGNORE ALL CC MESSAGES. Internal logs show "Ignoring inbound
+ * message" errors. This bug has existed for over a year with no fix.
+ *
+ * This makes integration with MIDI switchers (Boss MS3, ES-8, RJM PBC6X,
+ * Morningstar MC6 Pro, etc.) extremely problematic since they typically
+ * send PC + CC messages together.
+ *
+ * **RECOMMENDED SOLUTION:**
+ * Downgrade to firmware 1.8.6 for professional MIDI control applications.
+ * Contact support@eventide.com to request firmware 1.8.6 and matching
+ * H90 Control v1.7.11.
+ *
+ * Trade-off: You cannot use algorithms added after v1.8.6:
+ * - Aggravate (distortion)
+ * - Sticky Tape (tape echo)
+ *
+ * **ALTERNATIVE WORKAROUNDS (limited success):**
+ * 1. Save Programs in desired bypass states instead of changing via MIDI
+ * 2. Use HotSwitches for parameter changes within Programs
+ * 3. Add 4-6 MIDI clock cycle delays between PC and CC messages
+ * 4. Use Program-level bypass mappings instead of global ones
+ *
+ * ============================================================================
+ * H90 ARCHITECTURE OVERVIEW
+ * ============================================================================
+ *
+ * The H90 operates at three control levels:
+ *
+ * 1. GLOBAL MIDI CONTROL:
+ *    - Mappings remain active across all Programs
+ *    - Configured in: System Menu → MIDI → Global Control
+ *    - Ideal for: Bypass, tap tempo, tuner, Program navigation
+ *    - Any CC number can be assigned to any Global parameter
+ *
+ * 2. PER-PROGRAM MAPPINGS:
+ *    - Specific parameter-to-CC assignments within individual Programs
+ *    - Different Programs can map same CC to different parameters
+ *    - Configured in: Parameters Edit Mode (hold Quick Knob)
+ *    - MIDI Learn available at this level
+ *
+ * 3. PERFORMANCE PARAMETERS:
+ *    - Algorithm-specific functions (Freeze, Warp, Repeat, etc.)
+ *    - Six assignable parameters (PERFORM 1-6)
+ *    - Can be mapped globally OR configured per-Program
+ *
+ * **RECOMMENDED GLOBAL STRATEGY (from Eventide):**
+ * - Map desired parameters to HotKnob P within each Program
+ * - Map HotKnob P to a specific CC in Global MIDI Control
+ * - Same CC always controls HotKnob P, but HotKnob P controls different
+ *   parameter sets per-Program
+ *
+ * ============================================================================
+ * CC VALUE BEHAVIOR
+ * ============================================================================
+ *
+ * Standard MIDI CC range: 0-127 for all continuous parameters
+ *
+ * **FOR SWITCHES AND TOGGLES:**
+ * - Threshold: CC value 64
+ * - Values 0-63 = LOW/OFF/BYPASS state
+ * - Values 64-127 = HIGH/ON/ACTIVE state
+ *
+ * **TOGGLE MODE (parameters without "(M)"):**
+ * - Any CC value ≥64 triggers the toggle action
+ * - Each message toggles state regardless of specific value
+ * - Example: P Act/Byp toggles between active/bypassed each time
+ *
+ * **MOMENTARY MODE (parameters with "(M)"):**
+ * - CC 0-63 forces BYPASS/OFF state
+ * - CC 64-127 forces ACTIVE/ON state
+ * - Enables discrete on/off control
+ * - Your MIDI controller MUST send only single values (press OR release)
+ * - Controllers sending both press (127) AND release (0) will immediately
+ *   activate then deactivate, defeating the purpose
+ *
+ * **CONTINUOUS PARAMETERS:**
+ * - Use full 0-127 range
+ * - Start/End points customizable during mapping (0-100%)
+ * - Direction reversible (End < Start creates inverted control)
+ *
+ * ============================================================================
+ * PROGRAM CHANGE BEHAVIOR
+ * ============================================================================
+ *
+ * PC messages: 1-100 by default, or 0-99 with PC Offset enabled
+ *
+ * PC Offset setting (added firmware v1.4.1):
+ * - System Menu → MIDI → PC Offset
+ * - Eliminates "off by one" problem for devices using PC 0-99
+ *
+ * PC messages load complete Programs only. YOU CANNOT:
+ * - Change individual Algorithm Presets via MIDI
+ * - Switch between series/parallel routing via MIDI
+ * - Access different algorithm combinations without creating Programs
+ *
+ * **SPILLOVER:**
+ * - Configurable 0-30 seconds for reverb/delay tails
+ * - Requires DSP Bypass mode (not Relay bypass)
+ * - Longer spillover = slower Program loading
+ * - Switching within spillover window is significantly slower
+ *
+ * **LOADING LATENCY:**
+ * - Actual loading time: 700ms to 2 seconds via MIDI PC
+ * - Affected by spillover time settings
+ * - Optimize: Reduce spillover to minimum needed
+ * - Onboard footswitches respond faster than MIDI PC
+ *
+ * ============================================================================
+ * KNOWN ISSUES AND LIMITATIONS
+ * ============================================================================
+ *
+ * 1. DELAY ALGORITHM PITCH WARPING:
+ *    - Program changes cause audible pitch/time warping on delay trails
+ *    - Affects Tape Echo, Head Space, Reverse delays
+ *    - Workaround: Use HotSwitches for delay changes within Program
+ *    - Or use crossfading delay algorithms (Digital Delay)
+ *
+ * 2. INSERT LOOP LATENCY:
+ *    - 5ms latency per A/D/A conversion
+ *    - Insert loops = double conversion = noticeable delay
+ *    - Some players find this unusable for drives and timing-critical effects
+ *    - Workaround: Run drives before H90 instead of in insert loops
+ *
+ * 3. POWER SUPPLY REQUIREMENTS:
+ *    - Insufficient current causes intermittent MIDI issues
+ *    - Fender Engine Room 12V @ 375mA is INSUFFICIENT
+ *    - Solution: Use two 9V 500mA outputs with current doubler cable
+ *    - Many "MIDI issues" are actually power supply problems
+ *
+ * 4. MIDI CLOCK SYNC ISSUES:
+ *    - Multiple firmware versions have clock sync problems
+ *    - Verify: System → MIDI → Clock Source (DIN or USB)
+ *    - Verify: Tempo Menu → Source = "MIDI Clock"
+ *    - Disconnect MIDI clock during firmware updates
+ *
+ * 5. FIRMWARE 1.9.4 MODE SWITCHING:
+ *    - Mode change CC must be sent BEFORE PC message
+ *    - Loading Programs can change Perform page automatically
+ *    - Order-dependent behavior not present in previous versions
+ *
+ * 6. TUNER CONTROL QUIRK:
+ *    - CC value 127 activates tuner
+ *    - CC value 0 does NOTHING
+ *    - Must send 127 again to deactivate (toggle-only)
+ *    - Does not respond to discrete on/off values
+ *
+ * 7. ROUTING/ALGORITHM LIMITATIONS:
+ *    - Cannot change series/parallel routing via MIDI
+ *    - Cannot change Insert/Dual global routing modes via MIDI
+ *    - Cannot select individual Algorithm Presets via MIDI
+ *    - Must create Programs with desired configurations
+ *
+ * ============================================================================
+ * CONFIGURATION REQUIREMENTS
+ * ============================================================================
+ *
+ * BEFORE using this library, you must configure CC mappings:
+ *
+ * 1. Access System Menu → MIDI → Global Control on the H90
+ * 2. For each parameter you want to control, assign a CC number
+ * 3. Update the CC numbers in this library to match YOUR configuration
+ * 4. OR follow the recommended mappings below and configure H90 to match
+ *
+ * This library uses RECOMMENDED CC assignments that follow common conventions
+ * and avoid conflicts with standard MIDI CCs. You are free to change these
+ * to match your workflow.
+ *
+ * ============================================================================
+ */
+
+
+# ============================================================================
+# PROGRAM CHANGE AND NAVIGATION
+# ============================================================================
+
+/*
+ * Program Change loads complete Programs (1-100 or 0-99 with PC Offset).
+ *
+ * NOTE: These work within the currently loaded Program List (User or Factory).
+ * You cannot switch between Program Lists via MIDI.
+ *
+ * PC Offset setting affects numbering:
+ * - OFF: Programs 1-100 (default)
+ * - ON: Programs 0-99 (for controllers starting at 0)
+ */
+
+@alias h90_program {ch} {program:0-99} "Load Program (0-99 with PC Offset, or 1-100 without)"
+  - pc {ch}.{program}
+@end
+
+# Explicit offset modes for clarity
+@alias h90_program_offset {ch} {program:0-99} "Load Program (PC Offset ON: 0-99)"
+  - pc {ch}.{program}
+@end
+
+@alias h90_program_default {ch} {program:1-100} "Load Program (PC Offset OFF: 1-100)"
+  - pc {ch}.{program}
+@end
+
+/*
+ * RECOMMENDED GLOBAL CC MAPPINGS FOR PROGRAM NAVIGATION:
+ * These are SUGGESTIONS - configure in System Menu → MIDI → Global Control
+ *
+ * CC#20 = Load (loads cued Program and toggles Act/Byp)
+ * CC#21 = Increment (cue next Program)
+ * CC#22 = Decrement (cue previous Program)
+ * CC#23 = Inc + Load (increment and load immediately)
+ * CC#24 = Dec + Load (decrement and load immediately)
+ * CC#25 = Bank Up (increment 3 Programs)
+ * CC#26 = Bank Down (decrement 3 Programs)
+ *
+ * Adjust these CC numbers in the aliases below to match YOUR configuration.
+ */
+
+@alias h90_load {ch} "Load cued Program and toggle Act/Byp (Configure: Global Control)"
+  - cc {ch}.20.127
+@end
+
+@alias h90_increment {ch} "Cue next Program (Configure: Global Control)"
+  - cc {ch}.21.127
+@end
+
+@alias h90_decrement {ch} "Cue previous Program (Configure: Global Control)"
+  - cc {ch}.22.127
+@end
+
+@alias h90_inc_load {ch} "Increment and load immediately (Configure: Global Control)"
+  - cc {ch}.23.127
+@end
+
+@alias h90_dec_load {ch} "Decrement and load immediately (Configure: Global Control)"
+  - cc {ch}.24.127
+@end
+
+@alias h90_bank_up {ch} "Bank Up - increment 3 Programs (Configure: Global Control)"
+  - cc {ch}.25.127
+@end
+
+@alias h90_bank_down {ch} "Bank Down - decrement 3 Programs (Configure: Global Control)"
+  - cc {ch}.26.127
+@end
+
+
+# ============================================================================
+# ACTIVE/BYPASS CONTROLS
+# ============================================================================
+
+/*
+ * Active/Bypass controls use both TOGGLE and MOMENTARY modes.
+ *
+ * TOGGLE MODE (no "(M)"):
+ * - Any CC value ≥64 toggles the state
+ * - Simpler for basic on/off control
+ *
+ * MOMENTARY MODE (with "(M)"):
+ * - CC 0-63 = Force BYPASS state
+ * - CC 64-127 = Force ACTIVE state
+ * - Enables discrete on/off commands
+ * - Requires controller that sends single values only
+ *
+ * RECOMMENDED GLOBAL CC MAPPINGS:
+ * CC#102 = P Act/Byp (Program toggle)
+ * CC#103 = P Act/Byp (M) (Program momentary)
+ * CC#104 = A Act/Byp (Preset A toggle)
+ * CC#105 = A Act/Byp (M) (Preset A momentary)
+ * CC#106 = B Act/Byp (Preset B toggle)
+ * CC#107 = B Act/Byp (M) (Preset B momentary)
+ * CC#108 = Insert 1 Act/Byp
+ * CC#109 = Insert 2 Act/Byp
+ */
+
+# Program-level bypass (toggle)
+@alias h90_program_bypass {ch} "Toggle Program Active/Bypass (Configure: Global Control)"
+  - cc {ch}.102.127
+@end
+
+# Program-level bypass (momentary - discrete control)
+@alias h90_program_active {ch} "Force Program ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.103.127
+@end
+
+@alias h90_program_bypass_force {ch} "Force Program BYPASS (Configure: Global Control, use (M) mode)"
+  - cc {ch}.103.0
+@end
+
+# Preset A bypass controls
+@alias h90_preset_a_bypass {ch} "Toggle Preset A Active/Bypass (Configure: Global Control)"
+  - cc {ch}.104.127
+@end
+
+@alias h90_preset_a_active {ch} "Force Preset A ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.105.127
+@end
+
+@alias h90_preset_a_bypass_force {ch} "Force Preset A BYPASS (Configure: Global Control, use (M) mode)"
+  - cc {ch}.105.0
+@end
+
+# Preset B bypass controls
+@alias h90_preset_b_bypass {ch} "Toggle Preset B Active/Bypass (Configure: Global Control)"
+  - cc {ch}.106.127
+@end
+
+@alias h90_preset_b_active {ch} "Force Preset B ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.107.127
+@end
+
+@alias h90_preset_b_bypass_force {ch} "Force Preset B BYPASS (Configure: Global Control, use (M) mode)"
+  - cc {ch}.107.0
+@end
+
+# Insert loop controls
+@alias h90_insert1_bypass {ch} "Toggle Insert 1 Active/Bypass (Configure: Global Control)"
+  - cc {ch}.108.127
+@end
+
+@alias h90_insert2_bypass {ch} "Toggle Insert 2 Active/Bypass (Configure: Global Control)"
+  - cc {ch}.109.127
+@end
+
+
+# ============================================================================
+# SYSTEM FUNCTIONS
+# ============================================================================
+
+/*
+ * RECOMMENDED GLOBAL CC MAPPINGS FOR SYSTEM FUNCTIONS:
+ * CC#27 = Tuner
+ * CC#80 = Tap Tempo
+ * CC#30 = Mode Toggle
+ * CC#31 = SELECT Mode
+ * CC#32 = PERFORM Mode
+ * CC#33 = BANK Mode
+ *
+ * NOTE: Tuner has a quirk - sending CC 0 does nothing, must send 127 twice
+ * to activate then deactivate. No discrete on/off control available.
+ */
+
+@alias h90_tuner {ch} "Toggle Tuner (WARNING: Quirky - must send 127 twice, 0 does nothing) (Configure: Global Control)"
+  - cc {ch}.27.127
+@end
+
+@alias h90_tap_tempo {ch} "Tap Tempo (Configure: Global Control)"
+  - cc {ch}.80.127
+@end
+
+@alias h90_mode_toggle {ch} "Toggle between modes (Configure: Global Control)"
+  - cc {ch}.30.127
+@end
+
+@alias h90_mode_select {ch} "Switch to SELECT Mode (Configure: Global Control)"
+  - cc {ch}.31.127
+@end
+
+@alias h90_mode_perform {ch} "Switch to PERFORM Mode (Configure: Global Control)"
+  - cc {ch}.32.127
+@end
+
+@alias h90_mode_bank {ch} "Switch to BANK Mode (Configure: Global Control)"
+  - cc {ch}.33.127
+@end
+
+
+# ============================================================================
+# HOTSWITCH CONTROLS
+# ============================================================================
+
+/*
+ * HotSwitches are Program-level parameter snapshots.
+ * Three independent HotSwitches (HS1, HS2, HS3) available.
+ * Only one HotSwitch can be active at a time.
+ *
+ * Both toggle and momentary modes available for each HotSwitch.
+ *
+ * RECOMMENDED GLOBAL CC MAPPINGS:
+ * CC#110 = HS1 (toggle)
+ * CC#111 = HS1 (M) (momentary)
+ * CC#112 = HS2 (toggle)
+ * CC#113 = HS2 (M) (momentary)
+ * CC#114 = HS3 (toggle)
+ * CC#115 = HS3 (M) (momentary)
+ */
+
+@alias h90_hotswitch1 {ch} "Toggle HotSwitch 1 (Configure: Global Control)"
+  - cc {ch}.110.127
+@end
+
+@alias h90_hotswitch1_active {ch} "Force HotSwitch 1 ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.111.127
+@end
+
+@alias h90_hotswitch1_off {ch} "Force HotSwitch 1 OFF (Configure: Global Control, use (M) mode)"
+  - cc {ch}.111.0
+@end
+
+@alias h90_hotswitch2 {ch} "Toggle HotSwitch 2 (Configure: Global Control)"
+  - cc {ch}.112.127
+@end
+
+@alias h90_hotswitch2_active {ch} "Force HotSwitch 2 ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.113.127
+@end
+
+@alias h90_hotswitch2_off {ch} "Force HotSwitch 2 OFF (Configure: Global Control, use (M) mode)"
+  - cc {ch}.113.0
+@end
+
+@alias h90_hotswitch3 {ch} "Toggle HotSwitch 3 (Configure: Global Control)"
+  - cc {ch}.114.127
+@end
+
+@alias h90_hotswitch3_active {ch} "Force HotSwitch 3 ACTIVE (Configure: Global Control, use (M) mode)"
+  - cc {ch}.115.127
+@end
+
+@alias h90_hotswitch3_off {ch} "Force HotSwitch 3 OFF (Configure: Global Control, use (M) mode)"
+  - cc {ch}.115.0
+@end
+
+
+# ============================================================================
+# PERFORMANCE PARAMETERS
+# ============================================================================
+
+/*
+ * Performance Parameters are algorithm-specific functions displayed on
+ * footswitches in Perform Mode (two pages of three switches each).
+ *
+ * These can map to functions like:
+ * - Prism Shift: Freeze
+ * - Wormhole: Warp
+ * - Delay algorithms: Repeat
+ * - Reverb algorithms: Infinite, Freeze
+ *
+ * Six assignable parameters (PERFORM 1-6).
+ * Can be mapped globally OR configured differently per-Program.
+ *
+ * RECOMMENDED GLOBAL CC MAPPINGS:
+ * CC#70 = PERFORM 1
+ * CC#71 = PERFORM 2
+ * CC#72 = PERFORM 3
+ * CC#73 = PERFORM 4
+ * CC#74 = PERFORM 5
+ * CC#75 = PERFORM 6
+ */
+
+@alias h90_perform1 {ch} {value:0-127} "Performance Parameter 1 (Configure: Global Control)"
+  - cc {ch}.70.{value}
+@end
+
+@alias h90_perform2 {ch} {value:0-127} "Performance Parameter 2 (Configure: Global Control)"
+  - cc {ch}.71.{value}
+@end
+
+@alias h90_perform3 {ch} {value:0-127} "Performance Parameter 3 (Configure: Global Control)"
+  - cc {ch}.72.{value}
+@end
+
+@alias h90_perform4 {ch} {value:0-127} "Performance Parameter 4 (Configure: Global Control)"
+  - cc {ch}.73.{value}
+@end
+
+@alias h90_perform5 {ch} {value:0-127} "Performance Parameter 5 (Configure: Global Control)"
+  - cc {ch}.74.{value}
+@end
+
+@alias h90_perform6 {ch} {value:0-127} "Performance Parameter 6 (Configure: Global Control)"
+  - cc {ch}.75.{value}
+@end
+
+
+# ============================================================================
+# CONTINUOUS CONTROLS
+# ============================================================================
+
+/*
+ * Quick Knobs provide assignable parameter control.
+ * HotKnobs control multiple parameters simultaneously.
+ *
+ * RECOMMENDED GLOBAL CC MAPPINGS:
+ * CC#11 = Expression Pedal (standard MIDI expression)
+ * CC#12 = Quick Knob 1
+ * CC#13 = Quick Knob 2
+ * CC#14 = Quick Knob 3
+ * CC#15 = Quick Knob 4
+ * CC#16 = Quick Knob 5
+ * CC#17 = Quick Knob 6
+ * CC#34 = P HotKnob (Program HotKnob)
+ * CC#35 = A HotKnob (Preset A HotKnob)
+ * CC#36 = B HotKnob (Preset B HotKnob)
+ * CC#84 = P Mix (Program wet/dry mix)
+ *
+ * NOTE: Following Eventide's recommended strategy, map algorithm parameters
+ * to HotKnob P per-Program, then map HotKnob P globally to one CC.
+ */
+
+@alias h90_expression {ch} {value:0-127} "Expression Pedal (Configure: Global Control)"
+  - cc {ch}.11.{value}
+@end
+
+@alias h90_quick_knob1 {ch} {value:0-127} "Quick Knob 1 (Configure: Global Control)"
+  - cc {ch}.12.{value}
+@end
+
+@alias h90_quick_knob2 {ch} {value:0-127} "Quick Knob 2 (Configure: Global Control)"
+  - cc {ch}.13.{value}
+@end
+
+@alias h90_quick_knob3 {ch} {value:0-127} "Quick Knob 3 (Configure: Global Control)"
+  - cc {ch}.14.{value}
+@end
+
+@alias h90_quick_knob4 {ch} {value:0-127} "Quick Knob 4 (Configure: Global Control)"
+  - cc {ch}.15.{value}
+@end
+
+@alias h90_quick_knob5 {ch} {value:0-127} "Quick Knob 5 (Configure: Global Control)"
+  - cc {ch}.16.{value}
+@end
+
+@alias h90_quick_knob6 {ch} {value:0-127} "Quick Knob 6 (Configure: Global Control)"
+  - cc {ch}.17.{value}
+@end
+
+@alias h90_hotknob_program {ch} {value:0-127} "Program HotKnob (Configure: Global Control)"
+  - cc {ch}.34.{value}
+@end
+
+@alias h90_hotknob_a {ch} {value:0-127} "Preset A HotKnob (Configure: Global Control)"
+  - cc {ch}.35.{value}
+@end
+
+@alias h90_hotknob_b {ch} {value:0-127} "Preset B HotKnob (Configure: Global Control)"
+  - cc {ch}.36.{value}
+@end
+
+@alias h90_mix {ch} {value:0-127} "Program Mix - wet/dry balance (Configure: Global Control)"
+  - cc {ch}.84.{value}
+@end
+
+/*
+ * Gain controls for input/output levels.
+ * RECOMMENDED GLOBAL CC MAPPINGS:
+ * CC#90 = P In Gain
+ * CC#91 = P Out Gain
+ * CC#92 = A In Gain
+ * CC#93 = A Out Gain
+ * CC#94 = B In Gain
+ * CC#95 = B Out Gain
+ */
+
+@alias h90_program_in_gain {ch} {value:0-127} "Program Input Gain (Configure: Global Control)"
+  - cc {ch}.90.{value}
+@end
+
+@alias h90_program_out_gain {ch} {value:0-127} "Program Output Gain (Configure: Global Control)"
+  - cc {ch}.91.{value}
+@end
+
+@alias h90_preset_a_in_gain {ch} {value:0-127} "Preset A Input Gain (Configure: Global Control)"
+  - cc {ch}.92.{value}
+@end
+
+@alias h90_preset_a_out_gain {ch} {value:0-127} "Preset A Output Gain (Configure: Global Control)"
+  - cc {ch}.93.{value}
+@end
+
+@alias h90_preset_b_in_gain {ch} {value:0-127} "Preset B Input Gain (Configure: Global Control)"
+  - cc {ch}.94.{value}
+@end
+
+@alias h90_preset_b_out_gain {ch} {value:0-127} "Preset B Output Gain (Configure: Global Control)"
+  - cc {ch}.95.{value}
+@end
+
+
+# ============================================================================
+# ALGORITHM-SPECIFIC COMMON PARAMETERS
+# ============================================================================
+
+/*
+ * While these parameters are algorithm-specific and must be mapped per-Program,
+ * common parameters appear across many algorithms. These aliases represent
+ * typical mappings you might configure.
+ *
+ * EXAMPLE MAPPINGS (configure in Parameters Edit Mode per-Program):
+ * CC#50 = Decay/Feedback
+ * CC#51 = Modulation Rate
+ * CC#52 = Modulation Depth
+ * CC#53 = Filter Cutoff
+ * CC#89 = Play/Pause
+ * CC#90 = Infinity/Freeze
+ * CC#91 = HotSwitch (algorithm-level)
+ *
+ * These are EXAMPLES only - actual mappings are per-Program.
+ */
+
+@alias h90_decay {ch} {value:0-127} "Decay/Feedback (Example per-Program mapping)"
+  - cc {ch}.50.{value}
+@end
+
+@alias h90_mod_rate {ch} {value:0-127} "Modulation Rate (Example per-Program mapping)"
+  - cc {ch}.51.{value}
+@end
+
+@alias h90_mod_depth {ch} {value:0-127} "Modulation Depth (Example per-Program mapping)"
+  - cc {ch}.52.{value}
+@end
+
+@alias h90_filter {ch} {value:0-127} "Filter Cutoff (Example per-Program mapping)"
+  - cc {ch}.53.{value}
+@end
+
+@alias h90_play {ch} "Play/Pause button (Example per-Program mapping)"
+  - cc {ch}.89.127
+@end
+
+@alias h90_infinity {ch} "Infinity/Freeze button (Example per-Program mapping)"
+  - cc {ch}.90.127
+@end
+
+@alias h90_algo_hotswitch {ch} "Algorithm HotSwitch (Example per-Program mapping)"
+  - cc {ch}.91.127
+@end
+
+
+# ============================================================================
+# WORKAROUND MACROS FOR FIRMWARE 1.9.4+ BUG
+# ============================================================================
+
+/*
+ * These macros work around the PC+CC simultaneous message bug in firmware
+ * 1.9.4 and later by adding delays between PC and CC messages.
+ *
+ * NOTE: These provide LIMITED success. The RECOMMENDED solution is
+ * downgrading to firmware 1.8.6.
+ *
+ * Timing based on user reports: 4-6 MIDI clock cycles minimum delay.
+ * At 120 BPM, 1 clock cycle ≈ 10.4ms, so 6 cycles ≈ 62ms.
+ * Using 100ms to be safe.
+ */
+
+@alias h90_load_with_bypass {ch} {program} {bypass_state} "Load Program then set bypass (firmware 1.9.4+ workaround)"
+  - pc {ch}.{program}
+  [+100ms]
+  - cc {ch}.103.{bypass_state}
+@end
+
+@alias h90_load_with_hotswitch {ch} {program} {hotswitch_num} "Load Program then engage HotSwitch (firmware 1.9.4+ workaround)"
+  - pc {ch}.{program}
+  [+100ms]
+  @if {hotswitch_num} == 1
+    - cc {ch}.110.127
+  @elif {hotswitch_num} == 2
+    - cc {ch}.112.127
+  @elif {hotswitch_num} == 3
+    - cc {ch}.114.127
+  @end
+@end
+
+@alias h90_load_with_expression {ch} {program} {exp_value} "Load Program then set expression (firmware 1.9.4+ workaround)"
+  - pc {ch}.{program}
+  [+100ms]
+  - cc {ch}.11.{exp_value}
+@end
+
+
+# ============================================================================
+# RECOMMENDED CONFIGURATION WORKFLOWS
+# ============================================================================
+
+/*
+ * These macros demonstrate best-practice configuration strategies following
+ * Eventide's recommendations and community expertise.
+ */
+
+/*
+ * WORKFLOW 1: GLOBAL HOTKNOB STRATEGY
+ *
+ * This is Eventide's recommended approach:
+ * 1. Within each Program, map desired parameters to HotKnob P
+ * 2. Globally map HotKnob P to a consistent CC (e.g., CC#34)
+ * 3. Your expression pedal always sends CC#34
+ * 4. Different Programs respond with different parameter changes
+ *
+ * Configuration steps:
+ * 1. On H90: System Menu → MIDI → Global Control
+ * 2. Map "P HotKnob" to CC#34
+ * 3. In each Program: Parameters Edit Mode
+ * 4. Hold parameter's Quick Knob, turn Quick Knob 2, select HotKnob P
+ * 5. Set Start/End values to define control range
+ */
+
+@alias h90_setup_global_hotknob {ch} "Initialize global HotKnob strategy"
+  # Configure H90: System Menu → MIDI → Global Control
+  # Map "P HotKnob" to CC#34
+  # Then use h90_hotknob_program for expression control
+@end
+
+/*
+ * WORKFLOW 2: SETLIST WITH SCENE-LIKE BEHAVIOR
+ *
+ * While H90 doesn't have "scenes," you can achieve similar functionality:
+ * 1. Create a Program List with related Programs
+ * 2. Use HotSwitches within Programs for parameter variations
+ * 3. Navigate Programs with Increment/Decrement
+ * 4. Use Bank Mode for faster access (3 Programs per bank)
+ */
+
+/*
+ * NOTE: These aliases are temporarily commented out because @define with
+ * parameter references ({param}) is not yet supported in alias bodies.
+ * See: CLAUDE.md "Remaining Work" - @define in Aliases
+ */
+// @alias h90_setlist_setup {ch} {start_program} "Navigate setlist with scene-like HotSwitch control"
+//   @define CURRENT_PROGRAM {start_program}
+//
+//   # Load base Program
+//   - pc {ch}.${CURRENT_PROGRAM}
+//   [+200ms]
+// @end
+//
+// @alias h90_next_song {ch} "Move to next Program in setlist"
+//   - cc {ch}.23.127
+//   [+100ms]
+// @end
+//
+// @alias h90_prev_song {ch} "Move to previous Program in setlist"
+//   - cc {ch}.24.127
+//   [+100ms]
+// @end
+//
+// @alias h90_song_variation {ch} {hotswitch_num} "Engage HotSwitch for song variation"
+//   @if {hotswitch_num} == 1
+//     - cc {ch}.110.127
+//   @elif {hotswitch_num} == 2
+//     - cc {ch}.112.127
+//   @elif {hotswitch_num} == 3
+//     - cc {ch}.114.127
+//   @end
+// @end
+
+
+# ============================================================================
+# DUAL ALGORITHM SETUP MACROS
+# ============================================================================
+
+/*
+ * The H90 runs two algorithms (A and B) simultaneously in series or parallel.
+ * These macros demonstrate controlling both algorithm paths.
+ *
+ * NOTE: You cannot change routing mode (series/parallel) or algorithm
+ * selection via MIDI. Create Programs with desired configurations.
+ */
+
+@alias h90_dual_reverb_setup {ch} {program} "Load dual reverb Program with balanced mix"
+  - pc {ch}.{program}
+  [+100ms]
+  # Set 50/50 mix between A and B
+  - cc {ch}.84.64
+@end
+
+@alias h90_serial_fx_chain {ch} {program} {mix_percent} "Load serial effects and set wet/dry mix"
+  - pc {ch}.{program}
+  [+100ms]
+  # Mix: 0=100% dry, 127=100% wet
+  - cc {ch}.84.{mix_percent}
+@end
+
+@alias h90_a_only {ch} "Bypass Preset B (A-only processing)"
+  - cc {ch}.107.0
+  [+50ms]
+  - cc {ch}.105.127
+@end
+
+@alias h90_b_only {ch} "Bypass Preset A (B-only processing)"
+  - cc {ch}.105.0
+  [+50ms]
+  - cc {ch}.107.127
+@end
+
+@alias h90_both_active {ch} "Activate both Preset A and B"
+  - cc {ch}.105.127
+  [+50ms]
+  - cc {ch}.107.127
+@end
+
+
+# ============================================================================
+# EXPRESSION CONTROL PATTERNS
+# ============================================================================
+
+/*
+ * Safe expression sweeps with timing to prevent issues.
+ * Use these instead of rapid CC updates.
+ *
+ * NOTE: These aliases are temporarily commented out because @sweep with
+ * parameter placeholders in timing expressions ({duration}) is not yet
+ * supported. See: CLAUDE.md "Remaining Work" - Sweep Parameter Parsing
+ */
+// @alias h90_expression_sweep {ch} {from_value} {to_value} {duration} "Smooth expression sweep"
+//   @sweep from [0.0.0] to [+{duration}] every 50ms
+//     - cc {ch}.11 ramp({from_value}, {to_value})
+//   @end
+// @end
+//
+// @alias h90_expression_fade_in {ch} {duration} "Expression fade in from 0 to full"
+//   @sweep from [0.0.0] to [+{duration}] every 50ms
+//     - cc {ch}.11 ramp(0, 127, exponential)
+//   @end
+// @end
+//
+// @alias h90_expression_fade_out {ch} {duration} "Expression fade out from full to 0"
+//   @sweep from [0.0.0] to [+{duration}] every 50ms
+//     - cc {ch}.11 ramp(127, 0, logarithmic)
+//   @end
+// @end
+
+
+# ============================================================================
+# LIVE PERFORMANCE INITIALIZATION
+# ============================================================================
+
+/*
+ * Recommended initialization sequence for live performance.
+ * Sets H90 to predictable state with optimal settings.
+ */
+
+@alias h90_live_init {ch} {starting_program} "Initialize H90 for live performance"
+  # Switch to PERFORM Mode for footswitch control
+  - cc {ch}.32.127
+  [+100ms]
+
+  # Load starting Program
+  - pc {ch}.{starting_program}
+  [+200ms]
+
+  # Ensure Program is active (not bypassed)
+  - cc {ch}.103.127
+  [+100ms]
+
+  # Reset expression to neutral
+  - cc {ch}.11.64
+  [+50ms]
+
+  # All HotSwitches off
+  - cc {ch}.111.0
+  [+50ms]
+  - cc {ch}.113.0
+  [+50ms]
+  - cc {ch}.115.0
+@end
+
+
+# ============================================================================
+# POWER USER TIPS AND BEST PRACTICES
+# ============================================================================
+
+/*
+ * CONFIGURATION STRATEGY:
+ *
+ * 1. START WITH GLOBAL MAPPINGS:
+ *    - Bypass controls (CC#102-109)
+ *    - Navigation (CC#20-26)
+ *    - Tuner (CC#27)
+ *    - Tap Tempo (CC#80)
+ *    - Mode switching (CC#30-33)
+ *    - HotSwitches (CC#110-115)
+ *
+ * 2. ADD EXPRESSION CONTROL:
+ *    - Map HotKnob P globally to CC#11 (expression pedal)
+ *    - Configure HotKnob P per-Program for different parameters
+ *
+ * 3. ADD PERFORMANCE PARAMETERS:
+ *    - Map PERFORM 1-6 globally (CC#70-75)
+ *    - Configure per-Program for algorithm-specific functions
+ *
+ * 4. ADD QUICK KNOBS IF NEEDED:
+ *    - Map Quick Knobs 1-6 globally (CC#12-17)
+ *    - Or configure per-Program for specific parameters
+ *
+ * RELIABILITY RECOMMENDATIONS:
+ *
+ * - Use firmware 1.8.6 for professional MIDI control
+ * - Ensure adequate power supply (use current doubler if needed)
+ * - Add 100ms delays between PC and CC messages
+ * - Save Programs in desired states rather than changing everything via MIDI
+ * - Use HotSwitches for parameter changes within Programs
+ * - Test thoroughly before live performance
+ * - Have backup Programs with no MIDI dependencies
+ *
+ * EXPRESSION PEDAL CALIBRATION:
+ *
+ * - System → I/O → Exp & Aux → Calibration
+ * - Connect cable to pedal FIRST, then to H90
+ * - Rock pedal heel-to-toe multiple times during calibration
+ * - Verify 0 at heel, 100 at toe
+ * - Compatible pedals: Mission SP-H9, Dunlop DVP3/4, Lehle Dual Expression
+ *
+ * SPILLOVER OPTIMIZATION:
+ *
+ * - Set spillover time to minimum needed for natural decay
+ * - Longer spillover = slower Program loading
+ * - Wait outside spillover window before changing Programs
+ * - Use DSP bypass mode (not Relay) for spillover
+ *
+ * AVOIDING DELAY WARPING:
+ *
+ * - Use HotSwitches to change delay subdivisions within Program
+ * - Use crossfading delay algorithms (Digital Delay)
+ * - Turn off spillover if warping is unacceptable
+ * - Run separate delay pedal for critical delay functions
+ *
+ * MIDI CLOCK SYNC:
+ *
+ * - Set Clock Source: System → MIDI → Clock Source (DIN or USB)
+ * - Set Tempo Source: Tempo Menu → Source = "MIDI Clock"
+ * - Disconnect clock during firmware updates
+ * - Enable time sync on individual parameters as needed
+ *
+ * ============================================================================
+ */

@@ -1,0 +1,12 @@
+---
+title: Parameter Count Mismatch
+---
+
+# Define alias with 3 required parameters
+@alias test_alias cc.{ch}.{cc}.{val}
+
+# Call with too few arguments (should fail)
+[00:00.000]
+- test_alias 1 7
+
+# This should cause an error during event generation

@@ -1,0 +1,26 @@
+---
+title: "Loops Test"
+author: "Test"
+tempo: 120
+time_signature: 4/4
+ppq: 480
+---
+
+# Test basic loop functionality
+
+# Simple loop - repeat 3 times every 1 beat
+@loop 3 times every 1b
+- pc 1.10
+@end
+
+# Loop with explicit timing
+@loop 2 times at [00:05.000] every 2b
+- cc 1.7.100
+@end
+
+# Loop with variable
+@define LOOP_PRESET 15
+
+@loop 4 times at [00:10.000] every 1b
+- pc 1.${LOOP_PRESET}
+@end

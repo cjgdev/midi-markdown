@@ -1,0 +1,19 @@
+---
+title: "Timing Types"
+---
+
+# Absolute timing
+[00:00.000]
+- tempo 120
+
+# Musical timing
+[1.1.0]
+- note_on 1.C4 100 1b
+
+# Relative timing
+[+1b]
+- note_on 1.D4 100 1b
+
+# Simultaneous
+[@]
+- note_on 1.E4 100 1b

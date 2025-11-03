@@ -1,0 +1,186 @@
+# Getting Started with MIDI Markup Language
+
+Get up and running with MML in 5 minutes.
+
+## What is MML?
+
+MIDI Markup Language (MML) is a human-readable, text-based format for creating MIDI sequences. Write MIDI commands in a simple, markdown-inspired syntax and compile them to standard MIDI files.
+
+## Prerequisites
+
+- **Python 3.12+**
+- **UV** package manager (recommended) or pip
+
+## Quick Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/anthropics/midi-markdown.git
+cd midi-markdown
+
+# Install with UV (recommended)
+uv sync
+
+# Verify installation
+uv run midimarkup version
+```
+
+For detailed installation instructions, see [Installation Guide](installation.md).
+
+## Your First MML File
+
+Create a file called `hello.mml`:
+
+```yaml
+---
+title: "Hello MIDI"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# Simple melody
+[00:00.000]
+- note_on 1.60 80 1b   # Middle C, velocity 80, duration 1 beat
+
+[00:01.000]
+- note_on 1.64 80 1b   # E
+
+[00:02.000]
+- note_on 1.67 80 1b   # G
+
+[00:03.000]
+- note_on 1.72 80 2b   # C (octave higher), 2 beats
+
+[00:05.000]
+- end_of_track
+```
+
+## Compile to MIDI
+
+```bash
+# Create output directory
+mkdir -p output
+
+# Compile your file
+uv run midimarkup compile hello.mml -o output/hello.mid
+
+# Success! You should see:
+# ✅ Compilation successful (0.12s)
+```
+
+## Play Your MIDI File
+
+```bash
+# macOS
+open output/hello.mid
+
+# Linux with timidity
+timidity output/hello.mid
+
+# Windows
+start output/hello.mid
+```
+
+## Understanding the Syntax
+
+### Frontmatter (YAML)
+```yaml
+---
+title: "Song Title"       # Song metadata
+tempo: 120                # BPM
+time_signature: [4, 4]    # Time signature
+ppq: 480                  # Pulses per quarter note
+---
+```
+
+### Timing Markers
+```
+[00:00.000]              # Absolute time: mm:ss.milliseconds
+[1.1.0]                  # Musical time: bars.beats.ticks
+[+1b]                    # Relative: +1 beat from previous
+[@]                      # Simultaneous with previous event
+```
+
+### MIDI Commands
+```
+- note_on 1.60 80 1b     # Channel.note velocity duration
+- note_off 1.60          # Channel.note
+- cc 1.7.100             # Channel.controller.value (CC7 = volume)
+- pc 1.5                 # Channel.program (change instrument)
+- tempo 140              # Change tempo
+- marker "Chorus"        # Add marker
+```
+
+## Next Steps
+
+### Learn by Example
+Work through the progressive examples:
+
+```bash
+# Start with the basics
+uv run midimarkup compile examples/00_hello_world.mml
+uv run midimarkup compile examples/01_minimal_midi.mml
+uv run midimarkup compile examples/02_simple_click_track.mml
+
+# Move to intermediate
+uv run midimarkup compile examples/04_tempo_changes.mml
+uv run midimarkup compile examples/05_multi_channel_basic.mml
+
+# Explore advanced features
+uv run midimarkup compile examples/09_comprehensive_song.mml
+uv run midimarkup compile examples/13_device_import.mml
+```
+
+See [examples/README.md](../examples/README.md) for a complete learning path.
+
+### Read the Guides
+
+- **[Basic Syntax](guides/basic-syntax.md)** - Detailed syntax reference
+- **[Timing Systems](guides/timing-systems.md)** - All four timing paradigms
+- **[Alias System](guides/alias-system.md)** - Create reusable command shortcuts
+- **[Device Libraries](guides/device-libraries.md)** - Control hardware with high-level commands
+
+### Reference Documentation
+
+- **[Language Specification](../spec.md)** - Complete MML reference (1,300+ lines)
+- **[CLI Commands](reference/cli-commands.md)** - Command-line reference
+- **[MIDI Commands](reference/midi-commands.md)** - Quick MIDI command lookup
+
+## Common Commands
+
+```bash
+# Compile with verbose output
+uv run midimarkup compile song.mml -o output.mid -v
+
+# Validate before compiling
+uv run midimarkup validate song.mml
+
+# Quick syntax check (faster)
+uv run midimarkup check song.mml
+
+# Custom PPQ (higher resolution)
+uv run midimarkup compile song.mml --ppq 960
+
+# Single-track MIDI (format 0)
+uv run midimarkup compile song.mml --format 0
+```
+
+## Getting Help
+
+- **Documentation**: Browse the [docs/](index.md) directory
+- **Examples**: Study the [examples/](../examples/) directory (16 examples)
+- **Issues**: Report bugs on [GitHub](https://github.com/anthropics/midi-markdown/issues)
+- **CLI Help**: Run `uv run midimarkup --help`
+
+## What's Next?
+
+Now that you've created your first MIDI file, explore these topics:
+
+1. **Multi-channel compositions** - Use multiple instruments (example 05)
+2. **Control change automation** - Automate volume, pan, effects (example 06)
+3. **Variables and loops** - Create patterns efficiently (examples 10-11)
+4. **Device libraries** - Control guitar processors, effects units (example 13)
+5. **Musical timing** - Work in bars.beats.ticks (example 12)
+
+Happy MIDI composing! 🎵

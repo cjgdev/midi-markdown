@@ -1,0 +1,214 @@
+"""MIDI value range validation."""
+
+from __future__ import annotations
+
+from midi_markdown.constants import (
+    MIDI_CHANNEL_MAX,
+    MIDI_CHANNEL_MIN,
+    MIDI_MAX,
+    MIDI_MIN,
+    MIDI_NOTE_MAX,
+    MIDI_NOTE_MIN,
+    PITCH_BEND_MAX,
+    PITCH_BEND_MIN,
+    TEMPO_MAX,
+    TEMPO_MIN,
+)
+from midi_markdown.utils.parameter_types import note_to_midi
+
+from .errors import ValidationError
+
+
+class Validator:
+    """Validates MIDI values and constraints.
+
+    Provides static methods for validating MIDI values, channels, notes, tempo, and other constraints.
+    All methods raise ValidationError if validation fails.
+    """
+
+    @staticmethod
+    def validate_midi_value(value: int, min_val: int = 0, max_val: int = 127) -> None:
+        """Validate a MIDI value is in range.
+
+        Args:
+            value: Value to validate
+            min_val: Minimum allowed value
+            max_val: Maximum allowed value
+
+        Raises:
+            ValidationError: If value is out of range
+        """
+        if not isinstance(value, int):
+            raise ValidationError(f"MIDI value must be an integer, got {type(value).__name__}")
+
+        if not (min_val <= value <= max_val):
+            raise ValidationError(f"MIDI value {value} out of range [{min_val}-{max_val}]")
+
+    @staticmethod
+    def validate_channel(channel: int) -> None:
+        """Validate MIDI channel is in range 1-16.
+
+        Args:
+            channel: Channel number to validate
+
+        Raises:
+            ValidationError: If channel is invalid
+        """
+        if not isinstance(channel, int):
+            raise ValidationError(f"Channel must be an integer, got {type(channel).__name__}")
+
+        if not (MIDI_CHANNEL_MIN <= channel <= MIDI_CHANNEL_MAX):
+            raise ValidationError(
+                f"Channel {channel} out of range [{MIDI_CHANNEL_MIN}-{MIDI_CHANNEL_MAX}]"
+            )
+
+    @staticmethod
+    def validate_note(note: int | str) -> int:
+        """Validate and convert note to MIDI note number.
+
+        Args:
+            note: Note number (0-127) or name (e.g., "C4", "D#5")
+
+        Returns:
+            MIDI note number (0-127)
+
+        Raises:
+            ValidationError: If note is invalid
+        """
+        if isinstance(note, str):
+            try:
+                note_num = note_to_midi(note)
+                return note_num
+            except ValueError as e:
+                raise ValidationError(f"Invalid note name '{note}': {e}")
+
+        if isinstance(note, int):
+            if not (MIDI_NOTE_MIN <= note <= MIDI_NOTE_MAX):
+                raise ValidationError(
+                    f"Note number {note} out of range [{MIDI_NOTE_MIN}-{MIDI_NOTE_MAX}]"
+                )
+            return note
+
+        raise ValidationError(f"Note must be string or integer, got {type(note).__name__}")
+
+    @staticmethod
+    def validate_velocity(velocity: int) -> None:
+        """Validate MIDI velocity is in range 0-127.
+
+        Args:
+            velocity: Velocity value to validate
+
+        Raises:
+            ValidationError: If velocity is invalid
+        """
+        if not isinstance(velocity, int):
+            raise ValidationError(f"Velocity must be an integer, got {type(velocity).__name__}")
+
+        if not (MIDI_MIN <= velocity <= MIDI_MAX):
+            raise ValidationError(f"Velocity {velocity} out of range [{MIDI_MIN}-{MIDI_MAX}]")
+
+    @staticmethod
+    def validate_cc_controller(controller: int) -> None:
+        """Validate CC controller number is in range 0-127.
+
+        Args:
+            controller: Controller number to validate
+
+        Raises:
+            ValidationError: If controller is invalid
+        """
+        if not isinstance(controller, int):
+            raise ValidationError(
+                f"CC controller must be an integer, got {type(controller).__name__}"
+            )
+
+        if not (MIDI_MIN <= controller <= MIDI_MAX):
+            raise ValidationError(
+                f"CC controller {controller} out of range [{MIDI_MIN}-{MIDI_MAX}]"
+            )
+
+    @staticmethod
+    def validate_cc_value(value: int | dict) -> None:
+        """Validate CC value is in range 0-127 or a valid expression (ramp/random).
+
+        Args:
+            value: CC value to validate (int or dict for ramp/random expressions)
+
+        Raises:
+            ValidationError: If value is invalid
+        """
+        # Allow dict values for ramp and random expressions
+        if isinstance(value, dict):
+            if value.get("type") in ("ramp", "random"):
+                # Validate ramp/random expression values
+                if value.get("type") == "ramp":
+                    start = value.get("start", 0)
+                    end = value.get("end", 127)
+                    if not (MIDI_MIN <= start <= MIDI_MAX):
+                        raise ValidationError(
+                            f"Ramp start value {start} out of range [{MIDI_MIN}-{MIDI_MAX}]"
+                        )
+                    if not (MIDI_MIN <= end <= MIDI_MAX):
+                        raise ValidationError(
+                            f"Ramp end value {end} out of range [{MIDI_MIN}-{MIDI_MAX}]"
+                        )
+                return
+            raise ValidationError(f"Unknown CC expression type: {value.get('type')}")
+
+        if not isinstance(value, int):
+            raise ValidationError(
+                f"CC value must be an integer or ramp/random expression, got {type(value).__name__}"
+            )
+
+        if not (MIDI_MIN <= value <= MIDI_MAX):
+            raise ValidationError(f"CC value {value} out of range [{MIDI_MIN}-{MIDI_MAX}]")
+
+    @staticmethod
+    def validate_program(program: int) -> None:
+        """Validate program change number is in range 0-127.
+
+        Args:
+            program: Program number to validate
+
+        Raises:
+            ValidationError: If program is invalid
+        """
+        if not isinstance(program, int):
+            raise ValidationError(f"Program must be an integer, got {type(program).__name__}")
+
+        if not (MIDI_MIN <= program <= MIDI_MAX):
+            raise ValidationError(f"Program {program} out of range [{MIDI_MIN}-{MIDI_MAX}]")
+
+    @staticmethod
+    def validate_pitch_bend(value: int) -> None:
+        """Validate pitch bend value is in range -8192 to +8191.
+
+        Args:
+            value: Pitch bend value to validate
+
+        Raises:
+            ValidationError: If value is invalid
+        """
+        if not isinstance(value, int):
+            raise ValidationError(f"Pitch bend must be an integer, got {type(value).__name__}")
+
+        if not (PITCH_BEND_MIN <= value <= PITCH_BEND_MAX):
+            raise ValidationError(
+                f"Pitch bend {value} out of range [{PITCH_BEND_MIN}-{PITCH_BEND_MAX}]"
+            )
+
+    @staticmethod
+    def validate_tempo(bpm: int | float) -> None:
+        """Validate tempo is in reasonable range.
+
+        Args:
+            bpm: Tempo in beats per minute
+
+        Raises:
+            ValidationError: If tempo is invalid
+        """
+        if not isinstance(bpm, (int, float)):
+            raise ValidationError(f"Tempo must be a number, got {type(bpm).__name__}")
+
+        if not (TEMPO_MIN <= bpm <= TEMPO_MAX):
+            raise ValidationError(f"Tempo {bpm} BPM out of range [{TEMPO_MIN}-{TEMPO_MAX}]")

@@ -1,0 +1,22 @@
+---
+device: Test Device A
+manufacturer: Test Manufacturer
+version: 1.0.0
+default_channel: 1
+---
+
+# Test Device A - Simple device library for testing imports
+
+@alias device_a_init {ch} "Initialize Device A to defaults"
+  - cc {ch}.0.0
+  - cc {ch}.32.0
+  - pc {ch}.0
+@end
+
+@alias device_a_preset {ch} {preset} "Load preset on Device A"
+  - pc {ch}.{preset}
+@end
+
+@alias device_a_volume {ch} {vol:percent} "Set Device A volume"
+  - cc {ch}.7.{vol}
+@end
