@@ -15,6 +15,7 @@ from midi_markdown import __version__
 from .commands import (
     check,
     compile,
+    create_repl_command,
     inspect,
     library_info,
     library_list,
@@ -68,6 +69,7 @@ app.command()(inspect)
 app.command()(validate)
 app.command()(check)
 app.command()(version)
+create_repl_command(app)  # Register REPL command
 
 # Create library subcommand group
 library_app = typer.Typer(

@@ -117,7 +117,7 @@ class MMLParser:
             >>> complete, result = parser.parse_interactive("[00:01.000]\\n- cc 1.7.64")
             >>> assert complete and isinstance(result, MMLDocument)
         """
-        from lark import UnexpectedEOF, UnexpectedInput
+        from lark import UnexpectedEOF, UnexpectedInput, UnexpectedToken
 
         try:
             doc = self.parse_string(text)
@@ -125,8 +125,15 @@ class MMLParser:
         except UnexpectedEOF:
             # Need more input
             return False, None
+        except UnexpectedToken as e:
+            # Check if this is incomplete input (unexpected end of input)
+            # Lark signals end-of-input with token type '$END' or empty token
+            if e.token is None or e.token.type == "$END" or e.token.type == "":
+                return False, None
+            # Otherwise it's a complete but invalid input
+            return True, e
         except UnexpectedInput as e:
-            # Complete but invalid
+            # Complete but invalid (other Lark parse errors)
             return True, e
         except Exception as e:
             # Other errors (file not found, etc.)

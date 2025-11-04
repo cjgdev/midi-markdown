@@ -27,6 +27,7 @@ dependencies = [
     "typer>=0.12.0",
     "rich>=13.0.0",
     "lark>=1.3.1",
+    "prompt-toolkit>=3.0.0",
 ]
 
 [project.optional-dependencies]
@@ -34,6 +35,7 @@ dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.12.0",
+    "pexpect>=4.9.0",
     "ruff>=0.6.0",
     "mypy>=1.11.0",
     "types-pyyaml>=6.0.0",
@@ -203,6 +205,7 @@ markers = [
     "sweeps: Sweep statement tests",
     "loops: Loop expansion tests",
     "variables: Variable substitution tests",
+    "repl: REPL functionality tests",
 ]
 
 # Coverage configuration
