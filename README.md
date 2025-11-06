@@ -123,6 +123,11 @@ pip install -e ".[dev]"
 # Compile MML to MIDI
 midimarkup compile song.mml -o song.mid
 
+# Real-time playback (NEW - Phase 3)
+midimarkup play song.mml --port "IAC Driver Bus 1"
+midimarkup play song.mml --port 0 --no-ui
+midimarkup play --list-ports
+
 # Validate MML syntax
 midimarkup validate song.mml
 
@@ -154,6 +159,12 @@ midi-markdown/
 │   ├── cli/              # Command-line interface
 │   ├── parser/           # Lexer and parser
 │   ├── alias/            # Alias resolution system
+│   ├── runtime/          # Real-time MIDI playback (NEW)
+│   │   ├── midi_io.py    # MIDI port management
+│   │   ├── tempo_tracker.py  # Tempo tracking
+│   │   ├── scheduler.py  # Event scheduler
+│   │   ├── player.py     # High-level player API
+│   │   └── tui/          # Terminal UI components
 │   ├── midi/             # MIDI event generation
 │   └── utils/            # Shared utilities
 ├── tests/                # Test suite
@@ -303,8 +314,16 @@ Contributions are welcome! This project is in early development - see the TODO c
 - [x] Conditional logic in aliases (Stage 7)
 - [x] Parser integration (Stage 9)
 - [x] Device libraries: Quad Cortex, H90, Kemper, Helix
-- [x] Comprehensive documentation (3 guides)
-- [x] 281+ passing tests, 40%+ coverage
+- [x] Variables and @define statements
+- [x] Loops and patterns (@loop)
+- [x] Sweep statements
+- [x] **Real-time MIDI playback with TUI** (Phase 3 - NEW)
+  - MIDI I/O with python-rtmidi
+  - Sub-5ms event scheduler
+  - Tempo tracking with dynamic changes
+  - Rich-based Terminal UI
+  - Keyboard controls (Space, Q, R)
+  - 1090+ passing tests, 72.53% coverage
 
 **In Progress:**
 - [ ] Import system for device libraries (Stage 8)
@@ -312,11 +331,7 @@ Contributions are welcome! This project is in early development - see the TODO c
 - [ ] Enhanced validation engine
 
 **Planned:**
-- [ ] Variables and @define statements
-- [ ] Loops and patterns (@loop)
-- [ ] Sweep statements
 - [ ] Multi-track advanced features
-- [ ] Live mode (real-time MIDI sending)
 - [ ] MIDI learn functionality
 - [ ] More device libraries (Fractal, Strymon, Boss, etc.)
 

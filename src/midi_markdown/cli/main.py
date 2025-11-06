@@ -20,6 +20,7 @@ from .commands import (
     library_info,
     library_list,
     library_validate,
+    play,
     validate,
     version,
 )
@@ -69,6 +70,7 @@ app.command()(inspect)
 app.command()(validate)
 app.command()(check)
 app.command()(version)
+app.command()(play)
 create_repl_command(app)  # Register REPL command
 
 # Create library subcommand group

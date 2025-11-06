@@ -19,6 +19,7 @@ Learn how to use MML effectively:
 - **[Timing Systems](guides/timing-systems.md)** - Absolute, musical, relative, and simultaneous timing *(Coming Soon)*
 - **[Alias System](guides/alias-system.md)** - Create reusable command shortcuts
 - **[Device Libraries](guides/device-libraries.md)** - Control MIDI hardware with high-level commands
+- **[Real-time Playback](guides/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
 - **[Advanced Features](guides/variables-loops-sweeps.md)** - Variables, loops, and sweep automation *(Coming Soon)*
 
 ---
@@ -80,7 +81,7 @@ See the [Device Library Creation Guide](guides/device-libraries.md) to create yo
 - **[spec.md](../spec.md)** - Authoritative language specification
 - **[CLAUDE.md](../CLAUDE.md)** - Developer context and architecture (for AI assistants)
 - **[README.md](../README.md)** - Project overview and quick start
-- **[Tests](../tests/)** - Test suite with 747 tests (561 unit + 186 integration)
+- **[Tests](../tests/)** - Test suite with 1090+ tests (840+ unit + 250+ integration)
 
 ---
 
@@ -96,6 +97,7 @@ See the [Device Library Creation Guide](guides/device-libraries.md) to create yo
 | Timing Systems Guide | 🚧 Coming Soon |
 | Alias System Guide | ✅ Complete |
 | Device Libraries Guide | ✅ Complete |
+| Real-time Playback Guide | ✅ Complete |
 | Advanced Features Guide | 🚧 Coming Soon |
 | CLI Reference | ✅ Complete |
 | Alias API Reference | ✅ Complete |
@@ -118,4 +120,4 @@ See the [Device Library Creation Guide](guides/device-libraries.md) to create yo
 ---
 
 **Version**: 0.1.0
-**Last Updated**: 2025-11-01
+**Last Updated**: 2025-11-05

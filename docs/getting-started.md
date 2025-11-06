@@ -140,6 +140,7 @@ See [examples/README.md](../examples/README.md) for a complete learning path.
 - **[Timing Systems](guides/timing-systems.md)** - All four timing paradigms
 - **[Alias System](guides/alias-system.md)** - Create reusable command shortcuts
 - **[Device Libraries](guides/device-libraries.md)** - Control hardware with high-level commands
+- **[Real-time Playback](guides/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
 
 ### Reference Documentation
 
@@ -159,6 +160,10 @@ uv run midimarkup validate song.mml
 # Quick syntax check (faster)
 uv run midimarkup check song.mml
 
+# Real-time playback (NEW)
+uv run midimarkup play song.mml --port "IAC Driver Bus 1"
+uv run midimarkup play --list-ports  # List available MIDI ports
+
 # Custom PPQ (higher resolution)
 uv run midimarkup compile song.mml --ppq 960
 
@@ -177,10 +182,11 @@ uv run midimarkup compile song.mml --format 0
 
 Now that you've created your first MIDI file, explore these topics:
 
-1. **Multi-channel compositions** - Use multiple instruments (example 05)
-2. **Control change automation** - Automate volume, pan, effects (example 06)
-3. **Variables and loops** - Create patterns efficiently (examples 10-11)
-4. **Device libraries** - Control guitar processors, effects units (example 13)
-5. **Musical timing** - Work in bars.beats.ticks (example 12)
+1. **Real-time playback** - Play MIDI files live with interactive TUI ([Real-time Playback Guide](guides/realtime-playback.md))
+2. **Multi-channel compositions** - Use multiple instruments (example 05)
+3. **Control change automation** - Automate volume, pan, effects (example 06)
+4. **Variables and loops** - Create patterns efficiently (examples 10-11)
+5. **Device libraries** - Control guitar processors, effects units (example 13)
+6. **Musical timing** - Work in bars.beats.ticks (example 12)
 
 Happy MIDI composing! 🎵
