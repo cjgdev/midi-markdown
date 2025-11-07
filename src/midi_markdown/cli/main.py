@@ -14,13 +14,16 @@ from midi_markdown import __version__
 
 from .commands import (
     check,
+    cheatsheet,
     compile,
     create_repl_command,
+    examples,
     inspect,
     library_info,
     library_list,
     library_validate,
     play,
+    ports,
     validate,
     version,
 )
@@ -71,6 +74,9 @@ app.command()(validate)
 app.command()(check)
 app.command()(version)
 app.command()(play)
+app.command()(ports)
+app.command()(examples)
+app.command()(cheatsheet)
 create_repl_command(app)  # Register REPL command
 
 # Create library subcommand group

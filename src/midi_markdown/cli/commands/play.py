@@ -34,6 +34,10 @@ def play(
     no_ui: Annotated[
         bool, typer.Option("--no-ui", help="Disable TUI and use simple progress display")
     ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Show full error tracebacks"),
+    ] = False,
 ) -> None:
     """Play MML file in real-time to MIDI output.
 

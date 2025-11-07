@@ -21,6 +21,11 @@ from ..errors import (
     show_success,
     show_validation_error,
 )
+from ..progress import (
+    CompilationProgress,
+    create_compilation_progress,
+    should_show_progress,
+)
 
 
 def compile(
@@ -74,10 +79,69 @@ def compile(
         bool,
         typer.Option("--no-emoji", help="Disable emoji in output (accessibility)"),
     ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Show full error tracebacks"),
+    ] = False,
+    no_progress: Annotated[
+        bool,
+        typer.Option("--no-progress", help="Disable progress indicators"),
+    ] = False,
 ) -> None:
-    """Compile MML file to MIDI.
+    """Compile MML file to MIDI or other output formats.
 
-    Takes a MIDI Markup Language (.mml) file and compiles it to a standard MIDI (.mid) file.
+    Parses an MML source file, resolves aliases and imports, expands advanced
+    features (loops, variables, sweeps), validates MIDI commands, and generates
+    output in the specified format.
+
+    The default output is a Standard MIDI File (.mid), but you can also export
+    to human-readable formats (table, CSV, JSON) for analysis and debugging.
+
+    Examples:
+        # Basic compilation to MIDI file
+        midimarkup compile song.mml
+
+        # Specify custom output path
+        midimarkup compile song.mml -o output/performance.mid
+
+        # High-resolution MIDI (960 PPQ for precise timing)
+        midimarkup compile song.mml --ppq 960
+
+        # Export to CSV for spreadsheet analysis
+        midimarkup compile song.mml --format csv -o events.csv
+
+        # Export to JSON for programmatic processing
+        midimarkup compile song.mml --format json -o data.json
+
+        # Display events as formatted table (no file output)
+        midimarkup compile song.mml --format table
+
+        # Verbose output showing compilation steps
+        midimarkup compile song.mml -v
+
+        # Compile with progress bars for large files
+        midimarkup compile large_song.mml --verbose
+
+        # Skip validation for faster compilation (not recommended)
+        midimarkup compile song.mml --no-validate
+
+    Output Formats:
+        midi         Standard MIDI File (.mid) - default format
+        table        Pretty-printed table in terminal (for quick inspection)
+        csv          midicsv-compatible CSV format (for spreadsheet tools)
+        json         Complete MIDI event data with metadata
+        json-simple  Simplified JSON for music analysis tools
+
+    MIDI File Formats:
+        0  Single-track format (all events in one track)
+        1  Multi-track format (separate tracks) - default
+        2  Async multi-track (independent sequences)
+
+    Notes:
+        - Validation is enabled by default and highly recommended
+        - Progress indicators appear automatically for large files (>50KB or >500 events)
+        - Use --no-color and --no-emoji for accessibility or scripting
+        - Exit code 0 on success, non-zero on errors
     """
     # Detect accessibility settings from environment
     if os.getenv("NO_COLOR") or os.getenv("CI"):
@@ -101,49 +165,61 @@ def compile(
             if output:
                 output_console.print(f"Output: {output}")
 
-    # Create progress indicator for non-verbose mode (but not when outputting to stdout)
-    outputs_to_stdout = output_format != "midi" and output is None
-    show_progress = not verbose and not no_color and not outputs_to_stdout
-
     try:
         # Start compilation timer
         start_time = time.time()
 
-        # Use progress indicator for multi-step compilation
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=output_console,
-            disable=not show_progress,
-        ) as progress:
-            # 1. Parse MML file
-            task = progress.add_task("Parsing...", total=None) if show_progress else None
+        # Parse the file first to check if we should show progress
+        if verbose:
+            output_console.print("  [dim]Parsing MML file...[/dim]")
 
-            if verbose:
-                output_console.print("  [dim]Parsing MML file...[/dim]")
+        from midi_markdown.parser.parser import MMLParser
 
-            from midi_markdown.parser.parser import MMLParser
+        try:
+            parser = MMLParser()
+            doc = parser.parse_file(input_file)
+        except (UnexpectedToken, UnexpectedCharacters) as parse_error:
+            # Use structured parse error display
+            show_parse_error(
+                parse_error, input_file, output_console, no_color=no_color, no_emoji=no_emoji
+            )
+            raise typer.Exit(code=1)
 
-            try:
-                parser = MMLParser()
-                doc = parser.parse_file(input_file)
-            except (UnexpectedToken, UnexpectedCharacters) as parse_error:
-                # Use structured parse error display
-                show_parse_error(
-                    parse_error, input_file, output_console, no_color=no_color, no_emoji=no_emoji
-                )
-                raise typer.Exit(code=1)
+        if verbose:
+            output_console.print(
+                f"  [dim]Parsed: {len(doc.events)} events, {len(doc.tracks)} tracks[/dim]"
+            )
 
-            if verbose:
-                output_console.print(
-                    f"  [dim]Parsed: {len(doc.events)} events, {len(doc.tracks)} tracks[/dim]"
-                )
+        # Determine if we should show progress (for large files or verbose mode)
+        outputs_to_stdout = output_format != "midi" and output is None
+        use_progress = (
+            should_show_progress(input_file, doc, verbose, no_progress)
+            and not no_color
+            and not outputs_to_stdout
+        )
+
+        # Use new progress indicator for large files
+        if use_progress:
+            progress_bar = create_compilation_progress(output_console)
+            progress_ctx = CompilationProgress(progress_bar)
+        else:
+            # Use simple spinner for small files in non-verbose mode
+            progress_ctx = Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=output_console,
+                disable=verbose or no_color or outputs_to_stdout,
+            )
+
+        with progress_ctx as progress:
+            # Note: parsing already completed above
+            if isinstance(progress, CompilationProgress):
+                progress.parsing_complete()
+            elif not verbose and hasattr(progress, "add_task"):
+                task = progress.add_task("Processing...", total=None)
 
             # 2. Process imports (load device libraries)
             if doc.imports:
-                if show_progress:
-                    progress.update(task, description="Loading imports...")
-
                 if verbose:
                     output_console.print(f"  [dim]Loading {len(doc.imports)} import(s)...[/dim]")
 
@@ -184,8 +260,8 @@ def compile(
             if doc.aliases or any(
                 isinstance(e, dict) and e.get("type") == "alias_call" for e in doc.events
             ):
-                if show_progress:
-                    progress.update(task, description="Resolving aliases...")
+                if isinstance(progress, CompilationProgress):
+                    progress.aliases_complete()
 
                 if verbose:
                     output_console.print("  [dim]Resolving aliases...[/dim]")
@@ -281,8 +357,8 @@ def compile(
 
             # 4. Validate (if enabled)
             if validate:
-                if show_progress:
-                    progress.update(task, description="Validating...")
+                if isinstance(progress, CompilationProgress):
+                    progress.validation_complete()
 
                 if verbose:
                     output_console.print("  [dim]Validating...[/dim]")
@@ -313,9 +389,6 @@ def compile(
                         output_console.print(f"  [green]{emoji}Validation passed[/green]")
 
             # 5. Expand commands (variables, loops, sweeps)
-            if show_progress:
-                progress.update(task, description="Expanding commands...")
-
             if verbose:
                 output_console.print("  [dim]Expanding commands...[/dim]")
 
@@ -373,9 +446,6 @@ def compile(
                 raise typer.Exit(code=1)
 
             # 6. Compile to IR program
-            if show_progress:
-                progress.update(task, description="Compiling to IR...")
-
             if verbose:
                 output_console.print("  [dim]Compiling to IR...[/dim]")
 
@@ -417,8 +487,8 @@ def compile(
             # 7. Generate output based on format
             if output_format == "midi":
                 # Write MIDI file
-                if show_progress:
-                    progress.update(task, description="Writing MIDI file...")
+                if isinstance(progress, CompilationProgress):
+                    progress.generation_complete()
 
                 if verbose:
                     output_console.print("  [dim]Writing MIDI file...[/dim]")
@@ -433,8 +503,8 @@ def compile(
 
             elif output_format == "table":
                 # Display as Rich table
-                if show_progress:
-                    progress.update(task, description="Generating table...")
+                if isinstance(progress, CompilationProgress):
+                    progress.generation_complete()
 
                 from midi_markdown.diagnostics import display_events_table
 
@@ -445,8 +515,8 @@ def compile(
 
             elif output_format == "csv":
                 # Export to CSV
-                if show_progress:
-                    progress.update(task, description="Generating CSV...")
+                if isinstance(progress, CompilationProgress):
+                    progress.generation_complete()
 
                 from midi_markdown.codegen import export_to_csv
 
@@ -461,8 +531,8 @@ def compile(
 
             elif output_format == "json":
                 # Export to JSON (complete format)
-                if show_progress:
-                    progress.update(task, description="Generating JSON...")
+                if isinstance(progress, CompilationProgress):
+                    progress.generation_complete()
 
                 from midi_markdown.codegen import export_to_json
 
@@ -477,8 +547,8 @@ def compile(
 
             elif output_format == "json-simple":
                 # Export to JSON (simplified format)
-                if show_progress:
-                    progress.update(task, description="Generating JSON...")
+                if isinstance(progress, CompilationProgress):
+                    progress.generation_complete()
 
                 from midi_markdown.codegen import export_to_json
 

@@ -84,6 +84,9 @@ class TimingValidator:
                         ValidationError(
                             "Simultaneous timing [@] requires a previous event",
                             line=getattr(timing, "source_line", 0),
+                            error_code="E212",
+                            suggestion="Simultaneous timing [@] can only appear after another timed event. "
+                            "Add an absolute or relative timestamp first (e.g., [00:00.000] or [+100ms]).",
                         )
                     )
 
@@ -101,6 +104,8 @@ class TimingValidator:
                 ValidationError(
                     "Musical time requires 'tempo' to be defined in frontmatter",
                     line=getattr(timing, "source_line", 0),
+                    error_code="E212",
+                    suggestion="Add 'tempo: <bpm>' to the YAML frontmatter. Example: tempo: 120",
                 )
             )
 
@@ -109,6 +114,9 @@ class TimingValidator:
                 ValidationError(
                     "Musical time requires 'time_signature' to be defined in frontmatter",
                     line=getattr(timing, "source_line", 0),
+                    error_code="E212",
+                    suggestion="Add 'time_signature: [<numerator>, <denominator>]' to the frontmatter. "
+                    "Example: time_signature: [4, 4]",
                 )
             )
 
@@ -124,6 +132,9 @@ class TimingValidator:
                 ValidationError(
                     f"Relative timing {timing.raw} requires a previous event",
                     line=getattr(timing, "source_line", 0),
+                    error_code="E212",
+                    suggestion="Relative timing (like [+100ms] or [+1b]) can only appear after another event. "
+                    "Start with an absolute timestamp first (e.g., [00:00.000]).",
                 )
             )
 
@@ -137,12 +148,16 @@ class TimingValidator:
         current_time = timing.value
 
         if self.last_absolute_time is not None and current_time < self.last_absolute_time:
+            delta = self.last_absolute_time - current_time
             self.errors.append(
                 ValidationError(
                     f"Time {self._format_time(current_time)} is before previous event at "
                     f"{self._format_time(self.last_absolute_time)}. "
                     f"Timing must be monotonically increasing",
                     line=getattr(timing, "source_line", 0),
+                    error_code="E212",
+                    suggestion=f"Events must appear in chronological order. This event is {delta:.3f}s too early. "
+                    f"Move it to [{self._format_time(self.last_absolute_time)}] or later.",
                 )
             )
 

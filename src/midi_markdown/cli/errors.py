@@ -16,6 +16,7 @@ from pathlib import Path
 from lark.exceptions import UnexpectedCharacters, UnexpectedToken
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 
 from ..expansion.errors import (
     ExpansionError,
@@ -33,11 +34,19 @@ ERROR_CODES = {
     "unexpected_char": "E102",
     "syntax_error": "E103",
     # E2xx: Validation errors
-    "invalid_value": "E201",
-    "invalid_range": "E202",
-    "invalid_note": "E203",
-    "invalid_channel": "E204",
-    "timing_error": "E205",
+    "invalid_type": "E201",  # Type errors (not int, not string, etc.)
+    "invalid_note_name": "E202",  # Invalid note name format
+    "unknown_expression": "E203",  # Unknown expression type
+    "invalid_channel": "E204",  # Channel out of range 1-16
+    "invalid_note_range": "E205",  # Note number out of range 0-127
+    "invalid_velocity": "E206",  # Velocity out of range 0-127
+    "invalid_cc_controller": "E207",  # CC controller out of range 0-127
+    "invalid_cc_value": "E208",  # CC value out of range 0-127
+    "invalid_program": "E209",  # Program change out of range 0-127
+    "invalid_pitch_bend": "E210",  # Pitch bend out of range -8192 to +8191
+    "invalid_tempo": "E211",  # Tempo out of range
+    "timing_error": "E212",  # Timing monotonicity or other timing errors
+    "general_validation": "E200",  # Generic validation error
     # E3xx: Expansion/type errors
     "undefined_variable": "E301",
     "invalid_loop": "E302",
@@ -387,6 +396,96 @@ def show_parse_error(
     console.print("\n".join(error_parts))
 
 
+def _create_range_table(error_code: str, no_color: bool = False) -> Table | None:
+    """Create a Rich Table showing valid MIDI value ranges.
+
+    Args:
+        error_code: Error code (E204-E211) to determine which ranges to show
+        no_color: Disable color output
+
+    Returns:
+        Rich Table with range information, or None if not a range error
+    """
+    # Map error codes to range descriptions
+    range_info = {
+        "E200": ("MIDI Value", "0-127", "General MIDI data value"),
+        "E204": ("Channel", "1-16", "MIDI channel number"),
+        "E205": ("Note", "0-127", "MIDI note number (C-1 to G9)"),
+        "E206": ("Velocity", "0-127", "Note velocity (0=silent, 127=max)"),
+        "E207": ("CC Controller", "0-127", "Control Change controller number"),
+        "E208": ("CC Value", "0-127", "Control Change value"),
+        "E209": ("Program", "0-127", "Program Change number"),
+        "E210": ("Pitch Bend", "-8192 to +8191", "Pitch bend value (0=center)"),
+        "E211": ("Tempo", "1-300", "Beats per minute"),
+    }
+
+    if error_code not in range_info:
+        return None
+
+    param_type, valid_range, description = range_info[error_code]
+
+    table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
+    table.add_column("Parameter", style="cyan" if not no_color else "")
+    table.add_column("Valid Range", style="green" if not no_color else "")
+    table.add_column("Description", style="dim" if not no_color else "")
+    table.add_row(param_type, valid_range, description)
+
+    return table
+
+
+def _create_timing_help_table(error_message: str, no_color: bool = False) -> Table | None:
+    """Create a Rich Table showing timing format examples for timing errors.
+
+    Args:
+        error_message: The error message to check for timing keywords
+        no_color: Disable color output
+
+    Returns:
+        Rich Table with timing examples, or None if not a timing error
+    """
+    # Check if this is a timing-related error
+    timing_keywords = [
+        "monotonically",
+        "chronological",
+        "simultaneous",
+        "relative timing",
+        "musical time",
+        "tempo",
+        "time_signature",
+    ]
+
+    if not any(keyword in error_message.lower() for keyword in timing_keywords):
+        return None
+
+    table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
+    table.add_column("Timing Format", style="cyan" if not no_color else "")
+    table.add_column("Example", style="green" if not no_color else "")
+    table.add_column("Description", style="dim" if not no_color else "")
+
+    table.add_row(
+        "Absolute",
+        "[mm:ss.milliseconds]",
+        "e.g., [00:01.500] = 1.5 seconds"
+    )
+    table.add_row(
+        "Musical",
+        "[bars.beats.ticks]",
+        "e.g., [8.4.0] = bar 8, beat 4"
+    )
+    table.add_row(
+        "Relative",
+        "[+duration]",
+        "e.g., [+100ms], [+1b] = 1 beat later"
+    )
+    table.add_row(
+        "Simultaneous",
+        "[@]",
+        "Same time as previous event"
+    )
+
+    return table
+
+
 def show_validation_error(
     error: ValidationError,
     source_file: Path | None,
@@ -428,15 +527,89 @@ def show_validation_error(
         except Exception:
             pass  # Source file not readable
 
+    console.print("\n".join(parts))
+
+    # Add range table for range-related errors (E204-E211)
+    range_table = _create_range_table(error_code, no_color=no_color)
+    if range_table:
+        console.print()
+        console.print(range_table)
+    # Add timing help table for timing errors (E212)
+    elif error_code == "E212":
+        timing_table = _create_timing_help_table(error.message, no_color=no_color)
+        if timing_table:
+            console.print()
+            console.print(timing_table)
+
     # Add suggestion if available
     if hasattr(error, "suggestion") and error.suggestion:
         emoji = "" if no_emoji else "💡 "
         if no_color:
-            parts.append(f"\n  {emoji}{error.suggestion}")
+            console.print(f"\n  {emoji}{error.suggestion}")
         else:
-            parts.append(f"\n  {emoji}[cyan]{error.suggestion}[/cyan]")
+            console.print(f"\n  {emoji}[cyan]{error.suggestion}[/cyan]")
 
-    console.print("\n".join(parts))
+
+def _create_expansion_help_table(error: ExpansionError, no_color: bool = False) -> Table | None:
+    """Create a Rich Table showing expansion syntax help.
+
+    Args:
+        error: ExpansionError to create help for
+        no_color: Disable color output
+
+    Returns:
+        Rich Table with syntax help, or None if not applicable
+    """
+    from midi_markdown.expansion.errors import InvalidLoopConfigError, InvalidSweepConfigError
+
+    if isinstance(error, InvalidLoopConfigError):
+        # Loop syntax help table
+        table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
+        table.add_column("Loop Syntax", style="cyan" if not no_color else "")
+        table.add_column("Description", style="dim" if not no_color else "")
+
+        table.add_row(
+            "@loop <count> times every <interval>",
+            "Repeat N times with interval (e.g., '4 times every 1b')",
+        )
+        table.add_row(
+            "@loop from <time> to <time> every <interval>",
+            "Repeat in time range (e.g., 'from [00:00] to [00:04] every 500ms')",
+        )
+        table.add_row(
+            "  - <commands>",
+            "Commands to repeat (indented)",
+        )
+        table.add_row(
+            "@end",
+            "End loop block",
+        )
+
+        return table
+
+    elif isinstance(error, InvalidSweepConfigError):
+        # Sweep syntax help table
+        table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
+        table.add_column("Sweep Syntax", style="cyan" if not no_color else "")
+        table.add_column("Description", style="dim" if not no_color else "")
+
+        table.add_row(
+            "@sweep cc <ch>.<num> from <start> to <end> over <duration>",
+            "Sweep CC value (e.g., 'cc 1.7 from 0 to 127 over 2b')",
+        )
+        table.add_row(
+            "@sweep cc <ch>.<num> ramp <curve> ...",
+            "With curve: linear, exponential, logarithmic",
+        )
+        table.add_row(
+            "Duration units",
+            "b=beats, s=seconds, ms=milliseconds, t=ticks",
+        )
+
+        return table
+
+    # No table for other error types
+    return None
 
 
 def show_expansion_error(
@@ -488,15 +661,21 @@ def show_expansion_error(
         except Exception:
             pass
 
+    console.print("\n".join(parts))
+
+    # Add help table for loop/sweep errors
+    help_table = _create_expansion_help_table(error, no_color=no_color)
+    if help_table:
+        console.print()
+        console.print(help_table)
+
     # Add suggestion
     if error.suggestion:
         emoji = "" if no_emoji else "💡 "
         if no_color:
-            parts.append(f"\n  {emoji}{error.suggestion}")
+            console.print(f"\n  {emoji}{error.suggestion}")
         else:
-            parts.append(f"\n  {emoji}[cyan]{error.suggestion}[/cyan]")
-
-    console.print("\n".join(parts))
+            console.print(f"\n  {emoji}[cyan]{error.suggestion}[/cyan]")
 
 
 def show_success(
@@ -581,3 +760,183 @@ def show_success(
             border_style="green",
         )
         console.print(panel)
+
+
+def _create_call_chain_table(call_chain: list[tuple[str, list]], final_alias: str, no_color: bool = False) -> Table:
+    """Create a Rich Table showing the alias call chain for recursion/depth errors.
+
+    Args:
+        call_chain: List of (alias_name, args) tuples showing the call path
+        final_alias: The alias that triggered the error (creates the cycle or exceeds depth)
+        no_color: Disable color output
+
+    Returns:
+        Rich Table with call chain visualization
+    """
+    table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
+    table.add_column("Step", style="dim" if not no_color else "", width=5)
+    table.add_column("Alias Call", style="cyan" if not no_color else "")
+    table.add_column("Arguments", style="green" if not no_color else "")
+
+    # Add each step in the chain
+    for i, (name, args) in enumerate(call_chain, 1):
+        args_str = ", ".join(map(str, args)) if args else "(no args)"
+        table.add_row(str(i), name, args_str)
+
+    # Add final step (the one that causes error)
+    final_step = len(call_chain) + 1
+    style = "red bold" if not no_color else "bold"
+    table.add_row(str(final_step), f"[{style}]{final_alias} ← ERROR[/{style}]" if not no_color else f"{final_alias} ← ERROR", "")
+
+    return table
+
+
+def show_alias_error(
+    error: Exception,
+    console: Console,
+    no_color: bool = False,
+    no_emoji: bool = False,
+) -> None:
+    """Display an alias resolution error with rich formatting.
+
+    Args:
+        error: AliasError exception
+        console: Rich console for output
+        no_color: Disable color output
+        no_emoji: Disable emoji output
+    """
+    from midi_markdown.alias.errors import (
+        AliasError,
+        AliasMaxDepthError,
+        AliasRecursionError,
+        ComputationError,
+    )
+
+    # Determine error code and specific message
+    error_code = ERROR_CODES.get("import_error", "E402")  # Alias errors are import-related
+    emoji = "" if no_emoji else "❌ "
+
+    # Build error message based on specific error type
+    if isinstance(error, AliasRecursionError):
+        message = f"Circular alias reference: {error.alias_name}"
+        hint = "Remove the circular dependency between aliases"
+    elif isinstance(error, AliasMaxDepthError):
+        message = f"Alias nesting exceeded maximum depth of {error.max_depth}"
+        hint = f"Simplify alias chain (currently {error.current_depth} levels deep)"
+    elif isinstance(error, ComputationError):
+        message = f"Computation error in alias: {error}"
+        hint = "Check your computed value expressions"
+    elif isinstance(error, AliasError):
+        message = str(error)
+        hint = "Check alias definitions and parameter types"
+    else:
+        message = str(error)
+        hint = None
+
+    # Format header
+    if no_color:
+        console.print(f"\n{emoji}error[{error_code}]: {message}")
+    else:
+        console.print(f"\n[red]{emoji}error[{error_code}]:[/red] {message}")
+
+    # Add call chain visualization for recursion and depth errors
+    if isinstance(error, (AliasRecursionError, AliasMaxDepthError)) and hasattr(error, "call_chain"):
+        console.print()
+        call_chain_table = _create_call_chain_table(
+            error.call_chain,
+            error.alias_name,
+            no_color=no_color
+        )
+        console.print(call_chain_table)
+
+    # Add suggestion
+    if hint:
+        if no_color:
+            console.print(f"\n  Suggestion: {hint}")
+        else:
+            console.print(f"\n  [dim]💡 Suggestion:[/dim] {hint}")
+
+    console.print()
+
+
+def show_file_not_found_error(
+    error: FileNotFoundError,
+    console: Console,
+    no_color: bool = False,
+    no_emoji: bool = False,
+) -> None:
+    """Display a file not found error with helpful suggestions.
+
+    Args:
+        error: FileNotFoundError exception
+        console: Rich console for output
+        no_color: Disable color output
+        no_emoji: Disable emoji output
+    """
+    error_code = ERROR_CODES.get("file_not_found", "E401")
+    emoji = "" if no_emoji else "❌ "
+
+    # Extract filename from error
+    filename = error.filename if hasattr(error, "filename") else str(error)
+
+    # Format output
+    if no_color:
+        console.print(f"\n{emoji}error[{error_code}]: File not found: {filename}")
+        console.print("\nSuggestion: Check the file path and ensure the file exists")
+    else:
+        console.print(f"\n[red]{emoji}error[{error_code}]:[/red] File not found: [cyan]{filename}[/cyan]")
+        console.print("\n[dim]💡 Suggestion:[/dim] Check the file path and ensure the file exists")
+
+    console.print()
+
+
+def show_runtime_error(
+    error: RuntimeError,
+    console: Console,
+    mode: str = "unknown",
+    no_color: bool = False,
+    no_emoji: bool = False,
+) -> None:
+    """Display a runtime error (MIDI I/O, player errors) with troubleshooting.
+
+    Args:
+        error: RuntimeError exception
+        mode: Command mode for context-specific suggestions
+        console: Rich console for output
+        no_color: Disable color output
+        no_emoji: Disable emoji output
+    """
+    emoji = "" if no_emoji else "❌ "
+    message = str(error)
+
+    # Provide mode-specific suggestions
+    if mode == "play":
+        if "port" in message.lower() or "midi" in message.lower():
+            hint = "Run 'midimarkup ports' to list available MIDI ports"
+            platform_hints = [
+                "macOS: Enable IAC Driver in Audio MIDI Setup",
+                "Linux: Install snd-virmidi or snd-aloop kernel module",
+                "Windows: Install loopMIDI or VirtualMIDI driver",
+            ]
+        else:
+            hint = "Check your MIDI setup and ensure devices are connected"
+            platform_hints = []
+    else:
+        hint = "Check your system configuration and try again"
+        platform_hints = []
+
+    # Format output
+    if no_color:
+        console.print(f"\n{emoji}Runtime Error: {message}")
+        if hint:
+            console.print(f"\nSuggestion: {hint}")
+        for platform_hint in platform_hints:
+            console.print(f"  - {platform_hint}")
+    else:
+        console.print(f"\n[red]{emoji}Runtime Error:[/red] {message}")
+        if hint:
+            console.print(f"\n[dim]💡 Suggestion:[/dim] {hint}")
+        for platform_hint in platform_hints:
+            console.print(f"  [dim]-[/dim] {platform_hint}")
+
+    console.print()

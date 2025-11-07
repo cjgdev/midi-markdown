@@ -9,6 +9,8 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from midi_markdown.cli.error_handler import ErrorContext, cli_error_handler
+
 from ...codegen import export_to_csv, export_to_json
 from ...core import compile_ast_to_ir
 from ...diagnostics import display_events_table
@@ -51,6 +53,10 @@ def inspect(
     ] = False,
     verbose: Annotated[bool, typer.Option("-v", "--verbose")] = False,
     no_color: Annotated[bool, typer.Option("--no-color")] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Show full error tracebacks"),
+    ] = False,
 ) -> None:
     """Analyze MML file and display events without creating output files.
 
@@ -65,7 +71,16 @@ def inspect(
     """
     console = Console(no_color=no_color, force_terminal=not no_color)
 
-    try:
+    # Create error context
+    ctx = ErrorContext(
+        mode="inspect",
+        debug=debug,
+        source_file=input_file,
+        no_color=no_color,
+        console=console,
+    )
+
+    with cli_error_handler(ctx):
         # Validate format
         valid_formats = ["table", "csv", "json", "json-simple"]
         if format not in valid_formats:
@@ -137,17 +152,3 @@ def inspect(
             json_output = export_to_json(ir_program, format="simplified", pretty=True)
             # Print directly to stdout
             print(json_output)
-
-    except typer.Exit:
-        raise
-    except FileNotFoundError:
-        console.print(f"[red]✗ Error:[/red] File not found: {input_file}")
-        raise typer.Exit(1)
-    except Exception as e:
-        console.print(f"[red]✗ Error:[/red] {e}")
-        if verbose:
-            console.print("\n[dim]Full traceback:[/dim]")
-            import traceback
-
-            console.print(traceback.format_exc())
-        raise typer.Exit(1)
