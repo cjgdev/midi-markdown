@@ -244,3 +244,19 @@ validate-examples:
 
 # Run all validations (devices + examples)
 validate-all: validate-devices validate-examples
+
+# Serve documentation locally with MkDocs
+docs-serve:
+    uv run mkdocs serve
+
+# Build documentation site
+docs-build:
+    uv run mkdocs build
+
+# Deploy documentation to GitHub Pages
+docs-deploy:
+    uv run mkdocs gh-deploy
+
+# Clean documentation build artifacts
+docs-clean:
+    rm -rf site/

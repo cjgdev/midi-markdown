@@ -1,0 +1,153 @@
+---
+title: "Arpeggiator Patterns"
+description: "Arpeggio patterns using @loop with tempo changes"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Arpeggiator Patterns
+# ============================================================================
+#
+# This example demonstrates:
+# - Arpeggio patterns (broken chords played sequentially)
+# - @loop for repetitive note sequences
+# - Tempo changes for speed variation
+#
+# Arpeggio Theory:
+# - Arpeggio = "broken chord" - chord tones played one at a time
+# - Common patterns: up, down, up-down (triangle)
+# - Creates rhythmic interest from static chords
+#
+# ============================================================================
+
+
+# ============================================================================
+# Pattern 1: Steady 8th Notes (C Major)
+# ============================================================================
+
+[00:00.000]
+- marker "C Major Arpeggio"
+- text "Steady eighth note arpeggio"
+- tempo 120
+
+@loop 32 times every 0.5b
+  - note_on 1.C4 75 0.4b
+@end
+
+
+# ============================================================================
+# Pattern 2: Written-Out Arpeggio
+# ============================================================================
+
+[00:08.000]
+- marker "F Major"
+- text "Explicitly written arpeggio"
+
+- note_on 1.F3 75 0.4b
+[+0.5b]
+- note_on 1.A3 73 0.4b
+[+0.5b]
+- note_on 1.C4 71 0.4b
+[+0.5b]
+- note_on 1.F4 75 0.4b
+[+0.5b]
+- note_on 1.C4 71 0.4b
+[+0.5b]
+- note_on 1.A3 73 0.4b
+[+0.5b]
+- note_on 1.F3 75 0.4b
+[+0.5b]
+- note_on 1.A3 73 0.4b
+
+
+# ============================================================================
+# Pattern 3: Fast 16th Notes
+# ============================================================================
+
+[+0.5b]
+- marker "Fast 16ths"
+- text "Rapid arpeggio"
+- tempo 140
+
+@loop 32 times every 0.25b
+  - note_on 1.G3 70 0.2b
+@end
+
+
+# ============================================================================
+# Pattern 4: Descending Pattern
+# ============================================================================
+
+[+0.0b]
+- marker "Descending"
+- text "Descending arpeggio"
+- tempo 100
+
+- note_on 1.A4 75 0.9b
+[+1b]
+- note_on 1.E4 73 0.9b
+[+1b]
+- note_on 1.C4 71 0.9b
+[+1b]
+- note_on 1.A3 75 0.9b
+[+1b]
+- note_on 1.E4 73 0.9b
+[+1b]
+- note_on 1.C4 71 0.9b
+[+1b]
+- note_on 1.A3 75 0.9b
+[+1b]
+- note_on 1.C4 71 0.9b
+
+
+# ============================================================================
+# Pattern 5: Accelerando (Speeding Up)
+# ============================================================================
+
+[+1b]
+- marker "Accelerando"
+- text "Tempo acceleration"
+
+# Slow
+- tempo 80
+- note_on 1.C3 75 0.9b
+[+1b]
+- note_on 1.E3 73 0.9b
+[+1b]
+- note_on 1.G3 71 0.9b
+[+1b]
+- note_on 1.C4 75 0.9b
+
+# Medium
+[+1b]
+- tempo 120
+- note_on 1.C3 75 0.4b
+[+0.5b]
+- note_on 1.E3 73 0.4b
+[+0.5b]
+- note_on 1.G3 71 0.4b
+[+0.5b]
+- note_on 1.C4 75 0.4b
+
+# Fast
+[+0.5b]
+- tempo 160
+- note_on 1.C3 75 0.2b
+[+0.25b]
+- note_on 1.E3 73 0.2b
+[+0.25b]
+- note_on 1.G3 71 0.2b
+[+0.25b]
+- note_on 1.C4 75 0.2b
+[+0.25b]
+- note_on 1.E4 73 0.2b
+[+0.25b]
+- note_on 1.G4 71 0.2b
+[+0.25b]
+- note_on 1.C5 90 4b
+
+[+4b]
+- end_of_track

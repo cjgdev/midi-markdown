@@ -1,0 +1,556 @@
+---
+title: "Tutorial 2: Adding Chord Accompaniment"
+description: "Learn to add harmony by layering chords beneath the melody from Tutorial 1"
+tempo: 100
+time_signature: [4, 4]
+ppq: 480
+author: "MIDI Markup Language Team"
+difficulty: "Beginner-Intermediate"
+duration: "16 bars"
+---
+
+# Tutorial 2: Adding Chord Accompaniment
+# =======================================
+#
+# In this tutorial, we'll take the melody from Tutorial 1 and add chord
+# accompaniment. You'll learn:
+#
+# 1. Multi-channel MIDI (Channel 1 = melody, Channel 2 = chords)
+# 2. Simultaneous timing [@] - playing multiple notes at once
+# 3. Chord construction - building triads (root, third, fifth)
+# 4. Harmonic progression - how chords support melody
+# 5. Voice leading - smooth movement between chords
+#
+# For more details, see: docs/tutorials/adding-harmony.md
+
+# CHORD BASICS
+# ============
+# A triad (basic chord) has three notes:
+#   Root  = the fundamental note (gives the chord its name)
+#   Third = 3 or 4 semitones above root (major or minor)
+#   Fifth = 7 semitones above root (perfect fifth)
+#
+# Examples in C major:
+#   C major  = C4 + E4 + G4  (root, major third, fifth)
+#   F major  = F3 + A3 + C4  (root, major third, fifth)
+#   G major  = G3 + B3 + D4  (root, major third, fifth)
+#   A minor  = A3 + C4 + E4  (root, minor third, fifth)
+#   D minor  = D3 + F3 + A3  (root, minor third, fifth)
+
+# SIMULTANEOUS TIMING [@]
+# =======================
+# The [@] marker means "at the same time as the previous event"
+# This lets us play chord notes together:
+#
+#   [00:00.000]
+#   - note_on 2.C3 70 4b     # Root note
+#   [@]
+#   - note_on 2.E3 65 4b     # Third (played at same time)
+#   [@]
+#   - note_on 2.G3 65 4b     # Fifth (also played at same time)
+#
+# All three notes start at 00:00.000 and create a C major chord
+
+# =============================================================================
+# SECTION 1: INTRO PHRASE WITH CHORDS (Bars 1-4)
+# =============================================================================
+# Chord progression: C major → G major → F major → C major
+
+# Bar 1: C major chord (whole note, supporting ascending arpeggio)
+[00:00.000]
+- note_on 1.C4 80 1b        # MELODY: C note (from Tutorial 1)
+
+[@]
+- note_on 2.C3 70 4b        # CHORD: C major root (bass note, held for 4 beats)
+
+[@]
+- note_on 2.E3 65 4b        # CHORD: Third of C major
+
+[@]
+- note_on 2.G3 65 4b        # CHORD: Fifth of C major
+
+# Continue melody from Tutorial 1
+[00:00.600]
+- note_on 1.E4 80 1b        # MELODY: E note
+
+[00:01.200]
+- note_on 1.G4 80 1b        # MELODY: G note
+
+[00:01.800]
+- note_on 1.C5 80 1b        # MELODY: High C
+
+# Bar 2: G major chord (dominant chord, creates tension)
+[00:02.400]
+- note_on 1.G4 75 1b        # MELODY: G note
+
+[@]
+- note_on 2.G3 70 4b        # CHORD: G major root
+
+[@]
+- note_on 2.B3 65 4b        # CHORD: Third of G major (B natural)
+
+[@]
+- note_on 2.D4 65 4b        # CHORD: Fifth of G major
+
+[00:03.000]
+- note_on 1.E4 75 1b        # MELODY: E note
+
+[00:03.600]
+- note_on 1.D4 75 1b        # MELODY: D note
+
+[00:04.200]
+- note_on 1.C4 75 2b        # MELODY: C note, half note
+
+# Bar 3: F major chord (subdominant, adds color)
+[00:05.400]
+- note_on 1.E4 82 0.5b      # MELODY: E note, eighth note
+
+[@]
+- note_on 2.F3 68 2b        # CHORD: F major root (half note for bar 3-4 transition)
+
+[@]
+- note_on 2.A3 63 2b        # CHORD: Third of F major
+
+[@]
+- note_on 2.C4 63 2b        # CHORD: Fifth of F major
+
+[00:05.700]
+- note_on 1.F4 82 0.5b      # MELODY: F note
+
+[00:06.000]
+- note_on 1.G4 85 1b        # MELODY: G note
+
+[00:06.600]
+- note_on 1.A4 85 1b        # MELODY: A note
+
+# Change to G major chord (dominant, preparing for resolution)
+[00:07.200]
+- note_on 1.G4 82 1b        # MELODY: G note
+
+[@]
+- note_on 2.G3 68 2b        # CHORD: G major root
+
+[@]
+- note_on 2.B3 63 2b        # CHORD: Third of G major
+
+[@]
+- note_on 2.D4 63 2b        # CHORD: Fifth of G major
+
+[00:07.800]
+- note_on 1.F4 78 1b        # MELODY: F note
+
+# Bar 4: Back to C major (resolution, home chord)
+[00:08.400]
+- note_on 1.E4 80 2b        # MELODY: E note, half note
+
+[@]
+- note_on 2.C3 70 4b        # CHORD: C major root (whole note)
+
+[@]
+- note_on 2.E3 65 4b        # CHORD: Third of C major
+
+[@]
+- note_on 2.G3 65 4b        # CHORD: Fifth of C major
+
+[00:09.600]
+- note_on 1.D4 75 1b        # MELODY: D note
+
+[00:10.200]
+- note_on 1.C4 70 1b        # MELODY: C note
+
+# =============================================================================
+# SECTION 2: VERSE MELODY WITH RICHER HARMONY (Bars 5-8)
+# =============================================================================
+# Chord progression: C → Am → F → G (very common pop progression)
+
+# Bar 5: C major chord
+[00:11.400]
+- note_on 1.C4 85 0.5b      # MELODY: C note, eighth note
+
+[@]
+- note_on 2.C3 72 2b        # CHORD: C major root (half note)
+
+[@]
+- note_on 2.E3 67 2b        # CHORD: Third
+
+[@]
+- note_on 2.G3 67 2b        # CHORD: Fifth
+
+[00:11.700]
+- note_on 1.D4 85 0.5b      # MELODY: D note
+
+[00:12.000]
+- note_on 1.E4 88 1b        # MELODY: E note, accented
+
+[00:12.600]
+- note_on 1.G4 85 1b        # MELODY: G note
+
+# Change to A minor chord (relative minor, adds emotion)
+[00:13.200]
+- note_on 1.A4 82 1b        # MELODY: A note
+
+[@]
+- note_on 2.A3 70 2b        # CHORD: A minor root
+
+[@]
+- note_on 2.C4 65 2b        # CHORD: Minor third (C natural, not C#)
+
+[@]
+- note_on 2.E4 65 2b        # CHORD: Fifth
+
+[00:13.800]
+- note_on 1.G4 78 1b        # MELODY: G note
+
+# Bar 6: F major chord (subdominant)
+[00:14.400]
+- note_on 1.F4 80 0.5b      # MELODY: F note
+
+[@]
+- note_on 2.F3 70 2b        # CHORD: F major root
+
+[@]
+- note_on 2.A3 65 2b        # CHORD: Third
+
+[@]
+- note_on 2.C4 65 2b        # CHORD: Fifth
+
+[00:14.700]
+- note_on 1.E4 80 0.5b      # MELODY: E note
+
+[00:15.000]
+- note_on 1.D4 85 1b        # MELODY: D note
+
+[00:15.600]
+- note_on 1.E4 82 1b        # MELODY: E note
+
+# Change to D minor chord (minor iv, adds color)
+[00:16.200]
+- note_on 1.F4 78 1b        # MELODY: F note
+
+[@]
+- note_on 2.D3 68 2b        # CHORD: D minor root
+
+[@]
+- note_on 2.F3 63 2b        # CHORD: Minor third
+
+[@]
+- note_on 2.A3 63 2b        # CHORD: Fifth
+
+[00:16.800]
+- note_on 1.E4 75 1b        # MELODY: E note
+
+# Bar 7: G major chord (dominant, building tension)
+[00:17.400]
+- note_on 1.D4 75 0.5b      # MELODY: D note
+
+[@]
+- note_on 2.G3 70 4b        # CHORD: G major root (whole note, strong harmonic support)
+
+[@]
+- note_on 2.B3 65 4b        # CHORD: Third
+
+[@]
+- note_on 2.D4 65 4b        # CHORD: Fifth
+
+[00:17.700]
+- note_on 1.E4 78 0.5b      # MELODY: E note
+
+[00:18.000]
+- note_on 1.F4 82 1b        # MELODY: F note
+
+[00:18.600]
+- note_on 1.G4 85 1b        # MELODY: G note
+
+[00:19.200]
+- note_on 1.A4 88 1b        # MELODY: A note
+
+[00:19.800]
+- note_on 1.B4 90 1b        # MELODY: B note
+
+# Bar 8: C major chord (resolution to tonic, climax)
+[00:20.400]
+- note_on 1.C5 95 2b        # MELODY: High C, climax
+
+[@]
+- note_on 2.C3 75 4b        # CHORD: C major root (strong whole note)
+
+[@]
+- note_on 2.E3 70 4b        # CHORD: Third
+
+[@]
+- note_on 2.G3 70 4b        # CHORD: Fifth
+
+[00:21.600]
+- note_on 1.B4 85 1b        # MELODY: B note
+
+[00:22.200]
+- note_on 1.A4 80 1b        # MELODY: A note
+
+# =============================================================================
+# SECTION 3: BRIDGE WITH VARIED VOICINGS (Bars 9-12)
+# =============================================================================
+# Using inverted chords for smoother voice leading
+
+# Bar 9: F major chord (1st inversion: A-C-F instead of F-A-C)
+[00:23.400]
+- note_on 1.G4 75 0.75b     # MELODY: G note, dotted eighth
+
+[@]
+- note_on 2.A3 68 2b        # CHORD: F major in 1st inversion (third in bass)
+
+[@]
+- note_on 2.C4 63 2b        # CHORD: Fifth
+
+[@]
+- note_on 2.F4 63 2b        # CHORD: Root on top
+
+[00:23.850]
+- note_on 1.F4 72 0.25b     # MELODY: F note
+
+[00:24.000]
+- note_on 1.E4 78 1b        # MELODY: E note
+
+[00:24.600]
+- note_on 1.D4 75 1b        # MELODY: D note
+
+# Change to C major chord (root position)
+[00:25.200]
+- note_on 1.C4 72 1b        # MELODY: C note
+
+[@]
+- note_on 2.C3 68 2b        # CHORD: C major root position
+
+[@]
+- note_on 2.E3 63 2b        # CHORD: Third
+
+[@]
+- note_on 2.G3 63 2b        # CHORD: Fifth
+
+[00:25.800]
+- note_on 1.D4 70 1b        # MELODY: D note
+
+# Bar 10: A minor chord (smooth voice leading from C)
+[00:26.400]
+- note_on 1.E4 75 1b        # MELODY: E note
+
+[@]
+- note_on 2.A3 70 2b        # CHORD: A minor
+
+[@]
+- note_on 2.C4 65 2b        # CHORD: Minor third
+
+[@]
+- note_on 2.E4 65 2b        # CHORD: Fifth
+
+[00:27.000]
+- note_on 1.F4 78 1b        # MELODY: F note
+
+# Change to F major chord
+[00:27.600]
+- note_on 1.G4 82 1b        # MELODY: G note
+
+[@]
+- note_on 2.F3 68 2b        # CHORD: F major
+
+[@]
+- note_on 2.A3 63 2b        # CHORD: Third
+
+[@]
+- note_on 2.C4 63 2b        # CHORD: Fifth
+
+[00:28.200]
+- note_on 1.A4 85 1b        # MELODY: A note
+
+# Bar 11: G7 chord (dominant seventh, adds tension)
+[00:28.800]
+- note_on 1.B4 88 1.5b      # MELODY: B note, dotted quarter
+
+[@]
+- note_on 2.G3 72 3b        # CHORD: G7 root (dotted half note)
+
+[@]
+- note_on 2.B3 67 3b        # CHORD: Third
+
+[@]
+- note_on 2.D4 67 3b        # CHORD: Fifth
+
+[@]
+- note_on 2.F4 67 3b        # CHORD: Seventh (F natural creates dominant seventh)
+
+[00:29.700]
+- note_on 1.A4 85 0.5b      # MELODY: A note
+
+[00:30.000]
+- note_on 1.G4 82 1b        # MELODY: G note
+
+[00:30.600]
+- note_on 1.F4 78 1b        # MELODY: F note
+
+# Bar 12: C major chord (resolution)
+[00:31.200]
+- note_on 1.E4 75 1b        # MELODY: E note
+
+[@]
+- note_on 2.C3 68 4b        # CHORD: C major (whole note, settling)
+
+[@]
+- note_on 2.E3 63 4b        # CHORD: Third
+
+[@]
+- note_on 2.G3 63 4b        # CHORD: Fifth
+
+[00:31.800]
+- note_on 1.D4 72 1b        # MELODY: D note
+
+[00:32.400]
+- note_on 1.C4 70 2b        # MELODY: C note, half note
+
+# =============================================================================
+# SECTION 4: FINALE WITH FULL HARMONY (Bars 13-16)
+# =============================================================================
+# Rich chord voicings for the ending
+
+# Bar 13: C major chord (restatement)
+[00:33.600]
+- note_on 1.C4 80 1b        # MELODY: C note
+
+[@]
+- note_on 2.C3 72 4b        # CHORD: C major (whole note for stability)
+
+[@]
+- note_on 2.E3 67 4b        # CHORD: Third
+
+[@]
+- note_on 2.G3 67 4b        # CHORD: Fifth
+
+[00:34.200]
+- note_on 1.E4 80 1b        # MELODY: E note
+
+[00:34.800]
+- note_on 1.G4 80 1b        # MELODY: G note
+
+[00:35.400]
+- note_on 1.C5 82 1b        # MELODY: High C
+
+# Bar 14: G major chord (dominant)
+[00:36.000]
+- note_on 1.B4 78 0.5b      # MELODY: B note
+
+[@]
+- note_on 2.G3 68 2b        # CHORD: G major
+
+[@]
+- note_on 2.B3 63 2b        # CHORD: Third
+
+[@]
+- note_on 2.D4 63 2b        # CHORD: Fifth
+
+[00:36.300]
+- note_on 1.A4 78 0.5b      # MELODY: A note
+
+[00:36.600]
+- note_on 1.G4 75 1b        # MELODY: G note
+
+[00:37.200]
+- note_on 1.F4 72 1b        # MELODY: F note
+
+# Change to F major chord
+[00:37.800]
+- note_on 1.E4 70 1b        # MELODY: E note
+
+[@]
+- note_on 2.F3 65 2b        # CHORD: F major
+
+[@]
+- note_on 2.A3 60 2b        # CHORD: Third
+
+[@]
+- note_on 2.C4 60 2b        # CHORD: Fifth
+
+# Bar 15: D minor → G major (ii → V progression, classic cadence)
+[00:38.400]
+- note_on 1.D4 68 1b        # MELODY: D note
+
+[@]
+- note_on 2.D3 63 2b        # CHORD: D minor
+
+[@]
+- note_on 2.F3 58 2b        # CHORD: Minor third
+
+[@]
+- note_on 2.A3 58 2b        # CHORD: Fifth
+
+[00:39.000]
+- note_on 1.E4 70 1b        # MELODY: E note
+
+# Change to G major chord
+[00:39.600]
+- note_on 1.F4 65 1b        # MELODY: F note
+
+[@]
+- note_on 2.G3 63 2b        # CHORD: G major (dominant)
+
+[@]
+- note_on 2.B3 58 2b        # CHORD: Third
+
+[@]
+- note_on 2.D4 58 2b        # CHORD: Fifth
+
+[00:40.200]
+- note_on 1.G4 62 1b        # MELODY: G note
+
+# Bar 16: Final C major chord (perfect authentic cadence)
+[00:40.800]
+- note_on 1.E4 65 2b        # MELODY: E note, penultimate
+
+[@]
+- note_on 2.C3 65 4b        # CHORD: Final C major (whole note, very stable)
+
+[@]
+- note_on 2.E3 60 4b        # CHORD: Third
+
+[@]
+- note_on 2.G3 60 4b        # CHORD: Fifth
+
+[00:42.000]
+- note_on 1.D4 60 1b        # MELODY: D note (leading tone resolution)
+
+[00:42.600]
+- note_on 1.C4 55 1b        # MELODY: Final C note
+
+# =============================================================================
+# EXCELLENT WORK!
+# =============================================================================
+# You've now created a two-part arrangement with melody and harmony! You learned:
+#
+# ✓ Multi-channel MIDI (Channel 1 = melody, Channel 2 = chords)
+# ✓ Simultaneous timing [@] for playing multiple notes at once
+# ✓ Chord construction (root, third, fifth)
+# ✓ Common chord progressions (I-V-IV, I-vi-IV-V)
+# ✓ Voice leading (smooth movement between chords)
+# ✓ Chord inversions (1st inversion for smoother bass lines)
+# ✓ Dominant seventh chords (adding color and tension)
+#
+# NEXT STEPS:
+# -----------
+# Move on to Tutorial 3 to add drums and create a complete rhythm section!
+#
+# TIPS FOR EXPERIMENTATION:
+# -------------------------
+# 1. Try different chord progressions (e.g., vi-IV-I-V instead of I-vi-IV-V)
+# 2. Experiment with chord inversions by changing the bass note
+# 3. Add seventh chords for more sophisticated harmony (add a note 11 semitones above root)
+# 4. Change velocities to make chords more/less prominent
+# 5. Try minor chords (minor third = 3 semitones instead of 4)
+#
+# CHORD REFERENCE:
+# ----------------
+# Major triads in C major scale:
+#   C major:  C-E-G   (I chord - tonic)
+#   F major:  F-A-C   (IV chord - subdominant)
+#   G major:  G-B-D   (V chord - dominant)
+#
+# Minor triads in C major scale:
+#   D minor:  D-F-A   (ii chord)
+#   E minor:  E-G-B   (iii chord)
+#   A minor:  A-C-E   (vi chord - relative minor)

@@ -425,3 +425,223 @@ ppq: 480
 
         # Should have 3 different channels
         assert len(channels) == 3
+
+
+class TestCSVSystemMessages:
+    """Test CSV export of system messages (SysEx, MTC, Song Position, etc.)."""
+
+    def test_sysex_export(self, parser):
+        """Test SysEx events export correctly with bytes data."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        # Create IR program with SysEx event
+        sysex_event = MIDIEvent(
+            type=EventType.SYSEX,
+            time=0,
+            channel=None,
+            data1=None,
+            data2=None,
+            metadata={"bytes": [0xF0, 0x43, 0x12, 0x00, 0x43, 0x12, 0x00, 0xF7]},
+        )
+
+        ir_program = IRProgram(
+            events=[sysex_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find SysEx event
+        sysex_lines = [line for line in csv_output.split("\n") if "System_exclusive" in line]
+        assert len(sysex_lines) > 0
+
+        # Verify format: track, time, System_exclusive, length, byte1, byte2, ...
+        line = sysex_lines[0]
+        assert "System_exclusive" in line
+        assert "240" in line  # 0xF0
+        assert "247" in line  # 0xF7
+
+    def test_sysex_without_bytes_skipped(self, parser):
+        """Test SysEx events without bytes metadata are skipped."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        # Create SysEx event WITHOUT bytes metadata
+        sysex_event = MIDIEvent(
+            type=EventType.SYSEX,
+            time=0,
+            channel=None,
+            data1=None,
+            data2=None,
+            metadata={},  # No bytes!
+        )
+
+        ir_program = IRProgram(
+            events=[sysex_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Should not have SysEx in output (skipped)
+        assert "System_exclusive" not in csv_output
+
+    def test_mtc_quarter_frame_export(self, parser):
+        """Test MTC Quarter Frame events export correctly."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        mtc_event = MIDIEvent(
+            type=EventType.MTC_QUARTER_FRAME,
+            time=0,
+            channel=None,
+            data1=0x20,  # MTC data
+            data2=None,
+            metadata={},
+        )
+
+        ir_program = IRProgram(
+            events=[mtc_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find MTC event
+        mtc_lines = [line for line in csv_output.split("\n") if "MIDI_time_code" in line]
+        assert len(mtc_lines) > 0
+
+        # Verify format includes data1
+        parts = [p.strip() for p in mtc_lines[0].split(",")]
+        assert "32" in parts or "0x20" in mtc_lines[0]  # data1 value
+
+    def test_song_position_export(self, parser):
+        """Test Song Position Pointer events export correctly."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        song_pos_event = MIDIEvent(
+            type=EventType.SONG_POSITION,
+            time=0,
+            channel=None,
+            data1=100,  # Song position value
+            data2=None,
+            metadata={},
+        )
+
+        ir_program = IRProgram(
+            events=[song_pos_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find song position event
+        sp_lines = [line for line in csv_output.split("\n") if "Song_position" in line]
+        assert len(sp_lines) > 0
+
+        # Verify format includes position value
+        parts = [p.strip() for p in sp_lines[0].split(",")]
+        assert "100" in parts
+
+    def test_song_select_export(self, parser):
+        """Test Song Select events export correctly."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        song_select_event = MIDIEvent(
+            type=EventType.SONG_SELECT,
+            time=0,
+            channel=None,
+            data1=5,  # Song number
+            data2=None,
+            metadata={},
+        )
+
+        ir_program = IRProgram(
+            events=[song_select_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find song select event
+        ss_lines = [line for line in csv_output.split("\n") if "Song_select" in line]
+        assert len(ss_lines) > 0
+
+        # Verify format includes song number
+        parts = [p.strip() for p in ss_lines[0].split(",")]
+        assert "5" in parts
+
+
+class TestCSVTimeSignatureEdgeCases:
+    """Test time_signature event edge cases for metadata handling."""
+
+    def test_time_signature_with_metadata(self, parser):
+        """Test time_signature event using metadata path."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        # Create time_signature with metadata (not data1/data2)
+        ts_event = MIDIEvent(
+            type=EventType.TIME_SIGNATURE,
+            time=0,
+            channel=None,
+            data1=None,
+            data2=None,
+            metadata={"numerator": 3, "denominator": 3},  # 3/8 time (2^3 = 8)
+        )
+
+        ir_program = IRProgram(
+            events=[ts_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find time signature event
+        ts_lines = [line for line in csv_output.split("\n") if "Time_signature" in line]
+        assert len(ts_lines) > 0
+
+        # Verify metadata values used
+        parts = [p.strip() for p in ts_lines[0].split(",")]
+        assert "3" in parts  # numerator
+
+    def test_time_signature_with_data2_fallback(self, parser):
+        """Test time_signature event with data2 as denominator fallback."""
+        from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+        # Create time_signature with data1/data2 (no metadata)
+        ts_event = MIDIEvent(
+            type=EventType.TIME_SIGNATURE,
+            time=0,
+            channel=None,
+            data1=6,  # numerator
+            data2=3,  # denominator power (2^3 = 8, so 6/8 time)
+            metadata={},
+        )
+
+        ir_program = IRProgram(
+            events=[ts_event],
+            resolution=480,
+            initial_tempo=120,
+            metadata={},
+        )
+
+        csv_output = export_to_csv(ir_program, include_header=False)
+
+        # Find time signature event
+        ts_lines = [line for line in csv_output.split("\n") if "Time_signature" in line]
+        assert len(ts_lines) > 0
+
+        # Verify data1/data2 values used
+        parts = [p.strip() for p in ts_lines[0].split(",")]
+        assert "6" in parts  # numerator from data1
+        assert "3" in parts  # denominator from data2

@@ -1,0 +1,179 @@
+/* Custom styles for MIDI Markup Language documentation */
+
+/* Code blocks for .mml files */
+.language-mml {
+  background-color: #f5f5f5;
+}
+
+[data-md-color-scheme="slate"] .language-mml {
+  background-color: #2d2d2d;
+}
+
+/* Enhanced table styling for API reference */
+.md-typeset table:not([class]) {
+  font-size: 0.9em;
+  border-collapse: collapse;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  font-weight: 600;
+  padding: 0.8em 1.2em;
+}
+
+.md-typeset table:not([class]) td {
+  padding: 0.6em 1.2em;
+}
+
+/* Admonition customization */
+.md-typeset .admonition.tip {
+  border-left-color: #00bfa5;
+}
+
+.md-typeset .admonition.example {
+  border-left-color: #651fff;
+}
+
+/* Inline code styling */
+.md-typeset code {
+  font-size: 0.85em;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* API documentation heading spacing */
+.doc-heading {
+  margin-top: 2em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid var(--md-default-fg-color--lightest);
+  padding-bottom: 0.3em;
+}
+
+/* Signature styling for functions */
+.doc .doc-signature {
+  font-family: var(--md-code-font-family);
+  font-size: 0.9em;
+  background-color: var(--md-code-bg-color);
+  padding: 1em;
+  border-radius: 4px;
+  margin-bottom: 1em;
+  overflow-x: auto;
+}
+
+/* Parameter lists in docstrings */
+.doc-parameters {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.doc-parameters dt {
+  font-weight: 600;
+  font-family: var(--md-code-font-family);
+  color: var(--md-code-fg-color);
+}
+
+/* Navigation enhancement */
+.md-nav__link--active {
+  font-weight: 600;
+}
+
+/* Search result highlights */
+.md-search-result__article--document {
+  padding: 0.8em 1.2em;
+}
+
+/* Footer enhancement */
+.md-footer-meta {
+  background-color: var(--md-footer-bg-color);
+}
+
+/* Custom kbd styling for keyboard shortcuts */
+.md-typeset kbd {
+  background-color: var(--md-code-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 3px;
+  box-shadow: 0 2px 0 0 var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color);
+  font-family: var(--md-code-font-family);
+  font-size: 0.85em;
+  padding: 0.2em 0.5em;
+  vertical-align: middle;
+}
+
+/* Version badge styling */
+.md-version {
+  font-size: 0.9em;
+}
+
+/* Improve spacing for nested lists */
+.md-typeset ul ul,
+.md-typeset ol ul,
+.md-typeset ul ol,
+.md-typeset ol ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Enhanced blockquote styling */
+.md-typeset blockquote {
+  border-left: 4px solid var(--md-accent-fg-color);
+  padding-left: 1em;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Grid layout for feature cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1em 0;
+}
+
+.grid .card {
+  padding: 1em;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+  transition: box-shadow 0.2s;
+}
+
+.grid .card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges */
+.status-complete {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  background-color: #4caf50;
+  color: white;
+  font-size: 0.8em;
+  font-weight: 600;
+  border-radius: 3px;
+  margin-left: 0.5em;
+}
+
+.status-coming-soon {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  background-color: #ff9800;
+  color: white;
+  font-size: 0.8em;
+  font-weight: 600;
+  border-radius: 3px;
+  margin-left: 0.5em;
+}
+
+/* Command-line output styling */
+.md-typeset pre.cli-output {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1em;
+  border-radius: 4px;
+  border-left: 4px solid var(--md-accent-fg-color);
+}
+
+[data-md-color-scheme="light"] .md-typeset pre.cli-output {
+  background-color: #f5f5f5;
+  color: #333;
+}

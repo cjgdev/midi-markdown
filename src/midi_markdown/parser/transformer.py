@@ -90,6 +90,14 @@ class MMLTransformer(Transformer):
 
     # Imports and Definitions
     def import_stmt(self, path):
+        """Transform @import statement into tuple format.
+
+        Args:
+            path: Path string with quotes (e.g., '"devices/quad_cortex.mml"')
+
+        Returns:
+            Tuple of ("import", path_without_quotes)
+        """
         return ("import", str(path).strip("\"'"))
 
     def define_stmt(self, name, value):
@@ -148,6 +156,12 @@ class MMLTransformer(Transformer):
         return Timing("relative", (0, "s"), str(token))
 
     def simultaneous(self):
+        """Transform [@] simultaneous timing marker.
+
+        Returns:
+            Timing object with type="simultaneous" indicating event occurs
+            at same time as previous event
+        """
         return Timing("simultaneous", None, "[@]")
 
     def timing(self, time_spec):
@@ -243,6 +257,15 @@ class MMLTransformer(Transformer):
         )
 
     def program_change(self, channel, program):
+        """Transform program change (PC) MIDI command.
+
+        Args:
+            channel: MIDI channel (1-16) or variable reference
+            program: Program number (0-127) or variable reference
+
+        Returns:
+            MIDICommand object with type="pc"
+        """
         # Resolve variables if present
         channel_val = self._resolve_param(channel)
         program_val = self._resolve_param(program)
@@ -254,6 +277,16 @@ class MMLTransformer(Transformer):
         return MIDICommand(type="pc", channel=channel_int, data1=program_int)
 
     def control_change(self, channel, controller, value):
+        """Transform control change (CC) MIDI command.
+
+        Args:
+            channel: MIDI channel (1-16) or variable reference
+            controller: CC number (0-127) or variable reference
+            value: CC value (0-127), can be integer or percent
+
+        Returns:
+            MIDICommand object with type="cc"
+        """
         # Resolve variables if present
         channel_val = self._resolve_param(channel)
         controller_val = self._resolve_param(controller)
@@ -269,6 +302,15 @@ class MMLTransformer(Transformer):
         )
 
     def pitch_bend(self, channel, value):
+        """Transform pitch bend MIDI command.
+
+        Args:
+            channel: MIDI channel (1-16)
+            value: Pitch bend value (-8192 to +8191)
+
+        Returns:
+            MIDICommand object with type="pitch_bend"
+        """
         return MIDICommand(
             type="pitch_bend", channel=int(channel), data1=self._parse_pitch_bend(value)
         )
@@ -339,6 +381,14 @@ class MMLTransformer(Transformer):
         return MIDICommand(type="meta_event", params={"args": args})
 
     def sysex_command(self, *hex_bytes):
+        """Transform SysEx (System Exclusive) MIDI command.
+
+        Args:
+            *hex_bytes: Variable number of hexadecimal byte values
+
+        Returns:
+            MIDICommand object with type="sysex" and bytes in params
+        """
         return MIDICommand(type="sysex", params={"bytes": [str(b) for b in hex_bytes]})
 
     def channel_reset(self, *args):
@@ -806,6 +856,15 @@ class MMLTransformer(Transformer):
         }
 
     def conditional_stmt(self, if_clause, *other_clauses):
+        """Transform @if/@elif/@else conditional statement.
+
+        Args:
+            if_clause: Tuple with condition and commands for @if branch
+            *other_clauses: Variable number of @elif or @else clauses
+
+        Returns:
+            Dictionary representing conditional statement with all branches
+        """
         return {
             "type": "conditional",
             "if": if_clause,
@@ -815,18 +874,63 @@ class MMLTransformer(Transformer):
 
     # Expressions
     def add(self, left, right):
+        """Transform addition expression (left + right).
+
+        Args:
+            left: Left operand (number or expression)
+            right: Right operand (number or expression)
+
+        Returns:
+            Tuple ("add", left, right) representing addition operation
+        """
         return ("add", left, right)
 
     def sub(self, left, right):
+        """Transform subtraction expression (left - right).
+
+        Args:
+            left: Left operand (number or expression)
+            right: Right operand (number or expression)
+
+        Returns:
+            Tuple ("sub", left, right) representing subtraction operation
+        """
         return ("sub", left, right)
 
     def mul(self, left, right):
+        """Transform multiplication expression (left * right).
+
+        Args:
+            left: Left operand (number or expression)
+            right: Right operand (number or expression)
+
+        Returns:
+            Tuple ("mul", left, right) representing multiplication operation
+        """
         return ("mul", left, right)
 
     def div(self, left, right):
+        """Transform division expression (left / right).
+
+        Args:
+            left: Left operand (number or expression)
+            right: Right operand (number or expression)
+
+        Returns:
+            Tuple ("div", left, right) representing division operation
+        """
         return ("div", left, right)
 
     def mod(self, left, right):
+        """Transform modulo expression (left % right).
+
+        Args:
+            left: Left operand (number or expression)
+            right: Right operand (number or expression)
+
+        Returns:
+            Tuple ("mod", left, right) representing modulo operation
+        """
         return ("mod", left, right)
 
     def variable_ref(self, name):
@@ -854,9 +958,25 @@ class MMLTransformer(Transformer):
         return ("func_call", str(func_name), list(args))
 
     def number(self, n):
+        """Transform NUMBER token to float.
+
+        Args:
+            n: Numeric token (can include decimal point)
+
+        Returns:
+            Float value
+        """
         return float(n)
 
     def integer(self, n):
+        """Transform INT token to integer.
+
+        Args:
+            n: Integer token
+
+        Returns:
+            Integer value
+        """
         return int(n)
 
     def param_ref_expr(self, param_ref):
@@ -868,9 +988,27 @@ class MMLTransformer(Transformer):
         return ("param_ref", param_ref)
 
     def percent(self, value):
+        """Transform percent value (e.g., 50%) to internal representation.
+
+        Args:
+            value: Percentage value (0-100)
+
+        Returns:
+            Tuple ("percent", value) for later conversion to 0-127 MIDI range
+        """
         return ("percent", int(value))
 
     def ramp_expr(self, start, end, ramp_type="linear"):
+        """Transform ramp/sweep expression (e.g., ramp(0, 127, "linear")).
+
+        Args:
+            start: Starting value for ramp
+            end: Ending value for ramp
+            ramp_type: Type of ramp curve ("linear", "exponential", etc.)
+
+        Returns:
+            Dictionary with ramp parameters for sweep expansion
+        """
         return {
             "type": "ramp",
             "start": int(start),
@@ -879,6 +1017,15 @@ class MMLTransformer(Transformer):
         }
 
     def random_expr(self, min_val, max_val):
+        """Transform random() expression to internal representation.
+
+        Args:
+            min_val: Minimum random value (inclusive)
+            max_val: Maximum random value (inclusive)
+
+        Returns:
+            Dictionary with type="random" and min/max bounds
+        """
         return {"type": "random", "min": min_val, "max": max_val}
 
     # Helper Methods

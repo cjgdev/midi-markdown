@@ -15,7 +15,7 @@ class TestExampleParsing:
 
     def test_00_hello_world(self, parser):
         """Test the simplest example"""
-        example_file = EXAMPLES_DIR / "00_hello_world.mml"
+        example_file = EXAMPLES_DIR / "00_basics" / "00_hello_world.mml"
         doc = parser.parse_file(example_file)
 
         # Verify frontmatter
@@ -39,7 +39,7 @@ class TestExampleParsing:
 
     def test_01_minimal_midi(self, parser):
         """Test minimal MIDI file with metadata"""
-        example_file = EXAMPLES_DIR / "01_minimal_midi.mml"
+        example_file = EXAMPLES_DIR / "00_basics" / "01_minimal_midi.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "My First MIDI File"
@@ -54,7 +54,7 @@ class TestExampleParsing:
 
     def test_02_simple_click_track(self, parser):
         """Test click track with repeated note patterns"""
-        example_file = EXAMPLES_DIR / "02_simple_click_track.mml"
+        example_file = EXAMPLES_DIR / "00_basics" / "02_simple_click_track.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Practice Click Track"
@@ -72,7 +72,7 @@ class TestExampleParsing:
 
     def test_03_song_structure_markers(self, parser):
         """Test song with section markers"""
-        example_file = EXAMPLES_DIR / "03_song_structure_markers.mml"
+        example_file = EXAMPLES_DIR / "00_basics" / "03_song_structure_markers.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Basic Song Structure"
@@ -92,7 +92,7 @@ class TestExampleParsing:
 
     def test_04_tempo_changes(self, parser):
         """Test dynamic tempo changes"""
-        example_file = EXAMPLES_DIR / "04_tempo_changes.mml"
+        example_file = EXAMPLES_DIR / "01_timing" / "04_tempo_changes.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Ballad with Tempo Changes"
@@ -120,7 +120,7 @@ class TestExampleParsing:
 
     def test_05_multi_channel_basic(self, parser):
         """Test multi-channel song"""
-        example_file = EXAMPLES_DIR / "05_multi_channel_basic.mml"
+        example_file = EXAMPLES_DIR / "02_midi_features" / "05_multi_channel_basic.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Multi-Channel Song"
@@ -143,7 +143,7 @@ class TestExampleParsing:
 
     def test_06_cc_automation(self, parser):
         """Test CC automation"""
-        example_file = EXAMPLES_DIR / "06_cc_automation.mml"
+        example_file = EXAMPLES_DIR / "02_midi_features" / "06_cc_automation.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Control Change Automation"
@@ -166,7 +166,7 @@ class TestExampleParsing:
 
     def test_07_pitch_bend_pressure(self, parser):
         """Test pitch bend and pressure"""
-        example_file = EXAMPLES_DIR / "07_pitch_bend_pressure.mml"
+        example_file = EXAMPLES_DIR / "02_midi_features" / "07_pitch_bend_pressure.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Pitch Bend and Pressure Demo"
@@ -201,7 +201,7 @@ class TestExampleParsing:
 
     def test_08_system_messages(self, parser):
         """Test system and SysEx messages"""
-        example_file = EXAMPLES_DIR / "08_system_messages.mml"
+        example_file = EXAMPLES_DIR / "02_midi_features" / "08_system_messages.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "System and SysEx Messages"
@@ -230,7 +230,7 @@ class TestExampleParsing:
 
     def test_09_comprehensive_song(self, parser):
         """Test comprehensive example combining many features"""
-        example_file = EXAMPLES_DIR / "09_comprehensive_song.mml"
+        example_file = EXAMPLES_DIR / "03_advanced" / "09_comprehensive_song.mml"
         doc = parser.parse_file(example_file)
 
         assert doc.frontmatter["title"] == "Comprehensive Song Example"
@@ -284,7 +284,7 @@ class TestExampleTiming:
         # Examples organized by instrument/channel rather than chronologically
         skip_examples = ["05_multi_channel", "09_comprehensive"]
 
-        for example_file in EXAMPLES_DIR.glob("*.mml"):
+        for example_file in EXAMPLES_DIR.rglob("*.mml"):
             # Skip examples with non-chronological organization
             # TODO: Reorganize these examples to be chronological
             if any(skip in example_file.name for skip in skip_examples):
@@ -312,20 +312,20 @@ class TestExampleContent:
 
     def test_all_examples_have_frontmatter(self, parser):
         """All examples should have title and author"""
-        for example_file in EXAMPLES_DIR.glob("*.mml"):
+        for example_file in EXAMPLES_DIR.rglob("*.mml"):
             doc = parser.parse_file(example_file)
             assert "title" in doc.frontmatter, f"{example_file.name} missing title"
             assert "author" in doc.frontmatter, f"{example_file.name} missing author"
 
     def test_all_examples_have_events(self, parser):
         """All examples should have at least one event"""
-        for example_file in EXAMPLES_DIR.glob("*.mml"):
+        for example_file in EXAMPLES_DIR.rglob("*.mml"):
             doc = parser.parse_file(example_file)
             assert len(doc.events) > 0, f"{example_file.name} has no events"
 
     def test_all_examples_have_tempo(self, parser):
         """All examples should set tempo (either in frontmatter or as command)"""
-        for example_file in EXAMPLES_DIR.glob("*.mml"):
+        for example_file in EXAMPLES_DIR.rglob("*.mml"):
             doc = parser.parse_file(example_file)
 
             # Check frontmatter first

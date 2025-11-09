@@ -1,0 +1,319 @@
+---
+title: "Tutorial 1: Simple Melody"
+description: "Learn the basics of MML by creating a simple single-line melody"
+tempo: 100
+time_signature: [4, 4]
+ppq: 480
+author: "MIDI Markup Language Team"
+difficulty: "Beginner"
+duration: "16 bars"
+---
+
+# Tutorial 1: Simple Melody
+# ========================
+#
+# Welcome to MIDI Markup Language! This tutorial will teach you the basics
+# by creating a simple melody. We'll cover:
+#
+# 1. Absolute timing [mm:ss.ms] - when notes happen
+# 2. note_on and note_off commands - creating notes
+# 3. Basic rhythm patterns - quarter notes, eighth notes, half notes
+# 4. Musical phrasing - rests and articulation
+#
+# For more details, see: docs/tutorials/basic-melody.md
+
+# TIMING BASICS
+# =============
+# Absolute timing uses the format [mm:ss.ms] where:
+#   mm  = minutes (00-99)
+#   ss  = seconds (00-59)
+#   ms  = milliseconds (000-999)
+#
+# At tempo 100 BPM:
+#   - One quarter note = 0.6 seconds = 600ms
+#   - One eighth note = 0.3 seconds = 300ms
+#   - One half note = 1.2 seconds = 1200ms
+#   - One whole note = 2.4 seconds = 2400ms
+
+# MIDI COMMANDS
+# =============
+# note_on channel.note velocity duration
+#   channel  = MIDI channel (1-16)
+#   note     = MIDI note number (0-127) or name (C4, D#5, etc.)
+#   velocity = how hard the note is hit (0-127, where 127 is loudest)
+#   duration = how long the note lasts (1b = 1 beat, 2b = 2 beats, etc.)
+#
+# We'll use channel 1 for our melody (piano sound in most MIDI players)
+
+# =============================================================================
+# SECTION 1: INTRO PHRASE (Bars 1-4)
+# =============================================================================
+# We'll start with a simple 4-bar phrase using C major scale
+# Pattern: C - E - G - C (ascending arpeggio)
+
+# Bar 1: Opening phrase
+[00:00.000]
+- note_on 1.C4 80 1b        # C note, medium-loud, 1 beat (quarter note)
+
+[00:00.600]
+- note_on 1.E4 80 1b        # E note, continuing the arpeggio
+
+[00:01.200]
+- note_on 1.G4 80 1b        # G note
+
+[00:01.800]
+- note_on 1.C5 80 1b        # High C, completing the arpeggio
+
+# Bar 2: Response phrase (descending)
+[00:02.400]
+- note_on 1.G4 75 1b        # G note, slightly softer
+
+[00:03.000]
+- note_on 1.E4 75 1b        # E note
+
+[00:03.600]
+- note_on 1.D4 75 1b        # D note (leading down)
+
+[00:04.200]
+- note_on 1.C4 75 2b        # C note, held for 2 beats (half note)
+
+# Bar 3: Development (adding rhythm)
+[00:05.400]
+- note_on 1.E4 82 0.5b      # E note, eighth note (half beat)
+
+[00:05.700]
+- note_on 1.F4 82 0.5b      # F note, eighth note
+
+[00:06.000]
+- note_on 1.G4 85 1b        # G note, back to quarter notes, crescendo
+
+[00:06.600]
+- note_on 1.A4 85 1b        # A note
+
+[00:07.200]
+- note_on 1.G4 82 1b        # G note
+
+[00:07.800]
+- note_on 1.F4 78 1b        # F note, softer
+
+# Bar 4: Conclusion of first phrase
+[00:08.400]
+- note_on 1.E4 80 2b        # E note, half note
+
+[00:09.600]
+- note_on 1.D4 75 1b        # D note, quarter note
+
+[00:10.200]
+- note_on 1.C4 70 1b        # C note, ending phrase softly
+
+# =============================================================================
+# SECTION 2: VERSE MELODY (Bars 5-8)
+# =============================================================================
+# Second phrase with more movement and expression
+
+# Bar 5: Start with energy
+[00:11.400]
+- note_on 1.C4 85 0.5b      # C note, eighth note, louder start
+
+[00:11.700]
+- note_on 1.D4 85 0.5b      # D note, eighth note
+
+[00:12.000]
+- note_on 1.E4 88 1b        # E note, quarter note, accented
+
+[00:12.600]
+- note_on 1.G4 85 1b        # G note
+
+[00:13.200]
+- note_on 1.A4 82 1b        # A note
+
+[00:13.800]
+- note_on 1.G4 78 1b        # G note, softer
+
+# Bar 6: Melodic sequence
+[00:14.400]
+- note_on 1.F4 80 0.5b      # F note, eighth note
+
+[00:14.700]
+- note_on 1.E4 80 0.5b      # E note, eighth note
+
+[00:15.000]
+- note_on 1.D4 85 1b        # D note, quarter note
+
+[00:15.600]
+- note_on 1.E4 82 1b        # E note
+
+[00:16.200]
+- note_on 1.F4 78 1b        # F note
+
+[00:16.800]
+- note_on 1.E4 75 1b        # E note, softer
+
+# Bar 7: Building to climax
+[00:17.400]
+- note_on 1.D4 75 0.5b      # D note, eighth note
+
+[00:17.700]
+- note_on 1.E4 78 0.5b      # E note, eighth note
+
+[00:18.000]
+- note_on 1.F4 82 1b        # F note, crescendo
+
+[00:18.600]
+- note_on 1.G4 85 1b        # G note
+
+[00:19.200]
+- note_on 1.A4 88 1b        # A note
+
+[00:19.800]
+- note_on 1.B4 90 1b        # B note, approaching climax
+
+# Bar 8: Climax and resolution
+[00:20.400]
+- note_on 1.C5 95 2b        # High C, loud, climax point (half note)
+
+[00:21.600]
+- note_on 1.B4 85 1b        # B note, resolving down
+
+[00:22.200]
+- note_on 1.A4 80 1b        # A note
+
+# =============================================================================
+# SECTION 3: BRIDGE (Bars 9-12)
+# =============================================================================
+# Contrasting material with different rhythm
+
+# Bar 9: Rhythmic variation (dotted rhythm feel)
+[00:23.400]
+- note_on 1.G4 75 0.75b     # G note, dotted eighth (3/4 beat)
+
+[00:23.850]
+- note_on 1.F4 72 0.25b     # F note, sixteenth note
+
+[00:24.000]
+- note_on 1.E4 78 1b        # E note, quarter note
+
+[00:24.600]
+- note_on 1.D4 75 1b        # D note
+
+[00:25.200]
+- note_on 1.C4 72 1b        # C note, softer
+
+[00:25.800]
+- note_on 1.D4 70 1b        # D note
+
+# Bar 10: Stepwise motion
+[00:26.400]
+- note_on 1.E4 75 1b        # E note
+
+[00:27.000]
+- note_on 1.F4 78 1b        # F note, crescendo
+
+[00:27.600]
+- note_on 1.G4 82 1b        # G note
+
+[00:28.200]
+- note_on 1.A4 85 1b        # A note
+
+# Bar 11: Peak of bridge section
+[00:28.800]
+- note_on 1.B4 88 1.5b      # B note, dotted quarter note
+
+[00:29.700]
+- note_on 1.A4 85 0.5b      # A note, eighth note
+
+[00:30.000]
+- note_on 1.G4 82 1b        # G note
+
+[00:30.600]
+- note_on 1.F4 78 1b        # F note, diminuendo
+
+# Bar 12: Transition back
+[00:31.200]
+- note_on 1.E4 75 1b        # E note
+
+[00:31.800]
+- note_on 1.D4 72 1b        # D note, getting quieter
+
+[00:32.400]
+- note_on 1.C4 70 2b        # C note, half note, settling down
+
+# =============================================================================
+# SECTION 4: FINALE (Bars 13-16)
+# =============================================================================
+# Final statement and cadence
+
+# Bar 13: Restatement of opening
+[00:33.600]
+- note_on 1.C4 80 1b        # C note, back to original theme
+
+[00:34.200]
+- note_on 1.E4 80 1b        # E note
+
+[00:34.800]
+- note_on 1.G4 80 1b        # G note
+
+[00:35.400]
+- note_on 1.C5 82 1b        # High C, slightly accented
+
+# Bar 14: Ornamental descent
+[00:36.000]
+- note_on 1.B4 78 0.5b      # B note, eighth note
+
+[00:36.300]
+- note_on 1.A4 78 0.5b      # A note, eighth note
+
+[00:36.600]
+- note_on 1.G4 75 1b        # G note
+
+[00:37.200]
+- note_on 1.F4 72 1b        # F note
+
+[00:37.800]
+- note_on 1.E4 70 1b        # E note, decrescendo
+
+# Bar 15: Final approach
+[00:38.400]
+- note_on 1.D4 68 1b        # D note, very soft
+
+[00:39.000]
+- note_on 1.E4 70 1b        # E note
+
+[00:39.600]
+- note_on 1.F4 65 1b        # F note, even softer
+
+[00:40.200]
+- note_on 1.G4 62 1b        # G note, preparing for end
+
+# Bar 16: Final cadence
+[00:40.800]
+- note_on 1.E4 65 2b        # E note, half note, penultimate
+
+[00:42.000]
+- note_on 1.D4 60 1b        # D note, leading tone
+
+[00:42.600]
+- note_on 1.C4 55 1b        # Final C note, very soft, peaceful ending
+
+# =============================================================================
+# CONGRATULATIONS!
+# =============================================================================
+# You've created your first MML melody! You've learned:
+#
+# ✓ Absolute timing [mm:ss.ms]
+# ✓ note_on commands with velocity and duration
+# ✓ Musical phrasing and dynamics (loud to soft)
+# ✓ Different note durations (quarter, eighth, half notes)
+# ✓ How to structure a complete musical phrase
+#
+# NEXT STEPS:
+# -----------
+# Move on to Tutorial 2 to learn how to add chord accompaniment to this melody!
+#
+# TIP: Try changing some velocities (the third parameter) to hear how it affects
+#      the expression. Values closer to 127 are louder, closer to 0 are softer.
+#
+# TIP: You can also experiment with different note names. Remember:
+#      C4 = middle C, C5 = one octave higher, C3 = one octave lower
+#      Sharp notes: C#4, D#4, F#4, G#4, A#4
+#      Flat notes: Db4, Eb4, Gb4, Ab4, Bb4

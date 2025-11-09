@@ -1,0 +1,285 @@
+---
+title: "Bass Line Patterns"
+description: "Walking bass and rhythmic bass patterns"
+author: "MML Examples"
+tempo: 100
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Bass Line Patterns
+# ============================================================================
+#
+# This example demonstrates:
+# - Walking bass patterns
+# - Syncopated rhythms
+# - Note duration variation
+# - Low MIDI note range (E1-E3: notes 28-52)
+# - Articulation through velocity and duration
+#
+# Bass Line Theory:
+# - Walking bass: stepwise motion connecting chord tones
+# - Syncopation: accents on off-beats
+# - Root-fifth patterns: common in pop/rock
+# - Ghost notes: very short, soft notes for groove
+#
+# ============================================================================
+
+
+# ============================================================================
+# Pattern 1: Walking Bass Line (Jazz - 8 bars)
+# ============================================================================
+
+[00:00.000]
+- marker "Walking Bass"
+- text "Jazz walking bass in F major"
+
+# Walking bass connects chord changes with stepwise motion
+# F major - Bb major - C7 - F major progression
+
+# === Bar 1: F Major (F-A-C) ===
+[1.1.0]
+- note_on 1.F2 85 0.9b       # Root (beat 1)
+[1.2.0]
+- note_on 1.A2 80 0.9b       # Third (beat 2)
+[1.3.0]
+- note_on 1.C3 78 0.9b       # Fifth (beat 3)
+[1.4.0]
+- note_on 1.D3 76 0.9b       # Passing tone to next chord (beat 4)
+
+# === Bar 2: Bb Major (Bb-D-F) ===
+[2.1.0]
+- note_on 1.Bb2 85 0.9b      # Root
+[2.2.0]
+- note_on 1.D3 80 0.9b       # Third
+[2.3.0]
+- note_on 1.F2 78 0.9b       # Fifth
+[2.4.0]
+- note_on 1.G2 76 0.9b       # Passing tone
+
+# === Bar 3: C7 (C-E-G-Bb) ===
+[3.1.0]
+- note_on 1.C2 85 0.9b       # Root
+[3.2.0]
+- note_on 1.E2 80 0.9b       # Third
+[3.3.0]
+- note_on 1.G2 78 0.9b       # Fifth
+[3.4.0]
+- note_on 1.Bb2 76 0.9b      # Seventh
+
+# === Bar 4: F Major (return) ===
+[4.1.0]
+- note_on 1.F2 85 0.9b       # Root
+[4.2.0]
+- note_on 1.A2 80 0.9b       # Third
+[4.3.0]
+- note_on 1.C3 78 0.9b       # Fifth
+[4.4.0]
+- note_on 1.E3 76 0.9b       # Leading tone to F
+
+# === Bars 5-8: Variation with chromatic passing tones ===
+[5.1.0]
+- note_on 1.F2 85 0.9b
+[5.2.0]
+- note_on 1.G2 80 0.9b
+[5.3.0]
+- note_on 1.Ab2 78 0.9b      # Chromatic approach
+[5.4.0]
+- note_on 1.A2 76 0.9b
+
+[6.1.0]
+- note_on 1.Bb2 85 0.9b
+[6.2.0]
+- note_on 1.C3 80 0.9b
+[6.3.0]
+- note_on 1.D3 78 0.9b
+[6.4.0]
+- note_on 1.E3 76 0.9b       # Chromatic approach
+
+[7.1.0]
+- note_on 1.F2 85 0.9b
+[7.2.0]
+- note_on 1.E2 80 0.9b       # Descending
+[7.3.0]
+- note_on 1.D2 78 0.9b
+[7.4.0]
+- note_on 1.C2 76 0.9b
+
+[8.1.0]
+- note_on 1.F2 90 3.5b       # Final root (sustained)
+
+
+# ============================================================================
+# Pattern 2: Syncopated Funk Bass (4 bars)
+# ============================================================================
+
+[9.1.0]
+- marker "Funk Bass"
+- text "Syncopated bass with ghost notes"
+
+# Syncopation emphasizes the "and" of beats
+# Ghost notes (velocity ~40-50) add groove
+
+# === Bar 9: E minor funk pattern ===
+[9.1.0]
+- note_on 1.E2 95 0.4b       # Strong root on 1
+[9.1.240]
+- note_on 1.E2 45 0.1b       # Ghost note (quiet, short)
+[9.2.0]
+- note_on 1.E2 85 0.3b       # Syncopated accent
+[9.2.240]
+- note_on 1.E2 45 0.1b       # Ghost note
+[9.3.0]
+- note_on 1.G2 75 0.3b       # Minor third
+[9.3.240]
+- note_on 1.E2 45 0.1b       # Ghost note
+[9.4.0]
+- note_on 1.E2 90 0.4b       # Accent on 4
+[9.4.240]
+- note_on 1.D2 70 0.2b       # Approach note
+
+# === Bar 10: Same pattern, higher notes ===
+[10.1.0]
+- note_on 1.E2 95 0.4b
+[10.1.240]
+- note_on 1.E2 45 0.1b
+[10.2.0]
+- note_on 1.E2 85 0.3b
+[10.2.240]
+- note_on 1.E2 45 0.1b
+[10.3.0]
+- note_on 1.B2 75 0.3b       # Fifth
+[10.3.240]
+- note_on 1.E2 45 0.1b
+[10.4.0]
+- note_on 1.E2 90 0.4b
+[10.4.240]
+- note_on 1.D2 70 0.2b
+
+# === Bar 11-12: Variation with octave jumps ===
+[11.1.0]
+- note_on 1.E2 95 0.2b       # Low E
+[11.1.240]
+- note_on 1.E3 80 0.2b       # Octave jump
+[11.2.0]
+- note_on 1.E2 85 0.3b       # Back to low
+[11.2.240]
+- note_on 1.E2 45 0.1b
+[11.3.0]
+- note_on 1.G2 75 0.3b
+[11.3.240]
+- note_on 1.B2 70 0.2b
+[11.4.0]
+- note_on 1.E2 90 0.3b
+[11.4.240]
+- note_on 1.E2 45 0.1b
+
+[12.1.0]
+- note_on 1.E2 100 3.5b      # Final sustained note
+
+
+# ============================================================================
+# Pattern 3: Root-Fifth Rock Pattern (4 bars)
+# ============================================================================
+
+[13.1.0]
+- marker "Rock Bass"
+- text "Classic root-fifth rock pattern"
+
+# Simple but effective: alternating root and fifth
+# Common in rock, punk, metal
+
+# === Bar 13: A power chord feel (A-E) ===
+[13.1.0]
+- note_on 1.A1 90 0.4b       # Root (very low A)
+[13.1.240]
+- note_on 1.A1 75 0.2b       # Root repeat
+[13.2.0]
+- note_on 1.E2 85 0.4b       # Fifth
+[13.2.240]
+- note_on 1.A1 70 0.2b       # Back to root
+[13.3.0]
+- note_on 1.A1 90 0.4b       # Root accent
+[13.3.240]
+- note_on 1.A1 75 0.2b
+[13.4.0]
+- note_on 1.E2 85 0.4b       # Fifth
+[13.4.240]
+- note_on 1.G2 75 0.2b       # Minor seventh approach
+
+# === Bar 14: Same pattern ===
+[14.1.0]
+- note_on 1.A1 90 0.4b
+[14.1.240]
+- note_on 1.A1 75 0.2b
+[14.2.0]
+- note_on 1.E2 85 0.4b
+[14.2.240]
+- note_on 1.A1 70 0.2b
+[14.3.0]
+- note_on 1.A1 90 0.4b
+[14.3.240]
+- note_on 1.A1 75 0.2b
+[14.4.0]
+- note_on 1.E2 85 0.4b
+[14.4.240]
+- note_on 1.G2 75 0.2b
+
+# === Bar 15: D power chord (D-A) ===
+[15.1.0]
+- note_on 1.D2 90 0.4b       # Root
+[15.1.240]
+- note_on 1.D2 75 0.2b
+[15.2.0]
+- note_on 1.A2 85 0.4b       # Fifth
+[15.2.240]
+- note_on 1.D2 70 0.2b
+[15.3.0]
+- note_on 1.D2 90 0.4b
+[15.3.240]
+- note_on 1.D2 75 0.2b
+[15.4.0]
+- note_on 1.A2 85 0.4b
+[15.4.240]
+- note_on 1.C3 75 0.2b       # Minor seventh
+
+# === Bar 16: Final A ===
+[16.1.0]
+- note_on 1.A1 100 4b        # Strong final root
+
+
+# ============================================================================
+# Pattern 4: Arpeggio Bass (2 bars)
+# ============================================================================
+
+[17.1.0]
+- marker "Arpeggio Bass"
+- text "Arpeggiated bass line"
+
+# Broken chord pattern - plays chord tones in sequence
+
+# === Bar 17: C major arpeggio (C-E-G-C) ===
+[17.1.0]
+- note_on 1.C2 80 0.45b      # Root
+[17.1.240]
+- note_on 1.E2 75 0.45b      # Third
+[17.2.0]
+- note_on 1.G2 73 0.45b      # Fifth
+[17.2.240]
+- note_on 1.C3 70 0.45b      # Octave
+[17.3.0]
+- note_on 1.G2 73 0.45b      # Fifth (descending)
+[17.3.240]
+- note_on 1.E2 75 0.45b      # Third
+[17.4.0]
+- note_on 1.C2 80 0.45b      # Root
+[17.4.240]
+- note_on 1.G2 73 0.45b      # Fifth
+
+# === Bar 18: Final C ===
+[18.1.0]
+- note_on 1.C2 85 4b         # Sustained root
+
+[19.1.0]
+- end_of_track

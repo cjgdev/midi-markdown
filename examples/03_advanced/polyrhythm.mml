@@ -1,0 +1,112 @@
+---
+title: "Polyrhythm Patterns"
+description: "3-against-4 and other polyrhythmic patterns"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Polyrhythm Patterns
+# ============================================================================
+#
+# This example demonstrates:
+# - Polyrhythm: multiple rhythms played simultaneously
+# - 3-against-4 (triplets against quarter notes)
+# - 2-against-3 patterns
+# - Multiple MIDI channels for clarity
+#
+# Polyrhythm Theory:
+# - Polyrhythm = two or more conflicting rhythms played together
+# - 3:4 = 3 notes in the time of 4 notes
+# - Creates rhythmic tension and interest
+# - Common in African, Latin, and progressive music
+#
+# ============================================================================
+
+
+# ============================================================================
+# Pattern 1: 3-Against-4 (Classic Polyrhythm)
+# ============================================================================
+
+[00:00.000]
+- marker "3 Against 4"
+- text "Channel 1: 3 per bar, Channel 2: 4 per bar"
+
+# Channel 1: 3 notes evenly spaced (every 640 ticks)
+@loop 12 times every 640ms
+  - note_on 1.C4 85 300ms
+@end
+
+# Channel 2: 4 quarter notes
+@loop 16 times every 1b
+  - note_on 2.E4 75 300ms
+@end
+
+
+# ============================================================================
+# Pattern 2: 2-Against-3 Polyrhythm
+# ============================================================================
+
+[+0.0b]
+- marker "2 Against 3"
+- text "Channel 1: 2 per bar, Channel 2: 3 per bar"
+
+# Channel 1: 2 notes per bar (half notes)
+@loop 8 times every 2b
+  - note_on 1.G3 85 900ms
+@end
+
+# Channel 2: 3 notes per bar
+@loop 12 times every 640ms
+  - note_on 2.B3 75 600ms
+@end
+
+
+# ============================================================================
+# Pattern 3: Triplet Feel
+# ============================================================================
+
+[+0.0b]
+- marker "Triplet Feel"
+- text "Eighth note triplets against straight eighths"
+
+# Channel 1: Triplets (3 per beat)
+@loop 32 times every 160ms
+  - note_on 1.D4 80 150ms
+@end
+
+# Channel 2: Straight eighth notes (2 per beat)
+@loop 32 times every 0.5b
+  - note_on 2.F#4 75 200ms
+@end
+
+
+# ============================================================================
+# Pattern 4: Convergence Point
+# ============================================================================
+
+[+0.0b]
+- marker "Convergence"
+- text "All rhythms resolve to unison"
+
+# Different rhythms converge
+@loop 12 times every 160ms
+  - note_on 1.C4 80 150ms
+@end
+
+@loop 8 times every 0.5b
+  - note_on 2.E4 75 200ms
+@end
+
+# Final unison hit
+[+0.0b]
+- note_on 1.C5 100 4b
+[@]
+- note_on 2.E5 100 4b
+[@]
+- note_on 3.G5 100 4b
+
+[+4b]
+- end_of_track

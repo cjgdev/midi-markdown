@@ -1,0 +1,191 @@
+site_name: MIDI Markup Language Documentation
+site_description: Human-readable MIDI markup language compiler and tools
+site_author: MIDI Markup Language Contributors
+site_url: https://github.com/yourusername/midi-markdown
+
+repo_name: midi-markdown
+repo_url: https://github.com/yourusername/midi-markdown
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang: en
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            docstring_section_style: table
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_object_full_path: false
+            show_category_heading: true
+            show_if_no_docstring: false
+            show_signature: true
+            show_signature_annotations: true
+            separate_signature: true
+            line_length: 80
+            merge_init_into_class: true
+            show_bases: true
+            show_inheritance_diagram: false
+            members_order: source
+            group_by_category: true
+            heading_level: 2
+            filters:
+              - "!^_"  # Exclude private members
+
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+  # Python Markdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yourusername/midi-markdown
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve by creating an issue.
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+
+  - Getting Started:
+    - getting-started/installation.md
+    - getting-started/quickstart.md
+    - getting-started/first-song.md
+
+  - User Guide:
+    - user-guide/mml-syntax.md
+    - user-guide/timing-system.md
+    - user-guide/midi-commands.md
+    - user-guide/alias-system.md
+    - user-guide/alias-api.md
+    - user-guide/device-libraries.md
+    - user-guide/realtime-playback.md
+
+  - CLI Reference:
+    - cli-reference/overview.md
+    - cli-reference/compile.md
+    - cli-reference/validate.md
+    - cli-reference/check.md
+    - cli-reference/inspect.md
+    - cli-reference/play.md
+    - cli-reference/repl.md
+
+  - Tutorials:
+    - tutorials/basic-melody.md
+    - tutorials/multi-channel.md
+    - tutorials/device-control.md
+
+  - Developer Guide:
+    - developer-guide/architecture/parser.md
+    - developer-guide/architecture/lexer.md
+    - developer-guide/architecture/quick-reference/parser-quick-ref.md
+    - developer-guide/architecture/quick-reference/lexer-quick-ref.md
+    - developer-guide/api-reference.md
+
+  - Reference:
+    - reference/faq.md
+    - reference/troubleshooting.md
+
+copyright: Copyright &copy; 2024 MIDI Markup Language Contributors

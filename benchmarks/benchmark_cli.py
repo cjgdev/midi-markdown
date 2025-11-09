@@ -1,0 +1,415 @@
+"""Benchmark CLI startup and command execution performance.
+
+Tests CLI responsiveness and command execution speed to ensure
+good user experience.
+
+Performance Targets:
+- CLI startup (--help): <1s
+- Small file compile: <2s
+- Version command: <500ms
+
+Run with:
+    uv run pytest benchmarks/benchmark_cli.py -v
+"""
+
+from __future__ import annotations
+
+import subprocess
+import time
+from pathlib import Path
+
+import pytest
+
+
+@pytest.mark.benchmark
+class TestCLIStartup:
+    """Benchmark CLI startup performance."""
+
+    def test_cli_help_speed(self, benchmark):
+        """Benchmark CLI startup time (--help).
+
+        Target: <1 second startup time
+
+        This measures the time to import all modules, initialize
+        the CLI framework, and display help text.
+        """
+
+        def run_help():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "--help"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_help)
+
+        assert result.returncode == 0
+        assert "MIDI Markup Language" in result.stdout or "Usage:" in result.stdout
+        print(f"\nCLI --help time: {benchmark.stats.get('mean', 0):.3f}s")
+
+    def test_cli_version_speed(self, benchmark):
+        """Benchmark version command execution.
+
+        Target: <1 second
+        """
+
+        def run_version():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "version"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_version)
+
+        assert result.returncode == 0
+        print(f"\nCLI version time: {benchmark.stats.get('mean', 0):.3f}s")
+
+    def test_cli_list_commands(self, benchmark):
+        """Benchmark command listing performance."""
+
+        def run_list():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "--help"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_list)
+
+        assert result.returncode == 0
+        # Check that main commands are listed
+        assert "compile" in result.stdout.lower() or "Commands:" in result.stdout
+        print(f"\nCLI list commands time: {benchmark.stats.get('mean', 0):.3f}s")
+
+
+@pytest.mark.benchmark
+class TestCompileCommand:
+    """Benchmark compile command execution."""
+
+    def test_compile_small_file(self, benchmark, small_mml_file, tmp_path):
+        """Benchmark compile command with small file.
+
+        Target: <2 seconds for small file
+        """
+        output_file = tmp_path / "output.mid"
+
+        def run_compile():
+            result = subprocess.run(
+                [
+                    "uv",
+                    "run",
+                    "midimarkup",
+                    "compile",
+                    str(small_mml_file),
+                    "-o",
+                    str(output_file),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            # Clean up output file for next iteration
+            if output_file.exists():
+                output_file.unlink()
+            return result
+
+        result = benchmark(run_compile)
+
+        assert result.returncode == 0
+        print(f"\nCompile small file: {benchmark.stats.get('mean', 0):.3f}s")
+
+    def test_compile_medium_file(self, medium_mml_file, tmp_path):
+        """Test compile command with medium file (not benchmarked in loop).
+
+        Target: <3 seconds
+        """
+        output_file = tmp_path / "output_medium.mid"
+
+        start = time.perf_counter()
+        result = subprocess.run(
+            [
+                "uv",
+                "run",
+                "midimarkup",
+                "compile",
+                str(medium_mml_file),
+                "-o",
+                str(output_file),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        elapsed = time.perf_counter() - start
+
+        assert result.returncode == 0
+        assert output_file.exists()
+        print(f"\nCompile medium file: {elapsed:.3f}s")
+
+        # Clean up
+        if output_file.exists():
+            output_file.unlink()
+
+
+@pytest.mark.benchmark
+class TestValidateCommand:
+    """Benchmark validate command execution."""
+
+    def test_validate_small_file(self, benchmark, small_mml_file):
+        """Benchmark validate command.
+
+        Target: <1.5 seconds
+
+        Validation includes parsing, alias resolution, and all
+        validation checks.
+        """
+
+        def run_validate():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "validate", str(small_mml_file)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_validate)
+
+        assert result.returncode == 0
+        print(f"\nValidate small file: {benchmark.stats.get('mean', 0):.3f}s")
+
+    def test_check_syntax_only(self, benchmark, small_mml_file):
+        """Benchmark check command (syntax only, no validation).
+
+        Target: <1 second
+
+        Check command should be faster than validate as it only
+        parses without full validation.
+        """
+
+        def run_check():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "check", str(small_mml_file)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_check)
+
+        assert result.returncode == 0
+        print(f"\nCheck syntax only: {benchmark.stats.get('mean', 0):.3f}s")
+
+
+@pytest.mark.benchmark
+class TestInspectCommand:
+    """Benchmark inspect command execution."""
+
+    def test_inspect_file(self, benchmark, small_mml_file):
+        """Benchmark inspect command.
+
+        Target: <2 seconds
+
+        Inspect performs full compilation and displays event table.
+        """
+
+        def run_inspect():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "inspect", str(small_mml_file)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_inspect)
+
+        # Inspect should succeed and show events
+        assert result.returncode == 0
+        print(f"\nInspect file: {benchmark.stats.get('mean', 0):.3f}s")
+
+
+@pytest.mark.benchmark
+class TestCLIOptions:
+    """Benchmark CLI with various options."""
+
+    def test_compile_with_verbose(self, small_mml_file, tmp_path):
+        """Test compile with verbose flag.
+
+        Verbose should add minimal overhead.
+        """
+        output_file = tmp_path / "output_verbose.mid"
+
+        start = time.perf_counter()
+        result = subprocess.run(
+            [
+                "uv",
+                "run",
+                "midimarkup",
+                "compile",
+                str(small_mml_file),
+                "-o",
+                str(output_file),
+                "-v",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        elapsed = time.perf_counter() - start
+
+        assert result.returncode == 0
+        print(f"\nCompile with -v: {elapsed:.3f}s")
+
+        # Clean up
+        if output_file.exists():
+            output_file.unlink()
+
+    def test_compile_with_no_color(self, small_mml_file, tmp_path):
+        """Test compile with --no-color flag."""
+        output_file = tmp_path / "output_nocolor.mid"
+
+        start = time.perf_counter()
+        result = subprocess.run(
+            [
+                "uv",
+                "run",
+                "midimarkup",
+                "compile",
+                str(small_mml_file),
+                "-o",
+                str(output_file),
+                "--no-color",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        elapsed = time.perf_counter() - start
+
+        assert result.returncode == 0
+        print(f"\nCompile with --no-color: {elapsed:.3f}s")
+
+        # Clean up
+        if output_file.exists():
+            output_file.unlink()
+
+    def test_compile_different_formats(self, small_mml_file, tmp_path):
+        """Test compile with different output formats.
+
+        Tests CSV and JSON export performance.
+        """
+        # CSV export
+        csv_file = tmp_path / "output.csv"
+        start = time.perf_counter()
+        result_csv = subprocess.run(
+            [
+                "uv",
+                "run",
+                "midimarkup",
+                "compile",
+                str(small_mml_file),
+                "-o",
+                str(csv_file),
+                "--format",
+                "csv",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        csv_time = time.perf_counter() - start
+
+        # JSON export
+        json_file = tmp_path / "output.json"
+        start = time.perf_counter()
+        result_json = subprocess.run(
+            [
+                "uv",
+                "run",
+                "midimarkup",
+                "compile",
+                str(small_mml_file),
+                "-o",
+                str(json_file),
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        json_time = time.perf_counter() - start
+
+        assert result_csv.returncode == 0
+        assert result_json.returncode == 0
+
+        print(f"\nCompile to CSV: {csv_time:.3f}s")
+        print(f"Compile to JSON: {json_time:.3f}s")
+
+        # Clean up
+        if csv_file.exists():
+            csv_file.unlink()
+        if json_file.exists():
+            json_file.unlink()
+
+
+@pytest.mark.benchmark
+class TestCLIErrorHandling:
+    """Benchmark CLI error handling performance."""
+
+    def test_error_invalid_file(self, benchmark):
+        """Test CLI handles missing file gracefully.
+
+        Error path should still be fast.
+        """
+
+        def run_invalid():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "compile", "nonexistent.mml"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_invalid)
+
+        assert result.returncode != 0  # Should fail
+        print(f"\nError handling time: {benchmark.stats.get('mean', 0):.3f}s")
+
+    def test_error_invalid_syntax(self, benchmark, tmp_path):
+        """Test CLI handles syntax errors gracefully."""
+        # Create invalid MML file
+        invalid_file = tmp_path / "invalid.mml"
+        invalid_file.write_text(
+            """---
+title: Invalid
+---
+
+[00:00.000]
+- invalid_command 1.2.3
+"""
+        )
+
+        def run_invalid_syntax():
+            result = subprocess.run(
+                ["uv", "run", "midimarkup", "compile", str(invalid_file)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result
+
+        result = benchmark(run_invalid_syntax)
+
+        assert result.returncode != 0
+        print(f"\nSyntax error handling: {benchmark.stats.get('mean', 0):.3f}s")

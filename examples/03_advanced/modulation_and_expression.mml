@@ -1,0 +1,160 @@
+---
+title: "Modulation and Expression"
+description: "CC automation for modulation, expression, volume, and pan"
+author: "MML Examples"
+tempo: 80
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Modulation and Expression
+# ============================================================================
+#
+# This example demonstrates:
+# - CC 1 (Modulation Wheel) - adds vibrato/tremolo
+# - CC 11 (Expression) - dynamic volume changes
+# - CC 7 (Volume) - overall volume control
+# - CC 10 (Pan) - stereo positioning
+# - @sweep for smooth parameter automation
+#
+# Common MIDI CC Numbers:
+# - CC 1: Modulation Wheel (0-127) - vibrato depth
+# - CC 7: Volume (0-127) - channel volume
+# - CC 10: Pan (0-127) - stereo position (0=left, 64=center, 127=right)
+# - CC 11: Expression (0-127) - real-time dynamics
+#
+# ============================================================================
+
+
+# ============================================================================
+# Section 1: Modulation Wheel Automation (CC 1)
+# ============================================================================
+
+[00:00.000]
+- marker "Modulation Demo"
+- text "CC 1 Modulation Wheel"
+
+# Set initial states
+- cc 1.1.0                   # Modulation off
+- cc 1.7.100                 # Volume at 100
+- cc 1.11.127                # Expression at maximum
+
+# Play a sustained note
+- note_on 1.A3 80 16s
+
+# Gradually increase modulation using sweep
+@sweep from [00:00.000] to [00:08.000] every 100ms
+  - cc 1.1.ramp(0, 127, linear)
+@end
+
+# Decrease modulation back to zero
+@sweep from [00:12.000] to [00:16.000] every 100ms
+  - cc 1.1.ramp(127, 0, linear)
+@end
+
+
+# ============================================================================
+# Section 2: Expression Pedal (CC 11) - Swells
+# ============================================================================
+
+[00:16.500]
+- marker "Expression Swells"
+- text "CC 11 for volume swells"
+
+# Reset modulation
+- cc 1.1.0
+
+# Crescendo (quiet to loud)
+[00:16.500]
+- note_on 1.C4 75 8s
+
+@sweep from [00:16.500] to [00:20.500] every 100ms
+  - cc 1.11.ramp(20, 127, linear)
+@end
+
+# Decrescendo (loud to quiet)
+[00:20.500]
+- note_on 1.E4 75 8s
+
+@sweep from [00:20.500] to [00:24.500] every 100ms
+  - cc 1.11.ramp(127, 20, linear)
+@end
+
+
+# ============================================================================
+# Section 3: Volume Automation (CC 7)
+# ============================================================================
+
+[00:25.000]
+- marker "Volume Automation"
+- text "CC 7 overall volume control"
+
+# Reset expression
+- cc 1.11.127
+
+# Play chord
+- note_on 1.C3 80 4s
+[@]
+- note_on 1.E3 78 4s
+[@]
+- note_on 1.G3 76 4s
+
+# Fade in from silence
+@sweep from [00:25.000] to [00:29.000] every 100ms
+  - cc 1.7.ramp(0, 100, linear)
+@end
+
+
+# ============================================================================
+# Section 4: Pan Automation (CC 10)
+# ============================================================================
+
+[00:30.000]
+- marker "Panning"
+- text "CC 10 stereo positioning"
+
+# Play repeating notes
+@loop 16 times every 0.5s
+  - note_on 1.A4 75 0.4s
+@end
+
+# Pan from left to right
+@sweep from [00:30.000] to [00:38.000] every 100ms
+  - cc 1.10.ramp(0, 127, linear)
+@end
+
+
+# ============================================================================
+# Section 5: Combined Automation
+# ============================================================================
+
+[00:39.000]
+- marker "Combined"
+- text "Multiple CC types together"
+
+# Reset all
+- cc 1.1.0
+- cc 1.7.80
+- cc 1.10.64
+- cc 1.11.60
+
+# Long sustained chord
+- note_on 1.C3 75 16s
+[@]
+- note_on 1.E3 73 16s
+[@]
+- note_on 1.G3 71 16s
+
+# Increase modulation
+@sweep from [00:39.000] to [00:47.000] every 100ms
+  - cc 1.1.ramp(0, 80, linear)
+@end
+
+# Expression swell
+@sweep from [00:47.000] to [00:55.000] every 100ms
+  - cc 1.11.ramp(60, 0, linear)
+@end
+
+[00:56.000]
+- end_of_track

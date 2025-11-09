@@ -11,10 +11,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Any
 
 
 class EventType(Enum):
-    """MIDI event types."""
+    """MIDI event types for Intermediate Representation.
+
+    This enum covers all MIDI event types supported by MML:
+    - Channel Voice Messages (NOTE_ON, NOTE_OFF, CC, PC, etc.)
+    - System Common Messages (SYSEX, MTC, Song Position/Select)
+    - Meta Events for MIDI files (TEMPO, TIME_SIGNATURE, MARKER, TEXT)
+
+    See Also:
+        - MIDI 1.0 Specification: https://www.midi.org/specifications
+        - Standard MIDI Files Specification (SMF)
+    """
 
     # Channel Voice Messages
     NOTE_ON = auto()
@@ -41,16 +52,39 @@ class EventType(Enum):
 
 @dataclass
 class MIDIEvent:
-    """Represents a single MIDI event.
+    """Represents a single MIDI event in the Intermediate Representation.
+
+    The MIDIEvent is the core data structure in the IR layer, representing
+    a single MIDI message with absolute timing. Events are created during
+    compilation from AST and can be queried, filtered, and converted to
+    various output formats.
 
     Attributes:
-        time: Absolute time in ticks
-        type: Event type
-        channel: MIDI channel (1-16)
-        data1: First data byte (e.g., note number, controller)
-        data2: Second data byte (e.g., velocity, value)
-        time_seconds: Absolute time in seconds (computed from tempo map)
-        metadata: Source location for error reporting
+        time: Absolute time in ticks (PPQ-based, e.g., 480 ticks = 1 quarter note at PPQ=480)
+        type: Event type from EventType enum (NOTE_ON, CC, TEMPO, etc.)
+        channel: MIDI channel (1-16, or 0 for meta events with no channel)
+        data1: First data byte (note number for notes, CC number for CC, etc.)
+        data2: Second data byte (velocity for notes, CC value for CC, etc.)
+        time_seconds: Absolute time in seconds (computed from tempo map during IR creation)
+        metadata: Optional metadata dict with source location, track name, etc.
+
+    Example:
+        >>> # Create a Note On event at 1 second (480 ticks at 120 BPM, PPQ=480)
+        >>> event = MIDIEvent(
+        ...     time=480,
+        ...     type=EventType.NOTE_ON,
+        ...     channel=1,
+        ...     data1=60,  # Middle C
+        ...     data2=80,  # Velocity
+        ...     time_seconds=1.0,
+        ...     metadata={"source_line": 10, "track": "Main"}
+        ... )
+        >>> print(f"Note {event.data1} at {event.time_seconds}s")
+        Note 60 at 1.0s
+
+    See Also:
+        - IRProgram: Container for collections of MIDIEvent objects
+        - string_to_event_type: Convert string types to EventType enum
     """
 
     time: int
@@ -196,16 +230,44 @@ def _ticks_to_seconds_standalone(ticks: int, tempo_map: list[tuple[int, int]], p
 
 @dataclass
 class IRProgram:
-    """Intermediate representation of compiled MML program.
+    """Intermediate representation of a compiled MML program.
 
-    This structure sits between the AST and final output formats,
-    enabling REPL, live playback, and diagnostics.
+    The IRProgram is the central data structure after compilation, containing
+    all MIDI events with computed timing. It sits between the AST (syntactic
+    representation) and output formats (MIDI files, JSON, live playback).
+
+    This IR layer enables:
+    - Query operations (events by time, type, channel)
+    - Multiple output formats from single compilation
+    - REPL with interactive inspection
+    - Live playback with real-time scheduling
+    - Diagnostic analysis (timing, event counts, duration)
 
     Attributes:
-        resolution: PPQ (ticks per quarter note)
-        initial_tempo: Starting tempo in BPM
-        events: Sorted list of MIDI events
-        metadata: Document frontmatter + computed information
+        resolution: PPQ (Pulses Per Quarter note), typically 480 or 960
+        initial_tempo: Starting tempo in BPM (before any tempo changes)
+        events: Sorted list of MIDIEvent objects (sorted by time)
+        metadata: Dictionary with document metadata (title, author, etc.)
+
+    Example:
+        >>> from midi_markdown.parser.parser import MMLParser
+        >>> from midi_markdown.core.compiler import compile_ast_to_ir
+        >>> parser = MMLParser()
+        >>> doc = parser.parse_file("examples/00_hello_world.mml")
+        >>> ir = compile_ast_to_ir(doc, ppq=480)
+        >>> print(f"Duration: {ir.duration_seconds:.2f}s")
+        Duration: 2.00s
+        >>> print(f"Events: {ir.event_count}")
+        Events: 4
+        >>> # Query events by type
+        >>> notes = ir.events_by_type(EventType.NOTE_ON)
+        >>> print(f"Note events: {len(notes)}")
+        Note events: 2
+
+    See Also:
+        - compile_ast_to_ir: Main compilation function
+        - create_ir_program: Helper for creating IR from events
+        - MIDIEvent: Individual event structure
     """
 
     resolution: int
