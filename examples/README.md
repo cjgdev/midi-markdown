@@ -1,42 +1,42 @@
-# MML Example Library
+# MMD Example Library
 
-Comprehensive example library demonstrating all MIDI Markup Language features.
+Comprehensive example library demonstrating all MIDI Markdown features.
 
 ## Quick Start
 
 ```bash
 # Compile any example to MIDI
-midimarkup compile examples/00_basics/00_hello_world.mml
+mmdc compile examples/00_basics/00_hello_world.mmd
 
 # Play back with TUI
-midimarkup play examples/00_basics/00_hello_world.mml --port "IAC Driver"
+mmdc play examples/00_basics/00_hello_world.mmd --port "IAC Driver"
 
 # View events as table
-midimarkup compile examples/00_basics/00_hello_world.mml --format table
+mmdc compile examples/00_basics/00_hello_world.mmd --format table
 
 # Export to CSV for analysis
-midimarkup compile examples/02_midi_features/06_cc_automation.mml --format csv -o events.csv
+mmdc compile examples/02_midi_features/06_cc_automation.mmd --format csv -o events.csv
 ```
 
 ## Categories
 
 ### 🎵 [00_basics/](00_basics/) - Start Here
 
-Perfect for first-time users. Learn fundamental MML concepts.
+Perfect for first-time users. Learn fundamental MMD concepts.
 
-- **00_hello_world.mml** - Absolute minimum MML file (3 notes)
-- **01_minimal_midi.mml** - Basic MIDI commands (note_on, note_off, cc, pc)
-- **02_simple_click_track.mml** - Metronome pattern with tempo
-- **03_song_structure_markers.mml** - Text markers for song sections
+- **00_hello_world.mmd** - Absolute minimum MMD file (3 notes)
+- **01_minimal_midi.mmd** - Basic MIDI commands (note_on, note_off, cc, pc)
+- **02_simple_click_track.mmd** - Metronome pattern with tempo
+- **03_song_structure_markers.mmd** - Text markers for song sections
 
-**Start with**: `00_hello_world.mml`
+**Start with**: `00_hello_world.mmd`
 
 ### ⏱️ [01_timing/](01_timing/) - Timing Paradigms
 
 Master MML's four timing systems.
 
-- **04_tempo_changes.mml** - Dynamic tempo automation
-- **12_musical_timing.mml** - Bars.beats.ticks timing with time signatures
+- **04_tempo_changes.mmd** - Dynamic tempo automation
+- **12_musical_timing.mmd** - Bars.beats.ticks timing with time signatures
 
 **Learn about**: Absolute time, musical time, relative deltas, simultaneous events
 
@@ -44,13 +44,13 @@ Master MML's four timing systems.
 
 Complete MIDI 1.0 command coverage.
 
-- **05_multi_channel_basic.mml** - Multiple MIDI channels
-- **06_cc_automation.mml** - Control change messages (filter, volume, pan)
-- **07_pitch_bend_pressure.mml** - Pitch bend and channel pressure
-- **08_system_messages.mml** - SysEx and system messages
-- **bass_line.mml** - Bass patterns and rhythms
-- **chord_progressions.mml** - Simultaneous notes for chords
-- **drums_and_percussion.mml** - GM drum map (channel 10)
+- **05_multi_channel_basic.mmd** - Multiple MIDI channels
+- **06_cc_automation.mmd** - Control change messages (filter, volume, pan)
+- **07_pitch_bend_pressure.mmd** - Pitch bend and channel pressure
+- **08_system_messages.mmd** - SysEx and system messages
+- **bass_line.mmd** - Bass patterns and rhythms
+- **chord_progressions.mmd** - Simultaneous notes for chords
+- **drums_and_percussion.mmd** - GM drum map (channel 10)
 
 **Covers**: Note on/off, CC, PC, pitch bend, aftertouch, SysEx, drums, chords
 
@@ -58,27 +58,38 @@ Complete MIDI 1.0 command coverage.
 
 Power features for complex compositions.
 
-- **09_comprehensive_song.mml** - All features combined
-- **10_loops_and_patterns.mml** - @loop directive for repetition
-- **11_sweep_automation.mml** - @sweep for parameter ramping
-- **alias_showcase.mml** - Complete alias system demonstration
-- **arpeggiator.mml** - Arpeggio patterns with loops
-- **generative_pattern.mml** - Variables and computed values
-- **modulation_and_expression.mml** - CC automation techniques
-- **polyrhythm.mml** - Complex rhythmic patterns
+- **09_comprehensive_song.mmd** - All features combined
+- **10_loops_and_patterns.mmd** - @loop directive for repetition
+- **11_sweep_automation.mmd** - @sweep for parameter ramping
+- **alias_showcase.mmd** - Complete alias system demonstration
+- **arpeggiator.mmd** - Arpeggio patterns with loops
+- **generative_pattern.mmd** - Variables and computed values
+- **modulation_and_expression.mmd** - CC automation techniques
+- **polyrhythm.mmd** - Complex rhythmic patterns
 
 **Master**: Loops, sweeps, aliases, variables, expressions, automation
+
+### 🎲 [04_generative/](04_generative/) - Generative & Random Techniques
+
+Create evolving, non-repetitive music using random() expressions and wave modulation.
+
+- **random_humanization.mmd** - Add natural variations to MIDI with random velocity, note selection, and CC values
+- **algorithmic_drums.mmd** - Professional drum patterns using random velocity, ghost notes, and polyrhythms
+- **generative_ambient.mmd** - Evolving pad textures with random notes and LFO modulation
+- **random_cc_automation.mmd** - Generative parameter automation for filters, resonance, pan, and expression
+
+**Techniques**: Random velocity, random note ranges, random CC values, wave modulation, layered randomization, humanization
 
 ### 🎸 [04_device_libraries/](04_device_libraries/) - Hardware Control
 
 Real-world device control examples.
 
-- **13_device_import.mml** - @import device libraries
-- **live_performance_aliases.mml** - Multi-device live performance
-- **quad_cortex_live_set.mml** - Neural DSP Quad Cortex presets
-- **h90_preset_automation.mml** - Eventide H90 automation
-- **helix_song_switching.mml** - Line 6 Helix snapshots
-- **hx_stomp_pedalboard.mml** - HX Stomp setlist
+- **13_device_import.mmd** - @import device libraries
+- **live_performance_aliases.mmd** - Multi-device live performance
+- **quad_cortex_live_set.mmd** - Neural DSP Quad Cortex presets
+- **h90_preset_automation.mmd** - Eventide H90 automation
+- **helix_song_switching.mmd** - Line 6 Helix snapshots
+- **hx_stomp_pedalboard.mmd** - HX Stomp setlist
 
 **Devices**: Quad Cortex, H90, Helix, HX Stomp, HX Effects, HX Stomp XL
 
@@ -86,10 +97,10 @@ Real-world device control examples.
 
 Progressive 4-part tutorial series.
 
-- **tutorial_1_melody.mml** - Part 1: Simple melody
-- **tutorial_2_chords.mml** - Part 2: Add chord accompaniment
-- **tutorial_3_drums.mml** - Part 3: Add drum track
-- **tutorial_4_full_song.mml** - Part 4: Complete production
+- **tutorial_1_melody.mmd** - Part 1: Simple melody
+- **tutorial_2_chords.mmd** - Part 2: Add chord accompaniment
+- **tutorial_3_drums.mmd** - Part 3: Add drum track
+- **tutorial_4_full_song.mmd** - Part 4: Complete production
 
 **Follow in order** for comprehensive learning path.
 
@@ -101,9 +112,10 @@ Progressive 4-part tutorial series.
 | Timing | 2 | Beginner |
 | MIDI Features | 7 | Beginner-Intermediate |
 | Advanced | 8 | Intermediate-Advanced |
+| Generative | 4 | Intermediate-Advanced |
 | Device Libraries | 6 | Intermediate |
 | Tutorials | 4 | Beginner → Advanced |
-| **TOTAL** | **31** | All levels |
+| **TOTAL** | **35** | All levels |
 
 ## Running Examples
 
@@ -111,48 +123,52 @@ All examples are fully compilable and playable:
 
 ```bash
 # Compile all examples
-for file in examples/**/*.mml; do
-  midimarkup compile "$file" -o output/$(basename "$file" .mml).mid
+for file in examples/**/*.mmd; do
+  mmdc compile "$file" -o output/$(basename "$file" .mmd).mid
 done
 
 # Validate all examples
-midimarkup validate examples/**/*.mml
+mmdc validate examples/**/*.mmd
 
 # Play an example
-midimarkup play examples/05_tutorials/tutorial_4_full_song.mml
+mmdc play examples/05_tutorials/tutorial_4_full_song.mmd
 ```
 
 ## Learning Paths
 
 ### 📚 Beginner Track (Core Features)
 
-1. **Start Here**: [00_basics/00_hello_world.mml](00_basics/00_hello_world.mml) - Understand basic structure
-2. **Learn Timing**: [00_basics/01_minimal_midi.mml](00_basics/01_minimal_midi.mml) - See how timing works
-3. **Add Commands**: [00_basics/02_simple_click_track.mml](00_basics/02_simple_click_track.mml) - Repeated patterns
-4. **Structure Songs**: [00_basics/03_song_structure_markers.mml](00_basics/03_song_structure_markers.mml) - Organize with markers
-5. **Automation**: [02_midi_features/06_cc_automation.mml](02_midi_features/06_cc_automation.mml) - Control parameters over time
-6. **Multiple Channels**: [02_midi_features/05_multi_channel_basic.mml](02_midi_features/05_multi_channel_basic.mml) - Multi-instrument songs
-7. **Full Example**: [03_advanced/09_comprehensive_song.mml](03_advanced/09_comprehensive_song.mml) - Everything together
+1. **Start Here**: [00_basics/00_hello_world.mmd](00_basics/00_hello_world.mmd) - Understand basic structure
+2. **Learn Timing**: [00_basics/01_minimal_midi.mmd](00_basics/01_minimal_midi.mmd) - See how timing works
+3. **Add Commands**: [00_basics/02_simple_click_track.mmd](00_basics/02_simple_click_track.mmd) - Repeated patterns
+4. **Structure Songs**: [00_basics/03_song_structure_markers.mmd](00_basics/03_song_structure_markers.mmd) - Organize with markers
+5. **Automation**: [02_midi_features/06_cc_automation.mmd](02_midi_features/06_cc_automation.mmd) - Control parameters over time
+6. **Multiple Channels**: [02_midi_features/05_multi_channel_basic.mmd](02_midi_features/05_multi_channel_basic.mmd) - Multi-instrument songs
+7. **Full Example**: [03_advanced/09_comprehensive_song.mmd](03_advanced/09_comprehensive_song.mmd) - Everything together
 
 ### 🚀 Advanced Track (Power Features)
 
-8. **Loops**: [03_advanced/10_loops_and_patterns.mml](03_advanced/10_loops_and_patterns.mml) - Eliminate repetitive code with @loop
-9. **Automation**: [03_advanced/11_sweep_automation.mml](03_advanced/11_sweep_automation.mml) - Smooth parameter changes with @sweep
-10. **Musical Time**: [01_timing/12_musical_timing.mml](01_timing/12_musical_timing.mml) - Work in bars/beats/ticks
-11. **Device Control**: [04_device_libraries/13_device_import.mml](04_device_libraries/13_device_import.mml) - High-level device commands with @import
+8. **Loops**: [03_advanced/10_loops_and_patterns.mmd](03_advanced/10_loops_and_patterns.mmd) - Eliminate repetitive code with @loop
+9. **Automation**: [03_advanced/11_sweep_automation.mmd](03_advanced/11_sweep_automation.mmd) - Smooth parameter changes with @sweep
+10. **Musical Time**: [01_timing/12_musical_timing.mmd](01_timing/12_musical_timing.mmd) - Work in bars/beats/ticks
+11. **Random Humanization**: [04_generative/random_humanization.mmd](04_generative/random_humanization.mmd) - Natural variations with random() expressions
+12. **Generative Ambient**: [04_generative/generative_ambient.mmd](04_generative/generative_ambient.mmd) - Evolving pads with random notes and LFO
+13. **Device Control**: [04_device_libraries/13_device_import.mmd](04_device_libraries/13_device_import.mmd) - High-level device commands with @import
 
 ### 🎸 Alias System (Advanced Abstraction)
 
-12. **Alias Basics**: [03_advanced/alias_showcase.mml](03_advanced/alias_showcase.mml) - Complete alias system tour
-13. **Real-World**: [04_device_libraries/live_performance_aliases.mml](04_device_libraries/live_performance_aliases.mml) - Production-ready performance automation
+14. **Alias Basics**: [03_advanced/alias_showcase.mmd](03_advanced/alias_showcase.mmd) - Complete alias system tour
+15. **Real-World**: [04_device_libraries/live_performance_aliases.mmd](04_device_libraries/live_performance_aliases.mmd) - Production-ready performance automation
 
 ### 🎼 Musical Examples (Inspiration)
 
-14. **Drums**: [02_midi_features/drums_and_percussion.mml](02_midi_features/drums_and_percussion.mml) - GM drum patterns
-15. **Bass**: [02_midi_features/bass_line.mml](02_midi_features/bass_line.mml) - Groove patterns
-16. **Chords**: [02_midi_features/chord_progressions.mml](02_midi_features/chord_progressions.mml) - Harmonic ideas
-17. **Arpeggios**: [03_advanced/arpeggiator.mml](03_advanced/arpeggiator.mml) - Arpeggiator patterns
-18. **Polyrhythm**: [03_advanced/polyrhythm.mml](03_advanced/polyrhythm.mml) - Complex rhythms
+16. **Drums**: [02_midi_features/drums_and_percussion.mmd](02_midi_features/drums_and_percussion.mmd) - GM drum patterns
+17. **Algorithmic Drums**: [04_generative/algorithmic_drums.mmd](04_generative/algorithmic_drums.mmd) - Professional drum pattern generation
+18. **Bass**: [02_midi_features/bass_line.mmd](02_midi_features/bass_line.mmd) - Groove patterns
+19. **Chords**: [02_midi_features/chord_progressions.mmd](02_midi_features/chord_progressions.mmd) - Harmonic ideas
+20. **Arpeggios**: [03_advanced/arpeggiator.mmd](03_advanced/arpeggiator.mmd) - Arpeggiator patterns
+21. **Polyrhythm**: [03_advanced/polyrhythm.mmd](03_advanced/polyrhythm.mmd) - Complex rhythms
+22. **CC Automation**: [04_generative/random_cc_automation.mmd](04_generative/random_cc_automation.mmd) - Generative parameter modulation
 
 ## Feature Highlights
 
@@ -178,7 +194,7 @@ The @loop feature eliminates repetitive code:
 @end
 ```
 
-See: [03_advanced/10_loops_and_patterns.mml](03_advanced/10_loops_and_patterns.mml)
+See: [03_advanced/10_loops_and_patterns.mmd](03_advanced/10_loops_and_patterns.mmd)
 
 ### 📊 Sweeps (@sweep)
 
@@ -193,7 +209,31 @@ The @sweep feature creates smooth automation:
 
 Supports 6 ramp types: linear, exponential, logarithmic, ease-in, ease-out, ease-in-out
 
-See: [03_advanced/11_sweep_automation.mml](03_advanced/11_sweep_automation.mml)
+See: [03_advanced/11_sweep_automation.mmd](03_advanced/11_sweep_automation.mmd)
+
+### 🎲 Random & Generative (random())
+
+The random() function adds natural variation to melodies, velocity, and parameters:
+
+```mml
+# Random velocity (60-100) for humanization
+- note_on 1.C4 random(60,100) 0.5b
+
+# Random note selection from range
+- note_on 1.random(C4,G4) 80 0.5b
+
+# Random CC values for evolving automation
+- cc 1.74.random(50,90)
+
+# In loops for continuous variation
+@loop 8 times at [00:16.000] every 0.25b
+  - cc 1.74.random(40,100)
+@end
+```
+
+Perfect for humanization, generative music, evolving pad textures, and algorithmic patterns
+
+See: [04_generative/random_humanization.mmd](04_generative/random_humanization.mmd), [04_generative/generative_ambient.mmd](04_generative/generative_ambient.mmd), [04_generative/random_cc_automation.mmd](04_generative/random_cc_automation.mmd)
 
 ### 🎵 Musical Timing
 
@@ -207,14 +247,14 @@ Musical time keeps events in musical position:
 
 Benefits: tempo-independent, time signature aware, DAW-compatible
 
-See: [01_timing/12_musical_timing.mml](01_timing/12_musical_timing.mml)
+See: [01_timing/12_musical_timing.mmd](01_timing/12_musical_timing.mmd)
 
 ### 📦 Device Imports (@import)
 
 Device libraries provide high-level control:
 
 ```mml
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 
 # Instead of: cc 1.32.2; cc 1.0.0; pc 1.5
 # Use readable command:
@@ -223,7 +263,7 @@ Device libraries provide high-level control:
 
 Available libraries: Neural DSP Quad Cortex, Eventide H90, Line 6 Helix, HX Stomp, HX Effects, HX Stomp XL
 
-See: [04_device_libraries/13_device_import.mml](04_device_libraries/13_device_import.mml)
+See: [04_device_libraries/13_device_import.mmd](04_device_libraries/13_device_import.mmd)
 
 ## Feature Coverage
 
@@ -248,6 +288,8 @@ See: [04_device_libraries/13_device_import.mml](04_device_libraries/13_device_im
 | **Multi-Channel** | 05, 09, tutorials | ✅ Complete |
 | **SysEx** | 08 | ✅ Complete |
 | **Comments** | All examples | ✅ Complete |
+| **Random Expressions** | random_humanization, algorithmic_drums, generative_ambient, random_cc_automation | ✅ Complete |
+| **Wave Modulation** | generative_ambient | ✅ Complete |
 
 ## Creating Your Own
 
@@ -256,18 +298,18 @@ Use these examples as templates for your own MIDI automation:
 1. **Copy an example** that matches your use case
 2. **Modify the frontmatter** (title, author, etc.)
 3. **Adjust timing and commands** to fit your needs
-4. **Test with validation**: `midimarkup validate your_file.mml`
-5. **Compile to MIDI**: `midimarkup compile your_file.mml -o output.mid`
-6. **Test in your DAW** or with `midimarkup play`
+4. **Test with validation**: `mmdc validate your_file.mmd`
+5. **Compile to MIDI**: `mmdc compile your_file.mmd -o output.mid`
+6. **Test in your DAW** or with `mmdc play`
 
 ## Contributing Examples
 
-Have a cool MML example? We welcome contributions!
+Have a cool MMD example? We welcome contributions!
 
 **Guidelines**:
 1. Follow existing example format (frontmatter + inline comments)
 2. Place in appropriate category directory
-3. Test compilation: `midimarkup compile your_example.mml`
+3. Test compilation: `mmdc compile your_example.mmd`
 4. Add descriptive comments explaining concepts
 5. Update this README with your example description
 6. Submit PR with description of what it demonstrates
@@ -287,6 +329,10 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 | Multi-channel | 02_midi_features/05 |
 | Loops | 03_advanced/10 |
 | Smooth automation | 03_advanced/11 |
+| Humanization (random) | 04_generative/random_humanization |
+| Algorithmic drums | 04_generative/algorithmic_drums |
+| Generative ambient | 04_generative/generative_ambient |
+| CC automation | 04_generative/random_cc_automation |
 | Device control | 04_device_libraries/13 |
 | Aliases | 03_advanced/alias_showcase |
 | Live performance | 04_device_libraries/live_performance |
@@ -302,7 +348,7 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 - **[MML Syntax Reference](../docs/user-guide/mml-syntax.md)** - Complete syntax documentation
 - **[Tutorial: Your First Song](../docs/getting-started/first-song.md)** - Step-by-step guide
 - **[Device Library Guide](../docs/user-guide/device-libraries.md)** - Using device libraries
-- **[Specification](../spec.md)** - Complete MML language specification
+- **[Specification](../spec.md)** - Complete MMD language specification
 - **[Alias System Guide](../docs/alias_system_guide.md)** - How to use and create aliases
 - **[Device Library Creation](../docs/device_library_creation.md)** - Create your own device libraries
 
@@ -314,6 +360,6 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 
 ---
 
-**Total Examples**: 31 files across 6 categories
+**Total Examples**: 35 files across 7 categories
 **Skill Levels**: Beginner → Advanced
-**Coverage**: All MML features demonstrated
+**Coverage**: All MMD features demonstrated

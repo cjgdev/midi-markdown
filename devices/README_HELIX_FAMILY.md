@@ -1,6 +1,6 @@
-# Line 6 Helix Family - MML Device Profiles
+# Line 6 Helix Family - MMD Device Profiles
 
-This directory contains comprehensive MIDI Markup Language (MML) device profiles for the complete Line 6 Helix family of guitar processors. Each profile provides extensive MIDI control capabilities with detailed documentation and usage examples.
+This directory contains comprehensive MIDI Markdown (MML) device profiles for the complete Line 6 Helix family of guitar processors. Each profile provides extensive MIDI control capabilities with detailed documentation and usage examples.
 
 ## Quick Selection Guide
 
@@ -8,12 +8,12 @@ Choose the correct profile for your device:
 
 | **Device** | **Profile File** | **Snapshots** | **Footswitches** | **MIDI** | **Best For** |
 |------------|------------------|---------------|------------------|----------|--------------|
-| **Helix Floor** | `helix.mml` | 8 | 11 | 5-pin DIN + USB | Professional touring, complex arrangements |
-| **Helix LT** | `helix.mml` | 8 | 11 | 5-pin DIN + USB | Professional use, same as Floor |
-| **Helix Rack** | `helix.mml` | 8 | 0* | 5-pin DIN + USB | Studio/rack setups (*requires Helix Control) |
-| **HX Stomp** | `hx_stomp.mml` | 3 | 5 | USB only | Compact rigs, simple songs |
-| **HX Stomp XL** | `hx_stomp_xl.mml` | 4 | 8 | USB only | Balance of size and capability |
-| **HX Effects** | `hx_effects.mml` | 4 | 6 | 5-pin DIN + USB | Traditional amp rigs, effects only |
+| **Helix Floor** | `helix.mmd` | 8 | 11 | 5-pin DIN + USB | Professional touring, complex arrangements |
+| **Helix LT** | `helix.mmd` | 8 | 11 | 5-pin DIN + USB | Professional use, same as Floor |
+| **Helix Rack** | `helix.mmd` | 8 | 0* | 5-pin DIN + USB | Studio/rack setups (*requires Helix Control) |
+| **HX Stomp** | `hx_stomp.mmd` | 3 | 5 | USB only | Compact rigs, simple songs |
+| **HX Stomp XL** | `hx_stomp_xl.mmd` | 4 | 8 | USB only | Balance of size and capability |
+| **HX Effects** | `hx_effects.mmd` | 4 | 6 | 5-pin DIN + USB | Traditional amp rigs, effects only |
 
 ## Detailed Device Comparison
 
@@ -195,7 +195,7 @@ devices:
   - helix: channel 1
 ---
 
-@import "helix.mml"
+@import "helix.mmd"
 
 # INTRO
 [00:00.000]
@@ -240,7 +240,7 @@ devices:
   - stomp: channel 1
 ---
 
-@import "hx_stomp.mml"
+@import "hx_stomp.mmd"
 
 # Use preset changes for major sections
 # Use 3 snapshots for variations within sections
@@ -293,7 +293,7 @@ devices:
   - amp: channel 2
 ---
 
-@import "hx_effects.mml"
+@import "hx_effects.mmd"
 
 # Load HX Effects preset and switch amp channel
 [00:00.000]
@@ -432,8 +432,8 @@ devices:
 - **Voes Controllers**: Good value
 - **Paint Audio**: MIDI Captain series
 
-### MML Compiler Resources
-- MML Specification: See project documentation
+### MMD Compiler Resources
+- MMD Specification: See project documentation
 - Device Profile Guidelines: See project documentation
 - Example Projects: See examples directory
 
@@ -462,7 +462,7 @@ Found an issue or have improvements? Please submit:
 
 ## License
 
-These device profiles are provided as part of the MML project.
+These device profiles are provided as part of the MMD project.
 See main project LICENSE for details.
 
 ---

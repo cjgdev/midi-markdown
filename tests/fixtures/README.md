@@ -6,8 +6,8 @@ This directory contains focused test fixtures for unit and integration testing.
 
 ```
 fixtures/
-├── valid/          # Valid MML files for testing specific features
-├── invalid/        # Invalid MML files that should fail parsing
+├── valid/          # Valid MMD files for testing specific features
+├── invalid/        # Invalid MMD files that should fail parsing
 └── README.md       # This file
 ```
 
@@ -17,16 +17,16 @@ Small, focused examples testing specific features:
 
 | File | Purpose |
 |------|---------|
-| **basic.mml** | Original basic test fixture |
-| **single_note.mml** | Simplest valid MML (one note) |
-| **cc_commands.mml** | Control Change messages |
-| **pitch_bend.mml** | Pitch bend commands |
-| **pressure_commands.mml** | Channel and poly pressure |
-| **meta_events.mml** | Meta events (tempo, time sig, markers, etc.) |
-| **timing_types.mml** | All timing types (absolute, musical, relative, simultaneous) |
-| **defines.mml** | @define statements |
-| **sysex.mml** | SysEx messages |
-| **comments.mml** | Comment syntax (single-line, multi-line, C++ style) |
+| **basic.mmd** | Original basic test fixture |
+| **single_note.mmd** | Simplest valid MMD (one note) |
+| **cc_commands.mmd** | Control Change messages |
+| **pitch_bend.mmd** | Pitch bend commands |
+| **pressure_commands.mmd** | Channel and poly pressure |
+| **meta_events.mmd** | Meta events (tempo, time sig, markers, etc.) |
+| **timing_types.mmd** | All timing types (absolute, musical, relative, simultaneous) |
+| **defines.mmd** | @define statements |
+| **sysex.mmd** | SysEx messages |
+| **comments.mmd** | Comment syntax (single-line, multi-line, C++ style) |
 
 ## Invalid Fixtures
 
@@ -34,13 +34,13 @@ Examples that should fail parsing or validation:
 
 | File | Error Type | Status |
 |------|-----------|---------|
-| **syntax_error.mml** | Invalid syntax | ✅ Fails as expected |
-| **missing_frontmatter.mml** | No frontmatter | ⚠️  Actually optional |
-| **invalid_channel.mml** | Channel > 16 | ⏳ Validation pending |
-| **invalid_velocity.mml** | Velocity > 127 | ⏳ Validation pending |
-| **invalid_cc_value.mml** | CC value > 127 | ⏳ Validation pending |
-| **missing_timing.mml** | Command without timing | ✅ Fails as expected |
-| **non_monotonic_timing.mml** | Time goes backward | ⏳ Validation pending |
+| **syntax_error.mmd** | Invalid syntax | ✅ Fails as expected |
+| **missing_frontmatter.mmd** | No frontmatter | ⚠️  Actually optional |
+| **invalid_channel.mmd** | Channel > 16 | ⏳ Validation pending |
+| **invalid_velocity.mmd** | Velocity > 127 | ⏳ Validation pending |
+| **invalid_cc_value.mmd** | CC value > 127 | ⏳ Validation pending |
+| **missing_timing.mmd** | Command without timing | ✅ Fails as expected |
+| **non_monotonic_timing.mmd** | Time goes backward | ⏳ Validation pending |
 
 ## Usage
 
@@ -50,7 +50,7 @@ Examples that should fail parsing or validation:
 from pathlib import Path
 
 VALID_DIR = Path(__file__).parent / "fixtures" / "valid"
-fixture = VALID_DIR / "single_note.mml"
+fixture = VALID_DIR / "single_note.mmd"
 doc = parser.parse_file(fixture)
 ```
 
@@ -58,7 +58,7 @@ doc = parser.parse_file(fixture)
 
 1. **Valid fixtures** should be minimal and focus on ONE feature
 2. **Invalid fixtures** should clearly demonstrate ONE type of error
-3. Name files descriptively (e.g., `multi_channel.mml`, `invalid_note_range.mml`)
+3. Name files descriptively (e.g., `multi_channel.mmd`, `invalid_note_range.mmd`)
 4. Add comprehensive comments explaining what's being tested
 5. Update this README with the new fixture
 
@@ -101,4 +101,4 @@ Current test coverage for fixtures:
 
 - [Integration Tests](../integration/test_fixtures.py) - Tests using these fixtures
 - [Examples](../../examples/) - User-facing example files
-- [Specification](../../spec.md) - Complete MML language spec
+- [Specification](../../spec.md) - Complete MMD language spec
