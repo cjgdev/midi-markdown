@@ -1,0 +1,25 @@
+---
+title: H90 Dual Setup
+description: Eventide H90 dual algorithm configuration with mix control
+---
+
+# Set algorithm for path A
+@alias h90_algo_a {ch} {algo} "Set algorithm A"
+  - cc {ch}.82.{algo}
+@end
+
+# Set algorithm for path B
+@alias h90_algo_b {ch} {algo} "Set algorithm B"
+  - cc {ch}.83.{algo}
+@end
+
+# Control the mix between algorithms A and B (0-100%)
+@alias h90_mix {ch} {percent:percent} "Set A/B mix"
+  - cc {ch}.84.{percent}
+@end
+
+# Configure dual algorithm setup
+[00:00.000]
+- h90_algo_a 2 10
+- h90_algo_b 2 25
+- h90_mix 2 50

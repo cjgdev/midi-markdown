@@ -1,0 +1,149 @@
+---
+title: "Generative Patterns"
+description: "Using variables and loops for pattern generation"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Generative Patterns
+# ============================================================================
+#
+# This example demonstrates:
+# - @loop for repetitive patterns
+# - Pattern variation through @define
+# - Algorithmic music concepts
+#
+# Generative Music Concept:
+# - Use algorithms/rules to create musical patterns
+# - Patterns evolve through parameter changes
+# - Creates variety without manual composition
+#
+# Note: Variables must be UPPERCASE (e.g., BASE_NOTE, VELOCITY)
+# Variable feature is partially implemented - this example uses
+# loops and manual pattern variation
+#
+# ============================================================================
+
+
+# ============================================================================
+# Section 1: Repeating Pattern (Simple Loop)
+# ============================================================================
+
+[00:00.000]
+- marker "Simple Pattern"
+- text "Steady repeating notes"
+
+# Basic repeating note pattern
+@loop 16 times every 0.5b
+  - note_on 1.60 80 0.4b
+@end
+
+
+# ============================================================================
+# Section 2: Ascending Scale Pattern
+# ============================================================================
+
+[+0.0b]
+- marker "Ascending Scale"
+- text "Manual ascending pattern"
+
+# Ascending C major scale
+- note_on 1.60 80 0.9b       # C
+[+1b]
+- note_on 1.62 78 0.9b       # D
+[+1b]
+- note_on 1.64 76 0.9b       # E
+[+1b]
+- note_on 1.65 74 0.9b       # F
+[+1b]
+- note_on 1.67 72 0.9b       # G
+[+1b]
+- note_on 1.69 70 0.9b       # A
+[+1b]
+- note_on 1.71 68 0.9b       # B
+[+1b]
+- note_on 1.72 66 0.9b       # C
+
+
+# ============================================================================
+# Section 3: Velocity Variation
+# ============================================================================
+
+[+1b]
+- marker "Velocity Curve"
+- text "Crescendo pattern"
+
+# Manual crescendo (increasing velocity)
+- note_on 1.60 40 0.9b
+[+1b]
+- note_on 1.60 55 0.9b
+[+1b]
+- note_on 1.60 70 0.9b
+[+1b]
+- note_on 1.60 85 0.9b
+[+1b]
+- note_on 1.60 100 0.9b
+[+1b]
+- note_on 1.60 115 0.9b
+[+1b]
+- note_on 1.60 127 0.9b
+
+
+# ============================================================================
+# Section 4: Arpeggio Pattern
+# ============================================================================
+
+[+1b]
+- marker "Arpeggio Loop"
+- text "Broken chord pattern"
+
+# Repeating C note pattern
+@loop 16 times every 0.5b
+  - note_on 1.48 80 0.4b     # C
+@end
+
+
+# ============================================================================
+# Section 5: Rhythmic Pattern
+# ============================================================================
+
+[+0.0b]
+- marker "Rhythmic Generator"
+- text "Varied rhythm pattern"
+
+# Pattern with different durations
+- note_on 1.60 80 0.2b
+[+0.25b]
+- note_on 1.62 75 0.2b
+[+0.25b]
+- note_on 1.64 80 0.4b
+[+0.5b]
+- note_on 1.65 75 0.2b
+[+0.25b]
+- note_on 1.67 80 0.6b
+[+0.75b]
+- note_on 1.69 75 0.2b
+[+0.25b]
+- note_on 1.67 80 0.2b
+[+0.25b]
+- note_on 1.65 75 0.4b
+
+
+# ============================================================================
+# Section 6: Repetitive Bass Pattern
+# ============================================================================
+
+[+0.5b]
+- marker "Bass Pattern"
+- text "Rule-based bassline"
+
+# Simple repeating bass pattern
+@loop 16 times every 1b
+  - note_on 1.36 95 0.9b     # Root (C)
+@end
+
+[+0.0b]
+- end_of_track

@@ -1,0 +1,281 @@
+---
+title: "Enhanced Modulation Showcase"
+author: "MML Team"
+description: "Demonstrates curves, waves, and envelopes for smooth parameter automation"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ============================================
+# MIDI Markup Language - Modulation Showcase
+# ============================================
+#
+# This file demonstrates three powerful modulation types:
+#   1. Bezier Curves - Smooth parameter transitions
+#   2. Waveforms (LFO) - Periodic modulation
+#   3. Envelopes - Time-varying parameter shaping
+#
+# These features enable natural-sounding automation that
+# goes beyond simple linear ramps.
+
+# ============================================
+# Section 1: Bezier Curves
+# ============================================
+# Curves provide smooth transitions using Bezier interpolation
+# Available types: ease-in, ease-out, ease-in-out, linear
+
+[00:00.000]
+- marker "Bezier Curves"
+
+# Ease-In: Slow start, fast finish
+# Perfect for gradual filter opens
+[00:00.000]
+- cc 1.74.curve(0, 127, ease-in)
+- text "Ease-in curve: slow start, accelerating finish"
+
+[00:02.000]
+# Ease-Out: Fast start, slow finish
+# Great for natural-sounding fade-ins
+- cc 1.74.curve(127, 0, ease-out)
+- text "Ease-out curve: fast start, decelerating finish"
+
+[00:04.000]
+# Ease-In-Out: S-curve motion
+# Smooth transitions for musical automation
+- cc 1.74.curve(0, 127, ease-in-out)
+- text "Ease-in-out curve: smooth S-curve motion"
+
+[00:06.000]
+# Linear: Straight line (for comparison)
+- cc 1.74.curve(127, 0, linear)
+- text "Linear curve: constant rate"
+
+# Custom Bezier curves allow full control
+[00:08.000]
+- cc 1.74.curve(0, 127, bezier(0, 20, 100, 127))
+- text "Custom Bezier with precise control points"
+
+# ============================================
+# Section 2: Waveforms (LFO Effects)
+# ============================================
+# Waveforms create periodic modulation for effects like
+# vibrato, tremolo, and filter sweeps
+
+[00:10.000]
+- marker "Waveform LFOs"
+
+# Sine Wave: Smooth, natural modulation
+# Classic vibrato effect (5 Hz is typical)
+[00:10.000]
+- cc 1.1.wave(sine, 64, freq=5.0, depth=10)
+- text "Sine wave vibrato (5 Hz, 10% depth)"
+
+# Triangle Wave: Linear rise and fall
+# Good for gentle modulation
+[00:12.000]
+- cc 1.1.wave(triangle, 64, freq=2.0, depth=20)
+- text "Triangle wave (2 Hz, 20% depth)"
+
+# Square Wave: Abrupt switching
+# Rhythmic modulation effects
+[00:14.000]
+- cc 1.1.wave(square, 64, freq=1.0, depth=30)
+- text "Square wave (1 Hz, 30% depth)"
+
+# Sawtooth Wave: Ramp up/down pattern
+# Useful for stepped automation
+[00:16.000]
+- cc 1.1.wave(sawtooth, 64, freq=0.5, depth=40)
+- text "Sawtooth wave (0.5 Hz, 40% depth)"
+
+# Phase offset for starting at different points
+[00:18.000]
+- cc 1.1.wave(sine, 64, freq=3.0, phase=0.25, depth=25)
+- text "Sine wave with 90° phase offset"
+
+# ============================================
+# Section 3: ADSR Envelopes
+# ============================================
+# Envelopes shape parameters over time
+# Perfect for dynamic filter sweeps and volume automation
+
+[00:20.000]
+- marker "ADSR Envelopes"
+
+# Classic ADSR: Attack, Decay, Sustain, Release
+# Filter envelope for a pad sound
+[00:20.000]
+- cc 1.74.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+- text "ADSR envelope: slow attack, natural decay and release"
+
+# AR Envelope: Attack and Release only
+# Percussive sounds and quick modulation
+[00:24.000]
+- cc 1.74.envelope(ar, attack=0.01, release=0.2)
+- text "AR envelope: fast attack, short release"
+
+# AD Envelope: Attack and Decay
+# Plucked or struck sounds
+[00:26.000]
+- cc 1.74.envelope(ad, attack=0.02, decay=0.5)
+- text "AD envelope: fast attack, medium decay"
+
+# Exponential curves for natural sounds
+[00:28.000]
+- cc 1.74.envelope(ar, attack=0.1, release=0.4, curve=exponential)
+- text "AR envelope with exponential curve"
+
+# ============================================
+# Section 4: Real-World Applications
+# ============================================
+
+[00:30.000]
+- marker "Practical Examples"
+
+# Example 1: Filter Sweep with Curve
+# Opening a low-pass filter naturally
+[00:30.000]
+- text "Filter sweep: closed to open"
+- cc 1.74.curve(30, 110, ease-out)
+
+# Example 2: Vibrato on Pitch Bend
+# Natural pitch modulation
+[00:32.000]
+- text "Pitch vibrato (7 Hz sine wave)"
+- pitch_bend 1.wave(sine, 8192, freq=7.0, depth=5)
+
+# Example 3: Tremolo on Volume
+# Amplitude modulation for tremolo effect
+[00:34.000]
+- text "Volume tremolo (4 Hz)"
+- cc 1.7.wave(triangle, 100, freq=4.0, depth=30)
+
+# Example 4: Filter Envelope for Synth
+# Dynamic filter cutoff following note envelope
+[00:36.000]
+- text "Synth filter envelope"
+- note_on 1.60.80 4b
+- cc 1.74.envelope(adsr, attack=0.1, decay=0.2, sustain=0.6, release=0.3)
+
+[00:40.000]
+- note_off 1.60
+
+# Example 5: Slow Filter Modulation
+# Slow LFO for evolving pad sounds
+[00:42.000]
+- text "Slow filter LFO (0.2 Hz)"
+- cc 1.74.wave(sine, 64, freq=0.2, depth=60)
+
+# Example 6: Resonance Automation
+# Sweep resonance with filter
+[00:44.000]
+- text "Resonance sweep with ease-in"
+- cc 1.71.curve(0, 100, ease-in)
+
+# ============================================
+# Section 5: Multi-Parameter Modulation
+# ============================================
+# Combine multiple modulations for complex effects
+
+[00:46.000]
+- marker "Combined Modulation"
+
+# Simultaneous filter and resonance automation
+[00:46.000]
+- text "Filter + Resonance sweep"
+[@]
+- cc 1.74.curve(20, 120, ease-in-out)  # Cutoff
+[@]
+- cc 1.71.curve(10, 80, ease-in-out)   # Resonance
+
+# Stereo panning with LFO
+[00:48.000]
+- text "Auto-pan (sine wave, L/R channels)"
+[@]
+- cc 1.10.wave(sine, 64, freq=2.0, depth=80)   # Left channel
+[@]
+- cc 2.10.wave(sine, 64, freq=2.0, phase=0.5, depth=80)  # Right (180° out of phase)
+
+# Volume fade with envelope
+[00:50.000]
+- text "Volume fade-in with AR envelope"
+- cc 1.7.envelope(ar, attack=2.0, release=1.0)
+
+# ============================================
+# Section 6: Creative Applications
+# ============================================
+
+[00:52.000]
+- marker "Creative Techniques"
+
+# Rhythmic filter modulation
+[00:52.000]
+- text "Rhythmic filter (square wave, 1/4 note)"
+- cc 1.74.wave(square, 80, freq=2.0, depth=50)
+
+# Smooth expression control
+[00:54.000]
+- text "Expression swell (ease-in curve)"
+- cc 1.11.curve(0, 127, ease-in)
+
+# Pitch bend automation
+[00:56.000]
+- text "Pitch bend sweep"
+- pitch_bend 1.curve(-4096, 4096, ease-in-out)
+
+# Poly pressure with envelope
+[00:58.000]
+- text "Polyphonic aftertouch envelope"
+- note_on 1.60.80 2b
+- poly_pressure 1.60.envelope(adsr, attack=0.05, decay=0.1, sustain=0.8, release=0.2)
+
+[01:00.000]
+- note_off 1.60
+
+# ============================================
+# Section 7: Advanced Techniques
+# ============================================
+
+[01:02.000]
+- marker "Advanced Modulation"
+
+# Multiple LFOs for complex motion
+[01:02.000]
+- text "Dual LFO modulation"
+[@]
+- cc 1.74.wave(sine, 64, freq=1.0, depth=30)   # Slow sine
+[@]
+- cc 1.71.wave(triangle, 50, freq=5.0, depth=20)  # Fast triangle
+
+# Envelope-controlled filter sweep
+[01:04.000]
+- text "Long filter envelope (5 second attack)"
+- cc 1.74.envelope(ad, attack=5.0, decay=3.0, curve=exponential)
+
+# Subtle vibrato depth modulation
+[01:06.000]
+- text "Vibrato with varying depth"
+- cc 1.1.wave(sine, 64, freq=6.0, depth=5)
+
+# Custom Bezier for unique motion
+[01:08.000]
+- text "Custom Bezier curve automation"
+- cc 1.74.curve(0, 127, bezier(0, 10, 110, 127))
+
+# ============================================
+# Conclusion
+# ============================================
+
+[01:10.000]
+- marker "End"
+- text "Modulation showcase complete"
+- tempo 80  # Slow down
+
+# Final fade-out
+[01:10.000]
+- cc 1.7.curve(100, 0, ease-out)
+
+[01:14.000]
+- marker "EOF"

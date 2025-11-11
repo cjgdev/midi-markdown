@@ -1,0 +1,346 @@
+---
+title: Alias System Showcase
+description: Demonstrates all alias system features
+author: MIDI Markup Language
+tempo: 120
+time_signature: 4/4
+---
+
+# ============================================
+# MIDI Markup Language - Alias System Showcase
+# ============================================
+#
+# This example demonstrates all features of the MML alias system:
+# - Basic aliases
+# - Parameter types (note, percent, bool, enum)
+# - Default values
+# - Nested aliases
+# - Conditional logic
+# - Multi-command aliases
+# - Real-world usage patterns
+
+# ============================================
+# Section 1: Basic Aliases
+# ============================================
+
+@alias simple_preset {ch} {preset} "Basic preset change"
+  - pc {ch}.{preset}
+@end
+
+@alias simple_cc {ch} {cc_num} {value} "Basic CC message"
+  - cc {ch}.{cc_num}.{value}
+@end
+
+# ============================================
+# Section 2: Parameter Types
+# ============================================
+
+@alias play_note {ch} {note:note} {velocity} "Play note (accepts note names)"
+  - note_on {ch}.{note}.{velocity} 500ms
+@end
+
+@alias set_level {ch} {level:percent} "Set level as percentage"
+  - cc {ch}.7.{level}
+@end
+
+@alias toggle_effect {ch} {enabled:bool} "Toggle effect on/off"
+  - cc {ch}.82.{enabled}
+@end
+
+@alias select_mode {ch} {mode=stomp:0,scene:1,preset:2} "Select mode by name"
+  - cc {ch}.50.{mode}
+@end
+
+# ============================================
+# Section 3: Default Values
+# ============================================
+
+@alias preset_with_defaults {ch=1} {preset} {velocity=100} "Preset with default channel"
+  - pc {ch}.{preset}
+  - cc {ch}.7.{velocity}
+@end
+
+# ============================================
+# Section 4: Multi-Command Aliases
+# ============================================
+
+@alias scene_with_reverb {ch} {scene} {reverb_level} "Scene change with reverb"
+  - cc {ch}.34.{scene}
+  - cc {ch}.91.{reverb_level}
+@end
+
+@alias complete_preset_load {ch} {bank} {preset} {expression} "Bank + Preset + Expression"
+  - cc {ch}.0.{bank}
+  - pc {ch}.{preset}
+  - cc {ch}.11.{expression}
+@end
+
+# ============================================
+# Section 5: Nested Aliases
+# ============================================
+
+@alias reverb_cc {ch} {level} "Reverb control"
+  - cc {ch}.91.{level}
+@end
+
+@alias delay_cc {ch} {level} "Delay control"
+  - cc {ch}.93.{level}
+@end
+
+@alias ambient_setup {ch} {preset} {reverb} {delay} "Preset with ambient effects"
+  - simple_preset {ch} {preset}
+  - reverb_cc {ch} {reverb}
+  - delay_cc {ch} {delay}
+@end
+
+# ============================================
+# Section 6: Conditional Logic (Stage 7)
+# ============================================
+
+@alias device_load {ch} {preset} {device=cortex:0,helix:1,kemper:2} "Device-aware preset load"
+  @if {device} == 0
+    # Quad Cortex uses program change
+    - pc {ch}.{preset}
+  @elif {device} == 1
+    # Helix uses CC 69 for snapshots
+    - cc {ch}.69.{preset}
+  @else
+    # Kemper uses program change
+    - pc {ch}.{preset}
+  @end
+@end
+
+@alias dynamic_velocity {ch} {note:note} {intensity:0-2} "Velocity based on intensity"
+  @if {intensity} == 0
+    - note_on {ch}.{note}.50 500ms
+  @elif {intensity} == 1
+    - note_on {ch}.{note}.90 500ms
+  @else
+    - note_on {ch}.{note}.127 500ms
+  @end
+@end
+
+@alias smart_scene {ch} {scene} {complexity:0-2} "Scene with complexity-based effects"
+  @if {complexity} == 0
+    # Simple - just scene
+    - cc {ch}.34.{scene}
+  @elif {complexity} == 1
+    # Medium - scene + reverb
+    - cc {ch}.34.{scene}
+    - cc {ch}.91.64
+  @else
+    # Complex - scene + reverb + delay
+    - cc {ch}.34.{scene}
+    - cc {ch}.91.95
+    - cc {ch}.93.80
+  @end
+@end
+
+# ============================================
+# Section 7: Real-World Performance Macros
+# ============================================
+
+@alias song_intro {ch} "Song intro setup (clean, light reverb)"
+  - pc {ch}.0
+  - cc {ch}.91.40
+  - cc {ch}.11.0
+@end
+
+@alias song_verse {ch} "Verse tone (rhythm, moderate gain)"
+  - pc {ch}.1
+  - cc {ch}.91.30
+  - cc {ch}.11.20
+@end
+
+@alias song_prechorus {ch} "Pre-chorus (building intensity)"
+  - pc {ch}.2
+  - cc {ch}.91.50
+  - cc {ch}.11.40
+@end
+
+@alias song_chorus {ch} "Chorus (full, with delay)"
+  - pc {ch}.3
+  - cc {ch}.91.60
+  - cc {ch}.93.70
+  - cc {ch}.11.60
+@end
+
+@alias song_bridge {ch} "Bridge (dynamics, ambient)"
+  - pc {ch}.4
+  - cc {ch}.91.80
+  - cc {ch}.93.50
+  - cc {ch}.11.30
+@end
+
+@alias song_solo {ch} "Solo (lead tone, boost)"
+  - pc {ch}.5
+  - cc {ch}.91.50
+  - cc {ch}.93.90
+  - cc {ch}.11.127
+@end
+
+@alias song_outro {ch} "Outro (ambient decay)"
+  - pc {ch}.6
+  - cc {ch}.91.95
+  - cc {ch}.93.100
+  - cc {ch}.11.10
+@end
+
+# ============================================
+# Section 8: Expression Automation
+# ============================================
+
+@alias swell {ch} {amount:percent} "Volume swell"
+  - cc {ch}.11.{amount}
+@end
+
+@alias fade_out {ch} {start:percent} {end:percent} "Fade from start to end"
+  - cc {ch}.7.{start}
+  - cc {ch}.7.{end}
+@end
+
+# ============================================
+# Actual Performance Sequence
+# ============================================
+
+# ===== Song Structure Demo =====
+
+# Intro - Clean tone
+[00:00.000]
+- tempo 120
+- song_intro 1
+
+# Intro swell
+[00:01.000]
+- swell 1 0
+
+[00:03.000]
+- swell 1 50
+
+[00:05.000]
+- swell 1 100
+
+# Verse 1 - Rhythm
+[00:08.000]
+- song_verse 1
+
+# Pre-Chorus - Build
+[00:16.000]
+- song_prechorus 1
+
+# Chorus - Full tone
+[00:20.000]
+- song_chorus 1
+
+# Verse 2
+[00:28.000]
+- song_verse 1
+
+# Pre-Chorus 2
+[00:36.000]
+- song_prechorus 1
+
+# Chorus 2
+[00:40.000]
+- song_chorus 1
+
+# Bridge - Ambient
+[00:48.000]
+- song_bridge 1
+
+# Solo - Lead tone
+[00:56.000]
+- song_solo 1
+
+# Final Chorus - Full
+[01:04.000]
+- song_chorus 1
+
+# Outro - Decay
+[01:12.000]
+- song_outro 1
+
+# Final fade
+[01:16.000]
+- swell 1 100
+
+[01:18.000]
+- swell 1 75
+
+[01:20.000]
+- swell 1 50
+
+[01:22.000]
+- swell 1 25
+
+[01:24.000]
+- swell 1 0
+
+# ===== Parameter Type Demo =====
+
+# Note parameter - accepts note names
+[01:30.000]
+- play_note 2 C4 100
+- play_note 2 Eb4 90
+- play_note 2 G4 110
+
+# Percent parameter - 0-100 converted to MIDI
+[01:32.000]
+- set_level 2 0
+- set_level 2 50
+- set_level 2 100
+
+# Bool parameter - on/off
+[01:34.000]
+- toggle_effect 2 on
+- toggle_effect 2 off
+
+# Enum parameter - named values
+[01:36.000]
+- select_mode 2 stomp
+- select_mode 2 scene
+- select_mode 2 preset
+
+# ===== Default Values Demo =====
+
+[01:38.000]
+- preset_with_defaults 1 10      # Uses defaults: ch has default 1, velocity=100
+- preset_with_defaults 2 15      # Explicit channel, default velocity
+- preset_with_defaults 3 20 80   # All explicit
+
+# ===== Nested Alias Demo =====
+
+[01:40.000]
+- ambient_setup 3 5 95 80        # Preset with reverb and delay
+
+# ===== Conditional Logic Demo =====
+
+[01:42.000]
+# Device-aware loading (try different devices)
+- device_load 4 10 cortex        # Uses PC
+- device_load 5 5 helix          # Uses CC 69
+- device_load 6 8 kemper         # Uses PC
+
+[01:44.000]
+# Dynamic velocity based on intensity
+- dynamic_velocity 7 C4 0        # Soft (velocity 50)
+- dynamic_velocity 7 E4 1        # Medium (velocity 90)
+- dynamic_velocity 7 G4 2        # Hard (velocity 127)
+
+[01:46.000]
+# Smart scene with complexity levels
+- smart_scene 8 0 0              # Simple (scene only)
+- smart_scene 8 1 1              # Medium (scene + reverb)
+- smart_scene 8 2 2              # Complex (scene + reverb + delay)
+
+# ===== Multi-Command Demo =====
+
+[01:48.000]
+- scene_with_reverb 9 3 80              # Scene + reverb
+- complete_preset_load 10 2 15 64       # Bank + preset + expression
+
+# ===== End of Showcase =====
+
+[01:50.000]
+# Return to clean
+- song_intro 1

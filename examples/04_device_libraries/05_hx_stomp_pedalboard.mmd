@@ -1,0 +1,596 @@
+---
+title: "HX Stomp Pedalboard Control"
+description: "Real-world pedalboard example demonstrating HX Stomp MIDI control with 3-snapshot workflow"
+author: "MML Device Library Examples"
+tempo: 120
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * HX STOMP PEDALBOARD CONTROL - 3-SONG SETLIST EXAMPLE
+ * ============================================================================
+ *
+ * This example demonstrates HX Stomp MIDI control optimized for the device's
+ * limitations and unique features. The HX Stomp is a compact, pedal-format
+ * version of the Helix with significant constraints.
+ *
+ * SETUP REQUIREMENTS:
+ * - HX Stomp on MIDI Channel 1
+ * - Firmware 3.80 (current recommended version)
+ * - MIDI connection: USB-C ONLY (no 5-pin DIN)
+ * - USB MIDI Host adapter or direct USB-C connection
+ *
+ * ============================================================================
+ * CRITICAL HX STOMP LIMITATIONS VS. FULL HELIX
+ * ============================================================================
+ *
+ * 1. ONLY 3 SNAPSHOTS PER PRESET (vs 8 on full Helix)
+ *    - This is the biggest constraint for live performance
+ *    - Requires different arrangement strategy
+ *    - Use presets for major sections, snapshots for variations
+ *
+ * 2. ONLY 5 FOOTSWITCHES (vs 11 on full Helix Floor)
+ *    - FS1-FS5 available for MIDI control
+ *    - Limited real-time effect control
+ *
+ * 3. ONLY 2 EXPRESSION PEDALS (vs 3 on full Helix)
+ *    - EXP1 and EXP2 only
+ *
+ * 4. NO 5-PIN DIN MIDI - USB MIDI ONLY
+ *    - Requires USB MIDI Host adapter for most controllers
+ *    - Cannot daisy-chain with 5-pin DIN gear
+ *    - USB has higher jitter than DIN (affects clock sync)
+ *
+ * 5. DIRECT PRESET ADDRESSING (128 presets total)
+ *    - No Bank Select needed (simpler than full Helix)
+ *    - Just send PC 0-127 directly
+ *
+ * 6. UNIQUE FEATURES NOT ON FULL HELIX:
+ *    - All Bypass control (CC#70) - global effects bypass
+ *    - Footswitch Mode switching (CC#71) - change modes via MIDI
+ *
+ * ============================================================================
+ * WORKAROUNDS FOR 3-SNAPSHOT LIMITATION
+ * ============================================================================
+ *
+ * Strategy 1: Use preset changes for major song sections
+ * - Keep verse/chorus/bridge in separate presets
+ * - Use snapshots for variations within sections
+ *
+ * Strategy 2: Organize presets by song, 3 snapshots for key moments
+ * - Snapshot 1: Verse/main
+ * - Snapshot 2: Chorus/high
+ * - Snapshot 3: Lead/special
+ *
+ * Strategy 3: Leverage Mode Switching
+ * - Switch between Stomp/Scroll/Preset/Snapshot modes via MIDI
+ * - Access different functions per mode
+ *
+ * Strategy 4: Use All Bypass for mute/unmute
+ * - Mute during preset changes to hide gaps
+ * - Unmute after preset loads
+ * ============================================================================
+ */
+
+# Import HX Stomp device library
+@import "../../devices/hx_stomp.mmd"
+
+/*
+ * ============================================================================
+ * SONG 1: "SKYLINE DRIVE" (Indie Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Chorus → Outro
+ * Duration: ~3:30
+ * Tempo: 120 BPM
+ *
+ * Preset 5: "Song 1 - Skyline Drive"
+ * 3 snapshots:
+ * 1 (0): Clean intro/verse
+ * 2 (1): Chorus drive
+ * 3 (2): Lead/solo tone
+ *
+ * This song demonstrates working within the 3-snapshot constraint by using
+ * preset changes for the outro section.
+ */
+
+# Load Song 1 preset with clean snapshot
+[00:00.000]
+- hxstomp_load_snapshot 1 5 0      # Ch1, Preset 5, Snapshot 1
+# Note: No Bank Select needed on HX Stomp - direct PC addressing
+# Macro includes 350ms delay for firmware safety
+
+# Intro - Clean arpeggios (8 bars)
+
+# Verse 1
+
+# Pre-chorus - Add slight drive for build
+[00:28.000]
+- hxstomp_snap_2 1                 # Snapshot 2 (chorus drive)
+
+# Chorus
+
+# Guitar fill
+[00:44.000]
+- hxstomp_snap_3 1                 # Snapshot 3 (lead tone)
+[00:46.000]
+- hxstomp_snap_2 1                 # Back to chorus
+
+# Verse 2 - Back to clean
+[00:48.000]
+- hxstomp_snap_1 1                 # Snapshot 1
+
+# Pre-chorus 2
+[01:00.000]
+- hxstomp_snap_2 1
+
+# Chorus 2
+
+# Outro - Switch to different preset for ambient ending
+# This demonstrates using preset change for song section
+# Use All Bypass to mute during preset change (prevents gap/pop)
+[01:20.000]
+- cc 1.70.127                      # All bypass on
+[+50ms]
+- pc 1.6                           # Change to Preset 6
+[+400ms]
+- cc 1.70.0                        # All bypass off
+
+# Outro ambient texture
+# Song 1 ends
+
+/*
+ * ============================================================================
+ * SONG 2: "MIDNIGHT CITY" (Synthwave/Modern Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Bridge → Solo → Final Chorus
+ * Duration: ~4:00
+ * Tempo: 118 BPM
+ *
+ * Preset 7: "Song 2 - Midnight City"
+ * 3 snapshots:
+ * 1 (0): Intro/verse synth-like clean
+ * 2 (1): Chorus heavy drive
+ * 3 (2): Solo shred tone
+ *
+ * This song demonstrates footswitch control and expression automation
+ * within the 3-snapshot limit.
+ */
+
+# Set tempo via tap tempo
+[01:45.000]
+- hxstomp_tap 1                    # First tap
+[01:46.000]
+- hxstomp_tap 1                    # Second tap (508ms = 118 BPM)
+[01:47.000]
+- hxstomp_tap 1                    # Third tap
+[01:48.000]
+- hxstomp_tap 1                    # Fourth tap (tempo locked)
+
+# Load Song 2 preset
+[01:50.000]
+- hxstomp_preset 1 7               # Load Preset 7
+# HX Stomp uses direct PC addressing - simpler than full Helix
+
+# Intro - Synth-like clean tone (8 bars)
+
+# Verse
+
+# Pre-chorus build
+[02:22.000]
+- hxstomp_snap_2 1                 # Snapshot 2 (heavy drive)
+
+# Chorus
+
+# Toggle Footswitch 3 for additional delay
+[02:34.000]
+- hxstomp_fs3 1                    # FS3 on (maybe ping-pong delay)
+
+# Bridge - Back to clean
+[02:38.000]
+- hxstomp_snap_1 1                 # Snapshot 1
+[02:40.000]
+- hxstomp_fs3 1                    # FS3 off (disable extra delay)
+
+# Pre-solo build with expression swell
+[02:50.000]
+- hxstomp_exp1 1 0                 # Heel position
+[02:52.000]
+- hxstomp_exp1 1 32
+[02:54.000]
+- hxstomp_exp1 1 64
+[02:56.000]
+- hxstomp_exp1 1 96
+[02:58.000]
+- hxstomp_exp1 1 127               # Toe position
+
+# Solo
+[03:00.000]
+- hxstomp_snap_3 1                 # Snapshot 3 (solo tone)
+
+# Solo with wah using EXP2
+[03:04.000]
+- hxstomp_exp_toe_on 1             # Engage toe switch (wah on)
+[03:06.000]
+- hxstomp_exp2 1 0                 # Heel
+[03:07.000]
+- hxstomp_exp2 1 64                # Middle
+[03:08.000]
+- hxstomp_exp2 1 127               # Toe
+[03:09.000]
+- hxstomp_exp2 1 64                # Middle
+[03:10.000]
+- hxstomp_exp_toe_off 1            # Disengage toe switch (wah off)
+
+# Final chorus
+[03:12.000]
+- hxstomp_snap_2 1                 # Chorus tone
+
+# Outro
+[03:28.000]
+- hxstomp_snap_1 1                 # Back to clean
+
+# Song 2 ends
+
+/*
+ * ============================================================================
+ * SONG 3: "HEAVY SKIES" (Progressive Metal)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Outro
+ * Duration: ~4:15
+ * Tempo: 145 BPM
+ *
+ * Presets used:
+ * - Preset 8: "Song 3 - Verse/Chorus"
+ * - Preset 9: "Song 3 - Breakdown/Solo"
+ *
+ * This song demonstrates the preset-per-section strategy necessitated by
+ * the 3-snapshot limitation. For complex metal songs, use multiple presets
+ * rather than trying to fit everything into 3 snapshots.
+ *
+ * Preset 8 snapshots:
+ * 1 (0): Intro tight rhythm
+ * 2 (1): Verse palm mute
+ * 3 (2): Chorus open chords
+ *
+ * Preset 9 snapshots:
+ * 1 (0): Breakdown ultra-heavy
+ * 2 (1): Pre-solo clean
+ * 3 (2): Solo lead
+ */
+
+# Set fast tempo
+[03:45.000]
+- hxstomp_tap 1
+[03:46.000]
+- hxstomp_tap 1                    # 414ms = 145 BPM
+[03:47.000]
+- hxstomp_tap 1
+[03:48.000]
+- hxstomp_tap 1
+
+# Load Song 3 Verse/Chorus preset
+[03:50.000]
+- hxstomp_preset 1 8               # Preset 8
+
+# Intro - Tight rhythm (8 bars)
+
+# Verse - Palm mute
+[04:10.000]
+- hxstomp_snap_2 1                 # Snapshot 2
+
+# Pre-chorus
+# Chorus - Open chords
+[04:26.000]
+- hxstomp_snap_3 1                 # Snapshot 3
+
+# Breakdown - Need to change presets for ultra-heavy tone
+# Use muted preset change (All Bypass to hide gap)
+[04:42.000]
+- cc 1.70.127                      # All bypass on
+[+50ms]
+- pc 1.9                           # Change to Preset 9
+[+400ms]
+- cc 1.70.0                        # All bypass off
+# Preset 9 Snapshot 1 = Breakdown tone
+
+# Breakdown section
+
+# Toggle FS5 for octave down effect
+[04:54.000]
+- hxstomp_fs5 1                    # FS5 on (octave down)
+[04:58.000]
+- hxstomp_fs5 1                    # FS5 off
+
+# Pre-solo clean break (dramatic contrast)
+[05:02.000]
+- hxstomp_snap_2 1                 # Snapshot 2 (clean break)
+
+# Solo
+[05:10.000]
+- hxstomp_snap_3 1                 # Snapshot 3 (lead)
+
+# Final section - Back to verse/chorus preset
+[05:26.000]
+- cc 1.70.127                      # All bypass on
+[+50ms]
+- pc 1.8                           # Back to Preset 8
+[+400ms]
+- cc 1.70.0                        # All bypass off
+
+# Outro
+[05:34.000]
+- hxstomp_snap_1 1                 # Intro/verse tone
+
+# Song 3 ends
+
+/*
+ * ============================================================================
+ * ADVANCED HX STOMP FEATURES DEMONSTRATION
+ * ============================================================================
+ *
+ * These examples show HX Stomp-specific features not available on full Helix.
+ */
+
+# ALL BYPASS CONTROL (HX Stomp/XL exclusive feature)
+# Global bypass for all effects - instant mute
+[06:00.000]
+- cc 1.70.127                      # All bypass on (mute)
+[06:02.000]
+- cc 1.70.0                        # All bypass off (unmute)
+
+# FOOTSWITCH MODE SWITCHING (HX Stomp/XL exclusive)
+# Switch between different footswitch modes via MIDI
+[06:05.000]
+- cc 1.71.0                        # Stomp mode (effect toggles)
+[06:08.000]
+- cc 1.71.3                        # Snapshot mode
+[06:11.000]
+- cc 1.71.2                        # Preset mode
+[06:14.000]
+- cc 1.71.1                        # Scroll mode
+
+# Cycle through modes
+[06:17.000]
+- cc 1.71.4                        # Next mode
+[06:19.000]
+- cc 1.71.5                        # Previous mode
+
+# QUICK SNAPSHOT CHANGE WITH MODE SWITCHING
+# Temporarily switch to Snapshot mode, change snapshot, return
+[06:22.000]
+- cc 1.71.3                        # Switch to Snapshot mode
+[+50ms]
+- cc 1.69.2                        # Change to Snapshot 3
+[+50ms]
+- cc 1.71.0                        # Return to Stomp mode
+# Total time: ~150ms
+
+# PRESET NAVIGATION (useful for silent changes)
+[06:30.000]
+- hxstomp_next_preset 1            # Next preset (no load)
+[06:32.000]
+- hxstomp_prev_preset 1            # Previous preset (back)
+
+# SNAPSHOT NAVIGATION (wraps at 3 snapshots)
+[06:35.000]
+- hxstomp_snap_next 1              # Next snapshot
+[06:37.000]
+- hxstomp_snap_next 1              # Next (wraps 3→1)
+[06:39.000]
+- hxstomp_snap_prev 1              # Previous
+
+# INDIVIDUAL FOOTSWITCH CONTROL (FS1-FS5)
+[06:42.000]
+- hxstomp_fs1 1                    # Toggle FS1
+[06:44.000]
+- hxstomp_fs2 1                    # Toggle FS2
+[06:46.000]
+- hxstomp_fs3 1                    # Toggle FS3
+[06:48.000]
+- hxstomp_fs4 1                    # Toggle FS4
+[06:50.000]
+- hxstomp_fs5 1                    # Toggle FS5
+
+
+/*
+ * ============================================================================
+ * LOOPER DEMONSTRATION
+ * ============================================================================
+ *
+ * HX Stomp looper is identical to full Helix looper.
+ */
+
+# Load looper-friendly preset
+[07:00.000]
+- hxstomp_preset 1 10              # Preset 10 (clean with looper)
+
+# Enable looper mode
+[07:08.000]
+- hxstomp_looper_on 1
+
+# Start recording
+[07:10.000]
+- hxstomp_looper_record_rec 1      # Record mode
+
+# Stop recording (auto-plays)
+[07:18.000]
+- hxstomp_looper_record_overdub 1  # Overdub mode
+
+# Add overdub layer
+[07:26.000]
+- hxstomp_looper_play 1            # Play mode
+
+# Reverse for texture
+[07:30.000]
+- hxstomp_looper_reverse 1
+
+# Forward
+[07:34.000]
+- hxstomp_looper_forward 1
+
+# Half speed
+[07:38.000]
+- hxstomp_looper_half_speed 1
+
+# Full speed
+[07:42.000]
+- hxstomp_looper_full_speed 1
+
+# Undo
+[07:46.000]
+- hxstomp_looper_undo_redo 1
+
+# Stop
+[07:48.000]
+- hxstomp_looper_stop 1
+
+# Exit looper
+[07:50.000]
+- hxstomp_looper_off 1
+
+
+/*
+ * ============================================================================
+ * TUNER CONTROL
+ * ============================================================================
+ */
+
+# Enable tuner between songs
+[08:00.000]
+- hxstomp_tuner_on 1               # Tuner on (mutes output)
+
+# Disable tuner
+[08:05.000]
+- hxstomp_tuner_off 1              # Tuner off
+
+
+/*
+ * ============================================================================
+ * BEST PRACTICES FOR HX STOMP
+ * ============================================================================
+ *
+ * 1. WORKING WITH 3 SNAPSHOTS:
+ *    - Organize snapshots by importance (verse, chorus, lead)
+ *    - Use preset changes for major song sections
+ *    - Combine presets and snapshots for complex songs
+ *    - Don't try to fit entire song into 3 snapshots
+ *
+ * 2. PRESET ORGANIZATION:
+ *    - One preset per song OR per major section
+ *    - Use All Bypass for muted preset changes
+ *    - Direct PC 0-127 addressing (no Bank Select)
+ *    - Organize presets by setlist order
+ *
+ * 3. SNAPSHOT STRATEGY:
+ *    - Snapshot 1: Main/verse tone
+ *    - Snapshot 2: Chorus/high-energy tone
+ *    - Snapshot 3: Lead/special tone
+ *    - Use Mode Switching for more flexibility
+ *
+ * 4. FOOTSWITCH USAGE (5 switches):
+ *    - FS1-FS5 available for MIDI control
+ *    - All toggle (cannot force on/off)
+ *    - Assign critical effects to footswitches
+ *    - Use Mode Switching to access different functions
+ *
+ * 5. EXPRESSION CONTROL (2 pedals):
+ *    - EXP1 and EXP2 only
+ *    - Assign per-snapshot for different functions
+ *    - Use toe switch for wah engage
+ *    - Physical pedals preferred over MIDI CC
+ *
+ * 6. USB MIDI CONSIDERATIONS:
+ *    - NO 5-pin DIN MIDI - USB-C only
+ *    - Requires USB MIDI Host adapter for controllers
+ *    - USB has higher jitter than DIN
+ *    - Cannot daisy-chain with 5-pin gear
+ *    - Use quality USB-C cables
+ *
+ * 7. ALL BYPASS FEATURE:
+ *    - Unique to HX Stomp/XL (not on full Helix)
+ *    - Global bypass for instant mute
+ *    - Use during preset changes to hide gaps
+ *    - Use for emergency mute
+ *
+ * 8. MODE SWITCHING FEATURE:
+ *    - Unique to HX Stomp/XL
+ *    - Switch between Stomp/Scroll/Preset/Snapshot modes
+ *    - Access different functions per mode
+ *    - Use Quick Snapshot macro for fast changes
+ *
+ * 9. TIMING CONSIDERATIONS:
+ *    - Same as full Helix (350ms after PC)
+ *    - Use All Bypass to hide preset change gaps
+ *    - Test preset loading times (complex presets slower)
+ *
+ * 10. UPGRADE CONSIDERATIONS:
+ *     - 3 snapshots limiting? Consider HX Stomp XL (4 snapshots)
+ *     - Need more snapshots? Full Helix Floor/LT/Rack (8 snapshots)
+ *     - HX Stomp XL adds: +1 snapshot, +3 footswitches, +1 expression
+ *
+ * ============================================================================
+ * HX STOMP MIDI IMPLEMENTATION NOTES
+ * ============================================================================
+ *
+ * PRESET LOADING:
+ * - Direct Program Change addressing (PC 0-127)
+ * - NO Bank Select needed (simpler than full Helix)
+ * - 350ms delay recommended after PC (firmware safety)
+ * - 128 presets total
+ *
+ * SNAPSHOT CONTROL:
+ * - CC#69 controls snapshots (0-2 for Snapshots 1-3)
+ * - Only 3 snapshots available (vs 8 on full Helix)
+ * - CC#69 value 8 = Next snapshot (wraps 3→1)
+ * - CC#69 value 9 = Previous snapshot (wraps 1→3)
+ *
+ * EXPRESSION PEDALS:
+ * - CC#1 = EXP 1
+ * - CC#2 = EXP 2
+ * - No EXP 3 (only 2 expression inputs)
+ * - CC#59 = EXP Toe Switch
+ *
+ * FOOTSWITCH CONTROL:
+ * - CC#49 = FS1
+ * - CC#50 = FS2
+ * - CC#51 = FS3
+ * - CC#52 = FS4
+ * - CC#53 = FS5
+ * - All toggle mode (cannot force on/off)
+ *
+ * HX STOMP UNIQUE FEATURES:
+ * - CC#70 = All Bypass (0-63=off, 64-127=on)
+ * - CC#71 = Footswitch Mode (0=Stomp, 1=Scroll, 2=Preset, 3=Snapshot, 4=Next, 5=Prev)
+ *
+ * LOOPER CONTROL (identical to full Helix):
+ * - CC#60 = Record/Overdub
+ * - CC#61 = Play/Stop
+ * - CC#62 = Play Once
+ * - CC#63 = Undo/Redo
+ * - CC#65 = Direction
+ * - CC#66 = Speed
+ * - CC#67 = Looper On/Off
+ *
+ * GLOBAL FUNCTIONS:
+ * - CC#64 = Tap Tempo
+ * - CC#68 = Tuner
+ * - CC#72 = Preset Navigation (0-63=prev, 64-127=next)
+ *
+ * RESERVED CC NUMBERS:
+ * CC#1-2, 49-72 (cannot be reassigned)
+ *
+ * AVAILABLE CC NUMBERS:
+ * CC#3-48, 73-127 (via MIDI Learn)
+ *
+ * USB MIDI NOTES:
+ * - NO 5-pin DIN MIDI - USB-C only
+ * - Requires USB MIDI Host adapter or direct USB connection
+ * - USB has higher jitter than 5-pin DIN
+ * - Cannot daisy-chain with 5-pin MIDI gear
+ *
+ * For complete documentation, see:
+ * https://line6.com/support/manuals/hxstomp
+ * ============================================================================
+ */

@@ -1,0 +1,35 @@
+---
+title: Invalid Parameter Types Test
+tempo: 120
+ppq: 480
+---
+
+# This file demonstrates various parameter type errors
+
+@alias play_note note_on.{ch}.{note}.{vel} "Play note"
+@alias set_reverb cc.{ch}.91.{mix:percent} "Set reverb"
+@alias toggle_stomp cc.{ch}.81.{enabled:bool} "Toggle stomp"
+
+# ERROR: Invalid note name (H is not a valid note)
+[00:00.000]
+- play_note 1 H4 100
+
+# ERROR: Note octave out of range
+[00:01.000]
+- play_note 1 C10 100
+
+# ERROR: Percent value out of range (> 100)
+[00:02.000]
+- set_reverb 1 150
+
+# ERROR: Percent value out of range (< 0)
+[00:03.000]
+- set_reverb 1 -10
+
+# ERROR: Invalid boolean value
+[00:04.000]
+- toggle_stomp 1 maybe
+
+# ERROR: Invalid boolean integer (not 0 or 1)
+[00:05.000]
+- toggle_stomp 1 5

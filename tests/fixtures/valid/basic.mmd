@@ -1,0 +1,31 @@
+---
+title: "Basic Example"
+author: "Test User"
+midi_format: 1
+ppq: 480
+default_channel: 1
+---
+
+# Basic MIDI Markdown Example
+# Demonstrates simple MIDI commands with timing
+
+# Initial setup
+[00:00.000]
+- tempo 120
+- time_signature 4/4
+
+# Send program change
+[00:01.000]
+- pc 1.5
+
+# Send control change
+[00:02.000]
+- cc 1.7.100
+
+# Play a note
+[00:03.000]
+- note_on 1.C4 100 1b
+
+# End marker
+[00:04.000]
+- marker "End"

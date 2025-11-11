@@ -1,0 +1,321 @@
+---
+title: "Generative Ambient Music"
+author: "MML Team"
+description: "Demonstrates generative ambient techniques using random() and wave modulation"
+midi_format: 1
+ppq: 480
+tempo: 60
+time_signature: [4, 4]
+---
+
+# ============================================
+# MIDI Markup Language - Generative Ambient
+# ============================================
+#
+# This example demonstrates how to create evolving ambient textures
+# by combining random note selection with smooth wave modulation (LFO).
+#
+# Ambient techniques demonstrated:
+#   1. Random pad notes creating harmonic evolution
+#   2. Slow wave modulation on filter and resonance
+#   3. Layered random patterns at different speeds
+#   4. Random CC values for filter variation
+#   5. Multiple concurrent modulations for complex motion
+#   6. Long note durations with automation
+#
+# Key concepts:
+#   - random(NOTE1, NOTE2) for note selection
+#   - random(MIN, MAX) for CC values
+#   - wave() for periodic LFO motion
+#   - Multiple layers create evolving complexity
+#   - Different frequencies prevent repetition
+
+# ============================================
+# Setup: Initialize synth parameters
+# ============================================
+
+[00:00.000]
+- marker "Ambient Generative Composition"
+- text "Evolving pads with random notes and modulation"
+
+# All notes use channel 1 (main pad layer)
+# Filter (CC 74) and Resonance (CC 71) are modulated
+# Volume (CC 7) fades in/out for sections
+
+# ============================================
+# Section 1: Ambient Pad Foundation (0:00-1:00)
+# ============================================
+#
+# Low register pad with random note selection
+# Creates harmonic movement while sustaining texture
+
+[00:00.000]
+- marker "Pad Layer 1: Low Ambient"
+- text "Random notes C3-G3, 4-bar held notes"
+
+# These four notes play simultaneously and sustain for long durations
+# Random note selection creates harmonic variety while maintaining low register
+[00:00.000]
+- note_on 1.random(C3,E3) 60 4b
+[@]
+- note_on 1.random(F3,G3) 55 4b
+[@]
+- note_on 1.random(C3,D3) 65 4b
+[@]
+- note_on 1.random(G3,A3) 50 4b
+
+# Slow resonance wave adds subtle shimmer
+# 0.3 Hz = one cycle every 3.3 seconds (very slow, evolving)
+[@]
+- cc 1.71.wave(sine, 40, freq=0.3, depth=20)
+
+# ============================================
+# Section 2: Add Evolving Upper Pad (1:00-2:00)
+# ============================================
+#
+# Second pad layer adds harmonic complexity through random selection
+
+[00:04.000]
+- marker "Pad Layer 2: Upper Shimmer"
+- text "Random notes E4-B4, different timing"
+
+# New layer with higher notes creates depth
+# Different sustain lengths add polyrhythmic interest
+[00:04.000]
+- note_on 1.random(E4,G4) 70 3b
+[@]
+- note_on 1.random(A4,B4) 65 3.5b
+[@]
+- note_on 1.random(C5,D5) 60 2.5b
+
+# Different modulation frequency for filter creates complex motion
+# Triangle wave for less rounded curves, subtle variation
+[@]
+- cc 1.74.wave(triangle, 70, freq=0.15, depth=30)
+
+# ============================================
+# Section 3: Filter Resonance Evolution (2:00-3:00)
+# ============================================
+#
+# Gradually increase resonance brightness
+# Random CC values for organic variation
+
+[00:08.000]
+- marker "Resonance Sweep"
+- text "Gradually increasing brightness"
+
+# New note layer maintains harmonic motion
+[00:08.000]
+- note_on 1.random(D3,F3) 55 3b
+[@]
+- note_on 1.random(G4,A4) 70 3b
+
+# Introduce subtle randomness to filter cutoff CC values
+# Every 0.5 seconds, update filter with random variation
+# Creates organic, non-repetitive feel
+@loop 12 times at [00:08.000] every 0.5s
+  - cc 1.74.random(60,85)
+@end
+
+# ============================================
+# Section 4: Layered Randomization (3:00-4:00)
+# ============================================
+#
+# Multiple random patterns at different rates create
+# continuously evolving texture without repetition
+
+[00:12.000]
+- marker "Poly-Random Texture"
+- text "Multiple random patterns layer"
+
+# Fast random notes (every 0.75s)
+@loop 8 times at [00:12.000] every 0.75s
+  - note_on 1.random(C4,E4) random(50,65) 0.6b
+@end
+
+# Medium speed random notes (every 1.0s, offset)
+# Creates polyrhythmic complexity with fast layer
+@loop 6 times at [00:12.375] every 1.0s
+  - note_on 1.random(F3,A3) random(60,75) 0.8b
+@end
+
+# Slow random CC automation creates organic feel
+@loop 4 times at [00:12.000] every 1.5s
+  - cc 1.74.random(50,90)
+@end
+
+# ============================================
+# Section 5: Wave Modulation Layering (4:00-5:00)
+# ============================================
+#
+# Stack multiple wave() expressions at different frequencies
+# Creates complex motion from simple components (each with own period)
+
+[00:16.000]
+- marker "Modulation Stacking"
+- text "Multiple LFOs at different rates"
+
+# Base notes continue with random selection
+[00:16.000]
+- note_on 1.random(A2,C3) 60 3b
+[@]
+- note_on 1.random(E4,G4) 65 3b
+
+# Fast LFO on filter (5 Hz) - subtle shimmer
+# Creates ripple effect on top of slower modulations
+[@]
+- cc 1.74.wave(sine, 70, freq=5.0, depth=15)
+
+# Medium LFO on resonance (0.8 Hz) - slower pulse
+# Different from filter, creates complex interplay
+[@]
+- cc 1.71.wave(sine, 50, freq=0.8, depth=25)
+
+# Slow filter LFO (0.2 Hz) - very slow drift underneath
+[@]
+- cc 1.7.wave(sine, 75, freq=0.2, depth=20)
+
+# ============================================
+# Section 6: Complexity Peak (5:00-6:00)
+# ============================================
+#
+# Maximum layering: random notes + random CCs + multiple waves
+# All techniques combined for richest texture
+
+[00:20.000]
+- marker "Complexity Peak"
+- text "All techniques combined for evolution"
+
+# Dense pad layer with random selection
+# Four concurrent random notes create thick texture
+[00:20.000]
+- note_on 1.random(C2,D2) 50 4b
+[@]
+- note_on 1.random(G3,B3) 65 4b
+[@]
+- note_on 1.random(D4,F4) 70 4b
+[@]
+- note_on 1.random(A4,C5) 60 4b
+
+# Triple-wave modulation for complex motion
+# Each at different frequency creates rich, evolving texture
+[@]
+- cc 1.74.wave(sine, 65, freq=0.3, depth=40)
+
+[@]
+- cc 1.71.wave(triangle, 45, freq=1.2, depth=30)
+
+[@]
+- cc 1.7.wave(sine, 75, freq=0.5, depth=20)
+
+# Random CC values add organic variation
+# Every 0.75 seconds, update filter with random value
+@loop 16 times at [00:20.000] every 0.75s
+  - cc 1.74.random(40,90)
+@end
+
+# ============================================
+# Section 7: Resolution and Fade (6:00-7:30)
+# ============================================
+#
+# Gradually simplify and reduce energy toward silence
+# Longer note values, minimal modulation
+
+[00:24.000]
+- marker "Resolution Phase"
+- text "Gradual return to quiet"
+
+# Hold final notes longer (6 bars each)
+[00:24.000]
+- note_on 1.random(C3,G3) 55 6b
+[@]
+- note_on 1.random(E4,B4) 60 6b
+
+# Reduce filter modulation depth to subtle shimmer
+[@]
+- cc 1.74.wave(sine, 50, freq=0.2, depth=10)
+
+# Reduce resonance modulation
+[@]
+- cc 1.71.wave(sine, 40, freq=0.15, depth=15)
+
+# Gentle volume reduction
+[@]
+- cc 1.7.wave(sine, 60, freq=0.1, depth=15)
+
+# ============================================
+# Final Notes and Conclusion
+# ============================================
+
+[00:30.000]
+- marker "Ambient Evolution Complete"
+- text "Random and modulation techniques demonstrated"
+
+# Final sustained note with minimal modulation
+[00:30.000]
+- note_on 1.G2 50 1.5b
+
+# Gentle final modulation fade
+[@]
+- cc 1.74.wave(sine, 30, freq=0.05, depth=5)
+
+[00:31.500]
+- marker "End"
+- text "Generative ambient composition complete"
+
+# ============================================
+# Techniques Summary
+# ============================================
+#
+# This example demonstrates:
+#
+# 1. RANDOM NOTE SELECTION
+#    - random(NOTE1, NOTE2) selects note name between range
+#    - Creates harmonic evolution while maintaining pitch control
+#    - Essential for evolving pad textures
+#    - Example: random(C3,E3) picks C3, C#3, D3, D#3, or E3
+#
+# 2. RANDOM CC VALUES
+#    - random(MIN, MAX) for filter, resonance, volume
+#    - Adds organic variation to automation
+#    - Use subtly (ranges of 20-30 values) for musicality
+#    - Example: random(60,85) for filter values
+#
+# 3. WAVE MODULATION (LFO)
+#    - wave(type, base, freq=Hz, depth=%) for periodic motion
+#    - Sine waves most natural for smooth motion
+#    - Triangle for less rounded curves (cheaper on processing)
+#    - Different frequencies create complexity
+#    - freq=0.1-0.5 Hz for slow drift (very evolving)
+#    - freq=1.0-5.0 Hz for noticeable LFO effect
+#    - depth=10-30 for subtle, depth=30-50 for noticeable
+#
+# 4. LAYERING PATTERNS
+#    - Multiple @loop at different rates prevent repetition
+#    - Fast changes (0.5s) vs slow evolution (1.5s+)
+#    - Simultaneous modulation of multiple CCs (filter+resonance)
+#    - Random + modulation together = organic feel
+#    - Different frequencies create polyrhythmic complexity
+#
+# 5. TIMING SCALES
+#    - Long note durations (2-4 bars) for pad foundation
+#    - Shorter modulation updates (0.5-1.5s) for detail
+#    - Section length (4 bars) for human perception
+#    - LFO frequencies below 1 Hz for "evolving" feel
+#    - LFO frequencies above 2 Hz for "working" feel
+#
+# RECOMMENDED PARAMETERS:
+#    - Filter sweep: 0.1-0.5 Hz for ambient feel
+#    - Resonance LFO: 0.5-2.0 Hz for gentle motion
+#    - Volume swell: 0.1-0.3 Hz for very slow breathing
+#    - Fast shimmer: 3-8 Hz for detail/texture
+#    - Depth: Start at 10-20%, increase to 30-40% max
+#
+# See also:
+# - docs/user-guide/modulation.md - Full modulation reference
+# - random_humanization.mml - Velocity/note humanization
+# - 04_tempo_changes.mml - Tempo automation basics
+#
+
+[00:32.000]
+- marker "EOF"

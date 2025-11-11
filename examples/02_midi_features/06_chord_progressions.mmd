@@ -1,0 +1,237 @@
+---
+title: "Chord Progressions"
+description: "Common chord progressions using simultaneous timing"
+author: "MML Examples"
+tempo: 90
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Chord Progressions
+# ============================================================================
+#
+# This example demonstrates:
+# - Simultaneous timing [@] for chord voicings
+# - Common chord progressions
+# - Multiple notes played together
+# - Proper voice leading between chords
+#
+# Music Theory:
+# - I-V-vi-IV is the "pop progression" (C-G-Am-F in C major)
+# - Each chord uses close voicing (notes within an octave)
+# - Root position and inversions shown
+#
+# ============================================================================
+
+
+# ============================================================================
+# Progression 1: I-V-vi-IV (Pop Progression in C Major)
+# ============================================================================
+
+[00:00.000]
+- marker "Pop Progression"
+- text "I-V-vi-IV in C Major (C-G-Am-F)"
+
+# ===== Bar 1: I chord (C Major - C E G) =====
+[1.1.0]
+- note_on 1.C3 70 3.5b      # Root: C (bass note)
+- note_on 1.C4 75 3.5b      # Root: C (chord tone)
+[@]
+- note_on 1.E4 73 3.5b      # Third: E
+[@]
+- note_on 1.G4 71 3.5b      # Fifth: G
+
+# ===== Bar 2: V chord (G Major - G B D) =====
+[2.1.0]
+- note_on 1.G2 70 3.5b      # Root: G (bass note)
+- note_on 1.G3 75 3.5b      # Root: G (chord tone)
+[@]
+- note_on 1.B3 73 3.5b      # Third: B
+[@]
+- note_on 1.D4 71 3.5b      # Fifth: D
+
+# ===== Bar 3: vi chord (A minor - A C E) =====
+[3.1.0]
+- note_on 1.A2 70 3.5b      # Root: A (bass note)
+- note_on 1.A3 75 3.5b      # Root: A (chord tone)
+[@]
+- note_on 1.C4 73 3.5b      # Minor third: C
+[@]
+- note_on 1.E4 71 3.5b      # Fifth: E
+
+# ===== Bar 4: IV chord (F Major - F A C) =====
+[4.1.0]
+- note_on 1.F2 70 3.5b      # Root: F (bass note)
+- note_on 1.F3 75 3.5b      # Root: F (chord tone)
+[@]
+- note_on 1.A3 73 3.5b      # Third: A
+[@]
+- note_on 1.C4 71 3.5b      # Fifth: C
+
+
+# ============================================================================
+# Progression 2: I-IV-V-I (Classical Progression in C Major)
+# ============================================================================
+
+[5.1.0]
+- marker "Classical Progression"
+- text "I-IV-V-I in C Major (C-F-G-C)"
+
+# ===== Bar 5: I chord (C Major) - Root Position =====
+[5.1.0]
+- note_on 1.C3 75 3.5b      # Bass: C
+- note_on 1.E4 72 3.5b      # Soprano: E
+[@]
+- note_on 1.G3 70 3.5b      # Tenor: G
+[@]
+- note_on 1.C4 68 3.5b      # Alto: C
+
+# ===== Bar 6: IV chord (F Major) - First Inversion =====
+[6.1.0]
+- note_on 1.F2 75 3.5b      # Bass: F
+- note_on 1.F4 72 3.5b      # Soprano: F
+[@]
+- note_on 1.A3 70 3.5b      # Tenor: A
+[@]
+- note_on 1.C4 68 3.5b      # Alto: C
+
+# ===== Bar 7: V chord (G Major) - Root Position =====
+[7.1.0]
+- note_on 1.G2 75 3.5b      # Bass: G
+- note_on 1.G4 72 3.5b      # Soprano: G
+[@]
+- note_on 1.B3 70 3.5b      # Tenor: B
+[@]
+- note_on 1.D4 68 3.5b      # Alto: D
+
+# ===== Bar 8: I chord (C Major) - Root Position (Final) =====
+[8.1.0]
+- note_on 1.C3 80 4b        # Bass: C (stronger ending)
+- note_on 1.C5 77 4b        # Soprano: C (octave higher)
+[@]
+- note_on 1.G3 75 4b        # Tenor: G
+[@]
+- note_on 1.E4 73 4b        # Alto: E
+
+
+# ============================================================================
+# Progression 3: ii-V-I (Jazz Progression in C Major)
+# ============================================================================
+
+[9.1.0]
+- marker "Jazz Progression"
+- text "ii-V-I in C Major (Dm7-G7-Cmaj7)"
+
+# ===== Bar 9: ii7 chord (D minor 7 - D F A C) =====
+[9.1.0]
+- note_on 1.D3 70 3.5b      # Root: D
+- note_on 1.F3 68 3.5b      # Minor third: F
+[@]
+- note_on 1.A3 66 3.5b      # Fifth: A
+[@]
+- note_on 1.C4 64 3.5b      # Minor seventh: C
+
+# ===== Bar 10: V7 chord (G dominant 7 - G B D F) =====
+[10.1.0]
+- note_on 1.G2 70 3.5b      # Root: G
+- note_on 1.B3 68 3.5b      # Major third: B
+[@]
+- note_on 1.D4 66 3.5b      # Fifth: D
+[@]
+- note_on 1.F4 64 3.5b      # Minor seventh: F
+
+# ===== Bar 11-12: Imaj7 chord (C major 7 - C E G B) =====
+[11.1.0]
+- note_on 1.C3 75 7.5b      # Root: C (held for 2 bars)
+- note_on 1.E4 72 7.5b      # Major third: E
+[@]
+- note_on 1.G4 70 7.5b      # Fifth: G
+[@]
+- note_on 1.B4 68 7.5b      # Major seventh: B
+
+
+# ============================================================================
+# Progression 4: Canon in D Progression (Pachelbel's Canon)
+# ============================================================================
+
+[13.1.0]
+- marker "Canon in D"
+- text "I-V-vi-iii-IV-I-IV-V (Pachelbel progression)"
+
+# D Major: D-A-Bm-F#m-G-D-G-A
+
+# ===== Bar 13: I (D Major) =====
+[13.1.0]
+- note_on 1.D3 72 1.75b
+- note_on 1.D4 70 1.75b
+[@]
+- note_on 1.F#4 68 1.75b
+[@]
+- note_on 1.A4 66 1.75b
+
+# ===== Bar 13.3: V (A Major) =====
+[13.3.0]
+- note_on 1.A2 72 1.75b
+- note_on 1.A3 70 1.75b
+[@]
+- note_on 1.C#4 68 1.75b
+[@]
+- note_on 1.E4 66 1.75b
+
+# ===== Bar 14: vi (B minor) =====
+[14.1.0]
+- note_on 1.B2 72 1.75b
+- note_on 1.B3 70 1.75b
+[@]
+- note_on 1.D4 68 1.75b
+[@]
+- note_on 1.F#4 66 1.75b
+
+# ===== Bar 14.3: iii (F# minor) =====
+[14.3.0]
+- note_on 1.F#2 72 1.75b
+- note_on 1.F#3 70 1.75b
+[@]
+- note_on 1.A3 68 1.75b
+[@]
+- note_on 1.C#4 66 1.75b
+
+# ===== Bar 15: IV (G Major) =====
+[15.1.0]
+- note_on 1.G2 72 1.75b
+- note_on 1.G3 70 1.75b
+[@]
+- note_on 1.B3 68 1.75b
+[@]
+- note_on 1.D4 66 1.75b
+
+# ===== Bar 15.3: I (D Major) =====
+[15.3.0]
+- note_on 1.D3 72 1.75b
+- note_on 1.D4 70 1.75b
+[@]
+- note_on 1.F#4 68 1.75b
+[@]
+- note_on 1.A4 66 1.75b
+
+# ===== Bar 16: IV (G Major) =====
+[16.1.0]
+- note_on 1.G2 72 1.75b
+- note_on 1.G3 70 1.75b
+[@]
+- note_on 1.B3 68 1.75b
+[@]
+- note_on 1.D4 66 1.75b
+
+# ===== Bar 16.3: V (A Major) - Final =====
+[16.3.0]
+- note_on 1.A2 75 2b
+- note_on 1.A3 73 2b
+[@]
+- note_on 1.C#4 71 2b
+[@]
+- note_on 1.E4 69 2b
+
+[18.1.0]
+- end_of_track

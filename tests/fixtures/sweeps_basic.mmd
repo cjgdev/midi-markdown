@@ -1,0 +1,19 @@
+---
+title: "Sweeps Test"
+author: "Test"
+tempo: 120
+time_signature: 4/4
+ppq: 480
+---
+
+# Test basic sweep functionality
+
+# Simple CC sweep from 0 to 1 second, every 100ms
+@sweep from [00:00.000] to [00:01.000] every 100ms
+- cc 1.7.linear.0.127
+@end
+
+# Exponential sweep
+@sweep from [00:02.000] to [00:04.000] every 200ms
+- cc 1.1.exponential.0.127
+@end

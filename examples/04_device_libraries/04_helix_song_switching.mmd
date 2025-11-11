@@ -1,0 +1,645 @@
+---
+title: "Line 6 Helix Song Switching"
+description: "Real-world live performance example demonstrating Helix preset and snapshot control"
+author: "MML Device Library Examples"
+tempo: 128
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * LINE 6 HELIX SONG SWITCHING - LIVE PERFORMANCE EXAMPLE
+ * ============================================================================
+ *
+ * This example demonstrates professional Helix MIDI control for a complete
+ * live set, showcasing preset changes, snapshot switching, and footswitch
+ * control for a multi-song performance.
+ *
+ * SETUP REQUIREMENTS:
+ * - Helix Floor/LT/Rack on MIDI Channel 1
+ * - Firmware 3.80 (current recommended version)
+ * - MIDI connection: 5-pin DIN recommended (more stable than USB)
+ * - Global Settings → MIDI/Tempo → MIDI Base Channel = 1
+ *
+ * SETLIST ORGANIZATION (for this example):
+ * - Setlist 2 (index 1): "Live Set 2024"
+ *   - Preset 0: "Song 1 - Rising Tide" (Alt Rock)
+ *   - Preset 1: "Song 2 - Electric Storm" (Modern Rock)
+ *   - Preset 2: "Song 3 - Quiet Moments" (Ballad)
+ *   - Preset 3: "Song 4 - Heavy Water" (Metal)
+ *
+ * SNAPSHOT STRATEGY (8 snapshots per preset):
+ * The Helix's 8 snapshots per preset enable sophisticated song arrangements:
+ * - Snapshot 1 (0): Intro/verse clean
+ * - Snapshot 2 (1): Verse rhythm
+ * - Snapshot 3 (2): Pre-chorus drive
+ * - Snapshot 4 (3): Chorus high gain
+ * - Snapshot 5 (4): Bridge/breakdown
+ * - Snapshot 6 (5): Solo/lead
+ * - Snapshot 7 (6): Outro/ambient
+ * - Snapshot 8 (7): Special/dynamics
+ *
+ * CRITICAL TIMING NOTES:
+ * - Firmware 3.5x: 350ms delay required after PC messages before CC
+ * - Firmware 3.10+: CC69 (snapshot) buffered during preset load
+ * - Firmware 3.80: Most stable, but add 350ms delay after PC for safety
+ *
+ * These delays are built into the device library macros.
+ * ============================================================================
+ */
+
+# Import Line 6 Helix device library
+@import "../../devices/helix.mmd"
+
+/*
+ * ============================================================================
+ * SONG 1: "RISING TIDE" (Alt Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Pre-Chorus → Chorus → Verse → Chorus → Bridge → Outro
+ * Duration: ~4:00
+ * Tempo: 128 BPM
+ *
+ * Preset 0 in Setlist 2 - "Song 1 - Rising Tide"
+ * 8 snapshots configured for different song sections
+ *
+ * Snapshot overview:
+ * 1 (0): Clean intro arpeggios with reverb
+ * 2 (1): Verse rhythm with edge-of-breakup
+ * 3 (2): Pre-chorus crunch with delay
+ * 4 (3): Chorus high gain
+ * 5 (4): Bridge ambient clean
+ * 6 (5): Lead tone with heavy delay
+ * 7 (6): Outro clean with long reverb
+ * 8 (7): Dynamics boost for accents
+ */
+
+# Load Song 1 preset with intro snapshot
+[00:00.000]
+- helix_load_snapshot 1 1 0 0      # Ch1, Setlist 2, Preset 0, Snapshot 1
+# This macro handles:
+# - CC#0 (Bank MSB compatibility)
+# - CC#32 (Setlist select = 1)
+# - PC (Preset = 0)
+# - CC#69 (Snapshot = 0)
+# - Built-in delays for firmware compatibility
+
+# Intro - Clean arpeggios (8 bars)
+
+# Verse 1 starts (bar 9)
+[00:16.000]
+- helix_snap_2 1                   # Switch to Snapshot 2 (verse rhythm)
+# Edge-of-breakup tone, less reverb, tighter sound
+
+# Pre-chorus (bar 17)
+[00:32.000]
+- helix_snap_3 1                   # Snapshot 3 (pre-chorus)
+# Crunch tone, added delay for movement
+
+# Chorus (bar 21)
+[00:40.000]
+- helix_snap_4 1                   # Snapshot 4 (chorus)
+# High gain, less delay, bigger sound
+
+# Back to verse for verse 2
+[00:56.000]
+- helix_snap_2 1                   # Snapshot 2
+
+# Pre-chorus 2
+[01:12.000]
+- helix_snap_3 1
+
+# Chorus 2
+[01:20.000]
+- helix_snap_4 1
+
+# Guitar solo section
+[01:36.000]
+- helix_snap_6 1                   # Snapshot 6 (lead tone)
+# Lead amp setting, heavy delay, reverb
+
+# Use expression pedal for wah during solo
+# (In real performance, use physical EXP pedal for best response)
+[01:40.000]
+- helix_exp1 1 0                   # Heel position
+[01:41.000]
+- helix_exp1 1 32
+[01:42.000]
+- helix_exp1 1 64
+[01:43.000]
+- helix_exp1 1 96
+[01:44.000]
+- helix_exp1 1 127                 # Toe position
+[01:45.000]
+- helix_exp1 1 64                  # Back to middle
+
+# Bridge - Ambient clean section
+[01:52.000]
+- helix_snap_5 1                   # Snapshot 5 (bridge)
+# Clean amp, heavy reverb, shimmer
+
+# Build back to final chorus
+[02:08.000]
+- helix_snap_3 1                   # Pre-chorus tone for build
+
+# Final chorus
+[02:16.000]
+- helix_snap_4 1                   # Chorus tone
+
+# Outro - Return to clean
+[02:32.000]
+- helix_snap_7 1                   # Snapshot 7 (outro)
+# Clean amp, long reverb tail
+
+# Final chord with reverb decay
+# Song 1 ends
+
+/*
+ * ============================================================================
+ * SONG 2: "ELECTRIC STORM" (Modern Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Final Chorus → Outro
+ * Duration: ~4:15
+ * Tempo: 140 BPM (tempo change from Song 1)
+ *
+ * Preset 1 in Setlist 2 - "Song 2 - Electric Storm"
+ *
+ * Snapshot overview:
+ * 1 (0): Heavy intro riff
+ * 2 (1): Verse palm mute rhythm
+ * 3 (2): Chorus open chords
+ * 4 (3): Breakdown super-heavy tone
+ * 5 (4): Pre-solo ambient swell
+ * 6 (5): Solo lead with delay/reverb
+ * 7 (6): Final chorus extended
+ * 8 (7): Outro feedback
+ */
+
+# Set new tempo for Song 2 (4 tap tempo messages)
+[03:05.000]
+- helix_tap 1                      # First tap
+[03:06.000]
+- helix_tap 1                      # Second tap (428ms interval = 140 BPM)
+[03:07.000]
+- helix_tap 1                      # Third tap
+[03:08.000]
+- helix_tap 1                      # Fourth tap (tempo set)
+
+# Load Song 2 preset with intro snapshot
+[03:10.000]
+- helix_load_snapshot 1 1 1 0      # Setlist 2, Preset 1, Snapshot 1
+
+# Heavy intro riff (8 bars)
+
+# Verse - Palm mute rhythm
+[03:32.000]
+- helix_snap_2 1                   # Snapshot 2 (verse)
+# Tight palm mute tone, less gain than intro
+
+# Chorus - Open chords
+[03:48.000]
+- helix_snap_3 1                   # Snapshot 3 (chorus)
+# More gain, bigger reverb, wider stereo
+
+# Breakdown - Super heavy
+[04:04.000]
+- helix_snap_4 1                   # Snapshot 4 (breakdown)
+# Maximum gain, octave down, gate
+
+# Demonstrate footswitch control for momentary effect
+# Toggle Footswitch 3 (maybe a delay or reverb)
+[04:12.000]
+- helix_fs3 1                      # Toggle FS3 on
+[04:16.000]
+- helix_fs3 1                      # Toggle FS3 off
+
+# Pre-solo - Ambient swell
+[04:20.000]
+- helix_snap_5 1                   # Snapshot 5 (pre-solo)
+# Clean with heavy reverb and delay
+
+# Solo
+[04:28.000]
+- helix_snap_6 1                   # Snapshot 6 (solo lead)
+
+# Use expression for volume swell during solo
+[04:36.000]
+- helix_exp1 1 0                   # Volume off
+[04:37.000]
+- helix_exp1 1 32
+[04:38.000]
+- helix_exp1 1 64
+[04:39.000]
+- helix_exp1 1 96
+[04:40.000]
+- helix_exp1 1 127                 # Full volume
+
+# Final chorus - Extended version
+[04:44.000]
+- helix_snap_7 1                   # Snapshot 7 (final chorus)
+# Chorus tone with extra delay for big ending
+
+# Outro - Feedback and noise
+[05:00.000]
+- helix_snap_8 1                   # Snapshot 8 (outro feedback)
+# Feedback patch with reverb
+
+# Song 2 ends
+
+/*
+ * ============================================================================
+ * SONG 3: "QUIET MOMENTS" (Ballad)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Chorus → Bridge → Final Chorus
+ * Duration: ~5:00
+ * Tempo: 72 BPM (significant tempo change)
+ *
+ * Preset 2 in Setlist 2 - "Song 3 - Quiet Moments"
+ *
+ * Snapshot overview:
+ * 1 (0): Clean intro fingerpicking
+ * 2 (1): Verse clean with reverb
+ * 3 (2): Pre-chorus slight drive
+ * 4 (3): Chorus clean + delay
+ * 5 (4): Bridge ambient clean
+ * 6 (5): Bridge lead with heavy reverb
+ * 7 (6): Final chorus big sound
+ * 8 (7): Outro sparse clean
+ *
+ * This song demonstrates the value of 8 snapshots for dynamic arrangements.
+ */
+
+# Set ballad tempo (72 BPM)
+[05:25.000]
+- helix_tap 1
+[05:26.000]
+- helix_tap 1                      # 833ms interval = 72 BPM
+[05:27.000]
+- helix_tap 1
+[05:28.000]
+- helix_tap 1
+
+# Load Song 3 preset
+[05:30.000]
+- helix_load_snapshot 1 1 2 0      # Setlist 2, Preset 2, Snapshot 1
+
+# Intro - Fingerpicking (8 bars)
+
+# Verse 1
+[05:52.000]
+- helix_snap_2 1                   # Snapshot 2 (verse)
+# Clean with reverb, slight compression
+
+# Pre-chorus
+[06:08.000]
+- helix_snap_3 1                   # Snapshot 3 (pre-chorus)
+# Slight drive, added delay
+
+# Chorus
+[06:16.000]
+- helix_snap_4 1                   # Snapshot 4 (chorus)
+# Clean but bigger, delay for width
+
+# Verse 2 - Back to verse tone
+[06:32.000]
+- helix_snap_2 1
+
+# Pre-chorus 2
+[06:48.000]
+- helix_snap_3 1
+
+# Chorus 2
+[06:56.000]
+- helix_snap_4 1
+
+# Bridge - Ambient clean arpeggios
+[07:12.000]
+- helix_snap_5 1                   # Snapshot 5 (bridge ambient)
+# Heavy reverb, shimmer, clean
+
+# Bridge lead line
+[07:28.000]
+- helix_snap_6 1                   # Snapshot 6 (bridge lead)
+# Lead tone, heavy reverb and delay
+
+# Final chorus - Big sound
+[07:44.000]
+- helix_snap_7 1                   # Snapshot 7 (final chorus)
+# Maximum clean, big reverb, stereo width
+
+# Outro - Return to sparse
+[08:00.000]
+- helix_snap_8 1                   # Snapshot 8 (outro)
+# Minimal effects, pure clean
+
+# Song 3 ends
+
+/*
+ * ============================================================================
+ * SONG 4: "HEAVY WATER" (Metal)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Outro
+ * Duration: ~4:30
+ * Tempo: 160 BPM (fast tempo)
+ *
+ * Preset 3 in Setlist 2 - "Song 4 - Heavy Water"
+ *
+ * Snapshot overview:
+ * 1 (0): Intro massive riff
+ * 2 (1): Verse tight rhythm
+ * 3 (2): Pre-chorus building
+ * 4 (3): Chorus open power chords
+ * 5 (4): Breakdown ultra-heavy
+ * 6 (5): Pre-solo clean break
+ * 7 (6): Solo shred tone
+ * 8 (7): Outro djent
+ *
+ * Demonstrates footswitch toggling for effect control during heavy sections.
+ */
+
+# Set fast metal tempo (160 BPM)
+[08:25.000]
+- helix_tap 1
+[08:26.000]
+- helix_tap 1                      # 375ms interval = 160 BPM
+[08:27.000]
+- helix_tap 1
+[08:28.000]
+- helix_tap 1
+
+# Load Song 4 preset
+[08:30.000]
+- helix_load_snapshot 1 1 3 0      # Setlist 2, Preset 3, Snapshot 1
+
+# Intro - Massive riff
+
+# Verse - Tight rhythm
+[08:52.000]
+- helix_snap_2 1                   # Snapshot 2 (verse)
+# Tight gate, palm mute tone
+
+# Pre-chorus building
+[09:04.000]
+- helix_snap_3 1                   # Snapshot 3 (pre-chorus)
+# Building intensity
+
+# Chorus - Open power chords
+[09:12.000]
+- helix_snap_4 1                   # Snapshot 4 (chorus)
+# Big open chord sound
+
+# Breakdown - Ultra heavy
+[09:28.000]
+- helix_snap_5 1                   # Snapshot 5 (breakdown)
+# Maximum gain, octave down
+
+# Toggle Footswitch 5 for additional effect (maybe harmonizer)
+[09:32.000]
+- helix_fs5 1                      # FS5 on
+[09:36.000]
+- helix_fs5 1                      # FS5 off
+
+# Pre-solo clean break (contrast)
+[09:40.000]
+- helix_snap_6 1                   # Snapshot 6 (pre-solo clean)
+# Clean break for dynamics
+
+# Solo - Shred tone
+[09:48.000]
+- helix_snap_7 1                   # Snapshot 7 (solo)
+# Lead tone, delay, reverb
+
+# Use EXP2 for whammy effect during solo
+[09:56.000]
+- helix_exp2 1 64                  # Neutral
+[09:58.000]
+- helix_exp2 1 127                 # +1 octave
+[10:00.000]
+- helix_exp2 1 64                  # Back to neutral
+
+# Final section - Djent
+[10:04.000]
+- helix_snap_8 1                   # Snapshot 8 (djent)
+# Ultra-tight, percussive tone
+
+# Song 4 ends
+
+/*
+ * ============================================================================
+ * ENCORE: LOOPER PERFORMANCE
+ * ============================================================================
+ *
+ * Demonstrates Helix looper control for live looping between songs.
+ * The looper provides 6-12 minutes of recording time.
+ */
+
+# Enable tuner between songs
+[10:25.000]
+- helix_tuner_on 1
+
+# Disable tuner
+[10:30.000]
+- helix_tuner_off 1
+
+# Load a looper-friendly preset (clean with effects)
+[10:35.000]
+- helix_load_snapshot 1 1 2 0      # Back to ballad preset
+
+# Start looper session
+[10:42.000]
+- helix_looper_on 1                # Enable looper mode
+
+# Record first loop layer
+[10:44.000]
+- helix_looper_record_rec 1        # Start recording
+
+# Stop recording (auto-starts playback)
+[10:52.000]
+- helix_looper_record_overdub 1    # Switch to overdub mode
+
+# Add overdub layer
+[11:00.000]
+- helix_looper_play 1              # Return to play mode
+
+# Reverse playback for texture
+[11:08.000]
+- helix_looper_reverse 1           # Reverse direction
+
+# Back to forward
+[11:16.000]
+- helix_looper_forward 1
+
+# Half speed for ambience
+[11:20.000]
+- helix_looper_half_speed 1        # Half speed playback
+
+# Back to full speed
+[11:28.000]
+- helix_looper_full_speed 1
+
+# Undo last layer
+[11:32.000]
+- helix_looper_undo_redo 1
+
+# Stop looper
+[11:36.000]
+- helix_looper_stop 1
+
+# Exit looper mode
+[11:40.000]
+- helix_looper_off 1
+
+
+/*
+ * ============================================================================
+ * ADVANCED TECHNIQUES DEMONSTRATED
+ * ============================================================================
+ */
+
+# Navigate presets without loading (useful for silent preset changes)
+[11:45.000]
+- helix_next_preset 1              # Cue next preset (no sound change)
+[11:47.000]
+- helix_prev_preset 1              # Back to previous
+
+# Snapshot navigation using next/prev (cycles through 8 snapshots)
+[11:50.000]
+- helix_snap_next 1                # Next snapshot
+[11:52.000]
+- helix_snap_next 1                # Next snapshot
+[11:54.000]
+- helix_snap_prev 1                # Previous snapshot
+
+# Expression toe switch control (typically wah engage)
+[11:56.000]
+- helix_exp_toe_on 1               # Engage toe switch
+[11:58.000]
+- helix_exp_toe_off 1              # Disengage toe switch
+
+# Generic footswitch control (FS1-FS11)
+# Useful for custom MIDI mappings
+[12:00.000]
+- helix_footswitch 1 49 127        # FS1 (CC49)
+[12:02.000]
+- helix_footswitch 1 55 127        # FS8 (CC55)
+
+
+/*
+ * ============================================================================
+ * BEST PRACTICES DEMONSTRATED
+ * ============================================================================
+ *
+ * 1. SNAPSHOT WORKFLOW:
+ *    - Use 8 snapshots per preset for complete song arrangements
+ *    - Organize snapshots by song section (intro, verse, chorus, etc.)
+ *    - Snapshots change FAST (~10ms) - ideal for mid-song changes
+ *    - Snapshot changes preserve signal spillover
+ *
+ * 2. PRESET ORGANIZATION:
+ *    - One preset per song for complex arrangements
+ *    - Group related presets in setlists by genre/set/show
+ *    - Use consistent snapshot numbering across presets when possible
+ *    - Save presets with footswitch assignments for quick access
+ *
+ * 3. PRESET VS. SNAPSHOT STRATEGY:
+ *    - Snapshots: Fast changes within a song (verse/chorus/solo)
+ *    - Presets: Different songs or drastically different tones
+ *    - Preset changes have ~350ms gap (use muting if needed)
+ *    - Snapshots are instant and seamless
+ *
+ * 4. TIMING CONSIDERATIONS:
+ *    - Firmware 3.5x: Always add 350ms delay after PC messages
+ *    - Firmware 3.10+: CC69 buffered, but 350ms still recommended for safety
+ *    - Use helix_load_snapshot macro for proper timing
+ *    - Test timing with actual presets (complex presets load slower)
+ *
+ * 5. EXPRESSION PEDAL BEST PRACTICES:
+ *    - Use physical expression pedals (EXP1/2/3) for real-time control
+ *    - MIDI CC#1/2/3 works for automation but has more latency
+ *    - Assign expression per-snapshot for different functions
+ *    - Use toe switch for wah engage/bypass
+ *
+ * 6. FOOTSWITCH CONTROL:
+ *    - Footswitches 1-11 available for MIDI control (no FS6)
+ *    - All footswitches TOGGLE (cannot force on/off state)
+ *    - Program MIDI controller to send toggles, not states
+ *    - Assign critical effects to footswitches for live control
+ *
+ * 7. TEMPO MANAGEMENT:
+ *    - Use Tap Tempo (CC64) for manual tempo setting
+ *    - Send 4 taps at desired interval to set tempo
+ *    - MIDI Clock sync available (Global Settings)
+ *    - Time-based effects follow global or per-preset tempo
+ *
+ * 8. LOOPER WORKFLOW:
+ *    - Enable looper mode before recording
+ *    - All looper CCs are threshold-based (0-63 vs 64-127)
+ *    - Record → Overdub → Play workflow
+ *    - Undo/Redo available for fixing mistakes
+ *    - Special effects: Reverse, Half Speed, Play Once
+ *
+ * 9. TUNER USAGE:
+ *    - Enable tuner between songs for retuning
+ *    - Tuner mutes output (silent tuning)
+ *    - Threshold-based control (0-63=off, 64-127=on)
+ *
+ * 10. MIDI CONNECTION:
+ *     - 5-pin DIN MIDI more reliable than USB for live use
+ *     - Set MIDI Base Channel in Global Settings
+ *     - Avoid MIDI feedback loops
+ *     - Use quality MIDI cables
+ *
+ * ============================================================================
+ * HELIX MIDI IMPLEMENTATION NOTES
+ * ============================================================================
+ *
+ * PRESET LOADING:
+ * - CC#0 (Bank MSB) + CC#32 (Bank LSB) + Program Change
+ * - CC#32 values 0-7 select Setlists 1-8
+ * - PC values 0-127 select Presets 1-128 within setlist
+ * - Firmware 3.5x requires 350ms delay after PC before sending CC
+ * - Firmware 3.10+ buffers CC69 during preset load
+ *
+ * SNAPSHOT CONTROL:
+ * - CC#69 controls snapshots (0-7 for Snapshots 1-8)
+ * - CC#69 value 8 = Next snapshot
+ * - CC#69 value 9 = Previous snapshot
+ * - Snapshot changes are nearly instant (~10ms)
+ * - Preserves signal spillover (delays/reverbs)
+ *
+ * EXPRESSION PEDALS:
+ * - CC#1 = EXP 1
+ * - CC#2 = EXP 2
+ * - CC#3 = EXP 3 (Floor/Rack only, not on LT)
+ * - CC#59 = EXP Toe Switch (0-63=off, 64-127=on)
+ *
+ * FOOTSWITCH CONTROL:
+ * - CC#49-58 control FS1-5, FS7-11 (FS6 reserved)
+ * - All footswitches use TOGGLE behavior
+ * - Any CC value 64-127 triggers toggle
+ * - Cannot force on/off states
+ *
+ * LOOPER CONTROL:
+ * - CC#60 = Record/Overdub (0-63=overdub, 64-127=record)
+ * - CC#61 = Play/Stop (0-63=stop, 64-127=play)
+ * - CC#62 = Play Once
+ * - CC#63 = Undo/Redo
+ * - CC#65 = Direction (0-63=forward, 64-127=reverse)
+ * - CC#66 = Speed (0-63=full, 64-127=half)
+ * - CC#67 = Looper On/Off (0-63=off, 64-127=on)
+ *
+ * GLOBAL FUNCTIONS:
+ * - CC#64 = Tap Tempo (0-63 ignored, 64-127 registers tap)
+ * - CC#68 = Tuner (0-63=off, 64-127=on)
+ * - CC#72 = Preset Navigation (0-63=prev, 64-127=next)
+ *
+ * RESERVED CC NUMBERS (cannot be reassigned):
+ * CC#0, 1-3, 32, 49-69, 72, 70-76 (reserved for future)
+ *
+ * AVAILABLE CC NUMBERS for custom control:
+ * CC#4-31, 33-48, 77-127 (via MIDI Learn)
+ *
+ * For complete documentation, see:
+ * https://line6.com/support/manuals/helix
+ * ============================================================================
+ */

@@ -1,0 +1,66 @@
+---
+title: "Practice Click Track"
+author: "Drummer"
+midi_format: 0
+ppq: 480
+default_channel: 10
+---
+
+# Simple Click Track
+# Demonstrates basic note commands with timing and duration
+
+# Setup
+[00:00.000]
+- tempo 120
+- time_signature 4/4
+- text "Click"
+
+# Manual click pattern (4 bars, 4 beats each = 16 beats)
+# For a loop-based click track example, see 10_loops_and_patterns.mml
+# Example using @loop:
+# @loop 16 times every 1b
+#   - note_on 10.C5 127 50ms
+# @end
+
+# Bar 1
+[00:00.000]
+- note_on 10.C5 127 50ms
+[00:01.000]
+- note_on 10.C5 100 50ms
+[00:02.000]
+- note_on 10.C5 100 50ms
+[00:03.000]
+- note_on 10.C5 100 50ms
+
+# Bar 2
+[00:04.000]
+- note_on 10.C5 127 50ms
+[00:05.000]
+- note_on 10.C5 100 50ms
+[00:06.000]
+- note_on 10.C5 100 50ms
+[00:07.000]
+- note_on 10.C5 100 50ms
+
+# Bar 3
+[00:08.000]
+- note_on 10.C5 127 50ms
+[00:09.000]
+- note_on 10.C5 100 50ms
+[00:10.000]
+- note_on 10.C5 100 50ms
+[00:11.000]
+- note_on 10.C5 100 50ms
+
+# Bar 4
+[00:12.000]
+- note_on 10.C5 127 50ms
+[00:13.000]
+- note_on 10.C5 100 50ms
+[00:14.000]
+- note_on 10.C5 100 50ms
+[00:15.000]
+- note_on 10.C5 100 50ms
+
+[00:16.000]
+- text "End of click track"

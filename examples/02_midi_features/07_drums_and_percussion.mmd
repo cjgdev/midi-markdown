@@ -1,0 +1,113 @@
+---
+title: "Drums and Percussion"
+description: "GM Drum Map with drum loop patterns"
+author: "MML Examples"
+tempo: 110
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example: Drums and Percussion
+# ============================================================================
+#
+# This example demonstrates:
+# - General MIDI Drum Map (Channel 10)
+# - Standard drum patterns using note_on
+# - Musical timing with @loop
+# - Velocity variations for dynamics
+#
+# GM Drum Map Standard Note Numbers (Channel 10):
+# - 35: Acoustic Bass Drum
+# - 36: Bass Drum 1
+# - 38: Acoustic Snare
+# - 40: Electric Snare
+# - 42: Closed Hi-Hat
+# - 44: Pedal Hi-Hat
+# - 46: Open Hi-Hat
+# - 49: Crash Cymbal 1
+# - 51: Ride Cymbal 1
+#
+# ============================================================================
+
+
+# ============================================================================
+# Pattern 1: Simple Hi-Hat Pattern (8 bars)
+# ============================================================================
+
+[00:00.000]
+- marker "Hi-Hat Pattern"
+- text "Steady eighth note hi-hats"
+
+# 8th note hi-hats for 8 bars (64 eighth notes)
+@loop 64 times every 0.5b
+  - note_on 10.42 70 0.1b    # Closed hi-hat
+@end
+
+
+# ============================================================================
+# Pattern 2: Kick Drum Pattern (8 bars)
+# ============================================================================
+
+[00:00.000]
+- marker "Kick Pattern"
+- text "Kick on beats 1 and 3"
+
+# Kick drum on beats 1 and 3 of each bar
+@loop 16 times every 2b
+  - note_on 10.36 100 0.2b   # Kick drum
+@end
+
+
+# ============================================================================
+# Pattern 3: Snare Drum Pattern (8 bars)
+# ============================================================================
+
+[00:01.000]
+- marker "Snare Pattern"
+- text "Snare on beats 2 and 4"
+
+# Snare on beats 2 and 4 of each bar
+@loop 16 times every 2b
+  - note_on 10.38 95 0.2b    # Snare drum
+@end
+
+
+# ============================================================================
+# Pattern 4: Tom-Tom Fill
+# ============================================================================
+
+[00:16.000]
+- marker "Tom Fill"
+- text "Descending tom-tom pattern"
+
+[00:16.000]
+- note_on 10.50 85 0.4b    # High tom
+[+0.5b]
+- note_on 10.48 85 0.4b    # Hi-mid tom
+[+0.5b]
+- note_on 10.47 85 0.4b    # Low-mid tom
+[+0.5b]
+- note_on 10.45 90 0.4b    # Low tom
+[+0.5b]
+- note_on 10.36 100 0.4b   # Kick accent
+
+
+# ============================================================================
+# Pattern 5: Crash Cymbal Ending
+# ============================================================================
+
+[00:18.000]
+- marker "Crash Ending"
+- text "Cymbal crash with kick"
+
+[00:18.000]
+- note_on 10.49 110 4b     # Crash cymbal (sustained)
+[@]
+- note_on 10.36 110 0.5b   # Kick drum
+
+[+2b]
+- note_on 10.38 100 0.3b   # Final snare
+
+[+2b]
+- end_of_track

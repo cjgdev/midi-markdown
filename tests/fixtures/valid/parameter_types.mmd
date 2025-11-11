@@ -1,0 +1,69 @@
+---
+title: Parameter Types Test
+tempo: 120
+ppq: 480
+---
+
+# Test all enhanced parameter types (Stage 2)
+# - Note parameters: accept note names like C4, D#5, Bb3
+# - Percent parameters: scale 0-100 to 0-127
+# - Bool parameters: accept true/false, on/off, yes/no, 1/0
+
+# Alias definitions with different parameter types
+@alias play_note note_on.{ch}.{note}.{vel} "Play note with note name parameter"
+@alias set_reverb cc.{ch}.91.{mix:percent} "Set reverb mix as percentage"
+@alias toggle_stomp cc.{ch}.81.{enabled:bool} "Toggle stomp on/off"
+
+# Test note parameter with various note names
+[00:00.000]
+- play_note 1 C4 100      # Natural note: C4 = MIDI 60
+
+[00:00.250]
+- play_note 1 D#5 80      # Sharp note: D#5 = MIDI 75
+
+[00:00.500]
+- play_note 1 Bb3 90      # Flat note: Bb3 = MIDI 58
+
+[00:00.750]
+- play_note 1 A4 110      # A4 = 69 (standard tuning reference)
+
+# Test percent parameter scaling
+[00:01.000]
+- set_reverb 1 0          # 0% -> MIDI 0
+
+[00:01.250]
+- set_reverb 1 25         # 25% -> MIDI 31
+
+[00:01.500]
+- set_reverb 1 50         # 50% -> MIDI 63
+
+[00:01.750]
+- set_reverb 1 75         # 75% -> MIDI 95
+
+[00:02.000]
+- set_reverb 1 100        # 100% -> MIDI 127
+
+# Test bool parameter variations
+[00:02.250]
+- toggle_stomp 1 true     # true -> MIDI 127 (on)
+
+[00:02.500]
+- toggle_stomp 1 false    # false -> MIDI 0 (off)
+
+[00:02.750]
+- toggle_stomp 1 on       # on -> MIDI 127
+
+[00:03.000]
+- toggle_stomp 1 off      # off -> MIDI 0
+
+[00:03.250]
+- toggle_stomp 1 1        # 1 -> MIDI 127
+
+[00:03.500]
+- toggle_stomp 1 0        # 0 -> MIDI 0
+
+# Test all three parameter types together
+[00:04.000]
+- play_note 2 F#4 100
+- set_reverb 2 65
+- toggle_stomp 2 true

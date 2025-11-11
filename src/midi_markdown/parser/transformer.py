@@ -17,7 +17,7 @@ from midi_markdown.alias.computation import ComputationError, SafeComputationEng
 from midi_markdown.expansion.variables import SymbolTable
 from midi_markdown.utils.parameter_types import note_to_midi, percent_to_midi
 
-from .ast_nodes import AliasDefinition, MIDICommand, MMLDocument, Timing, Track
+from .ast_nodes import AliasDefinition, MIDICommand, MMDDocument, Timing, Track
 
 # ============================================================================
 # Lark Transformer
@@ -25,7 +25,7 @@ from .ast_nodes import AliasDefinition, MIDICommand, MMLDocument, Timing, Track
 
 
 @v_args(inline=True)
-class MMLTransformer(Transformer):
+class MMDTransformer(Transformer):
     """
     Transforms the Lark parse tree into structured Python objects.
     Each method corresponds to a grammar rule and transforms it into
@@ -42,7 +42,7 @@ class MMLTransformer(Transformer):
     # Document Structure
     def document(self, *args):
         """Handle document with optional frontmatter"""
-        doc = MMLDocument()
+        doc = MMDDocument()
 
         # Handle empty document
         if not args:
@@ -93,7 +93,7 @@ class MMLTransformer(Transformer):
         """Transform @import statement into tuple format.
 
         Args:
-            path: Path string with quotes (e.g., '"devices/quad_cortex.mml"')
+            path: Path string with quotes (e.g., '"devices/quad_cortex.mmd"')
 
         Returns:
             Tuple of ("import", path_without_quotes)
@@ -185,6 +185,22 @@ class MMLTransformer(Transformer):
         """Extract CC value from rule"""
         return value
 
+    def modulated_value(self, value):
+        """Handle modulated_value rule - pass through for later resolution.
+
+        Grammar: modulated_value: param | ramp_expr | random_expr | curve_expr | wave_expr | envelope_expr
+
+        Value can be:
+        - int (from param → INT)
+        - tuple (from param → variable_ref)
+        - RandomExpression (from random_expr)
+        - CurveExpression (from curve_expr)
+        - WaveExpression (from wave_expr)
+        - EnvelopeExpression (from envelope_expr)
+        - RampExpression (from ramp_expr)
+        """
+        return value  # Preserve type for later handling
+
     def timed_event(self, timing, command_list=None):
         """Handle timed events with optional commands"""
         if command_list is None:
@@ -199,33 +215,62 @@ class MMLTransformer(Transformer):
 
     # MIDI Commands
     def velocity(self, value):
-        """Handle velocity rule"""
-        return int(value)
+        """Handle velocity rule - pass through for later resolution.
+
+        Value can be:
+        - int (from INT token)
+        - tuple (from variable_ref)
+        - RandomExpression (from random_expr)
+        """
+        return value  # Preserve type for later handling
 
     def pb_value(self, value):
         """Handle pitch bend value rule"""
         return self._parse_pitch_bend(value)
 
     def channel_note(self, channel, note):
-        """Handle channel_note rule"""
-        return f"{channel}.{note}"
+        """Handle channel_note rule - return as tuple to preserve RandomExpression.
+
+        Returns tuple (channel, note) where note can be:
+        - int (MIDI note number)
+        - str (note name like "C4")
+        - tuple (variable reference)
+        - RandomExpression (random note selection)
+        """
+        return (int(channel), note)  # Return tuple instead of string
 
     def note_value(self, value):
-        """Handle note_value rule"""
-        return str(value)
+        """Handle note_value rule - pass through for later resolution.
+
+        Value can be:
+        - NOTE_NAME token (e.g., "C4")
+        - int (from param)
+        - tuple (from variable_ref via param)
+        - RandomExpression (from random_expr)
+        """
+        return value  # Preserve type for later handling
 
     def duration(self, *args):
-        """Handle duration rule"""
-        # Grammar: duration: NUMBER ("s" | "ms" | "b" | "t")
-        # With inline=True, string literals are consumed
-        # We only receive the NUMBER
+        """Handle duration rule.
+
+        Grammar: duration: FLOAT ("s" | "ms" | "b" | "t") | INT ("s" | "ms" | "b" | "t")
+
+        With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
+        For this rule, we receive:
+        - args[0]: The number (FLOAT or INT token value)
+        - args[1]: The unit string literal (if Lark passes it, version-dependent)
+
+        Examples:
+        - "1.25b" → args = [1.25, "b"] or args = [1.25]
+        - "500ms" → args = [500, "ms"] or args = [500]
+        - "2b" → args = [2, "b"] or args = [2]
+        """
         if len(args) >= 1:
             number = args[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Try to infer unit from context - for now assume 'b' (beats) if not specified
-            # In practice, we'd need to modify the grammar to capture the unit
+            # Unit is either explicitly passed or defaults to beats
             unit = args[1] if len(args) > 1 else "b"
             return f"{number}{unit}"
         return "1b"  # Default
@@ -233,8 +278,8 @@ class MMLTransformer(Transformer):
     @v_args(inline=False)
     def note_command(self, args):
         """Handle note_command - extract note type from grammar alternative"""
-        # args will be [note_type_token, channel_note, velocity, duration?]
-        # The first arg is the NOTE_ON or NOTE_OFF terminal
+        # Grammar: "-" NOTE_ON channel_note velocity duration?
+        # args will be [note_type_token, channel_note_tuple, velocity, duration?]
         note_type_token = args[0]
         note_type = str(note_type_token).lower()  # "note_on" or "note_off"
 
@@ -244,9 +289,16 @@ class MMLTransformer(Transformer):
 
         channel, note = self._parse_channel_note(channel_note)
 
-        # Resolve velocity (can be int or variable reference)
+        # Resolve velocity (can be int, variable reference, or RandomExpression)
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
         velocity_val = self._resolve_param(velocity)
-        velocity_int = int(velocity_val) if not isinstance(velocity_val, tuple) else velocity_val
+        # Only convert to int if it's not a tuple (variable) or RandomExpression
+        velocity_int = (
+            int(velocity_val)
+            if not isinstance(velocity_val, (tuple, RandomExpression))
+            else velocity_val
+        )
 
         return MIDICommand(
             type=note_type,
@@ -315,19 +367,52 @@ class MMLTransformer(Transformer):
             type="pitch_bend", channel=int(channel), data1=self._parse_pitch_bend(value)
         )
 
+    def pressure_value(self, value):
+        """Handle pressure_value rule - pass through for later resolution.
+
+        Grammar: pressure_value: param | random_expr
+
+        Value can be:
+        - int (from param → INT)
+        - tuple (from param → variable_ref)
+        - RandomExpression (from random_expr)
+        """
+        return value  # Preserve type for later handling
+
     def pressure_command(self, *args):
         """Handle pressure commands (channel_pressure or poly_pressure)"""
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
         # Distinguish by number of arguments:
         # channel_pressure: 2 args (channel, pressure_value)
         # poly_pressure: 3 args (channel, note, pressure_value)
         if len(args) == 2:
             # channel_pressure 1.64 → args = (1, 64)
-            return MIDICommand(type="channel_pressure", channel=int(args[0]), data1=int(args[1]))
+            # Pressure value may be modulation expression, tuple (variable), or int
+            pressure_val = args[1]
+            if not isinstance(
+                pressure_val,
+                (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression, tuple),
+            ):
+                pressure_val = int(pressure_val)
+            return MIDICommand(type="channel_pressure", channel=int(args[0]), data1=pressure_val)
         # len(args) == 3
         # poly_pressure 1.C4.80 → args = (1, 'C4', 80)
         channel = int(args[0])
         note = self._note_to_midi(args[1]) if not str(args[1]).isdigit() else int(args[1])
-        return MIDICommand(type="poly_pressure", channel=channel, data1=note, data2=int(args[2]))
+        # Pressure value may be modulation expression, tuple (variable), or int
+        pressure_val = args[2]
+        if not isinstance(
+            pressure_val,
+            (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression, tuple),
+        ):
+            pressure_val = int(pressure_val)
+        return MIDICommand(type="poly_pressure", channel=channel, data1=note, data2=pressure_val)
 
     @v_args(inline=False)
     def meta_event(self, args):
@@ -1016,17 +1101,177 @@ class MMLTransformer(Transformer):
             "ramp_type": str(ramp_type) if ramp_type else "linear",
         }
 
-    def random_expr(self, min_val, max_val):
-        """Transform random() expression to internal representation.
+    def random_expr(self, *args):
+        """Transform random() expression to RandomExpression AST node.
 
         Args:
-            min_val: Minimum random value (inclusive)
-            max_val: Maximum random value (inclusive)
+            *args: Variable arguments [min_val, max_val] or [min_val, max_val, seed]
 
         Returns:
-            Dictionary with type="random" and min/max bounds
+            RandomExpression AST node
         """
-        return {"type": "random", "min": min_val, "max": max_val}
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
+        min_val = args[0]
+        max_val = args[1]
+        seed = int(args[2]) if len(args) > 2 else None
+
+        return RandomExpression(min_value=min_val, max_value=max_val, seed=seed)
+
+    def curve_expr(self, start, end, curve_type_arg):
+        """Transform curve() expression to CurveExpression AST node.
+
+        Grammar: curve "(" number "," number "," curve_type ")"
+        curve_type: "ease-in" | "ease-out" | "ease-in-out" | "linear"
+                  | ("bezier" "(" number "," number "," number "," number ")")
+
+        Args:
+            start: Start value
+            end: End value
+            curve_type_arg: Either a Token/Tree with single Token child (preset curves)
+                           or a Tree with 4 number children (bezier)
+
+        Returns:
+            CurveExpression AST node
+        """
+        from lark import Token, Tree
+
+        from midi_markdown.parser.ast_nodes import CurveExpression
+
+        start_value = float(start)
+        end_value = float(end)
+
+        # Determine curve type and control points
+        # curve_type_arg is always a Tree node from the grammar rule
+        if isinstance(curve_type_arg, Tree):
+            # Check if it has 4 children (bezier with control points)
+            if len(curve_type_arg.children) == 4:
+                # It's a bezier curve with 4 control points
+                curve_type = "bezier"
+                control_points = (
+                    float(curve_type_arg.children[0]),
+                    float(curve_type_arg.children[1]),
+                    float(curve_type_arg.children[2]),
+                    float(curve_type_arg.children[3]),
+                )
+            elif len(curve_type_arg.children) == 1:
+                # It's a preset curve type with a single Token child
+                curve_type = str(curve_type_arg.children[0])
+                control_points = None
+            elif len(curve_type_arg.children) == 0:
+                # Empty tree - use the tree's data (rule name) as curve type
+                # This handles built-in curve types like ease-in, ease-out
+                curve_type = str(curve_type_arg.data)
+                control_points = None
+            else:
+                # Shouldn't happen, but handle gracefully
+                raise ValueError(
+                    f"Unexpected curve_type structure: {curve_type_arg}"
+                )
+        else:
+            # Direct Token (shouldn't happen with current grammar, but handle it)
+            curve_type = str(curve_type_arg)
+            control_points = None
+
+        return CurveExpression(
+            start_value=start_value,
+            end_value=end_value,
+            curve_type=curve_type,
+            control_points=control_points,
+        )
+
+    def wave_expr(self, wave_type, base_value, *params):
+        """Transform wave() expression to WaveExpression AST node.
+
+        Grammar: wave "(" wave_type "," number ("," wave_params)? ")"
+        wave_params: "freq" "=" number ("," "phase" "=" number)? ("," "depth" "=" number)?
+
+        Args:
+            wave_type: Wave type string ('sine', 'triangle', 'square', 'sawtooth')
+            base_value: Base/center value
+            *params: Optional wave parameters (freq, phase, depth)
+
+        Returns:
+            WaveExpression AST node
+        """
+        from midi_markdown.parser.ast_nodes import WaveExpression
+
+        frequency = None
+        phase = None
+        depth = None
+
+        # Parse optional parameters
+        if params:
+            wave_params = params[0]
+            # wave_params is a Tree with named children
+            if hasattr(wave_params, "children"):
+                for child in wave_params.children:
+                    if hasattr(child, "data"):
+                        # Named parameter
+                        param_name = child.data
+                        param_value = float(child.children[0])
+                        if param_name == "freq":
+                            frequency = param_value
+                        elif param_name == "phase":
+                            phase = param_value
+                        elif param_name == "depth":
+                            depth = param_value
+
+        return WaveExpression(
+            wave_type=str(wave_type),
+            base_value=float(base_value),
+            frequency=frequency,
+            phase=phase,
+            depth=depth,
+        )
+
+    def envelope_expr(self, envelope_type, envelope_params):
+        """Transform envelope() expression to EnvelopeExpression AST node.
+
+        Grammar: envelope "(" envelope_type "," envelope_params ")"
+        envelope_params: adsr_params | ar_params | ad_params
+
+        Args:
+            envelope_type: Envelope type string ('adsr', 'ar', 'ad')
+            envelope_params: Tree containing envelope parameters
+
+        Returns:
+            EnvelopeExpression AST node
+        """
+        from midi_markdown.parser.ast_nodes import EnvelopeExpression
+
+        attack = None
+        decay = None
+        sustain = None
+        release = None
+        curve = "linear"
+
+        # Parse envelope parameters from the tree
+        if hasattr(envelope_params, "children"):
+            for child in envelope_params.children:
+                if hasattr(child, "data"):
+                    param_name = child.data
+                    if param_name == "envelope_curve":
+                        curve = str(child.children[0])
+                    else:
+                        param_value = float(child.children[0])
+                        if param_name == "attack":
+                            attack = param_value
+                        elif param_name == "decay":
+                            decay = param_value
+                        elif param_name == "sustain":
+                            sustain = param_value
+                        elif param_name == "release":
+                            release = param_value
+
+        return EnvelopeExpression(
+            envelope_type=str(envelope_type),
+            attack=attack,
+            decay=decay,
+            sustain=sustain,
+            release=release,
+            curve=curve,
+        )
 
     # Helper Methods
     def _resolve_define_value(self, value):
@@ -1302,29 +1547,89 @@ class MMLTransformer(Transformer):
         return minutes * 60 + seconds
 
     def _parse_channel_note(self, channel_note) -> tuple:
-        """Parse channel.note format"""
-        # This handles both numeric notes, note names (C4, D#5, etc.), and variables
+        """Parse channel.note format or tuple from channel_note() transformer.
+
+        Args:
+            channel_note: Either a tuple (channel, note) from new transformer,
+                         or a string "channel.note" for backward compatibility
+
+        Returns:
+            Tuple of (channel: int, note: int|str|tuple|RandomExpression)
+        """
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
+        # New format: tuple from channel_note() transformer
+        if isinstance(channel_note, tuple):
+            channel, note_val = channel_note
+            # Note is already processed by note_value() transformer
+            # It can be: int, str (note name), tuple (variable), or RandomExpression
+            if isinstance(note_val, RandomExpression):
+                return channel, note_val  # Preserve RandomExpression
+            if isinstance(note_val, tuple):
+                return channel, note_val  # Preserve variable reference
+            if isinstance(note_val, int):
+                return channel, note_val  # Already a MIDI number
+            if isinstance(note_val, str):
+                # Could be note name or numeric string
+                if note_val.isdigit():
+                    return channel, int(note_val)
+                # Try to parse as note name
+                try:
+                    return channel, self._note_to_midi(note_val)
+                except (ValueError, KeyError):
+                    return channel, note_val  # Literal string
+            else:
+                return channel, note_val
+
+        # Old format: string "channel.note" (for backward compatibility)
         parts = str(channel_note).split(".")
         channel = int(parts[0])
 
-        # Check if parts[1] is a variable reference (contains ${})
         note_str = parts[1]
         if "${" in note_str:
-            # It's a variable reference, extract the variable name
-            # Format: ${VAR_NAME}
-            var_name = note_str.strip()[2:-1]  # Remove ${ and }
-            # Return as tuple to be resolved later
+            var_name = note_str.strip()[2:-1]
             note = ("var", var_name)
         elif note_str.isdigit():
             note = int(note_str)
         else:
-            # Try to parse as note name (C4, D#5, etc.)
             try:
                 note = self._note_to_midi(note_str)
             except (ValueError, KeyError):
-                # If it fails, it might be a variable without ${}, treat as literal string
                 note = note_str
         return channel, note
+
+    def _parse_note_value(self, note_value):
+        """Parse note_value - can be NOTE_NAME, INT, or variable_ref.
+
+        Args:
+            note_value: Can be:
+                - str: NOTE_NAME token (e.g., "C4", "D#5")
+                - int: MIDI note number
+                - tuple: variable reference ("var", "VAR_NAME")
+
+        Returns:
+            int or tuple: MIDI note number or variable reference tuple
+        """
+        if isinstance(note_value, tuple):
+            # Variable reference
+            return note_value
+        elif isinstance(note_value, int):
+            # Already a MIDI note number
+            return note_value
+        elif isinstance(note_value, str):
+            # Could be NOTE_NAME
+            if note_value.isdigit():
+                return int(note_value)
+            else:
+                # Try to parse as note name (C4, D#5, etc.)
+                try:
+                    return self._note_to_midi(note_value)
+                except (ValueError, KeyError):
+                    # If it fails, return as-is (might be resolved later)
+                    return note_value
+        else:
+            # Unknown type, return as-is
+            return note_value
 
     def _note_to_midi(self, note_name: str) -> int:
         """Convert note name (e.g., 'C4') to MIDI number.
@@ -1346,7 +1651,11 @@ class MMLTransformer(Transformer):
         if isinstance(value, tuple) and value[0] == "percent":
             # Use shared utility for percent conversion
             return percent_to_midi(value[1])
-        # Handle ramp and random expressions
+        # Handle ramp and random expressions (AST nodes or old dict format)
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
+        if isinstance(value, RandomExpression):
+            return value
         if isinstance(value, dict) and value.get("type") in ("ramp", "random"):
             return value
         # Try converting to string then int as fallback
@@ -1356,7 +1665,7 @@ class MMLTransformer(Transformer):
             # For unknown types, return a placeholder
             return 0
 
-    def _parse_pitch_bend(self, value) -> int:
+    def _parse_pitch_bend(self, value):
         """Parse pitch bend value.
 
         Pitch bend values can be:
@@ -1364,10 +1673,25 @@ class MMLTransformer(Transformer):
         - String offsets: "+2000", "-2000" (offset from center 8192)
         - Integer offsets: 2000, -2000 (offset from center 8192)
         - Center: 0 (maps to 8192)
+        - RandomExpression: Passed through for expansion
+        - Modulation expressions (curve, wave, envelope): Passed through for expansion
 
         Returns:
-            int: Pitch bend value (validation happens later)
+            int or Expression: Pitch bend value (validation happens later)
         """
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
+        # Check for modulation expressions - pass through for later expansion
+        if isinstance(
+            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
+            return value
+
         if isinstance(value, str):
             if value.startswith("+") or value.startswith("-"):
                 # String with explicit sign: treat as offset from center

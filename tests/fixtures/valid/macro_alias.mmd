@@ -1,0 +1,28 @@
+---
+title: Macro Alias Test
+tempo: 120
+---
+
+# Multi-command macro alias
+@alias cortex_load {ch} {setlist} {group} {preset} "Complete preset load"
+  - cc {ch}.32.{setlist}
+  - cc {ch}.0.{group}
+  - pc {ch}.{preset}
+@end
+
+# Macro with enum parameter
+@alias h90_dual_reverb {ch} {preset} {mode=series:0,parallel:1} "Setup dual reverb"
+  - pc {ch}.{preset}
+  - cc {ch}.85.{mode}
+  - cc {ch}.84.64
+@end
+
+# Using the macros
+[00:00.000]
+- cortex_load 1 2 0 5
+
+[00:02.000]
+- h90_dual_reverb 2 25 parallel
+
+[00:04.000]
+- h90_dual_reverb 3 30 series

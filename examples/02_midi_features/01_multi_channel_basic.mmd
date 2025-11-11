@@ -1,0 +1,129 @@
+---
+title: "Multi-Channel Song"
+author: "Producer"
+midi_format: 1
+ppq: 480
+---
+
+# Multi-Channel Example (Basic)
+# Demonstrates multiple MIDI channels with basic automation
+# Note: @track blocks are parsed but not yet fully implemented for multi-track MIDI files
+
+@define SYNTH_CHANNEL 1
+@define BASS_CHANNEL 2
+@define DRUMS_CHANNEL 10
+
+# ============================================
+# Setup and Structure
+# ============================================
+
+[00:00.000]
+- tempo 128
+- time_signature 4/4
+- key_signature Em
+- marker "Intro"
+
+# Channel setup
+[@]
+- track_name "Lead Synth"
+[@]
+- instrument_name "Analog Pad"
+
+[00:16.000]
+- marker "Verse 1"
+
+[00:32.000]
+- marker "Chorus"
+
+# ============================================
+# Lead Synth (Channel 1)
+# ============================================
+
+# Intro - gentle notes with volume control
+[00:00.000]
+- cc 1.7.80
+[@]
+- note_on 1.E4 70 2000ms
+
+[00:02.000]
+- note_on 1.G4 75 2000ms
+
+[00:04.000]
+- note_on 1.B4 80 4000ms
+
+# Verse - increase volume
+[00:16.000]
+- cc 1.7.90
+[@]
+- note_on 1.E5 85 1000ms
+
+[00:17.000]
+- note_on 1.D5 85 1000ms
+
+[00:18.000]
+- note_on 1.C5 85 2000ms
+
+# Chorus - full volume with chords
+[00:32.000]
+- cc 1.7.110
+[@]
+- note_on 1.E4 100 4000ms
+[@]
+- note_on 1.G4 100 4000ms
+[@]
+- note_on 1.B4 100 4000ms
+
+# ============================================
+# Bass (Channel 2)
+# ============================================
+
+# Bass setup
+[00:16.000]
+- cc 2.7.70
+
+# Simple bass line
+[@]
+- note_on 2.E2 90 1000ms
+
+[00:17.000]
+- note_on 2.E2 90 1000ms
+
+[00:18.000]
+- note_on 2.G2 90 1000ms
+
+[00:19.000]
+- note_on 2.A2 90 1000ms
+
+# Chorus - boost bass
+[00:32.000]
+- cc 2.7.100
+[@]
+- note_on 2.E2 100 1000ms
+
+[00:33.000]
+- note_on 2.E2 90 1000ms
+
+[00:34.000]
+- note_on 2.E2 100 1000ms
+
+[00:35.000]
+- note_on 2.E2 90 1000ms
+
+# ============================================
+# Drums (Channel 10)
+# ============================================
+
+[00:16.000]
+- note_on 10.C4 127 100ms
+
+[00:17.000]
+- note_on 10.C4 100 100ms
+
+[00:18.000]
+- note_on 10.C4 127 100ms
+
+[00:19.000]
+- note_on 10.C4 100 100ms
+
+[00:40.000]
+- text "Multi-channel demo"

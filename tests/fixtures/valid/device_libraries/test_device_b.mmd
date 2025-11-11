@@ -1,0 +1,22 @@
+---
+device: Test Device B
+manufacturer: Test Manufacturer
+version: 1.0.0
+default_channel: 2
+---
+
+# Test Device B - Another simple device library for testing imports
+
+@alias device_b_init {ch} "Initialize Device B to defaults"
+  - cc {ch}.1.0
+  - cc {ch}.33.0
+  - pc {ch}.1
+@end
+
+@alias device_b_scene {ch} {scene:0-7} "Switch to scene on Device B"
+  - cc {ch}.32.{scene}
+@end
+
+@alias device_b_bypass {ch} {enabled:bool} "Toggle Device B bypass"
+  - cc {ch}.102.{enabled}
+@end

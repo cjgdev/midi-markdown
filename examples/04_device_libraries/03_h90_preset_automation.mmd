@@ -1,0 +1,526 @@
+---
+title: "Eventide H90 Preset Automation"
+description: "Real-world preset automation demonstrating Eventide H90 MIDI control"
+author: "MML Device Library Examples"
+tempo: 110
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * EVENTIDE H90 PRESET AUTOMATION EXAMPLE
+ * ============================================================================
+ *
+ * This example demonstrates professional H90 MIDI control for live performance
+ * and studio automation, including preset loading, bypass control, and
+ * parameter automation.
+ *
+ * CRITICAL SETUP REQUIREMENTS:
+ * 1. H90 on MIDI Channel 2 (default from device library)
+ * 2. Firmware 1.8.6 RECOMMENDED (firmware 1.9.4+ has severe PC+CC bug)
+ * 3. Configure Global MIDI Control mappings as documented below
+ * 4. PC Offset setting: ON (for 0-99 Program numbering)
+ * 5. Adequate power supply (insufficient current causes MIDI issues)
+ *
+ * ============================================================================
+ * REQUIRED GLOBAL MIDI CONTROL CONFIGURATION
+ * ============================================================================
+ *
+ * YOU MUST configure these CC mappings in the H90 before this file will work:
+ * (System Menu → MIDI → Global Control)
+ *
+ * PROGRAM NAVIGATION:
+ * CC#20 = Load (loads cued Program and toggles Act/Byp)
+ * CC#21 = Increment (cue next Program)
+ * CC#22 = Decrement (cue previous Program)
+ *
+ * BYPASS CONTROLS:
+ * CC#102 = P Act/Byp (Program toggle)
+ * CC#103 = P Act/Byp (M) (Program momentary)
+ * CC#104 = A Act/Byp (Preset A toggle)
+ * CC#105 = A Act/Byp (M) (Preset A momentary)
+ * CC#106 = B Act/Byp (Preset B toggle)
+ * CC#107 = B Act/Byp (M) (Preset B momentary)
+ *
+ * SYSTEM FUNCTIONS:
+ * CC#27 = Tuner
+ * CC#80 = Tap Tempo
+ * CC#32 = PERFORM Mode
+ *
+ * HOTSWITCHES:
+ * CC#110 = HS1 (toggle)
+ * CC#111 = HS1 (M) (momentary)
+ * CC#112 = HS2 (toggle)
+ * CC#113 = HS2 (M) (momentary)
+ *
+ * CONTINUOUS CONTROLS:
+ * CC#11 = Expression Pedal
+ * CC#34 = P HotKnob (Program HotKnob)
+ * CC#84 = P Mix (Program wet/dry mix)
+ *
+ * PERFORMANCE PARAMETERS (configured per-Program):
+ * CC#70 = PERFORM 1
+ * CC#71 = PERFORM 2
+ * CC#72 = PERFORM 3
+ *
+ * The H90 has ZERO default MIDI mappings - you must configure each one.
+ * ============================================================================
+ */
+
+# Import Eventide H90 device library
+@import "../../devices/eventide_h90.mmd"
+
+/*
+ * ============================================================================
+ * FIRMWARE 1.9.4+ BUG WARNING
+ * ============================================================================
+ *
+ * If using firmware 1.9.4 or later, be aware of a critical bug:
+ * Sending Program Change and Control Change messages simultaneously causes
+ * the H90 to IGNORE ALL CC MESSAGES.
+ *
+ * This example uses the h90_load_with_bypass workaround macro which adds
+ * 100ms delays between PC and CC messages.
+ *
+ * RECOMMENDED SOLUTION: Downgrade to firmware 1.8.6 for professional use.
+ * Contact support@eventide.com to request firmware 1.8.6 and matching
+ * H90 Control v1.7.11.
+ * ============================================================================
+ */
+
+
+/*
+ * ============================================================================
+ * SONG 1: "ETHEREAL WAVES" (Ambient/Post-Rock)
+ * ============================================================================
+ * Structure: Intro → Build → Climax → Resolve
+ * Duration: ~5:00
+ *
+ * H90 PROGRAM LIST (User Programs):
+ * - Program 0: Shimmer Reverb (Blackhole + Shimmer)
+ * - Program 1: Dual Delay (Tape Echo A + Digital Delay B)
+ * - Program 2: ModEchoVerb (Chorus A + Reverb B in series)
+ * - Program 3: Wormhole Freeze (UltraTap + Wormhole for textures)
+ *
+ * This song demonstrates preset changes, bypass control, and expression automation.
+ */
+
+# Initialize H90 for live performance
+[00:00.000]
+- h90_live_init 2 0                # Ch2, Starting Program 0
+# This macro:
+# - Switches to PERFORM Mode
+# - Loads Program 0
+# - Ensures Program is active (not bypassed)
+# - Resets expression to neutral (CC#11 = 64)
+# - Turns off all HotSwitches
+# Total delay: ~500ms for complete initialization
+
+# Intro - Shimmer reverb (Program 0)
+
+# Gradually increase wet/dry mix using P Mix parameter
+[00:16.000]
+- h90_mix 2 32                     # 25% wet
+[00:20.000]
+- h90_mix 2 64                     # 50% wet
+[00:24.000]
+- h90_mix 2 96                     # 75% wet
+[00:28.000]
+- h90_mix 2 127                    # 100% wet
+
+# Build section - Switch to Dual Delay (Program 1)
+[00:32.000]
+- h90_load_with_bypass 2 1 127     # Load Program 1, force ACTIVE
+# This uses the firmware 1.9.4+ workaround with 100ms delay
+
+# Engage HotSwitch 1 for delay feedback increase
+[00:42.000]
+- h90_hotswitch1 2                 # Toggle HS1 on
+
+# Layer reverb by loading ModEchoVerb (Program 2)
+[00:48.000]
+- h90_program 2 2                  # Load Program 2
+
+# Climax - Use Wormhole Freeze for ambient texture
+[01:04.000]
+- h90_program 2 3                  # Load Program 3 (Wormhole)
+
+# Engage PERFORM 1 for Warp function
+[01:08.000]
+- h90_perform1 2 127               # Activate Warp
+
+# Engage PERFORM 2 for Freeze
+[01:12.000]
+- h90_perform2 2 127               # Activate Freeze
+
+# Create infinite reverb tail
+# Begin resolving - Disengage Warp
+[01:32.000]
+- h90_perform1 2 0                 # Deactivate Warp
+
+# Disengage Freeze
+[01:36.000]
+- h90_perform2 2 0                 # Deactivate Freeze
+
+# Return to Shimmer for ending
+[01:40.000]
+- h90_program 2 0                  # Back to Program 0
+
+# Fade wet/dry mix to dry for ending
+[01:50.000]
+- h90_mix 2 96
+[01:54.000]
+- h90_mix 2 64
+[01:58.000]
+- h90_mix 2 32
+[02:02.000]
+- h90_mix 2 0                      # Fully dry
+
+# End
+
+/*
+ * ============================================================================
+ * SONG 2: "ELECTRIC DREAMS" (Synthwave/Electronic)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Break → Outro
+ * Duration: ~4:30
+ *
+ * H90 PROGRAM LIST (continuing from above):
+ * - Program 4: Rotary Speaker (Rotary A + Tape Echo B)
+ * - Program 5: Mod Machine (Phaser A + Flanger B)
+ * - Program 6: Space Echo (Head Space A + Blackhole B)
+ * - Program 7: Crystals (Prism Shift + Shimmer for synth textures)
+ *
+ * Demonstrates HotSwitch-based parameter changes and performance functions.
+ */
+
+# Intro - Rotary speaker effect
+[02:20.000]
+- h90_program 2 4                  # Load Program 4 (Rotary)
+
+# Rotary is active on both presets
+# Use HotSwitch to switch rotary speed (slow → fast)
+[02:40.000]
+- h90_hotswitch1 2                 # HS1 = Speed change (configured in Program)
+
+# Verse - Clean with subtle modulation
+[02:48.000]
+- h90_program 2 5                  # Load Program 5 (Phaser/Flanger)
+
+# Bypass Preset B (flanger) for subtle verse
+[02:56.000]
+- h90_preset_b_bypass_force 2      # Force bypass Preset B
+
+# Pre-chorus - Engage flanger
+[03:04.000]
+- h90_preset_b_active 2            # Force active Preset B
+
+# Chorus - Space Echo for depth
+[03:12.000]
+- h90_program 2 6                  # Load Program 6 (Space Echo)
+
+# Use expression for delay feedback automation
+# Gradual increase during chorus
+[03:16.000]
+- h90_expression 2 0               # Start at minimum
+[03:20.000]
+- h90_expression 2 32
+[03:24.000]
+- h90_expression 2 64
+[03:28.000]
+- h90_expression 2 96
+[03:32.000]
+- h90_expression 2 127             # Maximum feedback
+
+# Break - Crystals effect for synth lead
+[03:40.000]
+- h90_program 2 7                  # Load Program 7 (Prism Shift/Shimmer)
+
+# Engage PERFORM 1 for Freeze on Prism Shift
+[03:48.000]
+- h90_perform1 2 127               # Freeze engaged
+
+# Use HotKnob for pitch shifting automation
+[03:52.000]
+- h90_hotknob_program 2 0          # Min pitch shift
+[03:56.000]
+- h90_hotknob_program 2 64         # Neutral
+[04:00.000]
+- h90_hotknob_program 2 127        # Max pitch shift
+[04:04.000]
+- h90_hotknob_program 2 64         # Back to neutral
+
+# Outro - Return to Rotary
+[04:12.000]
+- h90_program 2 4                  # Back to Program 4
+
+# Bypass entire Program for ending
+[04:28.000]
+- h90_program_bypass_force 2       # Force bypass
+
+# End
+
+/*
+ * ============================================================================
+ * SONG 3: "DELAY ODYSSEY" (Experimental/Soundscape)
+ * ============================================================================
+ * Structure: Evolving delay textures with parameter automation
+ * Duration: ~4:00
+ *
+ * H90 PROGRAM LIST:
+ * - Program 8: Dual Delays (Digital A + Tape B in parallel)
+ * - Program 9: ModDelay (ModDelay A + Reverse Delay B)
+ * - Program 10: Wormhole (Wormhole A + B for stereo madness)
+ *
+ * Demonstrates per-Program parameter control and HotKnob strategy.
+ * Each Program has HotKnob P mapped to different parameters.
+ */
+
+# Start with Dual Delays
+[04:50.000]
+- h90_program 2 8                  # Load Program 8
+
+# In this Program, HotKnob P controls delay time for both presets
+# Demonstrates Eventide's recommended HotKnob strategy:
+# - Same CC (34) always controls HotKnob P globally
+# - Each Program maps HotKnob P to different parameters
+
+# Sweep delay time from short to long
+[05:00.000]
+- h90_hotknob_program 2 0          # Short delay (~50ms)
+[05:04.000]
+- h90_hotknob_program 2 32         # Medium-short (~200ms)
+[05:08.000]
+- h90_hotknob_program 2 64         # Medium (~500ms)
+[05:12.000]
+- h90_hotknob_program 2 96         # Medium-long (~1s)
+[05:16.000]
+- h90_hotknob_program 2 127        # Long delay (~2s)
+
+# Engage HotSwitch 2 for infinite repeats
+[05:20.000]
+- h90_hotswitch2_active 2          # HS2 = Infinite feedback (momentary mode)
+
+# Let infinite repeats build
+# Disengage infinite repeats
+[05:32.000]
+- h90_hotswitch2_off 2             # Turn off infinite feedback
+
+# Switch to ModDelay for movement
+[05:36.000]
+- h90_program 2 9                  # Load Program 9 (ModDelay)
+
+# In this Program, HotKnob P controls modulation depth
+# Same CC (34) but different parameter per-Program
+
+# Increase modulation depth
+[05:44.000]
+- h90_hotknob_program 2 0          # No modulation
+[05:48.000]
+- h90_hotknob_program 2 64         # Medium modulation
+[05:52.000]
+- h90_hotknob_program 2 127        # Maximum modulation (chorus-like)
+
+# Add reverse delay (Preset B)
+[05:56.000]
+- h90_preset_b_active 2            # Activate Preset B
+
+# Final section - Wormhole chaos
+[06:04.000]
+- h90_program 2 10                 # Load Program 10 (Wormhole)
+
+# Engage Warp on both algorithms
+[06:12.000]
+- h90_perform1 2 127               # PERFORM 1 = Warp A
+[06:14.000]
+- h90_perform2 2 127               # PERFORM 2 = Warp B
+
+# Use P Mix to create stereo warp movement
+[06:20.000]
+- h90_mix 2 127                    # Full wet
+[06:24.000]
+- h90_mix 2 0                      # Full dry
+[06:28.000]
+- h90_mix 2 64                     # 50/50 balance
+
+# Resolve - Disengage Warp
+[06:32.000]
+- h90_perform1 2 0
+[06:34.000]
+- h90_perform2 2 0
+
+# Bypass Program for clean ending
+[06:40.000]
+- h90_program_bypass 2             # Toggle bypass (turns off)
+
+# End
+
+/*
+ * ============================================================================
+ * ADVANCED TECHNIQUE: DUAL ALGORITHM CONTROL
+ * ============================================================================
+ *
+ * The H90 runs two algorithms (A and B) simultaneously.
+ * This section demonstrates independent control of each algorithm path.
+ */
+
+# Load dual reverb Program (example: Blackhole A + Room B)
+[07:00.000]
+- h90_dual_reverb_setup 2 11       # Load Program 11, set 50/50 mix
+
+# Run A-only (bypass Preset B)
+[07:10.000]
+- h90_a_only 2                     # Bypass B, activate A
+# Only Blackhole reverb is audible
+
+# Run B-only (bypass Preset A)
+[07:20.000]
+- h90_b_only 2                     # Bypass A, activate B
+# Only Room reverb is audible
+
+# Run both algorithms together
+[07:30.000]
+- h90_both_active 2                # Activate both A and B
+# Dual reverb: Blackhole feeding into Room
+
+# Control individual algorithm gain
+[07:40.000]
+- h90_preset_a_out_gain 2 96       # Reduce Preset A output
+[07:44.000]
+- h90_preset_b_out_gain 2 127      # Increase Preset B output
+
+# End
+
+/*
+ * ============================================================================
+ * TROUBLESHOOTING DEMONSTRATION
+ * ============================================================================
+ *
+ * Common issues and their solutions demonstrated in MIDI automation.
+ */
+
+# Issue: Tuner quirk (CC value 0 does nothing, must send 127 twice)
+[08:00.000]
+- h90_tuner 2                      # Toggle tuner on (send 127)
+[08:05.000]
+- h90_tuner 2                      # Toggle tuner off (send 127 again)
+# Note: This is a known H90 quirk - no discrete on/off control
+
+# Issue: Delay warping on Program changes (spillover artifact)
+# Solution: Use HotSwitches to change parameters within Program
+[08:10.000]
+- h90_program 2 8                  # Load Delay Program
+
+# Instead of changing Programs, use HotSwitch for delay subdivision
+[08:18.000]
+- h90_hotswitch1 2                 # HS1 changes delay subdivision
+# Avoids pitch warping that occurs on Program changes
+
+# Issue: Firmware 1.9.4+ PC+CC bug
+# Solution: Use workaround macros with timing delays
+[08:25.000]
+- h90_load_with_expression 2 5 64  # Load Program 5, set expression to 50%
+# 100ms delay between PC and CC messages works around bug
+
+
+/*
+ * ============================================================================
+ * BEST PRACTICES DEMONSTRATED
+ * ============================================================================
+ *
+ * 1. CONFIGURATION BEFORE PERFORMANCE:
+ *    - Configure ALL Global MIDI Control mappings in advance
+ *    - Save Programs with desired states rather than changing everything via MIDI
+ *    - Map HotKnob P per-Program for expression pedal control
+ *    - Test ALL MIDI mappings before live performance
+ *
+ * 2. FIRMWARE CONSIDERATIONS:
+ *    - Use firmware 1.8.6 for professional MIDI control (recommended)
+ *    - If using 1.9.4+, add 100ms delays between PC and CC messages
+ *    - Never send PC and CC simultaneously (firmware bug)
+ *    - Keep firmware updated but test thoroughly before gigs
+ *
+ * 3. TIMING AND DELAYS:
+ *    - Add 100ms delays between PC and CC messages (firmware 1.9.4+)
+ *    - Program loading takes 700ms-2s (affected by spillover settings)
+ *    - Use HotSwitches for real-time changes (faster than Program changes)
+ *    - Optimize spillover time to minimum needed
+ *
+ * 4. HOTSWITCH STRATEGY:
+ *    - Use HotSwitches for parameter snapshots within Programs
+ *    - Avoids delay warping artifacts from Program changes
+ *    - Only one HotSwitch active at a time
+ *    - Both toggle and momentary modes available
+ *
+ * 5. EXPRESSION CONTROL:
+ *    - Map HotKnob P globally to CC#11 (expression pedal)
+ *    - Configure HotKnob P per-Program for different parameters
+ *    - Same expression pedal controls different functions per-Program
+ *    - Calibrate expression pedals: System → I/O → Exp & Aux
+ *
+ * 6. BYPASS CONTROL:
+ *    - Use momentary mode (M) for discrete on/off control
+ *    - Use toggle mode for simple on/off switching
+ *    - Program-level bypass vs per-Preset bypass
+ *    - Save Programs in desired bypass states when possible
+ *
+ * 7. POWER SUPPLY:
+ *    - Ensure adequate current (insufficient power causes MIDI issues)
+ *    - Fender Engine Room 12V@375mA is INSUFFICIENT
+ *    - Use two 9V 500mA outputs with current doubler cable
+ *    - Many "MIDI issues" are actually power problems
+ *
+ * 8. INSERT LOOPS:
+ *    - Be aware of 5ms latency per A/D/A conversion
+ *    - Insert loops = double conversion = noticeable delay
+ *    - Consider running drives before H90 instead of in insert loops
+ *
+ * ============================================================================
+ * H90 MIDI IMPLEMENTATION NOTES
+ * ============================================================================
+ *
+ * PROGRAM CHANGE:
+ * - PC 1-100 by default, or PC 0-99 with PC Offset enabled
+ * - Loads complete Programs only
+ * - Cannot change individual Algorithm Presets via MIDI
+ * - Cannot switch series/parallel routing via MIDI
+ * - Cannot switch between Program Lists via MIDI
+ * - Loading latency: 700ms to 2 seconds (affected by spillover)
+ *
+ * GLOBAL MIDI CONTROL (configured in System Menu):
+ * - NO default CC assignments - you must configure each one
+ * - Mappings remain active across all Programs
+ * - Any CC number can be assigned to any Global parameter
+ * - MIDI Learn not available at Global level
+ *
+ * PER-PROGRAM MAPPINGS:
+ * - Different Programs can map same CC to different parameters
+ * - Configured in Parameters Edit Mode (hold Quick Knob)
+ * - MIDI Learn available at this level
+ * - Enables HotKnob strategy (same CC, different function per-Program)
+ *
+ * PERFORMANCE PARAMETERS:
+ * - PERFORM 1-6 assignable to algorithm-specific functions
+ * - Freeze, Warp, Repeat, Infinity, etc.
+ * - Can be mapped globally OR per-Program
+ * - Displayed on footswitches in Perform Mode
+ *
+ * CC VALUE BEHAVIOR:
+ * - Continuous parameters: 0-127 full range
+ * - Switches: threshold at CC value 64 (0-63=off, 64-127=on)
+ * - Toggle mode: Any CC ≥64 triggers toggle action
+ * - Momentary mode: 0-63=force off, 64-127=force on
+ *
+ * KNOWN LIMITATIONS:
+ * - Cannot change routing mode via MIDI (series/parallel)
+ * - Cannot change global routing mode via MIDI (Insert/Dual)
+ * - Cannot select individual Algorithm Presets via MIDI
+ * - Tuner CC value 0 does nothing (must send 127 twice to toggle)
+ * - Firmware 1.9.4+ has PC+CC simultaneous message bug
+ *
+ * For complete documentation, see:
+ * https://www.eventideaudio.com/h90
+ * https://cdn.eventideaudio.com/manuals/h90/1.1/content/
+ * ============================================================================
+ */

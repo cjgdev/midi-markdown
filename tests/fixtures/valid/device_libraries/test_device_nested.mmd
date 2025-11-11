@@ -1,0 +1,13 @@
+---
+device: Test Device Nested
+manufacturer: Test Manufacturer
+version: 1.0.0
+---
+
+# Test Device Nested - Imports another device library
+
+@import "test_device_a.mmd"
+
+@alias nested_command {ch} "Command that uses imported aliases"
+  - cc {ch}.10.100
+@end

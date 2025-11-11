@@ -1,0 +1,21 @@
+---
+title: Song with Multiple Imports
+tempo: 120
+---
+
+@import "device_libraries/test_device_a.mmd"
+@import "device_libraries/test_device_b.mmd"
+
+# Use aliases from both imported libraries
+
+[00:00.000]
+- device_a_init 1
+- device_b_init 2
+
+[00:01.000]
+- device_a_preset 1 3
+- device_b_scene 2 5
+
+[00:02.000]
+- device_a_volume 1 80
+- device_b_bypass 2 true

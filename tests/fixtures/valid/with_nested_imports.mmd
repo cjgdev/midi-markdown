@@ -1,0 +1,18 @@
+---
+title: Song with Nested Import
+tempo: 120
+---
+
+# Import a library that itself imports another library
+@import "device_libraries/test_device_nested.mmd"
+
+# Should have access to both nested_command and device_a_* commands
+
+[00:00.000]
+- nested_command 1
+
+[00:01.000]
+- device_a_init 1
+
+[00:02.000]
+- device_a_preset 1 7

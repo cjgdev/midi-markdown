@@ -1,0 +1,21 @@
+---
+title: Quad Cortex Scene Test
+description: Neural DSP Quad Cortex scene switching using CC43
+---
+
+# Quad Cortex scene change (0-7 scenes per preset)
+@alias cortex_scene {ch} {scene:0-7} "Change to scene"
+  - cc {ch}.43.{scene}
+@end
+
+# Intro - Scene A
+[00:00.000]
+- cortex_scene 1 0
+
+# Verse - Scene B
+[00:05.000]
+- cortex_scene 1 1
+
+# Chorus - Scene C
+[00:10.000]
+- cortex_scene 1 2

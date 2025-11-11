@@ -1,0 +1,189 @@
+---
+title: "Computed Values in Aliases - Real-World Examples"
+description: "Demonstrates computed value blocks for parameter transformations"
+author: "MIDI Markup Language"
+tempo: 120
+ppq: 480
+---
+
+# MIDI Markup Language - Computed Values Examples
+# This file demonstrates the computed values feature for alias parameters,
+# showing real-world transformations and calculations.
+
+## Example 1: BPM to MIDI Conversion (Quad Cortex Tempo)
+# Problem: Quad Cortex accepts tempo via CC#14, but uses MIDI values 0-127
+# for BPM range 40-300. Musicians think in BPM, not MIDI values.
+
+@alias cortex_tempo {ch} {bpm:40-300} "Set Quad Cortex tempo (40-300 BPM)"
+  {midi_val = int((${bpm} - 40) * 127 / 260)}
+  - cc {ch}.14.{midi_val}
+@end
+
+[00:00.000]
+- cortex_tempo 1 120  # 120 BPM → MIDI 39 (calculated automatically)
+
+[00:02.000]
+- cortex_tempo 1 140  # 140 BPM → MIDI 49
+
+[00:04.000]
+- cortex_tempo 1 180  # 180 BPM → MIDI 68
+
+
+## Example 2: 14-bit MIDI Values (High-Resolution Control)
+# Problem: Some parameters need 14-bit resolution (16,384 values) but
+# MIDI CC is only 7-bit (128 values). Solution: split into MSB/LSB bytes.
+
+# CC#64 = Pitch Bend MSB (coarse), CC#96 = Pitch Bend LSB (fine)
+@alias pitch_14bit {ch} {value:0-16383} "14-bit pitch control (high-res)"
+  {msb_val = msb(${value})}
+  {lsb_val = lsb(${value})}
+  - cc {ch}.64.{msb_val}
+  - cc {ch}.96.{lsb_val}
+@end
+
+[00:06.000]
+- pitch_14bit 1 8192   # Center position: MSB=64, LSB=0
+
+[00:07.000]
+- pitch_14bit 1 12288  # 75% up: MSB=96, LSB=0
+
+[00:08.000]
+- pitch_14bit 1 4096   # 25% down: MSB=32, LSB=0
+
+
+## Example 3: Complementary Mix Controls (A/B Balance)
+# Problem: A/B mix controls need complementary values (A=75% → B=25%)
+# Solution: Calculate B automatically from A percentage
+
+# CC#84 = Mix A, CC#85 = Mix B
+@alias mix_ab {ch} {a_percent:0-100} "Set A/B mix (complementary)"
+  {b_percent = 100 - ${a_percent}}
+  {a_midi = int(${a_percent} * 127 / 100)}
+  {b_midi = int(${b_percent} * 127 / 100)}
+  - cc {ch}.84.{a_midi}
+  - cc {ch}.85.{b_midi}
+@end
+
+[00:10.000]
+- mix_ab 1 75   # A=75% (MIDI 95), B=25% (MIDI 31)
+
+[00:11.000]
+- mix_ab 1 50   # A=50% (MIDI 63), B=50% (MIDI 63)
+
+[00:12.000]
+- mix_ab 1 25   # A=25% (MIDI 31), B=75% (MIDI 95)
+
+
+## Example 4: Velocity Curves with Clamping
+# Problem: Apply dynamic scaling to velocity values for expression,
+# ensuring result stays in valid MIDI range (0-127)
+
+@alias vel_curve {ch} {note:0-127} {vel:0-127} {curve:50-150} "Apply velocity curve"
+  {scaled_vel = clamp(int(${vel} * ${curve} / 100), 0, 127)}
+  - note_on {ch}.{note}.{scaled_vel} 1b
+@end
+
+[00:14.000]
+- vel_curve 1 60 90 150  # 90 * 150% = 135 → clamped to 127
+
+[00:15.000]
+- vel_curve 1 64 80 75   # 80 * 75% = 60
+
+[00:16.000]
+- vel_curve 1 67 100 120 # 100 * 120% = 120
+
+
+## Example 5: Parameter Range Mapping
+# Problem: Map percentage values (0-100) to MIDI range (0-127)
+# Solution: Use scale_range() helper function
+
+@alias param_percent {ch} {cc_num} {percent:0-100} "Set parameter by percentage"
+  {midi_val = int(scale_range(${percent}, 0, 100, 0, 127))}
+  - cc {ch}.{cc_num}.{midi_val}
+@end
+
+[00:18.000]
+- param_percent 1 7 0    # 0% → MIDI 0
+
+[00:19.000]
+- param_percent 1 7 50   # 50% → MIDI 63
+
+[00:20.000]
+- param_percent 1 7 100  # 100% → MIDI 127
+
+
+## Example 6: Multi-Step Computation (Expression Pedal Curve)
+# Problem: Create custom response curves for expression pedals
+# Solution: Chain multiple computed values together
+
+# CC#11 = Expression, using squared curve for logarithmic feel
+@alias expr_curve {ch} {raw_val:0-127} "Custom expression curve (logarithmic)"
+  {squared = ${raw_val} * ${raw_val}}
+  {result = clamp(int(${squared} / 127), 0, 127)}
+  - cc {ch}.11.{result}
+@end
+
+[00:22.000]
+- expr_curve 1 32   # 25% input → 6% output (32² / 127 = 8)
+
+[00:23.000]
+- expr_curve 1 64   # 50% input → 25% output (64² / 127 = 32)
+
+[00:24.000]
+- expr_curve 1 127  # 100% input → 100% output (127² / 127 = 127)
+
+
+## Example 7: Bank Select with MSB/LSB Calculation
+# Problem: MIDI bank select requires splitting bank number into MSB (CC#0) and LSB (CC#32)
+# Solution: Extract bytes automatically from bank number
+
+# Bank Select: CC#0 = MSB, CC#32 = LSB, then Program Change
+@alias bank_select {ch} {bank:0-16383} {program:0-127} "Bank select + program change"
+  {bank_msb = msb(${bank})}
+  {bank_lsb = lsb(${bank})}
+  - cc {ch}.0.{bank_msb}
+  - cc {ch}.32.{bank_lsb}
+  - pc {ch}.{program}
+@end
+
+[00:26.000]
+- bank_select 1 256 10   # Bank 256 (MSB=2, LSB=0), Program 10
+
+[00:27.000]
+- bank_select 1 1000 5   # Bank 1000 (MSB=7, LSB=104), Program 5
+
+
+## Example 8: Time-Based Tempo Calculation
+# Problem: Calculate tempo CC value from desired time per beat
+# Solution: Convert milliseconds per beat → BPM → MIDI value
+
+@alias tempo_from_ms {ch} {ms_per_beat:200-1500} "Set tempo from ms/beat"
+  {bpm = int(60000 / ${ms_per_beat})}
+  {midi_val = clamp(int((${bpm} - 40) * 127 / 260), 0, 127)}
+  - cc {ch}.14.{midi_val}
+@end
+
+[00:29.000]
+- tempo_from_ms 1 500  # 500ms/beat = 120 BPM
+
+[00:30.000]
+- tempo_from_ms 1 400  # 400ms/beat = 150 BPM
+
+[00:31.000]
+- tempo_from_ms 1 750  # 750ms/beat = 80 BPM
+
+
+## Key Takeaways
+
+# 1. Computed values make aliases more intuitive by hiding MIDI details
+# 2. Musicians can think in natural units (BPM, %, dB, etc.)
+# 3. Complex transformations are automated and error-free
+# 4. Available functions:
+#    - int(), float(), round(), abs(), min(), max()
+#    - clamp(value, min, max) - Keep value in range
+#    - scale_range(value, from_min, from_max, to_min, to_max)
+#    - msb(value) - Get most significant byte (high 7 bits)
+#    - lsb(value) - Get least significant byte (low 7 bits)
+# 5. All expressions are evaluated safely with timeouts and limits
+
+# End of examples

@@ -1,0 +1,334 @@
+---
+title: "Device Library Imports"
+description: "Demonstrates @import for device-specific alias libraries"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Example 13: Device Library Imports
+# ============================================================================
+#
+# This example demonstrates the @import statement which loads device-specific
+# alias libraries. These libraries provide high-level commands for controlling
+# hardware like guitar processors, effects units, and synthesizers.
+#
+# @import syntax:
+#   @import "path/to/library.mmd"
+#
+# Available device libraries (in devices/ directory):
+# - quad_cortex.mml  - Neural DSP Quad Cortex (86 aliases)
+# - eventide_h90.mml - Eventide H90 harmonizer/effects (61 aliases)
+# - helix.mml        - Line 6 Helix Floor/LT/Rack (49 aliases)
+# - hx_effects.mml   - Line 6 HX Effects (40+ aliases)
+# - hx_stomp.mml     - Line 6 HX Stomp (39 aliases)
+# - hx_stomp_xl.mml  - Line 6 HX Stomp XL (40+ aliases)
+#
+# Benefits of device libraries:
+# - Descriptive commands instead of raw MIDI
+# - Parameter validation and ranges
+# - Documentation of device capabilities
+# - Reusable across projects
+# - Community-contributed libraries
+#
+# ============================================================================
+
+
+# ============================================================================
+# Import Neural DSP Quad Cortex Library
+# ============================================================================
+
+@import "../../devices/quad_cortex.mmd"
+
+[00:00.000]
+- marker "Quad Cortex Control"
+- text "Using imported Quad Cortex aliases"
+
+# Instead of low-level MIDI:
+#   - cc 1.32.2    # Bank select MSB = setlist
+#   - cc 1.0.0     # Bank select LSB = scene
+#   - pc 1.0       # Program = preset
+#
+# Use high-level alias with space-separated parameters:
+
+- qc_load_preset 1 2 0 0   # Channel 1, Group 1, Setlist 2, Preset 0
+
+[00:01.000]
+- text "Change scenes"
+- qc_scene 1 2             # Switch to scene 2 (scene C)
+
+[00:02.000]
+- text "Toggle stomp switches"
+- qc_stomp_a 1 127         # Stomp A on
+- qc_stomp_b 1 0           # Stomp B off
+
+[00:03.000]
+- text "Expression pedal automation"
+- qc_exp1 1 0              # Expression pedal at 0%
+
+[00:04.000]
+- qc_exp1 1 64             # Halfway (50%)
+
+[00:05.000]
+- qc_exp1 1 127            # Full expression (100%)
+
+
+# ============================================================================
+# Import Eventide H90 Library
+# ============================================================================
+
+@import "../../devices/eventide_h90.mmd"
+
+[00:06.000]
+- marker "Eventide H90 Control"
+- text "Using imported H90 aliases"
+
+# Load a specific preset
+- h90_program 1 5               # Channel 1, Program 5
+
+[00:07.000]
+- text "Control algorithm parameters"
+- h90_quick_knob1 1 50          # Channel 1, Quick Knob 1, Value 50
+
+[00:08.000]
+- text "Adjust effect mix"
+- h90_mix 1 75                  # 75% wet/dry mix
+
+[00:09.000]
+- text "Bypass/Engage"
+- h90_program_bypass 1          # Toggle program bypass
+[@]
+- h90_tap_tempo 1               # Tap tempo
+
+
+# ============================================================================
+# Import Line 6 Helix Library (Floor/LT/Rack)
+# ============================================================================
+
+@import "../../devices/helix.mmd"
+
+[00:10.000]
+- marker "Line 6 Helix Control"
+- text "Using imported Helix aliases"
+
+# Load a preset (setlist, preset)
+- helix_load 1 2 10             # Channel 1, Setlist 3, Preset 11
+
+[00:11.000]
+- text "Control snapshots"
+- helix_snap_1 1                # Switch to snapshot 1
+
+[00:12.000]
+- helix_snap_2 1                # Switch to snapshot 2
+
+[00:13.000]
+- text "Footswitch control"
+- helix_fs1 1                   # Toggle footswitch 1
+- helix_fs2 1                   # Toggle footswitch 2
+
+[00:14.000]
+- text "Looper control"
+- helix_looper_on 1             # Turn looper on
+
+
+# ============================================================================
+# Import HX Stomp Library (Compact Model)
+# ============================================================================
+
+@import "../../devices/hx_stomp.mmd"
+
+[00:15.000]
+- marker "HX Stomp Control"
+- text "Using imported HX Stomp aliases"
+
+# Load a preset (only 3 snapshots available)
+- hxstomp_preset 2 42           # Channel 2, Preset 42
+
+[00:16.000]
+- text "Control snapshots (3 max)"
+- hxstomp_snap_1 2              # Snapshot 1
+
+[00:17.000]
+- hxstomp_snap_2 2              # Snapshot 2
+
+[00:18.000]
+- text "HX Stomp-specific controls"
+- hxstomp_all_bypass 2 127      # All bypass on
+- hxstomp_mode_stomp 2          # Switch to Stomp mode
+
+
+# ============================================================================
+# Practical Example: Song with Multiple Devices
+# ============================================================================
+
+[00:20.000]
+- marker "Verse - Clean Tone"
+- text "Using multiple imported libraries in a song"
+
+# Quad Cortex: Load clean preset
+- qc_load_preset 1 0 0 5        # Group 0, Setlist 0, Preset 5
+
+# H90: Light reverb
+- h90_program 2 12              # Reverb program on channel 2
+- h90_mix 2 38                  # Subtle mix (30%)
+
+# Play verse chords
+- note_on 1.60 80 2b
+- note_on 1.64 80 2b
+- note_on 1.67 80 2b
+
+[00:26.000]
+- marker "Chorus - Drive Tone"
+
+# Quad Cortex: Switch to drive scene
+- qc_scene 1 1
+
+# Helix: Add delay
+- helix_fs5 3
+
+# H90: Increase reverb
+- h90_mix 2 76                  # 60% mix
+
+# Play chorus with more intensity
+- note_on 1.60 100 2b
+- note_on 1.65 100 2b
+- note_on 1.69 100 2b
+
+[00:32.000]
+- marker "Solo - Lead Tone"
+
+# Quad Cortex: Lead preset
+- qc_load_preset 1 1 2 0
+
+# Expression pedal swell (using absolute timing)
+[00:32.000]
+- qc_exp1 1 0
+[00:32.500]
+- qc_exp1 1 127
+[00:33.000]
+- qc_exp1 1 0
+[00:33.500]
+- qc_exp1 1 127
+[00:34.000]
+- qc_exp1 1 0
+[00:34.500]
+- qc_exp1 1 127
+[00:35.000]
+- qc_exp1 1 0
+[00:35.500]
+- qc_exp1 1 127
+
+# Kemper: Add wah effect (if using Kemper for solo)
+# - kemper_wah 1 127
+# - kemper_wah_position 1 64
+
+# Solo melody
+- note_on 1.72 110 0.5b
+- note_on 1.74 110 0.5b
+- note_on 1.76 110 1b
+
+[00:38.000]
+- marker "Bridge - Atmospheric"
+
+# H90: Switch to shimmer reverb
+- h90_program 2 45
+
+# Quad Cortex: Ambient preset
+- qc_load_preset 1 2 0 3
+
+# Helix: Engage reverb + delay
+- helix_snapshot 1 3            # Snapshot with ambient effects
+
+# Atmospheric chords
+- note_on 1.60 70 4b
+- note_on 1.67 70 4b
+
+
+# ============================================================================
+# Benefits Demonstration
+# ============================================================================
+
+[00:44.000]
+- marker "Benefits Summary"
+- text "Why use device libraries"
+
+# 1. READABILITY
+#    Compare:
+#    - cc 1.32.2; cc 1.0.1; pc 1.5    (What does this do?)
+#    vs:
+#    - qc_load_preset 1 2 1 5         (Clear: load specific preset)
+
+# 2. PARAMETER VALIDATION
+#    Libraries enforce valid ranges:
+#    - qc_exp1 1 64                   (Valid: 0-127)
+#    - qc_exp1 1 200                  (Would error: out of range)
+
+# 3. DEVICE DOCUMENTATION
+#    Aliases include parameter descriptions
+#    No need to remember CC numbers
+
+# 4. PORTABLE ACROSS PROJECTS
+#    Import once, use in all your songs
+#    Update library, all songs benefit
+
+# 5. COMMUNITY SHARING
+#    Share device libraries with other users
+#    Contribute improvements back
+
+# 6. ABSTRACTION
+#    Hide complex multi-message sequences
+#    Example: preset load = bank MSB + LSB + PC
+
+[00:46.000]
+- text "Without imports, you'd need raw MIDI:"
+
+# Raw MIDI version (hard to read):
+- cc 1.32.2      # What bank?
+- cc 1.0.1       # What's this for?
+- pc 1.5         # Which preset?
+
+[00:47.000]
+- text "With imports, intent is clear:"
+
+# Imported alias version (self-documenting):
+- qc_load_preset 1 2 1 5   # Group 1, Setlist 2, Preset 5
+
+
+# ============================================================================
+# Creating Your Own Device Library
+# ============================================================================
+
+[00:48.000]
+- marker "Custom Libraries"
+- text "You can create libraries for any MIDI device"
+
+# See device library creation guide:
+# docs/device_library_creation.md
+
+# Basic library structure:
+# ---
+# title: "My Device"
+# device_name: "Manufacturer Model"
+# midi_channel: 1
+# ---
+#
+# @alias my_command {param1} {param2} "Description"
+#   - cc 1.10.{param1}
+#   - cc 1.11.{param2}
+# @end
+
+# Then import and use with space-separated parameters:
+# @import "devices/my_device.mmd"
+# - my_command 50 75
+
+
+# ============================================================================
+# End
+# ============================================================================
+
+[00:50.000]
+- text "End of device import demonstration"
+- text "Check devices/ directory for more libraries"
+- end_of_track

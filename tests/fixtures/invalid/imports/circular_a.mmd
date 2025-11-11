@@ -1,0 +1,10 @@
+---
+device: Circular A
+---
+
+# Circular import: A imports B
+@import "circular_b.mmd"
+
+@alias cmd_a {ch} "Command A"
+  - cc {ch}.1.0
+@end

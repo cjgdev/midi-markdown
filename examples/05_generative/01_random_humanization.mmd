@@ -1,0 +1,233 @@
+---
+title: "Random Humanization Example"
+author: "MML Team"
+description: "Demonstrates using random() expressions to add natural variations to MIDI"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ============================================
+# MIDI Markup Language - Random Humanization
+# ============================================
+#
+# This example demonstrates how to use random() expressions
+# to add natural, human-like variations to MIDI sequences.
+#
+# Humanization techniques:
+#   1. Velocity variation - random dynamics
+#   2. Note range variation - melodic randomness
+#   3. CC value variation - parameter humanization
+#
+# Phase 6 Stage 1 - Random Value Generation
+
+# ============================================
+# Section 1: Velocity Humanization
+# ============================================
+
+[00:00.000]
+- marker "Velocity Humanization"
+- text "Random velocity variations"
+
+# Robotic pattern (no humanization)
+[00:00.000]
+- note_on 1.C4 80 0.5b
+[00:00.480]
+- note_on 1.D4 80 0.5b
+[00:00.960]
+- note_on 1.E4 80 0.5b
+[00:01.440]
+- note_on 1.F4 80 0.5b
+
+# Humanized pattern (random velocity 60-100)
+[00:02.000]
+- text "Same pattern with random velocity"
+[00:02.000]
+- note_on 1.C4 random(60,100) 0.5b
+[00:02.480]
+- note_on 1.D4 random(60,100) 0.5b
+[00:02.960]
+- note_on 1.E4 random(60,100) 0.5b
+[00:03.440]
+- note_on 1.F4 random(60,100) 0.5b
+
+# Subtle humanization (tight range 75-85)
+[00:04.000]
+- text "Subtle variation (75-85)"
+[00:04.000]
+- note_on 1.C4 random(75,85) 0.5b
+[00:04.480]
+- note_on 1.D4 random(75,85) 0.5b
+[00:04.960]
+- note_on 1.E4 random(75,85) 0.5b
+[00:05.440]
+- note_on 1.F4 random(75,85) 0.5b
+
+# ============================================
+# Section 2: Note Range Humanization
+# ============================================
+
+[00:06.000]
+- marker "Note Range Humanization"
+- text "Random note selection"
+
+# Fixed pattern (predictable)
+[00:06.000]
+- note_on 1.C4 80 0.5b
+[00:06.480]
+- note_on 1.C4 80 0.5b
+[00:06.960]
+- note_on 1.C4 80 0.5b
+[00:07.440]
+- note_on 1.C4 80 0.5b
+
+# Randomized note range (within octave)
+[00:08.000]
+- text "Random notes in C4-C5 range"
+[00:08.000]
+- note_on 1.random(C4,C5) 80 0.5b
+[00:08.480]
+- note_on 1.random(C4,C5) 80 0.5b
+[00:08.960]
+- note_on 1.random(C4,C5) 80 0.5b
+[00:09.440]
+- note_on 1.random(C4,C5) 80 0.5b
+
+# ============================================
+# Section 3: Combined Humanization
+# ============================================
+
+[00:10.000]
+- marker "Combined Humanization"
+- text "Velocity and note combined"
+
+# Simple arpeggio with combined humanization
+[00:10.000]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:10.480]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:10.960]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:11.440]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+
+[00:11.920]
+- note_on 1.random(C4,G4) random(70,95) 1b
+[00:12.880]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:13.360]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:13.840]
+- note_on 1.random(C4,G4) random(70,95) 1b
+
+# ============================================
+# Section 4: CC Humanization
+# ============================================
+
+[00:15.000]
+- marker "CC Humanization"
+- text "Random CC variations"
+
+# Static filter value (robotic)
+[00:15.000]
+- cc 1.74.64
+
+# Humanized filter with subtle variation
+[00:16.000]
+- text "Filter with random variation"
+@loop 8 times at [00:16.000] every 0.12s
+  - cc 1.74.random(60,68)
+@end
+
+# ============================================
+# Section 5: Drum Humanization
+# ============================================
+
+[00:18.000]
+- marker "Drum Humanization"
+- text "Humanized drums"
+
+# Simple drum pattern with velocity humanization
+# Kick drum with varied velocity
+[00:18.000]
+- note_on 10.C2 random(95,115) 0.2b  # Kick
+[00:18.480]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+[00:18.600]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+
+[00:19.000]
+- note_on 10.D2 random(90,110) 0.2b  # Snare
+[00:19.480]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+[00:19.600]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+
+[00:20.000]
+- note_on 10.C2 random(85,105) 0.2b  # Kick
+[00:20.480]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+[00:20.600]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+
+[00:21.000]
+- note_on 10.D2 random(85,105) 0.2b  # Snare
+[00:21.480]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+[00:21.600]
+- note_on 10.F#2 random(40,60) 0.1b  # HiHat
+
+# ============================================
+# Section 6: Practical Tips
+# ============================================
+
+[00:23.000]
+- marker "Tips"
+- text "Humanization best practices"
+
+# Tip 1: Use subtle ranges for professional sound
+[00:23.000]
+- text "Subtle velocity: random(75,85)"
+- note_on 1.C4 random(75,85) 0.5b
+
+# Tip 2: Preserve musical accents
+[00:24.000]
+- text "Downbeat: higher velocity range"
+- note_on 1.C4 random(90,110) 0.5b
+[00:24.480]
+- text "Offbeats: lower velocity range"
+- note_on 1.D4 random(50,70) 0.25b
+[00:24.720]
+- note_on 1.E4 random(50,70) 0.25b
+
+# Tip 3: Combine techniques
+[00:25.000]
+- text "All techniques combined"
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+[00:25.480]
+- note_on 1.random(C4,G4) random(70,95) 0.5b
+
+# ============================================
+# Conclusion
+# ============================================
+
+[00:26.000]
+- marker "End"
+- text "Humanization example complete"
+
+# Summary:
+# - random(min, max) for velocity and note ranges
+# - Works in velocity (2nd param) and note (1st param) positions
+# - random() for CC values creates parameter variation
+# - Keep ranges subtle for professional results
+# - Combine techniques for natural sound
+#
+# See also:
+# - generative_ambient.mml for ambient music
+# - algorithmic_drums.mml for drum programming
+# - random_cc_automation.mml for parameter modulation
+# - docs/reference/random-expressions.md for full reference
+
+[00:28.000]
+- marker "EOF"

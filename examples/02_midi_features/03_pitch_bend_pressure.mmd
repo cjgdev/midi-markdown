@@ -1,0 +1,140 @@
+---
+title: "Pitch Bend and Pressure Demo"
+author: "Expression Expert"
+midi_format: 1
+ppq: 480
+---
+
+# Pitch Bend and Pressure Commands
+# Demonstrates pitch bend, channel pressure, and poly pressure
+
+# Setup
+[00:00.000]
+- tempo 100
+- time_signature 4/4
+- marker "Demo Start"
+
+# ============================================
+# Pitch Bend Examples
+# ============================================
+
+[00:00.000]
+- marker "Pitch Bend"
+
+# Center position (no bend)
+[@]
+- pb 1.0
+
+# Bend up slightly
+[00:01.000]
+- pb 1.2000
+
+# Bend up more
+[00:02.000]
+- pb 1.4000
+
+# Maximum bend up
+[00:03.000]
+- pb 1.8191
+
+# Return to center
+[00:04.000]
+- pb 1.0
+
+# Bend down
+[00:05.000]
+- pb 1.-2000
+
+# Maximum bend down
+[00:06.000]
+- pb 1.-8192
+
+# Return to center
+[00:07.000]
+- pb 1.0
+
+# ============================================
+# Channel Pressure (Aftertouch)
+# ============================================
+
+[00:08.000]
+- marker "Channel Pressure"
+
+# Light pressure
+[@]
+- channel_pressure 1.30
+
+[00:09.000]
+- cp 1.60
+
+[00:10.000]
+- cp 1.90
+
+[00:11.000]
+- cp 1.127
+
+# Release pressure
+[00:12.000]
+- cp 1.0
+
+# ============================================
+# Polyphonic Pressure
+# ============================================
+
+[00:13.000]
+- marker "Poly Pressure"
+
+# Pressure on specific notes
+[@]
+- poly_pressure 1.60.80
+[@]
+- pp 1.64.90
+[@]
+- pp 1.67.100
+
+[00:14.000]
+- pp 1.60.127
+[@]
+- pp 1.64.127
+[@]
+- pp 1.67.127
+
+# Release
+[00:15.000]
+- pp 1.60.0
+[@]
+- pp 1.64.0
+[@]
+- pp 1.67.0
+
+# ============================================
+# Combined Expression
+# ============================================
+
+[00:16.000]
+- marker "Combined Expression"
+
+# Play note with expression
+[@]
+- note_on 1.C4 100 4000ms
+
+# Bend pitch while playing
+[00:17.000]
+- pb 1.2000
+
+# Add pressure
+[@]
+- cp 1.80
+
+[00:18.000]
+- pb 1.4000
+[@]
+- cp 1.120
+
+[00:19.000]
+- pb 1.0
+[@]
+- cp 1.0
+
+[00:20.000]
+- text "Expression demo complete"

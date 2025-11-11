@@ -1,0 +1,12 @@
+---
+title: Undefined Alias Error
+---
+
+# Define one alias
+@alias valid_alias pc.{ch}.{preset}
+
+# Try to call an undefined alias
+[00:00.000]
+- undefined_alias 1 5
+
+# This should cause an error during event generation

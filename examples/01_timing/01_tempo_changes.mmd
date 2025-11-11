@@ -1,0 +1,79 @@
+---
+title: "Ballad with Tempo Changes"
+author: "Composer"
+midi_format: 1
+ppq: 480
+---
+
+# Song with Dynamic Tempo Changes
+# Demonstrates tempo automation throughout a ballad
+
+@define SLOW_TEMPO 72
+@define MODERATE_TEMPO 90
+@define FAST_TEMPO 120
+
+# --- INTRO (Slow and rubato) ---
+[00:00.000]
+- tempo ${SLOW_TEMPO}
+- time_signature 4/4
+- key_signature Gm
+- marker "Intro - Slow"
+- text "Gentle, atmospheric"
+
+[00:08.000]
+- tempo 65
+
+# --- VERSE 1 (Moderate) ---
+[00:16.000]
+- marker "Verse 1"
+- tempo ${MODERATE_TEMPO}
+
+# --- PRE-CHORUS (Building) ---
+[00:32.000]
+- marker "Pre-Chorus"
+- tempo 100
+
+[00:40.000]
+- tempo 110
+
+# --- CHORUS (Full tempo) ---
+[00:48.000]
+- marker "Chorus"
+- tempo ${FAST_TEMPO}
+
+# --- VERSE 2 (Back to moderate) ---
+[01:04.000]
+- marker "Verse 2"
+- tempo ${MODERATE_TEMPO}
+
+# --- BRIDGE (Dramatic slowdown) ---
+[01:36.000]
+- marker "Bridge"
+- tempo 80
+
+[01:44.000]
+- tempo 70
+
+[01:52.000]
+- tempo 60
+
+# --- FINAL CHORUS (Explosive return) ---
+[02:00.000]
+- marker "Final Chorus"
+- tempo 130
+- text "All energy!"
+
+# --- OUTRO (Gradual slowdown) ---
+[02:16.000]
+- marker "Outro"
+- tempo 110
+
+[02:24.000]
+- tempo 90
+
+[02:32.000]
+- tempo 70
+
+[02:40.000]
+- tempo 50
+- text "Fade to silence"

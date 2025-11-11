@@ -1,0 +1,311 @@
+---
+title: "Random CC Automation Example"
+author: "MML Team"
+description: "Demonstrates random() expressions for generative CC automation and parameter modulation"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ===============================================
+# MIDI Markup Language - Random CC Automation
+# ===============================================
+#
+# This example demonstrates how to use random() expressions
+# for generative control change automation, creating evolving
+# and naturalistic parameter modulation.
+#
+# CC Automation techniques:
+#   1. Filter cutoff sweep (CC 74)
+#   2. Resonance/Q variation (CC 71)
+#   3. Stereo pan automation (CC 10)
+#   4. Dynamic expression control (CC 11)
+#   5. Combined multi-parameter effects
+
+# ================================================
+# Section 1: Filter Cutoff Automation (CC 74)
+# ================================================
+
+[00:00.000]
+- marker "Filter Cutoff Sweep"
+- text "Random filter cutoff (CC 74) automation"
+
+# Baseline filter setting
+[00:00.000]
+- cc 1.74.64
+
+# Gentle filter sweep with random variation
+# Creates a natural, evolving filter effect
+[00:01.000]
+- text "Evolving filter sweep"
+@loop 16 times at [00:01.000] every 0.25b
+  - cc 1.74.random(40,100)
+@end
+
+# More aggressive filter modulation (tighter range)
+[00:05.000]
+- text "Tight filter modulation"
+@loop 8 times at [00:05.000] every 0.5b
+  - cc 1.74.random(50,70)
+@end
+
+# ================================================
+# Section 2: Resonance Variation (CC 71)
+# ================================================
+
+[00:07.000]
+- marker "Resonance Control"
+- text "Random filter resonance (CC 71) variations"
+
+# Setup: Initialize filter cutoff for resonance demo
+[00:07.000]
+- cc 1.74.80
+
+# Subtle resonance peek variation
+[00:08.000]
+- text "Subtle resonance variation"
+@loop 12 times at [00:08.000] every 0.33b
+  - cc 1.71.random(30,50)
+@end
+
+# Aggressive resonance sweep (with musical gates)
+[00:12.000]
+- text "Dramatic resonance sweep"
+@loop 8 times at [00:12.000] every 0.5b
+  - cc 1.71.random(20,120)
+@end
+
+# ================================================
+# Section 3: Pan Automation (CC 10)
+# ================================================
+
+[00:16.000]
+- marker "Stereo Pan Automation"
+- text "Random pan (CC 10) for spatial movement"
+
+# Center baseline
+[00:16.000]
+- cc 1.10.64
+
+# Gentle left-right panning
+[00:17.000]
+- text "Subtle stereo movement"
+@loop 16 times at [00:17.000] every 0.25b
+  - cc 1.10.random(35,95)
+@end
+
+# Sync pan with musical beat (8th notes)
+[00:21.000]
+- text "Pan sync to beat"
+@loop 8 times at [00:21.000] every 0.5b
+  - cc 1.10.random(0,127)
+@end
+
+# ================================================
+# Section 4: Expression Dynamics (CC 11)
+# ================================================
+
+[00:25.000]
+- marker "Expression Control"
+- text "Random expression (CC 11) for dynamics"
+
+# Full volume baseline
+[00:25.000]
+- cc 1.11.127
+
+# Gentle volume breathing (mimics human dynamics)
+[00:26.000]
+- text "Dynamic breathing effect"
+@loop 20 times at [00:26.000] every 0.24b
+  - cc 1.11.random(80,127)
+@end
+
+# Rhythmic volume pumping (energetic feel)
+[00:31.000]
+- text "Rhythmic volume pumping"
+@loop 8 times at [00:31.000] every 0.5b
+  - cc 1.11.random(40,127)
+@end
+
+# ================================================
+# Section 5: Combined Multi-Parameter Control
+# ================================================
+
+[00:35.000]
+- marker "Multi-Parameter Modulation"
+- text "Combining filter, resonance, pan, and expression"
+
+# Complex evolving texture - all parameters animate
+[00:35.000]
+- text "Evolving synth texture"
+- cc 1.74.random(50,90)
+- cc 1.71.random(25,75)
+- cc 1.10.random(30,100)
+- cc 1.11.random(70,120)
+
+# Cascade of parameter changes (overlapping loops)
+# Filter cutoff evolves fastest
+@loop 24 times at [00:36.000] every 0.2b
+  - cc 1.74.random(45,105)
+@end
+
+# Resonance varies at different rate
+@loop 12 times at [00:36.200] every 0.4b
+  - cc 1.71.random(20,90)
+@end
+
+# Pan varies at yet another rate
+@loop 16 times at [00:36.400] every 0.3b
+  - cc 1.10.random(20,110)
+@end
+
+# ================================================
+# Section 6: Modulation Wheel (CC 1)
+# ================================================
+
+[00:43.000]
+- marker "Modulation Wheel"
+- text "Random modulation (CC 1) for vibrato/LFO"
+
+# Initialize modulation wheel
+[00:43.000]
+- cc 1.1.0
+
+# Gradual modulation buildup (mimics hand movement)
+[00:44.000]
+- text "Modulation wheel automation"
+@loop 20 times at [00:44.000] every 0.24b
+  - cc 1.1.random(10,100)
+@end
+
+# ================================================
+# Section 7: Volume Control (CC 7)
+# ================================================
+
+[00:49.000]
+- marker "Master Volume"
+- text "Random channel volume (CC 7) variation"
+
+# Full volume baseline
+[00:49.000]
+- cc 1.7.127
+
+# Gentle volume ducking (tremolo-like effect)
+[00:50.000]
+- text "Tremolo effect with random volume"
+@loop 12 times at [00:50.000] every 0.33b
+  - cc 1.7.random(60,127)
+@end
+
+# ================================================
+# Section 8: Advanced: Dual-Channel Automation
+# ================================================
+
+[00:55.000]
+- marker "Stereo Channel Modulation"
+- text "Different random patterns on Ch 1 and Ch 2"
+
+# Channel 1: Filter automation
+@loop 12 times at [00:55.000] every 0.4b
+  - cc 1.74.random(40,100)
+@end
+
+# Channel 2: Pan automation (different pattern)
+@loop 12 times at [00:55.200] every 0.4b
+  - cc 2.10.random(0,127)
+@end
+
+# ================================================
+# Section 9: Practical Musical Example
+# ================================================
+
+[01:03.000]
+- marker "Practical Example"
+- text "Pad with evolving filter and dynamics"
+
+# Simple sustained notes with evolving parameters
+[01:03.000]
+- note_on 1.C3 80 2b
+- cc 1.7.100
+
+# Evolving filter during note
+@loop 32 times at [01:03.000] every 0.125b
+  - cc 1.74.random(50,120)
+@end
+
+# Evolving expression during note
+@loop 32 times at [01:03.100] every 0.125b
+  - cc 1.11.random(60,100)
+@end
+
+# Second pad note with complementary automation
+[01:05.000]
+- note_on 2.G3 75 2b
+
+# Inverse pan movement on channel 2
+@loop 32 times at [01:05.000] every 0.125b
+  - cc 2.10.random(20,107)
+@end
+
+# ================================================
+# Section 10: Tips and Best Practices
+# ================================================
+
+[01:11.000]
+- marker "Best Practices"
+- text "CC automation techniques and tips"
+
+# Tip 1: Subtle ranges for natural sound
+[01:11.000]
+- text "Tip 1: Use narrow ranges for subtle effects"
+- cc 1.74.64
+@loop 16 times at [01:12.000] every 0.25b
+  - cc 1.74.random(60,68)
+@end
+
+# Tip 2: Preserve register with mid-range values
+[01:16.000]
+- text "Tip 2: Center pan automation near 64"
+@loop 8 times at [01:16.000] every 0.5b
+  - cc 1.10.random(50,78)
+@end
+
+# Tip 3: Coordinate multiple CCs for cohesion
+[01:20.000]
+- text "Tip 3: Sync automation to musical time"
+@loop 8 times at [01:20.000] every 1b
+  - cc 1.74.random(50,100)
+  - cc 1.71.random(20,80)
+  - cc 1.11.random(70,127)
+@end
+
+# ================================================
+# Conclusion
+# ================================================
+
+[01:28.000]
+- marker "End"
+- text "CC automation example complete"
+
+# Final state
+[01:28.000]
+- cc 1.74.64
+- cc 1.71.0
+- cc 1.10.64
+- cc 1.11.127
+- cc 1.1.0
+- cc 1.7.127
+
+[01:30.000]
+- marker "EOF"
+- text "See also: random_humanization.mml for note variations"
+
+# Summary:
+# - random(min, max) works for CC values: cc channel.cc_number.random(min, max)
+# - Use @loop with "times at [time] every Xs" for CC sweeps
+# - Common CCs: 74=filter, 71=resonance, 10=pan, 11=expression, 7=volume, 1=modulation
+# - Keep ranges subtle for professional sound (5-10 point variation typical)
+# - Sync loops to musical timing for cohesive automation
+# - Combine multiple CCs for complex evolving textures
+# - Works great with synthesizer and effect plugin MIDI control

@@ -1,0 +1,23 @@
+---
+title: Multi-Track Alias Test
+description: Demonstrates alias reuse across multiple channels with note durations
+---
+
+# Simple note alias with duration
+@alias quick_note {ch} {note} {vel} "Quick note"
+  - note {ch}.{note}.{vel} 250ms
+@end
+
+# Channel 1 - Melody line
+[00:00.000]
+- quick_note 1 60 100
+
+[00:01.000]
+- quick_note 1 62 90
+
+# Channel 2 - Drum hits (simultaneously with melody)
+[00:00.000]
+- quick_note 2 36 110
+
+[00:01.000]
+- quick_note 2 38 100

@@ -1,0 +1,443 @@
+// MIDI Markup Language (MML) Grammar for Lark Parser
+// Version 1.0.0
+//
+// This grammar implements the complete MML specification with support for:
+// - YAML frontmatter
+// - Imports and definitions
+// - All MIDI commands
+// - Alias system with parameters
+// - Advanced features (loops, conditionals, tracks)
+// - Multiple timing paradigms
+// - Comments and expressions
+
+?start: document
+
+// ============================================================================
+// Document Structure
+// ============================================================================
+
+document: frontmatter? _NL* (statement _NL*)*
+
+frontmatter: "---" _NL yaml_content "---"
+yaml_content: /(?:(?!^---$).)+/ms
+
+// ============================================================================
+// Top-Level Statements
+// ============================================================================
+
+?statement: import_stmt
+          | define_stmt
+          | alias_def
+          | track_def
+          | section_def
+          | group_def
+          | loop_stmt
+          | sweep_stmt
+          | conditional_stmt
+          | timed_event
+          | SECTION_HEADER
+
+// ============================================================================
+// Import and Define
+// ============================================================================
+
+import_stmt: "@import" STRING
+
+define_stmt: "@define" IDENTIFIER expression
+           | "@define" IDENTIFIER STRING
+
+// ============================================================================
+// Timing Specifications
+// ============================================================================
+
+timing: ABSOLUTE_TIME
+      | MUSICAL_TIME
+      | RELATIVE_TIME
+      | simultaneous
+
+simultaneous: "[@]"
+
+// ============================================================================
+// Timed Events
+// ============================================================================
+
+timed_event: timing _NL* command_list
+           | timing
+
+command_list: (command _NL*)+
+
+// ============================================================================
+// MIDI Commands
+// ============================================================================
+
+?command: note_command
+        | program_change
+        | control_change
+        | pitch_bend
+        | pressure_command
+        | channel_reset
+        | sysex_command
+        | system_common
+        | system_realtime
+        | meta_event
+        | alias_call
+
+// Note Commands
+note_command: "-" NOTE_ON channel_note velocity duration?
+            | "-" NOTE_OFF channel_note velocity duration?
+
+channel_note: INT "." note_value
+note_value: NOTE_NAME | param
+velocity: param
+
+duration: FLOAT ("s" | "ms" | "b" | "t")
+        | INT ("s" | "ms" | "b" | "t")
+
+// Program Change
+program_change: "-" ("program_change" | "pc") param "." param
+
+// Control Change
+control_change: "-" ("control_change" | "cc") param "." param "." cc_value
+
+cc_value: modulated_value | percent  // CC values support percent notation
+
+// Shared rule for values that support modulation expressions
+modulated_value: param | ramp_expr | random_expr | curve_expr | wave_expr | envelope_expr
+
+// Parameter: can be INT or variable reference
+param: INT | variable_ref
+
+// Pitch Bend
+pitch_bend: "-" ("pitch_bend" | "pb") param "." pb_value
+pb_value: modulated_value | /[+-]\d+/  // Pitch bend supports modulation + special +/- syntax
+
+// Pressure Commands
+pressure_command: "-" ("channel_pressure" | "cp") param "." pressure_value
+                | "-" ("poly_pressure" | "pp") param "." note_value "." pressure_value
+
+pressure_value: modulated_value  // Pressure values support modulation
+
+// Channel Reset Commands
+channel_reset: "-" CHAN_ALL_NOTES_OFF param
+             | "-" CHAN_ALL_SOUND_OFF param
+             | "-" CHAN_RESET_CONTROLLERS param
+             | "-" CHAN_LOCAL_CONTROL param "." ("on" | "off")
+             | "-" CHAN_MONO_MODE param "." param
+             | "-" CHAN_POLY_MODE param
+
+// System Exclusive
+sysex_command: "-" "sysex_file" STRING                         // From file
+             | "-" "sysex" HEX_BYTE+                            // Single-line
+
+hex_bytes: HEX_BYTE+
+
+// System Common Messages
+system_common: "-" SYS_MTC_QUARTER_FRAME INT
+             | "-" SYS_SONG_POSITION INT
+             | "-" SYS_SONG_SELECT INT
+             | "-" SYS_TUNE_REQUEST
+
+// System Real-Time Messages
+system_realtime: "-" SYS_CLOCK_START
+               | "-" SYS_CLOCK_STOP
+               | "-" SYS_CLOCK_CONTINUE
+               | "-" SYS_CLOCK_TICK
+               | "-" SYS_ACTIVE_SENSING
+               | "-" SYS_SYSTEM_RESET
+
+// Meta Events
+meta_event: "-" META_TEMPO tempo_value
+          | "-" META_TIME_SIG time_sig
+          | "-" META_KEY_SIG key_sig
+          | "-" META_TEXT STRING
+          | "-" META_COPYRIGHT STRING
+          | "-" META_TRACK_NAME STRING
+          | "-" META_INSTRUMENT_NAME STRING
+          | "-" META_LYRIC STRING
+          | "-" META_MARKER STRING
+          | "-" META_CUE_POINT STRING
+          | "-" META_DEVICE_NAME STRING
+          | "-" META_END_OF_TRACK
+
+tempo_value: NUMBER | param
+time_sig: INT "/" INT (INT INT)?
+key_sig: KEY_NAME ("m" | "min" | "minor")?
+
+// ============================================================================
+// Alias System
+// ============================================================================
+
+alias_def: simple_alias | macro_alias
+
+simple_alias: "@alias" IDENTIFIER alias_template STRING computed_value
+            | "@alias" IDENTIFIER alias_template STRING
+            | "@alias" IDENTIFIER alias_template computed_value
+            | "@alias" IDENTIFIER alias_template
+
+// Macro aliases use command templates (strings) instead of parsed commands
+// to allow parameter placeholders like {ch} and {preset}
+// Description string is required (matches spec)
+// Computed values can appear after the description, before commands
+// Stage 7: Conditionals can appear instead of simple command list
+macro_alias: "@alias" IDENTIFIER alias_params STRING _NL* (computed_value _NL*)* alias_body "@end"
+
+// Alias body can contain commands, timing, defines, sweeps, AND conditionals (mixed)
+// Body can be empty (for documentation-only aliases)
+alias_body: (alias_body_content _NL*)*
+
+alias_body_content: alias_body_item
+                  | alias_conditional_stmt
+
+// Alias body item can be timing, define, sweep, or command template
+alias_body_item: timing
+               | define_stmt
+               | sweep_stmt
+               | command_template
+
+// Conditional statement within alias (Stage 7)
+alias_conditional_stmt: alias_if_clause alias_elif_clause* alias_else_clause? "@end" _NL*
+
+alias_if_clause: "@if" alias_condition _NL* (alias_body_item _NL*)+
+
+alias_elif_clause: "@elif" alias_condition _NL* (alias_body_item _NL*)+
+
+alias_else_clause: "@else" _NL* (alias_body_item _NL*)+
+
+// Condition for alias conditionals - compares parameters or literals
+alias_condition: param_ref COMPARE_OP alias_cond_value
+               | IDENTIFIER COMPARE_OP alias_cond_value
+
+alias_cond_value: STRING | NUMBER | param_ref | IDENTIFIER
+
+// Command template captures the command line as a string for later parsing
+command_template: "-" /[^\n]+/
+
+// Alias template must start with a command name (letter), not a brace
+// This distinguishes simple aliases (pc.{param}) from macro aliases ({param})
+alias_template: /[a-z_][a-zA-Z_{}.,:\[\]0-9=\-]*/
+
+alias_params: param_ref+
+
+param_ref: "{" param_spec "}"
+
+param_spec: IDENTIFIER param_type? param_default? param_enum?
+
+param_type: ":" INT "-" INT
+          | ":" PARAM_TYPE_NAME
+
+PARAM_TYPE_NAME: "note" | "channel" | "bool" | "percent" | "velocity"
+
+// Comparison operators (for conditionals) - order matters! Put longer operators first
+// Priority 2 ensures == is matched before single = from param_default
+COMPARE_OP.2: "==" | "!=" | "<=" | ">=" | "<" | ">"
+
+param_default: "=" (INT | IDENTIFIER)
+
+param_enum: "=" enum_option ("," enum_option)*
+
+enum_option: IDENTIFIER ":" INT
+
+computed_value: "{" _NL* IDENTIFIER "=" expression _NL* "}"
+
+// Alias Call
+alias_call: "-" IDENTIFIER alias_args?
+
+alias_args: (alias_arg)+
+
+alias_arg: INT | FLOAT | IDENTIFIER | STRING | percent
+
+// ============================================================================
+// Advanced Features
+// ============================================================================
+
+// Track Definition
+track_def: "##" "Track" /[^\n]+/
+         | "@track" IDENTIFIER "channel" "=" INT
+         | "@track" IDENTIFIER
+
+// Section and Group
+section_def: "@section" STRING "from" timing "to" timing _NL* (statement _NL*)* "@end"
+
+group_def: "@group" STRING _NL* (statement _NL*)* "@end"
+
+// Loops
+loop_stmt: "@loop" INT "times" "at" timing "every" duration _NL* (command _NL*)* "@end"
+         | "@loop" INT "times" "every" duration _NL* (command _NL*)* "@end"
+         | "@loop" INT "times" "at" timing _NL* (command _NL*)* "@end"
+         | "@loop" INT "times" _NL* (command _NL*)* "@end"
+
+// Sweep/Ramp
+sweep_stmt: "@sweep" "from" timing "to" timing "every" duration _NL* (command _NL*)+ "@end"
+
+// Conditionals
+conditional_stmt: if_clause elif_clause* else_clause? "@end"
+
+if_clause: "@if" condition _NL* (statement _NL*)*
+elif_clause: "@elif" condition _NL* (statement _NL*)*
+else_clause: "@else" _NL* (statement _NL*)*
+
+condition: expression compare_op expression
+         | IDENTIFIER
+
+compare_op: "==" | "!=" | "<" | ">" | "<=" | ">="
+
+// ============================================================================
+// Expressions and Values
+// ============================================================================
+
+?expression: expr_add
+
+?expr_add: expr_mul
+         | expr_add "+" expr_mul   -> add
+         | expr_add "-" expr_mul   -> sub
+
+?expr_mul: expr_atom
+         | expr_mul "*" expr_atom  -> mul
+         | expr_mul "/" expr_atom  -> div
+         | expr_mul "%" expr_atom  -> mod
+
+?expr_atom: NUMBER                 -> number
+          | variable_ref           -> var_ref
+          | param_ref              -> param_ref_expr
+          | function_call          -> func_call
+          | "(" expression ")"     -> paren
+
+function_call: IDENTIFIER "(" [expression ("," expression)*] ")"
+
+variable_ref: "${" IDENTIFIER "}"
+
+// Special Expressions
+ramp_expr: "ramp" "(" INT "," INT ("," ramp_type)? ")"
+ramp_type: "linear" | "exponential" | "logarithmic" | "ease-in" | "ease-out" | "ease-in-out"
+
+random_expr: "random" "(" (INT | note_value) "," (INT | note_value) ("," "seed" "=" INT)? ")"
+
+// Bezier Curve Expression (Stage 7 - Enhanced Modulation)
+curve_expr: "curve" "(" number "," number "," curve_type ")"
+curve_type: "ease-in" | "ease-out" | "ease-in-out" | "linear"
+          | ("bezier" "(" number "," number "," number "," number ")")
+
+// Waveform Expression (Stage 7 - Enhanced Modulation)
+wave_expr: "wave" "(" wave_type "," number ("," wave_params)? ")"
+wave_type: "sine" | "triangle" | "square" | "sawtooth"
+wave_params: "freq" "=" number ("," "phase" "=" number)? ("," "depth" "=" number)?
+
+// Envelope Expression (Stage 7 - Enhanced Modulation)
+envelope_expr: "envelope" "(" envelope_type "," envelope_params ")"
+envelope_type: "adsr" | "ar" | "ad"
+envelope_params: adsr_params | ar_params | ad_params
+
+// ADSR: attack, decay, sustain, release
+adsr_params: "attack" "=" number "," "decay" "=" number "," "sustain" "=" number "," "release" "=" number ("," envelope_curve)?
+
+// AR: attack, release
+ar_params: "attack" "=" number "," "release" "=" number ("," envelope_curve)?
+
+// AD: attack, decay
+ad_params: "attack" "=" number "," "decay" "=" number ("," envelope_curve)?
+
+envelope_curve: "curve" "=" ("linear" | "exponential")
+
+// Number can be INT or FLOAT
+number: INT | FLOAT
+
+percent: INT "%"
+
+// ============================================================================
+// Comments
+// ============================================================================
+
+COMMENT: /#[^\n]*/
+MULTILINE_COMMENT: /\/\*[\s\S]*?\*\//
+SLASHSLASH_COMMENT: /\/\/[^\n]*/
+SECTION_HEADER: /##[^\n]+/
+
+// ============================================================================
+// Terminals
+// ============================================================================
+
+// Timing Terminals (must be before INT to avoid conflicts)
+ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
+MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
+RELATIVE_TIME: "[+" /\d+\.\d+\.\d+/ "]"              // Relative musical time first (bars.beats.ticks)
+             | "[+" /\d+(\.\d+)?(ms|[sbt])/ "]"      // Then unit-based (decimal optional, unit required)
+
+// Numbers
+// Terminal Priority System:
+//   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
+//   - INT.2: Matches whole numbers (e.g., "42", "127", "-8192")
+//   - FLOAT.3: Matches decimal numbers (e.g., "1.25", "0.5", "2.75")
+//   - NUMBER: Union type accepting either INT or FLOAT
+//
+// Why priorities are needed:
+//   After parsing complex expressions like random(C3, C5), the lexer state may
+//   prefer NUMBER over INT. The .2 and .3 priorities ensure INT is chosen for
+//   whole numbers (needed for velocity, note values) while FLOAT is chosen for
+//   decimals (needed for durations like "1.25b").
+//
+// Examples:
+//   "80" in "note_on 1.60 80 1b" → INT (velocity)
+//   "1.25" in "every 1.25b" → FLOAT (duration)
+NUMBER: INT | FLOAT
+INT.2: /[+-]?\d+/
+FLOAT.3: /[+-]?\d+\.\d+/
+
+// Identifiers and Names
+NOTE_ON: "note_on"
+NOTE_OFF: "note_off"
+META_TEMPO: "tempo"
+META_TIME_SIG: "time_signature"
+META_KEY_SIG: "key_signature"
+META_TEXT: "text"
+META_COPYRIGHT: "copyright"
+META_TRACK_NAME: "track_name"
+META_INSTRUMENT_NAME: "instrument_name"
+META_LYRIC: "lyric"
+META_MARKER: "marker"
+META_CUE_POINT: "cue_point"
+META_DEVICE_NAME: "device_name"
+META_END_OF_TRACK: "end_of_track"
+
+// Channel Reset Commands
+CHAN_ALL_NOTES_OFF: "all_notes_off"
+CHAN_ALL_SOUND_OFF: "all_sound_off"
+CHAN_RESET_CONTROLLERS: "reset_controllers"
+CHAN_LOCAL_CONTROL: "local_control"
+CHAN_MONO_MODE: "mono_mode"
+CHAN_POLY_MODE: "poly_mode"
+
+// System Common Messages
+SYS_MTC_QUARTER_FRAME: "mtc_quarter_frame"
+SYS_SONG_POSITION: "song_position"
+SYS_SONG_SELECT: "song_select"
+SYS_TUNE_REQUEST: "tune_request"
+
+// System Real-Time Messages
+SYS_CLOCK_START: "clock_start"
+SYS_CLOCK_STOP: "clock_stop"
+SYS_CLOCK_CONTINUE: "clock_continue"
+SYS_CLOCK_TICK: "clock_tick"
+SYS_ACTIVE_SENSING: "active_sensing"
+SYS_SYSTEM_RESET: "system_reset"
+
+IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+NOTE_NAME: /[A-G][#b]?-?[0-9]/
+
+KEY_NAME: /[A-G][#b]?/
+
+// Hex for SysEx
+HEX_BYTE: /[0-9A-Fa-f]{2}/
+
+// String
+STRING: /"[^"]*"/
+      | /'[^']*'/
+
+// Whitespace
+_NL: /\r?\n/
+WHITESPACE: /[ \t]+/
+
+%ignore WHITESPACE
+%ignore COMMENT
+%ignore MULTILINE_COMMENT
+%ignore SLASHSLASH_COMMENT
