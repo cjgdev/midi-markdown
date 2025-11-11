@@ -20,7 +20,6 @@ def mock_compile(monkeypatch: Any) -> tuple[MagicMock, MagicMock]:
     """Mock MMDParser and compile_ast_to_ir."""
     import sys
 
-
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
     mock_ir = IRProgram(
@@ -53,7 +52,6 @@ def mock_realtime_player(monkeypatch: Any) -> MagicMock:
     """Mock RealtimePlayer class."""
     import sys
 
-
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
     mock_player_instance = MagicMock()
@@ -70,7 +68,6 @@ def mock_realtime_player(monkeypatch: Any) -> MagicMock:
 def mock_midi_manager(monkeypatch: Any) -> MagicMock:
     """Mock MIDIOutputManager for port listing."""
     import sys
-
 
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
@@ -113,7 +110,6 @@ class TestPlayCLI:
         """Test --list-ports with no ports available."""
         import sys
 
-
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 
         mock_manager = MagicMock()
@@ -149,7 +145,6 @@ class TestPlayCLI:
         """Test error handling for compilation failure."""
         import sys
 
-
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 
         # Create file
@@ -174,7 +169,6 @@ class TestPlayCLI:
     ) -> None:
         """Test error handling for MIDI port issues."""
         import sys
-
 
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 

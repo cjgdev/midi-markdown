@@ -55,14 +55,16 @@ class Validator:
             ValidationError: If value is out of range
         """
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Allow modulation expressions - validation happens during expansion
-        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+        if isinstance(
+            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
             return
 
         if not isinstance(value, int):
@@ -162,14 +164,16 @@ class Validator:
             ValidationError: If velocity is invalid
         """
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Allow modulation expressions - validation happens during expansion
-        if isinstance(velocity, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+        if isinstance(
+            velocity, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
             return
 
         if not isinstance(velocity, int):
@@ -223,14 +227,16 @@ class Validator:
         """
         # Import modulation expression types for type checking
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Allow modulation expression AST nodes (will be expanded later)
-        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+        if isinstance(
+            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
             # Validation happens during expansion - just accept it here
             return
 
@@ -310,14 +316,16 @@ class Validator:
             ValidationError: If value is invalid
         """
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Allow modulation expressions - validation happens during expansion
-        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+        if isinstance(
+            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
             return
 
         if not isinstance(value, int):

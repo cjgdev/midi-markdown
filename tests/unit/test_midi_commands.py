@@ -326,6 +326,7 @@ class TestModulationExpressions:
         assert cmd.channel == 1
         # data1 should be a CurveExpression object
         from midi_markdown.parser.ast_nodes import CurveExpression
+
         assert isinstance(cmd.data1, CurveExpression)
         assert cmd.data1.start_value == -4096
         assert cmd.data1.end_value == 4096
@@ -343,6 +344,7 @@ class TestModulationExpressions:
         assert cmd.channel == 1
         # data1 should be a WaveExpression object
         from midi_markdown.parser.ast_nodes import WaveExpression
+
         assert isinstance(cmd.data1, WaveExpression)
         assert cmd.data1.wave_type == "sine"
         assert cmd.data1.base_value == 8192
@@ -360,6 +362,7 @@ class TestModulationExpressions:
         assert cmd.type == "pitch_bend"
         # data1 should be an EnvelopeExpression object
         from midi_markdown.parser.ast_nodes import EnvelopeExpression
+
         assert isinstance(cmd.data1, EnvelopeExpression)
         assert cmd.data1.envelope_type == "ar"
         assert cmd.data1.attack == 0.1
@@ -381,6 +384,7 @@ class TestModulationExpressions:
         assert cmd.channel == 1
         # data1 should be a CurveExpression object
         from midi_markdown.parser.ast_nodes import CurveExpression
+
         assert isinstance(cmd.data1, CurveExpression)
         assert cmd.data1.start_value == 0
         assert cmd.data1.end_value == 127
@@ -397,6 +401,7 @@ class TestModulationExpressions:
         assert cmd.type == "channel_pressure"
         # data1 should be a WaveExpression object
         from midi_markdown.parser.ast_nodes import WaveExpression
+
         assert isinstance(cmd.data1, WaveExpression)
         assert cmd.data1.wave_type == "triangle"
         assert cmd.data1.base_value == 64
@@ -414,6 +419,7 @@ class TestModulationExpressions:
         assert cmd.type == "channel_pressure"
         # data1 should be an EnvelopeExpression object
         from midi_markdown.parser.ast_nodes import EnvelopeExpression
+
         assert isinstance(cmd.data1, EnvelopeExpression)
         assert cmd.data1.envelope_type == "ar"
         assert cmd.data1.attack == 2.0
@@ -436,6 +442,7 @@ class TestModulationExpressions:
         assert cmd.data1 == 60  # Note number
         # data2 should be a CurveExpression object
         from midi_markdown.parser.ast_nodes import CurveExpression
+
         assert isinstance(cmd.data2, CurveExpression)
         assert cmd.data2.start_value == 30
         assert cmd.data2.end_value == 110
@@ -453,6 +460,7 @@ class TestModulationExpressions:
         assert cmd.data1 == 60  # C4 = 60
         # data2 should be a WaveExpression object
         from midi_markdown.parser.ast_nodes import WaveExpression
+
         assert isinstance(cmd.data2, WaveExpression)
         assert cmd.data2.wave_type == "sine"
         assert cmd.data2.base_value == 64
@@ -471,6 +479,7 @@ class TestModulationExpressions:
         assert cmd.data1 == 60
         # data2 should be an EnvelopeExpression object
         from midi_markdown.parser.ast_nodes import EnvelopeExpression
+
         assert isinstance(cmd.data2, EnvelopeExpression)
         assert cmd.data2.envelope_type == "adsr"
         assert cmd.data2.attack == 0.05
@@ -494,6 +503,7 @@ class TestModulationExpressions:
         assert cmd.data1 == 74  # Filter cutoff
         # data2 should be a CurveExpression object
         from midi_markdown.parser.ast_nodes import CurveExpression
+
         assert isinstance(cmd.data2, CurveExpression)
         assert cmd.data2.start_value == 0
         assert cmd.data2.end_value == 127
@@ -517,8 +527,8 @@ class TestModulationExpressions:
 
         from midi_markdown.parser.ast_nodes import (
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            WaveExpression,
         )
 
         # Verify each command has the correct modulation type

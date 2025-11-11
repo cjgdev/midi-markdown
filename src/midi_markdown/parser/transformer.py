@@ -382,10 +382,10 @@ class MMDTransformer(Transformer):
     def pressure_command(self, *args):
         """Handle pressure commands (channel_pressure or poly_pressure)"""
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Distinguish by number of arguments:
@@ -1160,23 +1160,17 @@ class MMDTransformer(Transformer):
                 control_points = None
             elif len(curve_type_arg.children) == 0:
                 # Empty tree - shouldn't happen with updated grammar
-                raise ValueError(
-                    f"Unexpected empty curve_type tree: {curve_type_arg}"
-                )
+                raise ValueError(f"Unexpected empty curve_type tree: {curve_type_arg}")
             else:
                 # Shouldn't happen, but handle gracefully
-                raise ValueError(
-                    f"Unexpected curve_type structure: {curve_type_arg}"
-                )
+                raise ValueError(f"Unexpected curve_type structure: {curve_type_arg}")
         elif isinstance(curve_type_arg, Token):
             # Direct Token (CURVE_TYPE_NAME from updated grammar)
             curve_type = str(curve_type_arg)
             control_points = None
         else:
             # Unknown type
-            raise ValueError(
-                f"Unexpected curve_type type: {type(curve_type_arg)}"
-            )
+            raise ValueError(f"Unexpected curve_type type: {type(curve_type_arg)}")
 
         return CurveExpression(
             start_value=start_value,
@@ -1200,6 +1194,7 @@ class MMDTransformer(Transformer):
             WaveExpression AST node
         """
         from lark import Token
+
         from midi_markdown.parser.ast_nodes import WaveExpression
 
         # Extract wave type from Token or Tree
@@ -1269,6 +1264,7 @@ class MMDTransformer(Transformer):
             EnvelopeExpression AST node
         """
         from lark import Token
+
         from midi_markdown.parser.ast_nodes import EnvelopeExpression
 
         # Extract envelope type from Token or Tree
@@ -1696,20 +1692,19 @@ class MMDTransformer(Transformer):
         if isinstance(note_value, tuple):
             # Variable reference
             return note_value
-        elif isinstance(note_value, int):
+        if isinstance(note_value, int):
             # Already a MIDI note number
             return note_value
-        elif isinstance(note_value, str):
+        if isinstance(note_value, str):
             # Could be NOTE_NAME
             if note_value.isdigit():
                 return int(note_value)
-            else:
-                # Try to parse as note name (C4, D#5, etc.)
-                try:
-                    return self._note_to_midi(note_value)
-                except (ValueError, KeyError):
-                    # If it fails, return as-is (might be resolved later)
-                    return note_value
+            # Try to parse as note name (C4, D#5, etc.)
+            try:
+                return self._note_to_midi(note_value)
+            except (ValueError, KeyError):
+                # If it fails, return as-is (might be resolved later)
+                return note_value
         else:
             # Unknown type, return as-is
             return note_value
@@ -1736,14 +1731,16 @@ class MMDTransformer(Transformer):
             return percent_to_midi(value[1])
         # Handle all modulation expressions (AST nodes or old dict format)
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Pass through modulation expression objects unchanged
-        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+        if isinstance(
+            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+        ):
             return value
         if isinstance(value, dict) and value.get("type") in ("ramp", "random"):
             return value
@@ -1769,10 +1766,10 @@ class MMDTransformer(Transformer):
             int or Expression: Pitch bend value (validation happens later)
         """
         from midi_markdown.parser.ast_nodes import (
-            RandomExpression,
             CurveExpression,
-            WaveExpression,
             EnvelopeExpression,
+            RandomExpression,
+            WaveExpression,
         )
 
         # Check for modulation expressions - pass through for later expansion
