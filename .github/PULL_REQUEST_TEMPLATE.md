@@ -54,7 +54,7 @@
 # Example:
 # just test
 # just test-unit
-# uv run midimarkup compile examples/00_hello_world.mml
+# uv run mmdc compile examples/00_basics/00_hello_world.mmd
 ```
 
 **Test scenarios**:
@@ -178,6 +178,6 @@
 ---
 
 <!--
-Thank you for contributing to MIDI Markup Language!
+Thank you for contributing to MIDI Markdown!
 Your effort helps make this project better for everyone.
 -->

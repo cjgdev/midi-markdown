@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in MIDI Markup Language
+about: Report a bug in MIDI Markdown
 title: '[BUG] '
 labels: 'bug'
 assignees: ''
@@ -18,16 +18,16 @@ assignees: ''
 2.
 3.
 
-## MML Example
+## MMD Example
 
-<!-- Please provide a minimal MML example that reproduces the issue -->
+<!-- Please provide a minimal MMD example that reproduces the issue -->
 
 ```yaml
 ---
 title: "Bug example"
 ---
 
-# Your MML code here
+# Your MMD code here
 
 ```
 
@@ -45,7 +45,7 @@ title: "Bug example"
 
 - **OS**: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
 - **Python version**: [run `python --version`]
-- **midimarkup version**: [run `midimarkup version` or `mml version`]
+- **mmdc version**: [run `mmdc version` or `mml version`]
 - **Installation method**: [pipx, pip, standalone executable, etc.]
 
 ## Error Output
@@ -69,7 +69,7 @@ Paste full error output here
 <!-- Please check the following before submitting: -->
 
 - [ ] I have searched existing issues to avoid duplicates
-- [ ] I have provided a minimal MML example that reproduces the issue
+- [ ] I have provided a minimal MMD example that reproduces the issue
 - [ ] I have included the full error output (if applicable)
 - [ ] I have specified my system information
-- [ ] I have tested with the latest version of midimarkup
+- [ ] I have tested with the latest version of mmdc

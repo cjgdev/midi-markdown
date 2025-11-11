@@ -16,13 +16,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: midimarkup-linux-x86_64
+            artifact_name: mmdc-linux-x86_64
             asset_extension: .tar.gz
           - os: windows-latest
-            artifact_name: midimarkup-windows-x86_64
+            artifact_name: mmdc-windows-x86_64
             asset_extension: .zip
           - os: macos-latest
-            artifact_name: midimarkup-macos-universal
+            artifact_name: mmdc-macos-universal
             asset_extension: .zip
 
     steps:
@@ -42,27 +42,27 @@ jobs:
           uv sync --group build
 
       - name: Build executable with PyInstaller
-        run: uv run pyinstaller midimarkup.spec --clean --noconfirm
+        run: uv run pyinstaller mmdc.spec --clean --noconfirm
 
       - name: Test executable (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          ./dist/midimarkup/midimarkup --version
-          ./dist/midimarkup/midimarkup compile ${{ github.workspace }}/examples/00_hello_world.mml -o /tmp/test.mid
+          ./dist/mmdc/mmdc --version
+          ./dist/mmdc/mmdc compile ${{ github.workspace }}/examples/00_hello_world.mmd -o /tmp/test.mid
           ls -lh /tmp/test.mid
 
       - name: Test executable (Windows)
         if: runner.os == 'Windows'
         run: |
-          .\dist\midimarkup\midimarkup.exe --version
-          .\dist\midimarkup\midimarkup.exe compile ${{ github.workspace }}\examples\00_hello_world.mml -o test.mid
+          .\dist\mmdc\mmdc.exe --version
+          .\dist\mmdc\mmdc.exe compile ${{ github.workspace }}\examples\00_hello_world.mmd -o test.mid
           dir test.mid
 
       - name: Create archive (Linux)
         if: runner.os == 'Linux'
         run: |
           cd dist
-          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
           cd ..
           mv dist/${{ matrix.artifact_name }}${{ matrix.asset_extension }} .
 
@@ -70,14 +70,14 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd dist
-          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup\
+          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc\
           cd ..
 
       - name: Create archive (macOS)
         if: runner.os == 'macOS'
         run: |
           cd dist
-          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
           cd ..
 
       - name: Upload artifact

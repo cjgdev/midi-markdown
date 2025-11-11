@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for MIDI Markup Language
+about: Suggest a new feature or enhancement for MIDI Markdown
 title: '[FEATURE] '
 labels: 'enhancement'
 assignees: ''
@@ -29,7 +29,7 @@ assignees: ''
 title: "Feature example"
 ---
 
-# Example MML code demonstrating the proposed feature
+# Example MMD code demonstrating the proposed feature
 
 ```
 
@@ -40,7 +40,7 @@ title: "Feature example"
 
 ## Benefits
 
-<!-- How would this feature benefit MML users? Consider:
+<!-- How would this feature benefit MMD users? Consider:
 - Improved readability
 - Better performance
 - Easier device integration

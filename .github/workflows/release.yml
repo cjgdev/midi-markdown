@@ -16,13 +16,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: midimarkup-linux-x86_64
+            artifact_name: mmdc-linux-x86_64
             asset_extension: .tar.gz
           - os: windows-latest
-            artifact_name: midimarkup-windows-x86_64
+            artifact_name: mmdc-windows-x86_64
             asset_extension: .zip
           - os: macos-latest
-            artifact_name: midimarkup-macos-universal
+            artifact_name: mmdc-macos-universal
             asset_extension: .zip
 
     steps:
@@ -43,25 +43,25 @@ jobs:
           uv pip install --group build
 
       - name: Build executable with PyInstaller
-        run: uv run pyinstaller midimarkup.spec --clean --noconfirm
+        run: uv run pyinstaller mmdc.spec --clean --noconfirm
 
       - name: Test executable (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          ./dist/midimarkup/midimarkup --version
-          ./dist/midimarkup/midimarkup compile examples/basic_usage.mml -o /tmp/test.mid
+          ./dist/mmdc/mmdc --version
+          ./dist/mmdc/mmdc compile examples/basic_usage.mmd -o /tmp/test.mid
 
       - name: Test executable (Windows)
         if: runner.os == 'Windows'
         run: |
-          .\dist\midimarkup\midimarkup.exe --version
-          .\dist\midimarkup\midimarkup.exe compile examples\basic_usage.mml -o test.mid
+          .\dist\mmdc\mmdc.exe --version
+          .\dist\mmdc\mmdc.exe compile examples\basic_usage.mmd -o test.mid
 
       - name: Create archive (Linux)
         if: runner.os == 'Linux'
         run: |
           cd dist
-          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
           cd ..
           mv dist/${{ matrix.artifact_name }}${{ matrix.asset_extension }} .
 
@@ -69,14 +69,14 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd dist
-          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup\
+          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc\
           cd ..
 
       - name: Create archive (macOS)
         if: runner.os == 'macOS'
         run: |
           cd dist
-          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} midimarkup/
+          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
           cd ..
 
       - name: Calculate checksums (Linux/macOS)
@@ -133,24 +133,24 @@ jobs:
           prerelease: false
           generate_release_notes: true
           body: |
-            ## MIDI Markup Language Compiler ${{ github.ref_name }}
+            ## MIDI Markdown Compiler ${{ github.ref_name }}
 
             ### Installation
 
             Download the appropriate executable for your platform:
 
-            - **Linux**: `midimarkup-linux-x86_64.tar.gz`
-            - **Windows**: `midimarkup-windows-x86_64.zip`
-            - **macOS**: `midimarkup-macos-universal.zip`
+            - **Linux**: `mmdc-linux-x86_64.tar.gz`
+            - **Windows**: `mmdc-windows-x86_64.zip`
+            - **macOS**: `mmdc-macos-universal.zip`
 
-            Extract the archive and run the `midimarkup` executable.
+            Extract the archive and run the `mmdc` executable.
 
             **Verify checksums** using the `.sha256` files to ensure download integrity.
 
             ### Installation via pipx (Recommended for Python users)
 
             ```bash
-            pipx install midimarkup
+            pipx install mmdc
             ```
 
             ### Windows Security Warning
@@ -162,7 +162,7 @@ jobs:
             macOS may block the executable. Right-click the app and select "Open" to bypass Gatekeeper, or run:
 
             ```bash
-            xattr -cr midimarkup
+            xattr -cr mmdc
             ```
 
             ### What's Changed
