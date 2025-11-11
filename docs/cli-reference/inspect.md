@@ -877,7 +877,7 @@ fi
 - [validate command](validate.md) - Validation without compilation
 - [play command](play.md) - Real-time playback
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Common issues
-- [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
+- [MML Syntax Reference](../user-guide/mmd-syntax.md) - Complete syntax guide
 
 ---
 

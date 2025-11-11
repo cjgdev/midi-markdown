@@ -2,9 +2,9 @@
 
 Get up and running with MMD in 5 minutes.
 
-## What is MML?
+## What is MMD?
 
-MIDI Markdown (MML) is a human-readable, text-based format for creating MIDI sequences. Write MIDI commands in a simple, markdown-inspired syntax and compile them to standard MIDI files.
+MIDI Markdown (MMD) is a human-readable, text-based format for creating MIDI sequences. Write MIDI commands in a simple, markdown-inspired syntax and compile them to standard MIDI files.
 
 ## Prerequisites
 
@@ -136,7 +136,7 @@ See [examples-guide.md](examples-guide.md) for a complete learning path.
 
 ### Read the Guides
 
-- **[Basic Syntax](../user-guide/mml-syntax.md)** - Detailed syntax reference
+- **[Basic Syntax](../user-guide/mmd-syntax.md)** - Detailed syntax reference
 - **[Timing Systems](../user-guide/timing-system.md)** - All four timing paradigms
 - **[Alias System](../user-guide/alias-system.md)** - Create reusable command shortcuts
 - **[Device Libraries](../user-guide/device-libraries.md)** - Control hardware with high-level commands

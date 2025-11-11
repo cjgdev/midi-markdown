@@ -46,7 +46,7 @@ uv sync
 
 ```bash
 uv run mmdc version
-# Output: MIDI Markdown (MML) Compiler
+# Output: MIDI Markdown (MMD) Compiler
 #         Version: 0.1.0
 ```
 

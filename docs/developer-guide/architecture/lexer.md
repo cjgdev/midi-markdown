@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the complete design and implementation strategy for the MIDI Markdown (MML) lexer. The lexer is the first component in the compilation pipeline, responsible for breaking source code into tokens.
+This document defines the complete design and implementation strategy for the MIDI Markdown (MMD) lexer. The lexer is the first component in the compilation pipeline, responsible for breaking source code into tokens.
 
 ## Goals
 

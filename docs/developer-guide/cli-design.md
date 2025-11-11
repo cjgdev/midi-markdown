@@ -1,6 +1,6 @@
 # CLI Design Guidelines
 
-**MIDI Markdown (MML) Command-Line Interface Design Standards**
+**MIDI Markdown (MMD) Command-Line Interface Design Standards**
 
 This document defines the conventions, patterns, and best practices for all CLI commands in the MIDI Markdown project. Follow these guidelines to ensure consistency, usability, and maintainability across all commands.
 

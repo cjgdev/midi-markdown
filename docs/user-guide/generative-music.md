@@ -647,7 +647,7 @@ tempo: 60
 
 - [Modulation Guide](modulation.md) - Curves, waves, and envelopes for smooth automation
 - [MIDI Commands Reference](midi-commands.md) - Available CC numbers for variation
-- [MML Syntax](mml-syntax.md) - Core syntax and language features
+- [MML Syntax](mmd-syntax.md) - Core syntax and language features
 - [Timing System](timing-system.md) - Timing patterns with variation
 
 ### Complete Working Examples

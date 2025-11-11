@@ -441,4 +441,4 @@ mmdc version
 
 - [FAQ](faq.md) - Frequently asked questions
 - [CLI Reference](../cli-reference/overview.md) - Command documentation
-- [MML Syntax Guide](../user-guide/mml-syntax.md) - Complete syntax reference
+- [MML Syntax Guide](../user-guide/mmd-syntax.md) - Complete syntax reference

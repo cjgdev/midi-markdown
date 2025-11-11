@@ -707,7 +707,7 @@ tempo: 120
 ## See Also
 
 ### User Guides
-- [MML Syntax Reference](mml-syntax.md) - Complete syntax documentation
+- [MML Syntax Reference](mmd-syntax.md) - Complete syntax documentation
 - [Timing System](timing-system.md) - All timing paradigms explained
 - [Generative Music](generative-music.md) - Random values and modulation
 - [Device Libraries](device-libraries.md) - High-level device control
