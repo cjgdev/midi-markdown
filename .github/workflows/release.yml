@@ -49,13 +49,13 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           ./dist/mmdc/mmdc --version
-          ./dist/mmdc/mmdc compile examples/basic_usage.mmd -o /tmp/test.mid
+          ./dist/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test.mid
 
       - name: Test executable (Windows)
         if: runner.os == 'Windows'
         run: |
           .\dist\mmdc\mmdc.exe --version
-          .\dist\mmdc\mmdc.exe compile examples\basic_usage.mmd -o test.mid
+          .\dist\mmdc\mmdc.exe compile examples\00_basics\01_hello_world.mmd -o test.mid
 
       - name: Create archive (Linux)
         if: runner.os == 'Linux'
