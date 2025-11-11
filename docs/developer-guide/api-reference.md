@@ -19,9 +19,9 @@ The MMD codebase is organized into several key packages:
 
 ## Parser
 
-### MMLParser
+### MMDParser
 
-::: midi_markdown.parser.parser.MMLParser
+::: midi_markdown.parser.parser.MMDParser
     options:
       show_source: true
       heading_level: 3
@@ -484,5 +484,5 @@ Output (.mid, .json)    Live MIDI Output
 
 - [Parser Design](architecture/parser.md) - Parser architecture details
 - [Lexer Design](architecture/lexer.md) - Lexer implementation
-- [Language Specification](../../spec.md) - Complete MMD spec
+- [Language Specification](../reference/specification.md) - Complete MMD spec
 - [CLAUDE.md](../../CLAUDE.md) - Developer context

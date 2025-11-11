@@ -314,7 +314,7 @@ Have a cool MMD example? We welcome contributions!
 5. Update this README with your example description
 6. Submit PR with description of what it demonstrates
 
-See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
+See [CONTRIBUTING.md](../developer-guide/contributing.md) for details.
 
 ## Quick Reference
 
@@ -344,13 +344,13 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 
 ## See Also
 
-- **[Quickstart Guide](../docs/getting-started/quickstart.md)** - Get started with MML
-- **[MML Syntax Reference](../docs/user-guide/mml-syntax.md)** - Complete syntax documentation
-- **[Tutorial: Your First Song](../docs/getting-started/first-song.md)** - Step-by-step guide
-- **[Device Library Guide](../docs/user-guide/device-libraries.md)** - Using device libraries
+- **[Quickstart Guide](../getting-started/quickstart.md)** - Get started with MML
+- **[MML Syntax Reference](../user-guide/mml-syntax.md)** - Complete syntax documentation
+- **[Tutorial: Your First Song](../getting-started/first-song.md)** - Step-by-step guide
+- **[Device Library Guide](../user-guide/device-libraries.md)** - Using device libraries
 - **[Specification](../spec.md)** - Complete MMD language specification
-- **[Alias System Guide](../docs/user-guide/alias-system.md)** - How to use and create aliases
-- **[Device Library Creation](../docs/user-guide/device-libraries.md)** - Create your own device libraries
+- **[Alias System Guide](../user-guide/alias-system.md)** - How to use and create aliases
+- **[Device Library Creation](../user-guide/device-libraries.md)** - Create your own device libraries
 
 ## Additional Resources
 

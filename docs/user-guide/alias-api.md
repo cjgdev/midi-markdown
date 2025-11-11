@@ -683,7 +683,7 @@ The alias system follows semantic versioning:
 
 ## See Also
 
-- [Alias System User Guide](alias_system_guide.md) - Tutorials and examples
-- [Device Library Creation Guide](device_library_creation.md) - Library authoring
-- [MML Specification](../spec.md) - Complete language spec
+- [Alias System User Guide](alias-system.md) - Tutorials and examples
+- [Device Library Creation Guide](device-libraries.md) - Library authoring
+- [MML Specification](../reference/specification.md) - Complete language spec
 - [Examples](../examples/) - Working code samples

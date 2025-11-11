@@ -8,13 +8,13 @@ This document defines the complete design and implementation strategy for the MI
 
 1. **Tokenize MMD source code** into a stream of typed tokens
 2. **Track position information** (line/column) for error reporting
-3. **Handle all MMD syntax elements** per [spec.md](../spec.md)
+3. **Handle all MMD syntax elements** per [specification.md](../../reference/specification.md)
 4. **Provide clear error messages** for invalid syntax
 5. **Support incremental parsing** via `next_token()` and `peek_token()`
 
 ## Token Types
 
-Based on [spec.md](../spec.md), the lexer must recognize these token types:
+Based on [specification.md](../../reference/specification.md), the lexer must recognize these token types:
 
 ### Structural Tokens
 - `DASH` (`-`) - Command prefix
@@ -586,7 +586,7 @@ The test suite in [tests/unit/test_lexer.py](../tests/unit/test_lexer.py) provid
 
 ## References
 
-- **Specification**: [spec.md](../spec.md) lines 84-531
+- **Specification**: [specification.md](../../reference/specification.md) lines 84-531
 - **Test Suite**: [tests/unit/test_lexer.py](../tests/unit/test_lexer.py)
 - **Implementation**: [src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)
 - **Examples**: [examples/00_basics/00_hello_world.mmd](../../../examples/00_basics/00_hello_world.mmd)

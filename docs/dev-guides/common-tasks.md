@@ -681,5 +681,5 @@ pytest -m unit
 - [parser-patterns.md](./parser-patterns.md) - Parser implementation details
 - [timing-system.md](./timing-system.md) - Timing calculation deep-dive
 - [anti-patterns.md](./anti-patterns.md) - Common mistakes to avoid
-- [spec.md](../../spec.md) - Language specification
+- [specification.md](../reference/specification.md) - Language specification
 - [examples/](../../examples/) - Working examples for all features

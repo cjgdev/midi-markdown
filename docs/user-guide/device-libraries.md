@@ -618,8 +618,8 @@ Device libraries should use the same license as the main project (MIT).
 
 ## Next Steps
 
-- **User Guide**: Learn to use aliases in the [Alias System User Guide](alias_system_guide.md)
-- **API Reference**: See complete syntax in [Alias API Reference](alias_api_reference.md)
+- **User Guide**: Learn to use aliases in the [Alias System User Guide](alias-system.md)
+- **API Reference**: See complete syntax in [Alias API Reference](alias-api.md)
 - **Examples**: Study existing libraries in `devices/`
 
 ## Resources

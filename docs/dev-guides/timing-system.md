@@ -399,6 +399,6 @@ time_signature: 4/4
 ## Reference
 
 **See also:**
-- [spec.md](../../spec.md#timing-specification) - User-facing timing documentation
+- [specification.md](../reference/specification.md#timing-specification) - User-facing timing documentation
 - [parser-patterns.md](./parser-patterns.md) - Parsing timing markers
 - [examples/01_timing/](../../examples/01_timing/) - Working timing examples

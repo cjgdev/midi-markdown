@@ -371,13 +371,13 @@ rm -rf ~/.cargo/bin/uv
 
 ## Next Steps
 
-- **[Getting Started Guide](getting-started.md)** - Create your first MIDI file
-- **[CLI Command Reference](reference/cli-commands.md)** - Learn all commands
-- **[Examples](../examples/README.md)** - Work through progressive examples
+- **[Getting Started Guide](quickstart.md)** - Create your first MIDI file
+- **[CLI Command Reference](../cli-reference/overview.md)** - Learn all commands
+- **[Examples](examples-guide.md)** - Work through progressive examples
 
 ## Getting Help
 
 - Check [Troubleshooting](#troubleshooting) section above
 - Review [GitHub Issues](https://github.com/cjgdev/midi-markdown/issues)
-- Read the [FAQ](reference/faq.md) (if available)
+- Read the [FAQ](../reference/faq.md) (if available)
 - Ask for help by creating a new issue

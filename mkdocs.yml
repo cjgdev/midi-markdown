@@ -56,6 +56,7 @@ plugins:
       default_handler: python
       handlers:
         python:
+          paths: [src]  # Tell mkdocstrings where to find Python modules
           options:
             docstring_style: google
             docstring_section_style: table
@@ -153,39 +154,73 @@ nav:
     - getting-started/installation.md
     - getting-started/quickstart.md
     - getting-started/first-song.md
+    - getting-started/examples-guide.md
 
   - User Guide:
-    - user-guide/mml-syntax.md
-    - user-guide/timing-system.md
-    - user-guide/midi-commands.md
-    - user-guide/alias-system.md
-    - user-guide/alias-api.md
-    - user-guide/device-libraries.md
-    - user-guide/realtime-playback.md
-
-  - CLI Reference:
-    - cli-reference/overview.md
-    - cli-reference/compile.md
-    - cli-reference/validate.md
-    - cli-reference/check.md
-    - cli-reference/inspect.md
-    - cli-reference/play.md
-    - cli-reference/repl.md
+    - Syntax & Basics:
+      - user-guide/mml-syntax.md
+      - user-guide/timing-system.md
+      - user-guide/midi-commands.md
+      - user-guide/variables-loops.md
+    - Alias System:
+      - user-guide/alias-system.md
+      - user-guide/alias-api.md
+      - user-guide/computed_values.md
+      - user-guide/device-libraries.md
+    - Advanced Features:
+      - user-guide/generative-music.md
+      - user-guide/modulation.md
+      - user-guide/realtime-playback.md
 
   - Tutorials:
     - tutorials/basic-melody.md
     - tutorials/multi-channel.md
     - tutorials/device-control.md
+    - tutorials/generative-techniques.md
 
-  - Developer Guide:
-    - developer-guide/architecture/parser.md
-    - developer-guide/architecture/lexer.md
-    - developer-guide/architecture/quick-reference/parser-quick-ref.md
-    - developer-guide/architecture/quick-reference/lexer-quick-ref.md
-    - developer-guide/api-reference.md
+  - CLI Reference:
+    - cli-reference/overview.md
+    - Commands:
+      - cli-reference/compile.md
+      - cli-reference/validate.md
+      - cli-reference/check.md
+      - cli-reference/inspect.md
+      - cli-reference/play.md
+      - cli-reference/repl.md
 
   - Reference:
+    - reference/specification.md
+    - reference/cli-commands.md
+    - reference/frontmatter.md
+    - reference/expressions.md
+    - reference/loops-and-patterns.md
+    - reference/sweep-automation.md
+    - reference/modulation-reference.md
+    - reference/random-expressions.md
     - reference/faq.md
     - reference/troubleshooting.md
+
+  - Developer Guide:
+    - Overview:
+      - developer-guide/architecture.md
+      - developer-guide/contributing.md
+      - developer-guide/distribution-research.md
+    - Architecture:
+      - developer-guide/architecture/parser.md
+      - developer-guide/architecture/parser-summary.md
+      - developer-guide/architecture/lexer.md
+      - developer-guide/architecture/lexer-summary.md
+      - Quick Reference:
+        - developer-guide/architecture/quick-reference/parser-quick-ref.md
+        - developer-guide/architecture/quick-reference/lexer-quick-ref.md
+    - Implementation Guides:
+      - dev-guides/parser-patterns.md
+      - dev-guides/timing-system.md
+      - dev-guides/anti-patterns.md
+      - dev-guides/common-tasks.md
+    - Technical Specs:
+      - developer-guide/ir-specification.md
+      - developer-guide/cli-design.md
+      - developer-guide/api-reference.md
 
 copyright: Copyright &copy; 2024 MIDI Markup Language Contributors

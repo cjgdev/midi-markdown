@@ -814,7 +814,7 @@ Listen to both compiled versions side-by-side. The humanized version should feel
 **See also:**
 - [Generative Techniques Tutorial](generative-techniques.md) - Deep dive into `random()` and algorithmic composition
 - [random_humanization.mmd Example](../../examples/04_generative/random_humanization.mmd) - Working example of velocity humanization
-- [Generative Music Guide](../generative-music.md) - Comprehensive reference on randomization techniques
+- [Generative Music Guide](../user-guide/generative-music.md) - Comprehensive reference on randomization techniques
 
 ## Troubleshooting
 
@@ -857,7 +857,7 @@ Now that you understand basic melody creation, try:
 3. **Use different scales**: Try minor melodies (C-Eb-G), pentatonic (C-D-E-G-A)
 4. **Add articulation**: Use shorter durations (100ms) for staccato notes
 5. **Learn multi-channel composition**: See [Multi-Channel Tutorial](multi-channel.md)
-6. **Add variables and loops**: Learn advanced features in the [spec.md](../../spec.md)
+6. **Add variables and loops**: Learn advanced features in the [specification.md](../reference/specification.md)
 
 ## Additional Resources
 

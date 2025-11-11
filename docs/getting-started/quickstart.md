@@ -132,21 +132,21 @@ uv run mmdc compile examples/03_advanced/09_comprehensive_song.mmd
 uv run mmdc compile examples/04_device_libraries/13_device_import.mmd
 ```
 
-See [examples/README.md](../examples/README.md) for a complete learning path.
+See [examples-guide.md](examples-guide.md) for a complete learning path.
 
 ### Read the Guides
 
-- **[Basic Syntax](guides/basic-syntax.md)** - Detailed syntax reference
-- **[Timing Systems](guides/timing-systems.md)** - All four timing paradigms
-- **[Alias System](guides/alias-system.md)** - Create reusable command shortcuts
-- **[Device Libraries](guides/device-libraries.md)** - Control hardware with high-level commands
-- **[Real-time Playback](guides/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
+- **[Basic Syntax](../user-guide/mml-syntax.md)** - Detailed syntax reference
+- **[Timing Systems](../user-guide/timing-system.md)** - All four timing paradigms
+- **[Alias System](../user-guide/alias-system.md)** - Create reusable command shortcuts
+- **[Device Libraries](../user-guide/device-libraries.md)** - Control hardware with high-level commands
+- **[Real-time Playback](../user-guide/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
 
 ### Reference Documentation
 
-- **[Language Specification](../spec.md)** - Complete MMD reference (1,300+ lines)
-- **[CLI Commands](reference/cli-commands.md)** - Command-line reference
-- **[MIDI Commands](reference/midi-commands.md)** - Quick MIDI command lookup
+- **[Language Specification](../reference/specification.md)** - Complete MMD reference (1,300+ lines)
+- **[CLI Commands](../cli-reference/overview.md)** - Command-line reference
+- **[MIDI Commands](../user-guide/midi-commands.md)** - Quick MIDI command lookup
 
 ## Common Commands
 
@@ -173,7 +173,7 @@ uv run mmdc compile song.mmd --format 0
 
 ## Getting Help
 
-- **Documentation**: Browse the [docs/](index.md) directory
+- **Documentation**: Browse the [docs/](../index.md) directory
 - **Examples**: Study the [examples/](../examples/) directory (16 examples)
 - **Issues**: Report bugs on [GitHub](https://github.com/cjgdev/midi-markdown/issues)
 - **CLI Help**: Run `uv run mmdc --help`
@@ -182,7 +182,7 @@ uv run mmdc compile song.mmd --format 0
 
 Now that you've created your first MIDI file, explore these topics:
 
-1. **Real-time playback** - Play MIDI files live with interactive TUI ([Real-time Playback Guide](guides/realtime-playback.md))
+1. **Real-time playback** - Play MIDI files live with interactive TUI ([Real-time Playback Guide](../user-guide/realtime-playback.md))
 2. **Multi-channel compositions** - Use multiple instruments (example 05)
 3. **Control change automation** - Automate volume, pan, effects (example 06)
 4. **Variables and loops** - Create patterns efficiently (examples 10-11)

@@ -825,7 +825,7 @@ Initial release.
 ### Resources
 
 - **Documentation**: [docs/index.md](../index.md)
-- **Specification**: [spec.md](../../spec.md)
+- **Specification**: [specification.md](../reference/specification.md)
 - **Examples**: [examples/](../../examples/)
 - **GitHub Issues**: https://github.com/cjgdev/midi-markdown/issues
 - **GitHub Discussions**: https://github.com/cjgdev/midi-markdown/discussions

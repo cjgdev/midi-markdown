@@ -192,7 +192,7 @@ Based on typical MMD file sizes:
 
 ## Resources
 
-- **Specification**: [spec.md](../spec.md) lines 84-531 (timing and syntax)
+- **Specification**: [specification.md](../../reference/specification.md) lines 84-531 (timing and syntax)
 - **Examples**: [examples/00_basics/00_hello_world.mmd](../../../examples/00_basics/00_hello_world.mmd)
 - **Current Implementation**: [src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)
 

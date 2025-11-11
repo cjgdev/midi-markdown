@@ -448,7 +448,7 @@ A: Use `--no-emoji` flag or set `NO_COLOR` environment variable.
 
 ## See Also
 
-- [Getting Started Guide](../getting-started.md) - Quick start tutorial
-- [Examples README](../../examples/README.md) - Learning path with examples
-- [Language Specification](../../spec.md) - Complete MMD reference
-- [Alias System Guide](../guides/alias-system.md) - Using device aliases
+- [Getting Started Guide](../getting-started/quickstart.md) - Quick start tutorial
+- [Examples Guide](../getting-started/examples-guide.md) - Learning path with examples
+- [Language Specification](../reference/specification.md) - Complete MMD reference
+- [Alias System Guide](../user-guide/alias-system.md) - Using device aliases

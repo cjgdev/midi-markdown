@@ -804,7 +804,7 @@ Check the `examples/` directory in the project:
 - 🎸 Create device libraries
 - 💻 Submit pull requests
 
-See: [Contributing Guide](../developer-guide/contributing.md) (coming soon)
+See: [Contributing Guide](../developer-guide/contributing.md)
 
 ---
 

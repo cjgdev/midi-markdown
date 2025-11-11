@@ -313,6 +313,6 @@ def test_your_command(self, parser):
 ## Reference
 
 **See also:**
-- [spec.md](../../spec.md) - Full MIDI command reference
+- [specification.md](../reference/specification.md) - Full MIDI command reference
 - [anti-patterns.md](./anti-patterns.md) - Common mistakes to avoid
 - [timing-system.md](./timing-system.md) - Timing calculation patterns

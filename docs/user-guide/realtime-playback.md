@@ -403,9 +403,9 @@ mmdc play song.mmd --port "IAC Driver Bus 1"
 
 ## See Also
 
-- [CLI Reference](../reference/cli-commands.md) - Complete `play` command documentation
-- [Getting Started](../getting-started.md) - Introduction to MML
-- [Examples](../../examples/README.md) - Sample MMD files to try
+- [CLI Reference](../cli-reference/overview.md) - Complete `play` command documentation
+- [Getting Started](../getting-started/quickstart.md) - Introduction to MML
+- [Examples](../getting-started/examples-guide.md) - Sample MMD files to try
 
 ## Feedback
 

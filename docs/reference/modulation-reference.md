@@ -453,4 +453,4 @@ Error: Wave frequency 25.0 Hz out of range
 
 - [user-guide/modulation.md](../user-guide/modulation.md) - Tutorials, examples, and practical applications
 - [cli-reference/compile.md](../cli-reference/compile.md) - CLI compilation options
-- [reference/midi-commands.md](midi-commands.md) - MIDI CC numbers and pitch bend
+- [user-guide/midi-commands.md](../user-guide/midi-commands.md) - MIDI CC numbers and pitch bend

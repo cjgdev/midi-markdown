@@ -277,7 +277,7 @@ Aliases can call other aliases:
 - cc 1.91.127
 ```
 
-### Computed Values (Stage 6)
+### Computed Values
 
 Define calculated values using expressions:
 
@@ -614,8 +614,8 @@ title: Universal Song File
 
 ## Next Steps
 
-- **Library Creation**: Learn to create your own device libraries in the [Device Library Author Guide](device_library_creation.md)
-- **API Reference**: See the complete alias syntax reference in [Alias API Reference](alias_api_reference.md)
+- **Library Creation**: Learn to create your own device libraries in the [Device Library Author Guide](device-libraries.md)
+- **API Reference**: See the complete alias syntax reference in [Alias API Reference](alias-api.md)
 - **Examples**: Explore more examples in the `examples/` directory
 
 ## Troubleshooting
@@ -645,6 +645,6 @@ title: Universal Song File
 ## Support
 
 For more help:
-- Check the [specification](../spec.md) for complete syntax details
+- Check the [specification](../reference/specification.md) for complete syntax details
 - Review [example files](../examples/) for working code
 - Report issues at the project repository

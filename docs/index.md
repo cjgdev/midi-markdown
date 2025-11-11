@@ -6,8 +6,8 @@ Welcome to the MIDI Markdown (MML) documentation. MMD is a human-readable, text-
 
 ## Quick Start
 
-- **[Getting Started](getting-started.md)** - Create your first MIDI file in 5 minutes
-- **[Installation Guide](installation.md)** - Detailed setup instructions for all platforms
+- **[Getting Started](getting-started/quickstart.md)** - Create your first MIDI file in 5 minutes
+- **[Installation Guide](getting-started/installation.md)** - Detailed setup instructions for all platforms
 
 ---
 
@@ -30,7 +30,7 @@ Learn how to use MMD effectively:
 
 Complete API and command references:
 
-- **[Language Specification](../spec.md)** - Complete MMD specification (1,600+ lines)
+- **[Language Specification](reference/specification.md)** - Complete MMD specification (1,600+ lines)
 - **[CLI Commands](cli-reference/overview.md)** - Command-line interface reference
 - **[Alias API](user-guide/alias-api.md)** - Alias definition and parameter syntax
 - **[MIDI Commands](user-guide/midi-commands.md)** - Quick MIDI command reference
@@ -45,13 +45,13 @@ Complete API and command references:
 
 Progressive learning path with 16 examples:
 
-- **[Examples README](../examples/README.md)** - Complete guide with learning path and feature matrix
+- **[Examples Guide](getting-started/examples-guide.md)** - Complete guide with learning path and feature matrix
 
 **Quick Links:**
-- [00_hello_world.mmd](../examples/00_basics/00_hello_world.mmd) - Simplest possible MMD file
-- [05_multi_channel_basic.mmd](../examples/02_midi_features/05_multi_channel_basic.mmd) - Multiple MIDI channels
-- [09_comprehensive_song.mmd](../examples/03_advanced/09_comprehensive_song.mmd) - All features combined
-- [13_device_import.mmd](../examples/04_device_libraries/13_device_import.mmd) - Device library imports
+- [01_hello_world.mmd](../examples/00_basics/01_hello_world.mmd) - Simplest possible MMD file
+- [01_multi_channel_basic.mmd](../examples/02_midi_features/01_multi_channel_basic.mmd) - Multiple MIDI channels
+- [10_comprehensive_song.mmd](../examples/03_advanced/10_comprehensive_song.mmd) - All features combined
+- [01_device_import.mmd](../examples/04_device_libraries/01_device_import.mmd) - Device library imports
 
 ---
 
@@ -59,12 +59,11 @@ Progressive learning path with 16 examples:
 
 Architecture and implementation details:
 
-- **[Architecture Overview](architecture/overview.md)** - System architecture *(Coming Soon)*
-- **[Compilation Pipeline](architecture/compilation-pipeline.md)** - Stage-by-stage pipeline *(Coming Soon)*
-- **[Parser Design](architecture/parser.md)** - Parser architecture and Lark grammar
-- **[Lexer Design](architecture/lexer.md)** - Lexer implementation details
-- **[Quick References](architecture/quick-reference/)** - Parser and lexer quick lookups
-- **[Contributing Guide](contributing.md)** - How to contribute to the project *(Coming Soon)*
+- **[Architecture Overview](developer-guide/architecture.md)** - System architecture and compilation pipeline
+- **[Parser Design](developer-guide/architecture/parser.md)** - Parser architecture and Lark grammar
+- **[Lexer Design](developer-guide/architecture/lexer.md)** - Lexer implementation details
+- **[IR Specification](developer-guide/ir-specification.md)** - Intermediate representation format
+- **[Contributing Guide](developer-guide/contributing.md)** - How to contribute to the project
 
 ---
 
@@ -74,16 +73,18 @@ Pre-built libraries for controlling MIDI hardware:
 
 - **[Neural DSP Quad Cortex](../devices/quad_cortex.mmd)** - 86 aliases for Quad Cortex control
 - **[Eventide H90](../devices/eventide_h90.mmd)** - 61 aliases for H90 harmonizer/effects
-- **[Kemper Profiler](../devices/kemper_profiler.mmd)** - 51 aliases for Kemper control
-- **[Line 6 Helix](../devices/line6_helix.mmd)** - 49 aliases for Helix control
+- **[Line 6 Helix](../devices/helix.mmd)** - 49 aliases for Helix control
+- **[HX Stomp](../devices/hx_stomp.mmd)** - HX Stomp control
+- **[HX Effects](../devices/hx_effects.mmd)** - HX Effects control
+- **[HX Stomp XL](../devices/hx_stomp_xl.mmd)** - HX Stomp XL control
 
-See the [Device Library Creation Guide](guides/device-libraries.md) to create your own.
+See the [Device Library Guide](user-guide/device-libraries.md) to learn more.
 
 ---
 
 ## Additional Resources
 
-- **[spec.md](../spec.md)** - Authoritative language specification
+- **[specification.md](reference/specification.md)** - Authoritative language specification
 - **[CLAUDE.md](../CLAUDE.md)** - Developer context and architecture (for AI assistants)
 - **[README.md](../README.md)** - Project overview and quick start
 - **[Tests](../tests/)** - Test suite with 1090+ tests (840+ unit + 250+ integration)
@@ -98,29 +99,31 @@ See the [Device Library Creation Guide](guides/device-libraries.md) to create yo
 |----------|--------|
 | Getting Started | ✅ Complete |
 | Installation | ✅ Complete |
-| Basic Syntax Guide | 🚧 Coming Soon |
-| Timing Systems Guide | 🚧 Coming Soon |
+| Basic Syntax Guide | ✅ Complete |
+| Timing Systems Guide | ✅ Complete |
 | Alias System Guide | ✅ Complete |
 | Device Libraries Guide | ✅ Complete |
 | Real-time Playback Guide | ✅ Complete |
-| Advanced Features Guide | 🚧 Coming Soon |
+| Computed Values Guide | ✅ Complete |
+| Modulation Guide | ✅ Complete |
+| Generative Music Guide | ✅ Complete |
 | CLI Reference | ✅ Complete |
 | Alias API Reference | ✅ Complete |
-| MIDI Commands Reference | 🚧 Coming Soon |
-| Architecture Overview | 🚧 Coming Soon |
-| Compilation Pipeline | 🚧 Coming Soon |
+| MIDI Commands Reference | ✅ Complete |
+| Architecture Overview | ✅ Complete |
+| IR Specification | ✅ Complete |
 | Parser Design | ✅ Complete |
 | Lexer Design | ✅ Complete |
-| Contributing Guide | 🚧 Coming Soon |
+| Contributing Guide | ✅ Complete |
 
 ---
 
 ## Need Help?
 
-- **Examples**: Start with [examples/README.md](../examples/README.md)
+- **Examples**: Start with [getting-started/examples-guide.md](getting-started/examples-guide.md)
 - **CLI Help**: Run `uv run mmdc --help`
 - **Issues**: Report bugs on [GitHub](https://github.com/cjgdev/midi-markdown/issues)
-- **Specification**: See [spec.md](../spec.md) for complete reference
+- **Specification**: See [specification.md](reference/specification.md) for complete reference
 
 ---
 

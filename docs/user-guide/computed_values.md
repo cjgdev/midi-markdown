@@ -509,9 +509,9 @@ Computed values are evaluated in a **sandboxed environment** with these safety f
 
 ## See Also
 
-- [Alias System Guide](alias_system_guide.md)
+- [Alias System Guide](alias-system.md)
 - [Expression Syntax Reference](../reference/expressions.md)
-- [Device Library Creation](device_library_creation.md)
+- [Device Library Creation](device-libraries.md)
 - [Examples: computed_values.mmd](../../examples/03_advanced/computed_values.mmd)
 
 ---

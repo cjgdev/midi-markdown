@@ -727,6 +727,37 @@ Random can be used in sweep bodies:
 @end
 ```
 
+### Combining Random with Modulation
+
+You can combine `random()` expressions with modulation features like curves, waves, and envelopes for even more expressive results:
+
+**Random with Curves:**
+```mmd
+# Random velocity with smooth curve modulation
+- note_on 1.C4 random(70,100) 1b
+- cc 1.74.curve(random(30,60), random(80,110), ease-in-out)
+```
+
+**Random with Waves:**
+```mmd
+# Random LFO depth and frequency
+- cc 1.1.wave(sine, random(40,80), freq=random(2.0,6.0), depth=random(20,60))
+```
+
+**Random with Envelopes:**
+```mmd
+# Random envelope parameters for variation
+- cc 1.74.envelope(adsr, attack=random(0.1,0.5), decay=random(0.2,0.6), sustain=random(0.6,0.9), release=random(0.5,1.5))
+```
+
+These combinations are particularly useful for:
+- Creating evolving pad textures
+- Humanizing synthesized performances
+- Generative ambient soundscapes
+- Algorithmic composition with controlled randomness
+
+See the [Generative Music Guide](../user-guide/generative-music.md) and [Modulation Guide](../user-guide/modulation.md) for more detailed examples.
+
 ## Testing
 
 Comprehensive test suite for random expressions:

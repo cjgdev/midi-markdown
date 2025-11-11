@@ -269,7 +269,7 @@ Token(EOF, '', 2, 9)
 ## Resources
 
 - **Full Design**: [lexer_design.md](./lexer_design.md)
-- **Summary**: [lexer_summary.md](./lexer_summary.md)
+- **Summary**: [lexer_summary.md](../lexer-summary.md)
 - **Tests**: [../tests/unit/test_lexer.py](../tests/unit/test_lexer.py)
-- **Spec**: [../spec.md](../spec.md) lines 84-531
+- **Spec**: [specification.md](../../../reference/specification.md) lines 84-531
 - **Implementation**: [../src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)

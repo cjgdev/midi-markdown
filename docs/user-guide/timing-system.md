@@ -1210,9 +1210,9 @@ title: "Quad Cortex Preset Changes"
 
 ## See Also
 
-- [Getting Started Guide](getting-started.md) - Basic MMD introduction
-- [MIDI Commands Reference](../reference/midi-commands.md) - All MIDI command types
+- [Getting Started Guide](../getting-started/quickstart.md) - Basic MMD introduction
+- [MIDI Commands Reference](midi-commands.md) - All MIDI command types
 - [Frontmatter Reference](../reference/frontmatter.md) - Document metadata options
 - [Alias System Guide](alias-system.md) - Creating reusable command shortcuts
-- [CLI Reference](../reference/cli.md) - Command-line options including `--ppq`
+- [CLI Reference](../cli-reference/overview.md) - Command-line options including `--ppq`
 - [Spec: Timing Specification](../../spec.md#timing-specification) - Formal timing rules

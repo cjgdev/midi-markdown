@@ -659,7 +659,7 @@ Four comprehensive examples demonstrating all random() techniques:
 - [generative_ambient.mmd](../../examples/04_generative/generative_ambient.mmd) - Evolving pad textures with random notes and LFO
 - [random_cc_automation.mmd](../../examples/04_generative/random_cc_automation.mmd) - Generative parameter automation
 
-See [Examples README](../../examples/README.md#-04_generative-generative--random-techniques) for learning paths and feature matrix.
+See [Examples Guide](../getting-started/examples-guide.md#categories) for learning paths and feature matrix.
 
 ---
 

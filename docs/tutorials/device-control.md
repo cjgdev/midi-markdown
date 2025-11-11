@@ -854,8 +854,8 @@ Computed values shine when automating preset selection based on musical paramete
 The built-in device aliases in `quad_cortex.mmd` and `eventide_h90.mmd` now support computed values. Check the device library documentation for aliases that accept calculated parameters.
 
 **See also:**
-- [Device Library Creation Guide](../device_library_creation.md) - Writing computed value aliases
-- [Alias API Reference](../alias_api_reference.md) - Complete computed value syntax
+- [Device Library Creation Guide](../user-guide/device-libraries.md) - Writing computed value aliases
+- [Alias API Reference](../user-guide/alias-api.md) - Complete computed value syntax
 - [quad_cortex.mmd](../../devices/quad_cortex.mmd) - Examples of computed alias patterns
 - [eventide_h90.mmd](../../devices/eventide_h90.mmd) - H90-specific computed aliases
 
@@ -919,8 +919,8 @@ Create your own convenience aliases in your MMD file:
 - [Quad Cortex MIDI Spec](https://support.neuraldsp.com/hc/en-us/articles/360014480320-MIDI-Specification)
 - [H90 Manual](https://cdn.eventideaudio.com/manuals/h90/1.1/content/)
 - [Helix MIDI Guide](https://line6.com/support/page/kb/effects-controllers/helix/helix-owners-manuals-r872/)
-- [Device Library Creation Guide](../device_library_creation.md)
-- [Alias System Guide](../alias_system_guide.md)
+- [Device Library Creation Guide](../user-guide/device-libraries.md)
+- [Alias System Guide](../user-guide/alias-system.md)
 - [MML Specification](../../spec.md)
 - [Example: 13_device_import.mmd](../../examples/04_device_libraries/13_device_import.mmd)
 
