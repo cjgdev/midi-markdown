@@ -32,51 +32,51 @@ ppq: 480
 
 [00:00.000]
 - note_on 1.60 80 1b  # Middle C
-' > hello.mml
+' > hello.mmd
 
 # Compile to MIDI
-midimarkup compile hello.mml
+midimarkup compile hello.mmd
 
 # Play it back
-midimarkup play hello.mml --port 0
+midimarkup play hello.mmd --port 0
 ```
 
 ## File Operations
 
 ```bash
 # Compile MML to MIDI file
-midimarkup compile song.mml
+midimarkup compile song.mmd
 
 # Compile with custom output path
-midimarkup compile song.mml -o output/track.mid
+midimarkup compile song.mmd -o output/track.mid
 
 # Compile with high resolution (960 PPQ)
-midimarkup compile song.mml --ppq 960
+midimarkup compile song.mmd --ppq 960
 
 # Export to CSV for analysis
-midimarkup compile song.mml --format csv -o events.csv
+midimarkup compile song.mmd --format csv -o events.csv
 
 # Export to JSON
-midimarkup compile song.mml --format json -o data.json
+midimarkup compile song.mmd --format json -o data.json
 
 # Display events as table
-midimarkup compile song.mml --format table
+midimarkup compile song.mmd --format table
 ```
 
 ## Validation & Checking
 
 ```bash
 # Full validation (recommended before performance)
-midimarkup validate song.mml
+midimarkup validate song.mmd
 
 # Quick syntax check (fast, for development)
-midimarkup check song.mml
+midimarkup check song.mmd
 
 # Inspect MIDI events without creating files
-midimarkup inspect song.mml
+midimarkup inspect song.mmd
 
 # Validate with verbose output
-midimarkup validate song.mml -v
+midimarkup validate song.mmd -v
 ```
 
 ## Live Performance
@@ -86,10 +86,10 @@ midimarkup validate song.mml -v
 midimarkup ports
 
 # Play with interactive TUI
-midimarkup play song.mml --port 0
+midimarkup play song.mmd --port 0
 
 # Play without TUI (simple playback)
-midimarkup play song.mml --port "IAC Driver" --no-ui
+midimarkup play song.mmd --port "IAC Driver" --no-ui
 
 # Start interactive REPL for live composition
 midimarkup repl
@@ -105,7 +105,7 @@ midimarkup library list
 midimarkup library info quad_cortex
 
 # Validate a device library
-midimarkup library validate devices/custom.mml
+midimarkup library validate devices/custom.mmd
 ```
 
 ## Learning & Help
@@ -133,31 +133,31 @@ midimarkup version
 ```bash
 # 1. Edit MML file in your editor
 # 2. Quick syntax check on save
-midimarkup check song.mml
+midimarkup check song.mmd
 
 # 3. Full validation before testing
-midimarkup validate song.mml
+midimarkup validate song.mmd
 
 # 4. Compile to MIDI
-midimarkup compile song.mml
+midimarkup compile song.mmd
 
 # 5. Test playback
-midimarkup play song.mml --port 0
+midimarkup play song.mmd --port 0
 ```
 
 ### Production Workflow
 ```bash
 # 1. Validate all files
-midimarkup validate *.mml
+midimarkup validate *.mmd
 
 # 2. Compile with high resolution
-midimarkup compile setlist.mml --ppq 960 -o performance.mid
+midimarkup compile setlist.mmd --ppq 960 -o performance.mid
 
 # 3. Verify MIDI output
-midimarkup inspect setlist.mml
+midimarkup inspect setlist.mmd
 
 # 4. Export for documentation
-midimarkup compile setlist.mml --format csv -o timeline.csv
+midimarkup compile setlist.mmd --format csv -o timeline.csv
 ```
 
 ### Live Performance Setup
@@ -166,7 +166,7 @@ midimarkup compile setlist.mml --format csv -o timeline.csv
 midimarkup ports
 
 # 2. Test playback
-midimarkup play song.mml --port 0
+midimarkup play song.mmd --port 0
 
 # 3. Use REPL for interactive control
 midimarkup repl
@@ -178,7 +178,7 @@ midimarkup repl
 - Use `--debug` to see full error tracebacks
 - Set `NO_COLOR` environment variable for plain text output
 - Use `--no-progress` in CI/CD pipelines
-- Combine with device libraries: `@import "devices/quad_cortex.mml"`
+- Combine with device libraries: `@import "devices/quad_cortex.mmd"`
 - Export to CSV/JSON for programmatic analysis
 
 ## Exit Codes

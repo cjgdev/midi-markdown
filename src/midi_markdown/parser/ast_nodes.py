@@ -74,6 +74,84 @@ class ConditionalBranch:
 
 
 @dataclass
+class RandomExpression:
+    """Represents a random() expression in MML.
+
+    Used for generating random values within a specified range,
+    useful for humanization and generative music.
+
+    Examples:
+        random(0, 127) - Random integer 0-127
+        random(C3, C5) - Random note between C3 and C5
+        random(64, 96, seed=42) - Reproducible random with seed
+    """
+
+    min_value: Any  # Minimum value (int or note name string)
+    max_value: Any  # Maximum value (int or note name string)
+    seed: int | None = None  # Optional seed for reproducibility
+
+
+@dataclass
+class CurveExpression:
+    """Represents a curve() expression in MML (Stage 7 - Enhanced Modulation).
+
+    Used for smooth parameter transitions using Bezier curves.
+    Provides more natural-sounding automation than linear ramps.
+
+    Examples:
+        curve(0, 127, ease-in) - Standard ease-in from 0 to 127
+        curve(0, 127, ease-out) - Standard ease-out from 0 to 127
+        curve(0, 127, bezier(0, 40, 90, 127)) - Custom Bezier with control points
+    """
+
+    start_value: float  # Starting value
+    end_value: float  # Ending value
+    curve_type: str  # 'ease-in', 'ease-out', 'ease-in-out', 'linear'
+    control_points: tuple[float, float, float, float] | None = None  # For custom Bezier curves
+
+
+@dataclass
+class WaveExpression:
+    """Represents a wave() expression in MML (Stage 7 - Enhanced Modulation).
+
+    Used for periodic modulation using LFO (Low Frequency Oscillator) waveforms.
+    Common for vibrato, tremolo, and filter sweeps.
+
+    Examples:
+        wave(sine, 5.0) - 5Hz sine wave (vibrato)
+        wave(triangle, 0.5, freq=0.5, phase=0.25) - Slow triangle with phase offset
+        wave(square, 2.0, depth=50) - Square wave with 50% depth
+    """
+
+    wave_type: str  # 'sine', 'triangle', 'square', 'sawtooth'
+    base_value: float  # Base/center value for the wave
+    frequency: float | None = None  # Frequency in Hz
+    phase: float | None = None  # Phase offset (0.0-1.0)
+    depth: float | None = None  # Modulation depth
+
+
+@dataclass
+class EnvelopeExpression:
+    """Represents an envelope() expression in MML (Stage 7 - Enhanced Modulation).
+
+    Used for dynamic parameter shaping with ADSR, AR, or AD envelopes.
+    Common for filter cutoff, amplitude, and other time-varying parameters.
+
+    Examples:
+        envelope(adsr, attack=0.1, decay=0.2, sustain=0.7, release=0.3)
+        envelope(ar, attack=0.01, release=0.5) - Percussive envelope
+        envelope(ad, attack=2.0, decay=3.0, curve=exponential) - Pad swell
+    """
+
+    envelope_type: str  # 'adsr', 'ar', 'ad'
+    attack: float  # Attack time in seconds
+    decay: float | None = None  # Decay time (ADSR, AD only)
+    sustain: float | None = None  # Sustain level 0.0-1.0 (ADSR only)
+    release: float | None = None  # Release time (ADSR, AR only)
+    curve: str = "linear"  # 'linear' or 'exponential'
+
+
+@dataclass
 class DefineStatement:
     """Represents a @define statement within an alias.
 
@@ -148,7 +226,7 @@ class Track:
 
 
 @dataclass
-class MMLDocument:
+class MMDDocument:
     """Represents a complete parsed MML document.
 
     This is the root of the AST and contains all parsed elements:

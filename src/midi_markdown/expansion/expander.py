@@ -27,6 +27,7 @@ from .loops import (
     LoopInterval,
     parse_interval,
 )
+from .random import RandomValueExpander
 from .sweeps import (
     RampSpec,
     RampType,
@@ -92,6 +93,7 @@ class CommandExpander:
             parent_symbols=self.symbol_table, ppq=ppq, tempo=tempo, time_signature=time_signature
         )
         self.sweep_expander = SweepExpander(ppq=ppq)
+        self.random_expander = RandomValueExpander()
 
         # State
         self.current_time = 0  # Track current time in ticks
@@ -653,14 +655,16 @@ class CommandExpander:
 
     def _substitute_variables(self, event: dict) -> dict:
         """
-        Recursively substitute variables in an event dictionary.
+        Recursively substitute variables and expand random expressions in an event dictionary.
 
         Args:
-            event: Event dictionary with potential variable references
+            event: Event dictionary with potential variable references and random expressions
 
         Returns:
-            Event with all variables resolved
+            Event with all variables resolved and random expressions expanded
         """
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
         resolved = {}
 
         for key, value in event.items():
@@ -678,6 +682,16 @@ class CommandExpander:
                         file=self.source_file,
                         similar_names=similar,
                     ) from e
+            elif isinstance(value, RandomExpression):
+                # Random expression - expand to concrete value
+                try:
+                    resolved[key] = self.random_expander.expand_random(value)
+                except (ValueError, TypeError) as e:
+                    raise ExpansionError(
+                        f"Failed to expand random expression: {e}",
+                        line=event.get("line", 0),
+                        file=self.source_file,
+                    ) from e
             elif isinstance(value, dict):
                 resolved[key] = self._substitute_variables(value)
             elif isinstance(value, list):
@@ -689,18 +703,29 @@ class CommandExpander:
 
     def _substitute_list(self, items: list) -> list:
         """
-        Substitute variables in a list.
+        Substitute variables and expand random expressions in a list.
 
         Args:
-            items: List potentially containing variable references
+            items: List potentially containing variable references and random expressions
 
         Returns:
-            List with all variables resolved
+            List with all variables resolved and random expressions expanded
         """
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
         resolved = []
         for item in items:
             if isinstance(item, dict):
                 resolved.append(self._substitute_variables(item))
+            elif isinstance(item, RandomExpression):
+                try:
+                    resolved.append(self.random_expander.expand_random(item))
+                except (ValueError, TypeError) as e:
+                    raise ExpansionError(
+                        f"Failed to expand random expression in list: {e}",
+                        line=0,
+                        file=self.source_file,
+                    ) from e
             elif isinstance(item, tuple) and len(item) == 2 and item[0] == "var":
                 try:
                     resolved.append(self.symbol_table.resolve(item[1]))

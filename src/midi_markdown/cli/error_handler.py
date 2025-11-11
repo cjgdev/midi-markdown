@@ -117,7 +117,9 @@ def cli_error_handler(ctx: ErrorContext):
     except (UnexpectedToken, UnexpectedCharacters, UnexpectedInput) as e:
         # Parse errors from Lark parser
         if ctx.source_file:
-            show_parse_error(e, ctx.source_file, console, no_color=ctx.no_color, no_emoji=ctx.no_emoji)
+            show_parse_error(
+                e, ctx.source_file, console, no_color=ctx.no_color, no_emoji=ctx.no_emoji
+            )
         else:
             console.print(f"[red]Parse Error:[/red] {e}")
             if ctx.debug:
@@ -127,7 +129,9 @@ def cli_error_handler(ctx: ErrorContext):
     except ValidationError as e:
         # Semantic validation errors
         if ctx.source_file:
-            show_validation_error(e, ctx.source_file, console, no_color=ctx.no_color, no_emoji=ctx.no_emoji)
+            show_validation_error(
+                e, ctx.source_file, console, no_color=ctx.no_color, no_emoji=ctx.no_emoji
+            )
         else:
             console.print(f"[red]Validation Error:[/red] {e}")
             if ctx.debug:

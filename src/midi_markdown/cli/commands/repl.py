@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import FileHistory
 from rich.console import Console
-from typing_extensions import Annotated
 
 from midi_markdown.runtime.repl import MMLRepl
 
@@ -22,13 +22,13 @@ def run_repl(
 
     Args:
         debug: Enable debug mode (crashes on errors instead of handling gracefully)
-        history_file: Path to history file (defaults to .mml_history in current dir)
+        history_file: Path to history file (defaults to .mmd_history in current dir)
     """
     console = Console()
 
     # 1. Print welcome banner
     console.print("[bold cyan]╭─────────────────────────────────────────╮[/bold cyan]")
-    console.print("[bold cyan]│  MML REPL - Interactive MIDI Session   │[/bold cyan]")
+    console.print("[bold cyan]│  MMD REPL - Interactive MIDI Session   │[/bold cyan]")
     console.print("[bold cyan]╰─────────────────────────────────────────╯[/bold cyan]")
     console.print()
     console.print("[dim]Type .help for commands, Ctrl+D to exit[/dim]")
@@ -38,7 +38,7 @@ def run_repl(
     repl = MMLRepl()
 
     # 3. Create PromptSession with history and completion
-    history_path = history_file or Path(".mml_history")
+    history_path = history_file or Path(".mmd_history")
 
     # Basic command completer (will be enhanced later with MusicCompleter)
     completer = WordCompleter(
@@ -133,7 +133,7 @@ def run_repl(
                 repl.handle_error(result, accumulated_input)
                 buffer.clear()
             else:
-                # 4g. Complete and valid: evaluate the parsed MMLDocument
+                # 4g. Complete and valid: evaluate the parsed MMDDocument
                 try:
                     repl.evaluate(result)
                     buffer.clear()

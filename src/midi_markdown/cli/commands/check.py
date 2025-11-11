@@ -15,7 +15,7 @@ def check(
     input_file: Annotated[
         Path,
         typer.Argument(
-            help="Input .mml file to check",
+            help="Input .mmd file to check",
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -49,16 +49,16 @@ def check(
 
     Examples:
         # Quick syntax check
-        midimarkup check song.mml
+        midimarkup check song.mmd
 
         # Check with verbose output
-        midimarkup check song.mml -v
+        midimarkup check song.mmd -v
 
         # Check multiple files quickly
-        midimarkup check *.mml
+        midimarkup check *.mmd
 
         # Check with debug output on errors
-        midimarkup check song.mml --debug
+        midimarkup check song.mmd --debug
 
     Exit Codes:
         0  Syntax is valid - file can be parsed
@@ -91,9 +91,9 @@ def check(
         if verbose:
             console.print("  [dim]Parsing file...[/dim]")
 
-        from midi_markdown.parser.parser import MMLParser
+        from midi_markdown.parser.parser import MMDParser
 
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(input_file)
 
         # Success!

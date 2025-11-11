@@ -11,8 +11,8 @@ from .ir import EventType, IRProgram, MIDIEvent, create_ir_program, string_to_ev
 
 __all__ = [
     "EventType",
-    "MIDIEvent",
     "IRProgram",
+    "MIDIEvent",
     "compile_ast_to_ir",
     "create_ir_program",
     "string_to_event_type",

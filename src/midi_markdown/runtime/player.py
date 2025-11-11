@@ -26,7 +26,7 @@ class RealtimePlayer:
     Example:
         >>> from midi_markdown.core.compiler import compile_mml
         >>> from midi_markdown.runtime.player import RealtimePlayer
-        >>> ir = compile_mml("examples/00_hello_world.mml")
+        >>> ir = compile_mml("examples/00_basics/00_hello_world.mmd")
         >>> player = RealtimePlayer(ir, "IAC Driver Bus 1")
         >>> player.play()
         >>> # ... wait for completion ...
@@ -170,25 +170,24 @@ class RealtimePlayer:
         """
         if event.type == EventType.NOTE_ON:
             return [0x90 + event.channel - 1, event.data1, event.data2]
-        elif event.type == EventType.NOTE_OFF:
+        if event.type == EventType.NOTE_OFF:
             return [0x80 + event.channel - 1, event.data1, event.data2]
-        elif event.type == EventType.CONTROL_CHANGE:
+        if event.type == EventType.CONTROL_CHANGE:
             return [0xB0 + event.channel - 1, event.data1, event.data2]
-        elif event.type == EventType.PROGRAM_CHANGE:
+        if event.type == EventType.PROGRAM_CHANGE:
             return [0xC0 + event.channel - 1, event.data1]
-        elif event.type == EventType.PITCH_BEND:
+        if event.type == EventType.PITCH_BEND:
             # Pitch bend is 14-bit value (0-16383)
             # data1 contains the full value, split into LSB and MSB
             lsb = event.data1 & 0x7F
             msb = (event.data1 >> 7) & 0x7F
             return [0xE0 + event.channel - 1, lsb, msb]
-        elif event.type == EventType.CHANNEL_PRESSURE:
+        if event.type == EventType.CHANNEL_PRESSURE:
             return [0xD0 + event.channel - 1, event.data1]
-        elif event.type == EventType.POLY_PRESSURE:
+        if event.type == EventType.POLY_PRESSURE:
             return [0xA0 + event.channel - 1, event.data1, event.data2]
-        else:
-            # Unsupported event type for MIDI output (markers, text, sysex, etc.)
-            return None
+        # Unsupported event type for MIDI output (markers, text, sysex, etc.)
+        return None
 
     def _all_notes_off(self) -> None:
         """Send CC 123 (All Notes Off) on all channels.

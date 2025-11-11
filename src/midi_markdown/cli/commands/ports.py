@@ -41,8 +41,8 @@ def ports() -> None:
         console.print(table)
         console.print()
         console.print("[dim]💡 Use port index or name with:[/dim]")
-        console.print("   [cyan]midimarkup play song.mml --port 0[/cyan]")
-        console.print("   [cyan]midimarkup play song.mml --port \"IAC Driver Bus 1\"[/cyan]")
+        console.print("   [cyan]midimarkup play song.mmd --port 0[/cyan]")
+        console.print('   [cyan]midimarkup play song.mmd --port "IAC Driver Bus 1"[/cyan]')
     else:
         console.print()
         console.print("[yellow]⚠ No MIDI output ports found[/yellow]")
@@ -61,6 +61,8 @@ def ports() -> None:
         console.print()
         console.print("  [bold]Windows:[/bold]")
         console.print("    Install a virtual MIDI driver:")
-        console.print("    • [cyan]loopMIDI[/cyan] - https://www.tobias-erichsen.de/software/loopmidi.html")
+        console.print(
+            "    • [cyan]loopMIDI[/cyan] - https://www.tobias-erichsen.de/software/loopmidi.html"
+        )
         console.print("    • [cyan]VirtualMIDI[/cyan] - Included with some DAWs")
         console.print()

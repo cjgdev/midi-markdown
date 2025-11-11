@@ -8,14 +8,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .ir import EventType, IRProgram, MIDIEvent, create_ir_program, string_to_event_type
+from .ir import IRProgram, MIDIEvent, create_ir_program, string_to_event_type
 
 if TYPE_CHECKING:
-    from ..parser.ast_nodes import MMLDocument
+    from ..parser.ast_nodes import MMDDocument
 
 
 def compile_ast_to_ir(
-    document: MMLDocument,
+    document: MMDDocument,
     ppq: int = 480,
 ) -> IRProgram:
     """Compile MML document AST to IR program.
@@ -35,10 +35,10 @@ def compile_ast_to_ir(
         IRProgram ready for output or execution
 
     Example:
-        >>> from midi_markdown.parser.parser import MMLParser
+        >>> from midi_markdown.parser.parser import MMDParser
         >>> from midi_markdown.core import compile_ast_to_ir
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc, ppq=480)
         >>> print(f"Duration: {ir.duration_seconds}s, Events: {ir.event_count}")
     """

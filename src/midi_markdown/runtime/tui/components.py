@@ -32,9 +32,9 @@ def render_header(file_name: str, port_name: str, title: str | None = None) -> P
     title_text = title if title else "Untitled"
     content = Text()
     content.append(f"♪ {title_text}\n", style="bold cyan")
-    content.append(f"File: ", style="dim")
+    content.append("File: ", style="dim")
     content.append(f"{file_name}\n", style="white")
-    content.append(f"Port: ", style="dim")
+    content.append("Port: ", style="dim")
     content.append(f"{port_name}", style="green")
 
     return Panel(content, title="MIDI Playback", border_style="cyan")

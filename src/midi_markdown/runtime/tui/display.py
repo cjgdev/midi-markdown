@@ -10,7 +10,6 @@ import threading
 import time
 
 from rich.console import Console, Group
-from rich.layout import Layout
 from rich.live import Live
 
 from .components import (
@@ -117,13 +116,9 @@ class TUIDisplayManager:
         # Render all components
         header = render_header(self.file_name, self.port_name, self.title)
 
-        progress = render_progress_bar(
-            snapshot["position_ms"], snapshot["total_duration_ms"]
-        )
+        progress = render_progress_bar(snapshot["position_ms"], snapshot["total_duration_ms"])
 
-        status = render_status_bar(
-            snapshot["state"], snapshot["tempo"], snapshot["position_ticks"]
-        )
+        status = render_status_bar(snapshot["state"], snapshot["tempo"], snapshot["position_ticks"])
 
         events = render_event_list(snapshot["event_history"])
 

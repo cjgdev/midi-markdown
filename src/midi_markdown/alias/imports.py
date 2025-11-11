@@ -36,8 +36,8 @@ class ImportManager:
     Example:
         >>> manager = ImportManager(parser)
         >>> aliases = manager.resolve_imports(
-        ...     imports=["devices/quad_cortex.mml"],
-        ...     current_file="main.mml"
+        ...     imports=["devices/quad_cortex.mmd"],
+        ...     current_file="main.mmd"
         ... )
     """
 
@@ -45,7 +45,7 @@ class ImportManager:
         """Initialize the import manager.
 
         Args:
-            parser: MMLParser instance for parsing imported files
+            parser: MMDParser instance for parsing imported files
         """
         self.parser = parser
         self._import_cache: dict[str, dict[str, AliasDefinition]] = {}
@@ -54,8 +54,8 @@ class ImportManager:
         """Resolve import path to absolute path.
 
         Import paths can be:
-        - Relative: "devices/quad_cortex.mml" (relative to current file)
-        - Absolute: "/usr/local/share/mml/devices/h90.mml"
+        - Relative: "devices/quad_cortex.mmd" (relative to current file)
+        - Absolute: "/usr/local/share/mml/devices/h90.mmd"
 
         If current_file is None (e.g., stdin), relative paths resolve from cwd.
 
@@ -67,8 +67,8 @@ class ImportManager:
             Resolved absolute path
 
         Example:
-            >>> manager.resolve_path("devices/foo.mml", "/home/user/song.mml")
-            Path("/home/user/devices/foo.mml")
+            >>> manager.resolve_path("devices/foo.mmd", "/home/user/song.mmd")
+            Path("/home/user/devices/foo.mmd")
         """
         path = Path(import_path)
 
@@ -97,10 +97,10 @@ class ImportManager:
         Example:
             >>> # A imports B, B imports C, C imports A
             >>> manager.check_circular_import(
-            ...     Path("A.mml"),
-            ...     ["A.mml", "B.mml", "C.mml"]
+            ...     Path("A.mmd"),
+            ...     ["A.mmd", "B.mmd", "C.mmd"]
             ... )
-            CircularImportError: Circular import detected: A.mml → B.mml → C.mml → A.mml
+            CircularImportError: Circular import detected: A.mmd → B.mmd → C.mmd → A.mmd
         """
         filepath_str = str(filepath)
 

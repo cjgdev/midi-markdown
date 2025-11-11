@@ -20,7 +20,7 @@ def validate(
     input_file: Annotated[
         Path,
         typer.Argument(
-            help="Input .mml file to validate",
+            help="Input .mmd file to validate",
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -54,19 +54,19 @@ def validate(
 
     Examples:
         # Basic validation
-        midimarkup validate song.mml
+        midimarkup validate song.mmd
 
         # Verbose validation showing all steps
-        midimarkup validate song.mml -v
+        midimarkup validate song.mmd -v
 
         # Validate with full error tracebacks
-        midimarkup validate song.mml --debug
+        midimarkup validate song.mmd --debug
 
         # Validate large file with progress indicator
-        midimarkup validate large_composition.mml --verbose
+        midimarkup validate large_composition.mmd --verbose
 
         # Quick validation in CI/CD pipeline
-        midimarkup validate *.mml --no-progress
+        midimarkup validate *.mmd --no-progress
 
     Exit Codes:
         0  Validation passed - file is valid
@@ -97,9 +97,9 @@ def validate(
         if verbose:
             console.print("  [dim]Parsing file...[/dim]")
 
-        from midi_markdown.parser.parser import MMLParser
+        from midi_markdown.parser.parser import MMDParser
 
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(input_file)
 
         if verbose:
@@ -149,7 +149,9 @@ def validate(
             all_errors = value_errors + timing_errors
 
             if all_errors:
-                console.print(f"\n[red]✗ Validation failed with {len(all_errors)} error(s):[/red]\n")
+                console.print(
+                    f"\n[red]✗ Validation failed with {len(all_errors)} error(s):[/red]\n"
+                )
                 for error in all_errors:
                     console.print(f"  [red]•[/red] {error}")
                 console.print()

@@ -32,9 +32,9 @@ def generate_midi_file(
 
     Example:
         >>> from midi_markdown.core import compile_ast_to_ir
-        >>> from midi_markdown.parser.parser import MMLParser
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> from midi_markdown.parser.parser import MMDParser
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc)
         >>> midi_bytes = generate_midi_file(ir)
         >>> Path("output.mid").write_bytes(midi_bytes)

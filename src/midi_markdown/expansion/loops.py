@@ -255,10 +255,12 @@ def parse_interval(interval_str: str) -> LoopInterval:
     """
     interval_str = interval_str.strip().lower()
 
-    # BBT format: digits.digits.digits
-    if "." in interval_str:
+    # BBT format: digits.digits.digits (bars.beats.ticks)
+    # Must have exactly 2 dots and all parts must be numeric to avoid matching decimal durations like "1.25b"
+    if interval_str.count(".") == 2:
         parts = interval_str.split(".")
-        if len(parts) == 3:
+        # Ensure we have exactly 3 parts and all are numeric (no unit suffixes)
+        if len(parts) == 3 and all(part.isdigit() for part in parts):
             try:
                 bars = int(parts[0])
                 beats = int(parts[1])
@@ -271,18 +273,26 @@ def parse_interval(interval_str: str) -> LoopInterval:
     if interval_str.endswith("ms"):
         try:
             value = float(interval_str[:-2])
+            if value <= 0:
+                raise ValueError(f"Duration must be positive, got {value}ms")
             return LoopInterval(value=value, interval_type=IntervalType.MILLISECONDS)
-        except ValueError:
-            raise ValueError(f"Invalid milliseconds format: {interval_str}")
+        except ValueError as e:
+            if "positive" in str(e):
+                raise  # Re-raise our custom error
+            raise ValueError(f"Invalid milliseconds format: {interval_str}") from e
 
     # Ticks: ends with 't' or 'ticks'
     if interval_str.endswith("t") or interval_str.endswith("ticks"):
         suffix = "t" if interval_str.endswith("t") else "ticks"
         try:
             value = float(interval_str[: -len(suffix)].strip())
+            if value <= 0:
+                raise ValueError(f"Duration must be positive, got {value}t")
             return LoopInterval(value=value, interval_type=IntervalType.TICKS)
-        except ValueError:
-            raise ValueError(f"Invalid ticks format: {interval_str}")
+        except ValueError as e:
+            if "positive" in str(e):
+                raise  # Re-raise our custom error
+            raise ValueError(f"Invalid ticks format: {interval_str}") from e
 
     # Beats: ends with 'b' or 'beats' or 'beat'
     if (
@@ -297,13 +307,21 @@ def parse_interval(interval_str: str) -> LoopInterval:
         )
         try:
             value = float(interval_str[: -len(suffix)].strip())
+            if value <= 0:
+                raise ValueError(f"Duration must be positive, got {value}b")
             return LoopInterval(value=value, interval_type=IntervalType.BEATS)
-        except ValueError:
-            raise ValueError(f"Invalid beats format: {interval_str}")
+        except ValueError as e:
+            if "positive" in str(e):
+                raise  # Re-raise our custom error
+            raise ValueError(f"Invalid beats format: {interval_str}") from e
 
     # Default: try to parse as number of beats
     try:
         value = float(interval_str)
+        if value <= 0:
+            raise ValueError(f"Duration must be positive, got {value}")
         return LoopInterval(value=value, interval_type=IntervalType.BEATS)
-    except ValueError:
-        raise ValueError(f"Invalid interval format: {interval_str}")
+    except ValueError as e:
+        if "positive" in str(e):
+            raise  # Re-raise our custom error
+        raise ValueError(f"Invalid interval format: {interval_str}") from e

@@ -1,8 +1,8 @@
 """
 MIDI Markup Language (MML) Parser Class
 
-Provides the main MMLParser class that uses Lark and MMLTransformer
-to parse MML files into structured MMLDocument objects.
+Provides the main MMDParser class that uses Lark and MMDTransformer
+to parse MML files into structured MMDDocument objects.
 """
 
 from __future__ import annotations
@@ -11,21 +11,21 @@ from pathlib import Path
 
 from lark import Lark
 
-from .ast_nodes import MMLDocument
-from .transformer import MMLTransformer
+from .ast_nodes import MMDDocument
+from .transformer import MMDTransformer
 
 # ============================================================================
 # Parser Class
 # ============================================================================
 
 
-class MMLParser:
+class MMDParser:
     """
     Main parser class for MIDI Markup Language.
 
     Usage:
-        parser = MMLParser()
-        document = parser.parse_file('song.mml')
+        parser = MMDParser()
+        document = parser.parse_file('song.mmd')
         # or
         document = parser.parse_string(mml_content)
     """
@@ -43,63 +43,63 @@ class MMLParser:
                 grammar = f.read()
         else:
             # Use grammar from the parser package
-            grammar_path = Path(__file__).parent / "mml.lark"
+            grammar_path = Path(__file__).parent / "mmd.lark"
             with open(grammar_path) as f:
                 grammar = f.read()
 
         self.parser = Lark(
             grammar,
             parser="lalr",  # LALR parser for speed
-            transformer=MMLTransformer(),
+            transformer=MMDTransformer(),
             start="document",
             propagate_positions=True,  # Track line/column numbers
             maybe_placeholders=False,
         )
 
-    def parse_file(self, filepath: str | Path) -> MMLDocument:
+    def parse_file(self, filepath: str | Path) -> MMDDocument:
         """
-        Parse an MML file.
+        Parse an MMD file.
 
         Args:
-            filepath: Path to the .mml file
+            filepath: Path to the .mmd file
 
         Returns:
-            MMLDocument object containing the parsed content
+            MMDDocument object containing the parsed content
         """
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
         return self.parse_string(content, str(filepath))
 
-    def parse_string(self, content: str, filename: str = "<string>") -> MMLDocument:
+    def parse_string(self, content: str, filename: str = "<string>") -> MMDDocument:
         """
         Parse MML content from a string.
 
         Args:
-            content: MML markup content
+            content: MMD markup content
             filename: Name for error reporting
 
         Returns:
-            MMLDocument object
+            MMDDocument object
         """
         try:
             result = self.parser.parse(content)
-            # The transformer should return an MMLDocument
-            if isinstance(result, MMLDocument):
+            # The transformer should return an MMDDocument
+            if isinstance(result, MMDDocument):
                 return result
-            raise ValueError(f"Parser did not return MMLDocument, got {type(result)}")
+            raise ValueError(f"Parser did not return MMDDocument, got {type(result)}")
         except Exception as e:
             self._format_parse_error(e, content, filename)
             raise
 
-    def parse_interactive(self, text: str) -> tuple[bool, MMLDocument | Exception | None]:
+    def parse_interactive(self, text: str) -> tuple[bool, MMDDocument | Exception | None]:
         """Parse MML text for REPL, handling incomplete input.
 
         This method supports interactive parsing where input may be incomplete
         (e.g., user is still typing). It distinguishes between:
         - Incomplete input: Need more text (returns False, None)
         - Invalid but complete: Syntax error (returns True, Exception)
-        - Valid and complete: Success (returns True, MMLDocument)
+        - Valid and complete: Success (returns True, MMDDocument)
 
         Args:
             text: MML source text (may be incomplete)
@@ -108,14 +108,14 @@ class MMLParser:
             Tuple of (complete, result):
             - (False, None): Input incomplete, need more
             - (True, Exception): Input complete but invalid
-            - (True, MMLDocument): Input complete and valid
+            - (True, MMDDocument): Input complete and valid
 
         Example:
-            >>> parser = MMLParser()
+            >>> parser = MMDParser()
             >>> complete, result = parser.parse_interactive("[00:01.0")
             >>> assert not complete  # Incomplete timing marker
             >>> complete, result = parser.parse_interactive("[00:01.000]\\n- cc 1.7.64")
-            >>> assert complete and isinstance(result, MMLDocument)
+            >>> assert complete and isinstance(result, MMDDocument)
         """
         from lark import UnexpectedEOF, UnexpectedInput, UnexpectedToken
 
@@ -157,29 +157,29 @@ class MMLParser:
 # ============================================================================
 
 
-def parse_mml_file(filepath: str | Path) -> MMLDocument:
+def parse_mmd_file(filepath: str | Path) -> MMDDocument:
     """
     Convenience function to parse an MML file.
 
     Args:
-        filepath: Path to the .mml file
+        filepath: Path to the .mmd file
 
     Returns:
-        MMLDocument object
+        MMDDocument object
     """
-    parser = MMLParser()
+    parser = MMDParser()
     return parser.parse_file(filepath)
 
 
-def parse_mml_string(content: str) -> MMLDocument:
+def parse_mmd_string(content: str) -> MMDDocument:
     """
     Convenience function to parse MML content from a string.
 
     Args:
-        content: MML markup content
+        content: MMD markup content
 
     Returns:
-        MMLDocument object
+        MMDDocument object
     """
-    parser = MMLParser()
+    parser = MMDParser()
     return parser.parse_string(content)

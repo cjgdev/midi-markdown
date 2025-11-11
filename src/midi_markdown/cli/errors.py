@@ -462,26 +462,10 @@ def _create_timing_help_table(error_message: str, no_color: bool = False) -> Tab
     table.add_column("Example", style="green" if not no_color else "")
     table.add_column("Description", style="dim" if not no_color else "")
 
-    table.add_row(
-        "Absolute",
-        "[mm:ss.milliseconds]",
-        "e.g., [00:01.500] = 1.5 seconds"
-    )
-    table.add_row(
-        "Musical",
-        "[bars.beats.ticks]",
-        "e.g., [8.4.0] = bar 8, beat 4"
-    )
-    table.add_row(
-        "Relative",
-        "[+duration]",
-        "e.g., [+100ms], [+1b] = 1 beat later"
-    )
-    table.add_row(
-        "Simultaneous",
-        "[@]",
-        "Same time as previous event"
-    )
+    table.add_row("Absolute", "[mm:ss.milliseconds]", "e.g., [00:01.500] = 1.5 seconds")
+    table.add_row("Musical", "[bars.beats.ticks]", "e.g., [8.4.0] = bar 8, beat 4")
+    table.add_row("Relative", "[+duration]", "e.g., [+100ms], [+1b] = 1 beat later")
+    table.add_row("Simultaneous", "[@]", "Same time as previous event")
 
     return table
 
@@ -587,7 +571,7 @@ def _create_expansion_help_table(error: ExpansionError, no_color: bool = False) 
 
         return table
 
-    elif isinstance(error, InvalidSweepConfigError):
+    if isinstance(error, InvalidSweepConfigError):
         # Sweep syntax help table
         table = Table(show_header=True, header_style="bold cyan" if not no_color else "")
         table.add_column("Sweep Syntax", style="cyan" if not no_color else "")
@@ -762,7 +746,9 @@ def show_success(
         console.print(panel)
 
 
-def _create_call_chain_table(call_chain: list[tuple[str, list]], final_alias: str, no_color: bool = False) -> Table:
+def _create_call_chain_table(
+    call_chain: list[tuple[str, list]], final_alias: str, no_color: bool = False
+) -> Table:
     """Create a Rich Table showing the alias call chain for recursion/depth errors.
 
     Args:
@@ -786,7 +772,11 @@ def _create_call_chain_table(call_chain: list[tuple[str, list]], final_alias: st
     # Add final step (the one that causes error)
     final_step = len(call_chain) + 1
     style = "red bold" if not no_color else "bold"
-    table.add_row(str(final_step), f"[{style}]{final_alias} ← ERROR[/{style}]" if not no_color else f"{final_alias} ← ERROR", "")
+    table.add_row(
+        str(final_step),
+        f"[{style}]{final_alias} ← ERROR[/{style}]" if not no_color else f"{final_alias} ← ERROR",
+        "",
+    )
 
     return table
 
@@ -840,12 +830,12 @@ def show_alias_error(
         console.print(f"\n[red]{emoji}error[{error_code}]:[/red] {message}")
 
     # Add call chain visualization for recursion and depth errors
-    if isinstance(error, (AliasRecursionError, AliasMaxDepthError)) and hasattr(error, "call_chain"):
+    if isinstance(error, (AliasRecursionError, AliasMaxDepthError)) and hasattr(
+        error, "call_chain"
+    ):
         console.print()
         call_chain_table = _create_call_chain_table(
-            error.call_chain,
-            error.alias_name,
-            no_color=no_color
+            error.call_chain, error.alias_name, no_color=no_color
         )
         console.print(call_chain_table)
 
@@ -884,7 +874,9 @@ def show_file_not_found_error(
         console.print(f"\n{emoji}error[{error_code}]: File not found: {filename}")
         console.print("\nSuggestion: Check the file path and ensure the file exists")
     else:
-        console.print(f"\n[red]{emoji}error[{error_code}]:[/red] File not found: [cyan]{filename}[/cyan]")
+        console.print(
+            f"\n[red]{emoji}error[{error_code}]:[/red] File not found: [cyan]{filename}[/cyan]"
+        )
         console.print("\n[dim]💡 Suggestion:[/dim] Check the file path and ensure the file exists")
 
     console.print()

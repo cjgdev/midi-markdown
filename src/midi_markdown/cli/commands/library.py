@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 def library_list() -> None:
@@ -35,10 +35,8 @@ def library_list() -> None:
         console.print()
         return
 
-    # Find all .mml files (excluding README files)
-    libraries = sorted(
-        [f for f in devices_dir.glob("*.mml") if not f.stem.startswith("README")]
-    )
+    # Find all .mmd files (excluding README files)
+    libraries = sorted([f for f in devices_dir.glob("*.mmd") if not f.stem.startswith("README")])
 
     if not libraries:
         console.print()
@@ -55,7 +53,7 @@ def library_list() -> None:
     table.add_column("Description", style="white")
 
     # Parse each library to count aliases and get info
-    parser = MMLParser()
+    parser = MMDParser()
     for lib_file in libraries:
         name = lib_file.stem
         try:
@@ -71,7 +69,7 @@ def library_list() -> None:
     console.print(table)
     console.print()
     console.print("[dim]💡 View library details:[/dim] [cyan]midimarkup library info <name>[/cyan]")
-    console.print("[dim]💡 Import in MML:[/dim] [cyan]@import \"devices/<name>.mml\"[/cyan]")
+    console.print('[dim]💡 Import in MML:[/dim] [cyan]@import "devices/<name>.mmd"[/cyan]')
     console.print()
 
 
@@ -91,7 +89,7 @@ def library_info(
 
     # Find devices directory
     devices_dir = Path(__file__).parent.parent.parent.parent.parent / "devices"
-    lib_file = devices_dir / f"{name}.mml"
+    lib_file = devices_dir / f"{name}.mmd"
 
     if not lib_file.exists():
         console.print()
@@ -101,19 +99,21 @@ def library_info(
         libraries = sorted(
             [
                 f.stem
-                for f in devices_dir.glob("*.mml")
+                for f in devices_dir.glob("*.mmd")
                 if f.exists() and not f.stem.startswith("README")
             ]
         )
         for lib in libraries:
             console.print(f"  • [cyan]{lib}[/cyan]")
         console.print()
-        console.print("[dim]Use[/dim] [cyan]midimarkup library list[/cyan] [dim]to see all libraries[/dim]")
+        console.print(
+            "[dim]Use[/dim] [cyan]midimarkup library list[/cyan] [dim]to see all libraries[/dim]"
+        )
         raise typer.Exit(1)
 
     # Parse library
     try:
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(lib_file)
     except Exception as e:
         console.print()
@@ -166,7 +166,7 @@ def library_info(
         console.print("[yellow]No aliases defined in this library[/yellow]")
         console.print()
 
-    console.print("[dim]💡 Use in MML:[/dim] [cyan]@import \"devices/{}.mml\"[/cyan]".format(name))
+    console.print(f'[dim]💡 Use in MML:[/dim] [cyan]@import "devices/{name}.mmd"[/cyan]')
     console.print()
 
 
@@ -188,8 +188,8 @@ def library_validate(
     definitions. Reports any parsing errors or structural issues.
 
     Examples:
-        midimarkup library validate devices/quad_cortex.mml
-        midimarkup library validate my_custom_library.mml
+        midimarkup library validate devices/quad_cortex.mmd
+        midimarkup library validate my_custom_library.mmd
     """
     console = Console()
 
@@ -199,7 +199,7 @@ def library_validate(
 
     # Parse the library file
     try:
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(library_file)
     except Exception as e:
         console.print(f"[red]✗ Parse error:[/red] {e}")
@@ -238,7 +238,7 @@ def library_validate(
 
     # Success!
     alias_count = len(doc.aliases)
-    console.print(f"[green]✓ Validation passed[/green]")
+    console.print("[green]✓ Validation passed[/green]")
     console.print()
     console.print(f"  • [green]{alias_count}[/green] alias(es) defined")
     if doc.frontmatter:

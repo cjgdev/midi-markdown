@@ -21,12 +21,12 @@ from .input import KeyboardInputHandler
 from .state import TUIState
 
 __all__ = [
-    "TUIState",
-    "TUIDisplayManager",
     "KeyboardInputHandler",
+    "TUIDisplayManager",
+    "TUIState",
+    "render_controls",
+    "render_event_list",
     "render_header",
     "render_progress_bar",
-    "render_event_list",
     "render_status_bar",
-    "render_controls",
 ]

@@ -1,4 +1,4 @@
-"""Context-aware autocompletion for MML REPL.
+"""Context-aware autocompletion for MMD REPL.
 
 This module provides the MusicCompleter class which offers intelligent,
 context-sensitive completion suggestions for MIDI commands, aliases, variables,
@@ -7,7 +7,8 @@ note names, and meta-commands.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from prompt_toolkit.completion import Completer, Completion
 

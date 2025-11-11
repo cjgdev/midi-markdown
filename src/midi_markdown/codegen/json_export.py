@@ -11,7 +11,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..core.ir import IRProgram, MIDIEvent
+    from ..core.ir import IRProgram
 
 
 def export_to_json(
@@ -31,9 +31,9 @@ def export_to_json(
 
     Example:
         >>> from midi_markdown.core import compile_ast_to_ir
-        >>> from midi_markdown.parser.parser import MMLParser
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> from midi_markdown.parser.parser import MMDParser
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc)
         >>> json_complete = export_to_json(ir, format="complete")
         >>> json_simple = export_to_json(ir, format="simplified")
@@ -46,8 +46,7 @@ def export_to_json(
     # Serialize to JSON
     if pretty:
         return json.dumps(data, indent=2, ensure_ascii=False)
-    else:
-        return json.dumps(data, ensure_ascii=False)
+    return json.dumps(data, ensure_ascii=False)
 
 
 def _build_complete_format(ir_program: IRProgram) -> dict[str, Any]:
@@ -193,7 +192,7 @@ def _build_simplified_format(ir_program: IRProgram) -> dict[str, Any]:
                 "musical_time": base_dict["musical_time"],
                 "type": "time_signature",
                 "numerator": numerator,
-                "denominator": 2 ** denom_power,
+                "denominator": 2**denom_power,
             }
 
         elif event_type == "key_signature":
@@ -265,10 +264,10 @@ def _build_metadata(ir_program: IRProgram) -> dict[str, Any]:
     }
 
     # Add optional metadata fields if present
-    if "author" in ir_program.metadata and ir_program.metadata["author"]:
+    if ir_program.metadata.get("author"):
         metadata["author"] = ir_program.metadata["author"]
 
-    if "description" in ir_program.metadata and ir_program.metadata["description"]:
+    if ir_program.metadata.get("description"):
         metadata["description"] = ir_program.metadata["description"]
 
     if "version" in ir_program.metadata:

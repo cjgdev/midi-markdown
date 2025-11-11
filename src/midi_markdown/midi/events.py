@@ -17,8 +17,8 @@ from ..core.ir import (
 
 __all__ = [
     "EventType",
-    "MIDIEvent",
     "IRProgram",
+    "MIDIEvent",
     "create_ir_program",
     "string_to_event_type",
 ]

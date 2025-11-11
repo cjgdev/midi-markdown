@@ -13,12 +13,12 @@ from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 
 if TYPE_CHECKING:
-    from midi_markdown.parser.ast_nodes import MMLDocument
+    from midi_markdown.parser.ast_nodes import MMDDocument
 
 
 def should_show_progress(
     input_file: Path,
-    doc: MMLDocument | None = None,
+    doc: MMDDocument | None = None,
     verbose: bool = False,
     no_progress: bool = False,
 ) -> bool:
@@ -64,7 +64,7 @@ def should_show_progress(
     return False
 
 
-def estimate_event_count(doc: MMLDocument) -> int:
+def estimate_event_count(doc: MMDDocument) -> int:
     """Estimate the number of MIDI events in a document.
 
     This is a rough estimate that counts:

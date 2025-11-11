@@ -6,7 +6,7 @@ Loop, including multi-line input handling, completion detection, and state manag
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from lark.exceptions import UnexpectedCharacters, UnexpectedInput, UnexpectedToken
 from rich.console import Console
@@ -15,13 +15,13 @@ from midi_markdown.alias.imports import ImportManager
 from midi_markdown.core.compiler import compile_ast_to_ir
 from midi_markdown.diagnostics.formatter import display_events_table
 from midi_markdown.expansion.errors import ExpansionError
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 from midi_markdown.utils.validation import ValidationError
 
 from .repl_state import REPLState
 
 if TYPE_CHECKING:
-    from midi_markdown.parser.ast_nodes import MMLDocument
+    from midi_markdown.parser.ast_nodes import MMDDocument
 
 
 class MMLRepl:
@@ -43,31 +43,31 @@ class MMLRepl:
         >>> assert complete is False  # Incomplete - needs @end
         >>> complete, result = repl.try_parse("@alias test {val}\\n  - cc 1.10.{val}\\n@end")
         >>> assert complete is True   # Complete block
-        >>> isinstance(result, MMLDocument)
+        >>> isinstance(result, MMDDocument)
         True
     """
 
     def __init__(self) -> None:
         """Initialize the REPL with parser and state.
 
-        Creates a new MMLParser instance for parsing input and a REPLState
+        Creates a new MMDParser instance for parsing input and a REPLState
         instance for tracking session state (variables, aliases, imports, etc.).
         """
-        self.parser = MMLParser()
+        self.parser = MMDParser()
         self.state = REPLState()
         self.buffer: list[str] = []
 
-    def try_parse(self, text: str) -> tuple[bool, MMLDocument | Exception | None]:
+    def try_parse(self, text: str) -> tuple[bool, MMDDocument | Exception | None]:
         """Attempt to parse input text and determine if it's complete.
 
-        This method delegates to MMLParser.parse_interactive() which uses Lark's
+        This method delegates to MMDParser.parse_interactive() which uses Lark's
         exception handling to distinguish three cases:
 
         1. Incomplete input (UnexpectedEOF): User hasn't finished typing a multi-line
            construct like @alias...@end. Returns (False, None).
 
         2. Complete and valid: Input is syntactically complete and parses successfully.
-           Returns (True, MMLDocument).
+           Returns (True, MMDDocument).
 
         3. Complete but invalid: Input is complete but has syntax errors. Returns
            (True, Exception) so the error can be displayed without blocking further input.
@@ -78,7 +78,7 @@ class MMLRepl:
         Returns:
             Tuple of (is_complete, result):
             - (False, None): Input is incomplete, need more lines
-            - (True, MMLDocument): Input is complete and valid
+            - (True, MMDDocument): Input is complete and valid
             - (True, Exception): Input is complete but has syntax errors
 
         Example:
@@ -91,7 +91,7 @@ class MMLRepl:
             >>> # Complete single-line command
             >>> complete, result = repl.try_parse("- cc 1.7.64")
             >>> assert complete is True
-            >>> assert isinstance(result, MMLDocument)
+            >>> assert isinstance(result, MMDDocument)
             >>>
             >>> # Complete but invalid syntax
             >>> complete, result = repl.try_parse("- invalid_command")
@@ -140,7 +140,7 @@ class MMLRepl:
         self.state.reset()
         self.buffer.clear()
 
-    def evaluate(self, doc: MMLDocument) -> None:
+    def evaluate(self, doc: MMDDocument) -> None:
         """Evaluate parsed MML document in REPL context.
 
         This method processes a parsed MML document and updates the REPL state
@@ -196,7 +196,9 @@ class MMLRepl:
                 self.state.aliases[alias_name] = alias
                 param_count = len(alias.parameters)
                 param_str = f"{param_count} param{'s' if param_count != 1 else ''}"
-                console.print(f"[green]✓[/green] Alias: [magenta]{alias_name}[/magenta] ({param_str})")
+                console.print(
+                    f"[green]✓[/green] Alias: [magenta]{alias_name}[/magenta] ({param_str})"
+                )
 
         # 4. Load @import device libraries
         if doc.imports:
@@ -297,7 +299,10 @@ class MMLRepl:
         console.print("[dim]REPL state preserved - continue working[/dim]")
 
     def _handle_parse_error(
-        self, error: UnexpectedToken | UnexpectedCharacters | UnexpectedInput, source_text: str, console: Console
+        self,
+        error: UnexpectedToken | UnexpectedCharacters | UnexpectedInput,
+        source_text: str,
+        console: Console,
     ) -> None:
         """Handle parse/syntax errors with formatted code context."""
         # Determine error details
@@ -353,7 +358,9 @@ class MMLRepl:
 
         console.print("\n".join(parts))
 
-    def _handle_validation_error(self, error: ValidationError, source_text: str, console: Console) -> None:
+    def _handle_validation_error(
+        self, error: ValidationError, source_text: str, console: Console
+    ) -> None:
         """Handle validation errors with helpful context."""
         error_code = getattr(error, "error_code", "E201")
         header = f"[red bold]❌ error[{error_code}][/red bold]: {error}"
@@ -452,7 +459,7 @@ class MMLRepl:
 
         # Help command
         if command == ".help":
-            console.print("[bold cyan]MML REPL Commands:[/bold cyan]")
+            console.print("[bold cyan]MMD REPL Commands:[/bold cyan]")
             console.print("  [cyan].help[/cyan]         - Show this help message")
             console.print("  [cyan].quit[/cyan]/.exit   - Exit REPL")
             console.print("  [cyan].reset[/cyan]        - Clear all state")
@@ -465,17 +472,17 @@ class MMLRepl:
             return False
 
         # Exit commands
-        elif command in (".quit", ".exit"):
+        if command in (".quit", ".exit"):
             return True
 
         # Reset state
-        elif command == ".reset":
+        if command == ".reset":
             self.reset()
             console.print("[green]✓[/green] State reset")
             return False
 
         # List current state
-        elif command == ".list":
+        if command == ".list":
             console.print("[bold cyan]Current State:[/bold cyan]")
 
             # Variables
@@ -503,7 +510,7 @@ class MMLRepl:
                 console.print("  [dim]Imports: (none)[/dim]")
 
             # Settings
-            console.print(f"  [cyan]Settings:[/cyan]")
+            console.print("  [cyan]Settings:[/cyan]")
             console.print(f"    Tempo: {self.state.tempo} BPM")
             console.print(f"    PPQ: {self.state.resolution}")
             console.print(f"    Time Signature: {self.state.time_signature}")
@@ -511,20 +518,22 @@ class MMLRepl:
             return False
 
         # Inspect last IR
-        elif command == ".inspect":
+        if command == ".inspect":
             if self.state.last_ir is None:
                 console.print("[yellow]No IR to inspect[/yellow]")
                 console.print("[dim]Compile some MIDI events first[/dim]")
             else:
-                console.print(f"[bold cyan]Last Compiled IR:[/bold cyan]")
+                console.print("[bold cyan]Last Compiled IR:[/bold cyan]")
                 console.print(f"  Events: {self.state.last_ir.event_count}")
                 console.print(f"  Duration: {self.state.last_ir.duration_seconds:.2f}s")
                 console.print()
-                display_events_table(self.state.last_ir, max_events=20, show_stats=True, console=console)
+                display_events_table(
+                    self.state.last_ir, max_events=20, show_stats=True, console=console
+                )
             return False
 
         # Set tempo
-        elif command == ".tempo":
+        if command == ".tempo":
             if not args:
                 console.print("[red]✗[/red] Usage: .tempo <bpm>")
                 console.print("[dim]Example: .tempo 140[/dim]")
@@ -542,7 +551,7 @@ class MMLRepl:
             return False
 
         # Set PPQ
-        elif command == ".ppq":
+        if command == ".ppq":
             if not args:
                 console.print("[red]✗[/red] Usage: .ppq <value>")
                 console.print("[dim]Example: .ppq 960[/dim]")
@@ -560,7 +569,6 @@ class MMLRepl:
             return False
 
         # Unknown command
-        else:
-            console.print(f"[red]✗[/red] Unknown command: {command}")
-            console.print("[dim]Type .help for available commands[/dim]")
-            return False
+        console.print(f"[red]✗[/red] Unknown command: {command}")
+        console.print("[dim]Type .help for available commands[/dim]")
+        return False

@@ -23,7 +23,7 @@ class DocumentValidator:
         """Validate an entire MML document.
 
         Args:
-            doc: MMLDocument instance to validate
+            doc: MMDDocument instance to validate
 
         Returns:
             List of ValidationErrors (empty if valid)

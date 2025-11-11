@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from midi_markdown.core.compiler import compile_ast_to_ir
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 from midi_markdown.runtime.midi_io import MIDIOutputManager
 from midi_markdown.runtime.player import RealtimePlayer
 from midi_markdown.runtime.tui import (
@@ -42,9 +42,9 @@ def play(
     """Play MML file in real-time to MIDI output.
 
     Examples:
-        midimarkup play song.mml --port "IAC Driver Bus 1"
-        midimarkup play song.mml --port 0
-        midimarkup play song.mml --port 0 --no-ui
+        midimarkup play song.mmd --port "IAC Driver Bus 1"
+        midimarkup play song.mmd --port 0
+        midimarkup play song.mmd --port 0 --no-ui
         midimarkup play --list-ports
     """
     console = Console()
@@ -82,7 +82,7 @@ def play(
     # Compile MML file
     console.print(f"[cyan]Compiling:[/cyan] {input_file}")
     try:
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(input_file)
         ir_program = compile_ast_to_ir(doc)
     except Exception as e:
@@ -100,25 +100,20 @@ def play(
     # Show playback info
     duration_ms = player.get_duration_ms()
     duration_s = duration_ms / 1000
-    console.print(
-        f"[cyan]Duration:[/cyan] {duration_s:.2f}s ({ir_program.event_count} events)"
-    )
+    console.print(f"[cyan]Duration:[/cyan] {duration_s:.2f}s ({ir_program.event_count} events)")
     console.print()
 
     # Choose playback mode
     if no_ui:
         _play_simple(console, player, duration_ms, ir_program.event_count)
+    # Check if TTY is available for TUI
+    elif not sys.stdin.isatty():
+        console.print("[yellow]Warning: No TTY detected, falling back to simple mode[/yellow]")
+        _play_simple(console, player, duration_ms, ir_program.event_count)
     else:
-        # Check if TTY is available for TUI
-        if not sys.stdin.isatty():
-            console.print(
-                "[yellow]Warning: No TTY detected, falling back to simple mode[/yellow]"
-            )
-            _play_simple(console, player, duration_ms, ir_program.event_count)
-        else:
-            # Get title from frontmatter if available
-            title = doc.frontmatter.get("title", None) if doc.frontmatter else None
-            _play_with_tui(player, input_file.name, port, title, duration_ms, ir_program)
+        # Get title from frontmatter if available
+        title = doc.frontmatter.get("title", None) if doc.frontmatter else None
+        _play_with_tui(player, input_file.name, port, title, duration_ms, ir_program)
 
 
 def _play_simple(

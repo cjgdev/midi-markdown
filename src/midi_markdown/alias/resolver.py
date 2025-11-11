@@ -505,7 +505,13 @@ class AliasResolver:
             # Replace all occurrences of {param_name} with the value
             # Match {name}, {name:...}, or {name=...} but not partial matches like {name_longer}
             pattern = r"\{" + re.escape(param_name) + r"(?:[=:][^}]*)?\}"
-            result = re.sub(pattern, str(param_value), result)
+            # Convert float values to int to avoid decimal points in command strings
+            # (e.g., "127.0" would break "cc 1.14.127.0" parsing which splits on dots)
+            if isinstance(param_value, float) and param_value.is_integer():
+                value_str = str(int(param_value))
+            else:
+                value_str = str(param_value)
+            result = re.sub(pattern, value_str, result)
         return result
 
     def _parse_command_string(self, command_str: str, timing: Any, source_line: int) -> MIDICommand:

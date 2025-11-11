@@ -32,7 +32,7 @@ def compile(
     input_file: Annotated[
         Path,
         typer.Argument(
-            help="Input .mml file to compile",
+            help="Input .mmd file to compile",
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -61,7 +61,9 @@ def compile(
     ] = "midi",
     midi_format: Annotated[
         int,
-        typer.Option("--midi-format", help="MIDI file format: 0=single track, 1=multi-track, 2=async"),
+        typer.Option(
+            "--midi-format", help="MIDI file format: 0=single track, 1=multi-track, 2=async"
+        ),
     ] = 1,
     validate: Annotated[
         bool,
@@ -99,31 +101,31 @@ def compile(
 
     Examples:
         # Basic compilation to MIDI file
-        midimarkup compile song.mml
+        midimarkup compile song.mmd
 
         # Specify custom output path
-        midimarkup compile song.mml -o output/performance.mid
+        midimarkup compile song.mmd -o output/performance.mid
 
         # High-resolution MIDI (960 PPQ for precise timing)
-        midimarkup compile song.mml --ppq 960
+        midimarkup compile song.mmd --ppq 960
 
         # Export to CSV for spreadsheet analysis
-        midimarkup compile song.mml --format csv -o events.csv
+        midimarkup compile song.mmd --format csv -o events.csv
 
         # Export to JSON for programmatic processing
-        midimarkup compile song.mml --format json -o data.json
+        midimarkup compile song.mmd --format json -o data.json
 
         # Display events as formatted table (no file output)
-        midimarkup compile song.mml --format table
+        midimarkup compile song.mmd --format table
 
         # Verbose output showing compilation steps
-        midimarkup compile song.mml -v
+        midimarkup compile song.mmd -v
 
         # Compile with progress bars for large files
-        midimarkup compile large_song.mml --verbose
+        midimarkup compile large_song.mmd --verbose
 
         # Skip validation for faster compilation (not recommended)
-        midimarkup compile song.mml --no-validate
+        midimarkup compile song.mmd --no-validate
 
     Output Formats:
         midi         Standard MIDI File (.mid) - default format
@@ -173,10 +175,10 @@ def compile(
         if verbose:
             output_console.print("  [dim]Parsing MML file...[/dim]")
 
-        from midi_markdown.parser.parser import MMLParser
+        from midi_markdown.parser.parser import MMDParser
 
         try:
-            parser = MMLParser()
+            parser = MMDParser()
             doc = parser.parse_file(input_file)
         except (UnexpectedToken, UnexpectedCharacters) as parse_error:
             # Use structured parse error display
@@ -577,9 +579,7 @@ def compile(
 
             # Get duration from IR program
             duration_seconds = ir_program.duration_seconds
-            duration_formatted = (
-                f"{int(duration_seconds // 60)}:{int(duration_seconds % 60):02d}"
-            )
+            duration_formatted = f"{int(duration_seconds // 60)}:{int(duration_seconds % 60):02d}"
 
             # Get file sizes (only if output file exists)
             input_size = input_file.stat().st_size
@@ -610,7 +610,9 @@ def compile(
 
         # Use structured success display (only for MIDI format)
         if output_format == "midi":
-            show_success(output, success_stats, output_console, no_color=no_color, no_emoji=no_emoji)
+            show_success(
+                output, success_stats, output_console, no_color=no_color, no_emoji=no_emoji
+            )
 
     except typer.Exit:
         # Re-raise typer.Exit to preserve exit codes

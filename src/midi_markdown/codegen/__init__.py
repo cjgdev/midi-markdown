@@ -13,4 +13,4 @@ from .csv_export import export_to_csv
 from .json_export import export_to_json
 from .midi_file import generate_midi_file
 
-__all__ = ["generate_midi_file", "export_to_csv", "export_to_json"]
+__all__ = ["export_to_csv", "export_to_json", "generate_midi_file"]

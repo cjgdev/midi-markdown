@@ -6,15 +6,15 @@ All command implementations are in the commands/ package.
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
 from midi_markdown import __version__
 
 from .commands import (
-    check,
     cheatsheet,
+    check,
     compile,
     create_repl_command,
     examples,
@@ -53,7 +53,7 @@ app = typer.Typer(
 @app.callback()
 def main(
     version_flag: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version",
             "-V",
@@ -64,7 +64,6 @@ def main(
     ] = None,
 ) -> None:
     """MIDI Markup Language (MML) compiler and tools."""
-    pass
 
 
 # Register main commands

@@ -28,9 +28,9 @@ def display_events_table(
 
     Example:
         >>> from midi_markdown.core import compile_ast_to_ir
-        >>> from midi_markdown.parser.parser import MMLParser
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> from midi_markdown.parser.parser import MMDParser
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc)
         >>> display_events_table(ir, max_events=50)
     """
@@ -41,7 +41,7 @@ def display_events_table(
     if show_stats:
         summary = get_event_summary(ir_program)
         console.print()
-        console.print(f"[bold cyan]Program Summary[/]")
+        console.print("[bold cyan]Program Summary[/]")
         console.print(f"  Events: [bold]{summary['total_events']}[/]")
         console.print(
             f"  Duration: [bold]{summary['duration_seconds']:.2f}s[/] "
@@ -99,10 +99,8 @@ def display_events_table(
     # Show truncation message if needed
     if max_events and len(ir_program.events) > max_events:
         remaining = len(ir_program.events) - max_events
-        console.print(
-            f"\n[dim]... and {remaining} more event{'s' if remaining != 1 else ''}[/]"
-        )
-        console.print(f"[dim]Use --limit to show more events[/]")
+        console.print(f"\n[dim]... and {remaining} more event{'s' if remaining != 1 else ''}[/]")
+        console.print("[dim]Use --limit to show more events[/]")
 
 
 def format_event_details(event: MIDIEvent) -> str:
@@ -116,37 +114,33 @@ def format_event_details(event: MIDIEvent) -> str:
     """
     event_type = event.type.name.lower()
 
-    if event_type == "note_on":
+    if event_type == "note_on" or event_type == "note_off":
         note_name = _note_number_to_name(event.data1)
         return f"{note_name} (#{event.data1}) vel:{event.data2}"
 
-    elif event_type == "note_off":
-        note_name = _note_number_to_name(event.data1)
-        return f"{note_name} (#{event.data1}) vel:{event.data2}"
-
-    elif event_type == "control_change":
+    if event_type == "control_change":
         cc_name = _get_cc_name(event.data1)
         return f"CC#{event.data1} ({cc_name}) val:{event.data2}"
 
-    elif event_type == "program_change":
+    if event_type == "program_change":
         return f"Program {event.data1}"
 
-    elif event_type == "pitch_bend":
+    if event_type == "pitch_bend":
         # Convert from 0-16383 to -8192 to +8191
         bend_value = event.data1 - 8192
         return f"Bend: {bend_value:+d}"
 
-    elif event_type == "channel_pressure":
+    if event_type == "channel_pressure":
         return f"Pressure: {event.data1}"
 
-    elif event_type == "poly_pressure":
+    if event_type == "poly_pressure":
         note_name = _note_number_to_name(event.data1)
         return f"{note_name} pressure: {event.data2}"
 
-    elif event_type == "tempo":
+    if event_type == "tempo":
         return f"{event.data1} BPM"
 
-    elif event_type == "time_signature":
+    if event_type == "time_signature":
         # data1 is numerator, data2 is denominator (as power of 2)
         if event.metadata:
             num = event.metadata.get("numerator", event.data1)
@@ -155,32 +149,25 @@ def format_event_details(event: MIDIEvent) -> str:
             return f"{num}/{denom}"
         return f"{event.data1}/{2**event.data2 if event.data2 else 4}"
 
-    elif event_type == "marker":
+    if event_type == "marker" or event_type == "text":
         text = event.metadata.get("text", "") if event.metadata else ""
         return f'"{text}"'
 
-    elif event_type == "text":
-        text = event.metadata.get("text", "") if event.metadata else ""
-        return f'"{text}"'
-
-    elif event_type == "sysex":
+    if event_type == "sysex":
         if event.metadata and "bytes" in event.metadata:
             data_bytes = event.metadata["bytes"]
             if len(data_bytes) > 8:
                 return f"SysEx: {len(data_bytes)} bytes"
-            else:
-                hex_str = " ".join(f"{b:02X}" for b in data_bytes)
-                return f"SysEx: {hex_str}"
+            hex_str = " ".join(f"{b:02X}" for b in data_bytes)
+            return f"SysEx: {hex_str}"
         return "SysEx"
 
-    else:
-        # Generic display for unknown types
-        if event.data2 is not None:
-            return f"data1:{event.data1} data2:{event.data2}"
-        elif event.data1 is not None:
-            return f"data1:{event.data1}"
-        else:
-            return ""
+    # Generic display for unknown types
+    if event.data2 is not None:
+        return f"data1:{event.data1} data2:{event.data2}"
+    if event.data1 is not None:
+        return f"data1:{event.data1}"
+    return ""
 
 
 def format_musical_time(tick: int, ppq: int) -> str:

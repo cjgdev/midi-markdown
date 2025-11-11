@@ -250,10 +250,10 @@ class IRProgram:
         metadata: Dictionary with document metadata (title, author, etc.)
 
     Example:
-        >>> from midi_markdown.parser.parser import MMLParser
+        >>> from midi_markdown.parser.parser import MMDParser
         >>> from midi_markdown.core.compiler import compile_ast_to_ir
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("examples/00_hello_world.mml")
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("examples/00_basics/00_hello_world.mmd")
         >>> ir = compile_ast_to_ir(doc, ppq=480)
         >>> print(f"Duration: {ir.duration_seconds:.2f}s")
         Duration: 2.00s
@@ -323,9 +323,7 @@ class IRProgram:
             List of events in range [start, end]
         """
         return [
-            e
-            for e in self.events
-            if e.time_seconds is not None and start <= e.time_seconds <= end
+            e for e in self.events if e.time_seconds is not None and start <= e.time_seconds <= end
         ]
 
     def events_by_type(self, event_type: EventType) -> list[MIDIEvent]:

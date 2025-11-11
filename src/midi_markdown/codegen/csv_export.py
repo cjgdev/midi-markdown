@@ -26,9 +26,9 @@ def export_to_csv(ir_program: IRProgram, include_header: bool = True) -> str:
 
     Example:
         >>> from midi_markdown.core import compile_ast_to_ir
-        >>> from midi_markdown.parser.parser import MMLParser
-        >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> from midi_markdown.parser.parser import MMDParser
+        >>> parser = MMDParser()
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc)
         >>> csv = export_to_csv(ir)
         >>> print(csv)
@@ -84,37 +84,31 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
     event_type_name = event.type.name.lower()
 
     # Channel voice events (note_on, note_off, cc, pc, pitch_bend, etc.)
-    if event_type_name == "note_on":
+    if event_type_name == "note_on" or event_type_name == "note_off" or event_type_name == "control_change":
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
 
-    elif event_type_name == "note_off":
-        return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
-
-    elif event_type_name == "control_change":
-        return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
-
-    elif event_type_name == "program_change":
+    if event_type_name == "program_change":
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}"
 
-    elif event_type_name == "pitch_bend":
+    if event_type_name == "pitch_bend":
         # Pitch bend: data1 is 14-bit value (0-16383, center at 8192)
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}"
 
-    elif event_type_name == "channel_pressure":
+    if event_type_name == "channel_pressure":
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}"
 
-    elif event_type_name == "poly_pressure":
+    if event_type_name == "poly_pressure":
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
 
     # Meta events (tempo, time signature, markers, text)
-    elif event_type_name == "tempo":
+    if event_type_name == "tempo":
         # Convert BPM to microseconds per quarter note
         # microseconds_per_qn = 60,000,000 / BPM
         bpm = event.data1
         microseconds_per_qn = int(60_000_000 / bpm) if bpm > 0 else 500000
         return f"{track}, {time}, {event_name}, {microseconds_per_qn}"
 
-    elif event_type_name == "time_signature":
+    if event_type_name == "time_signature":
         # Time signature: numerator, denominator (as power of 2), clocks, notesq
         # Try to get from metadata first, then data1/data2, finally defaults
         if event.metadata and "numerator" in event.metadata:
@@ -134,27 +128,27 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
         notes_per_quarter = 8
         return f"{track}, {time}, {event_name}, {numerator}, {denominator_power}, {clocks_per_click}, {notes_per_quarter}"
 
-    elif event_type_name == "key_signature":
+    if event_type_name == "key_signature":
         # Key signature: sharps/flats (-7 to +7), major/minor (0/1)
         # For now, use data1 as sharps/flats, data2 as major(0)/minor(1)
         sharps_flats = event.data1 if event.data1 is not None else 0
         mode = "minor" if event.data2 == 1 else "major"
         return f'{track}, {time}, {event_name}, {sharps_flats}, "{mode}"'
 
-    elif event_type_name == "marker":
+    if event_type_name == "marker":
         # Marker text event
         text = event.metadata.get("text", "") if event.metadata else ""
         # Escape quotes: " becomes ""
         escaped_text = text.replace('"', '""')
         return f'{track}, {time}, {event_name}, "{escaped_text}"'
 
-    elif event_type_name == "text":
+    if event_type_name == "text":
         # Generic text event
         text = event.metadata.get("text", "") if event.metadata else ""
         escaped_text = text.replace('"', '""')
         return f'{track}, {time}, {event_name}, "{escaped_text}"'
 
-    elif event_type_name == "sysex":
+    if event_type_name == "sysex":
         # System exclusive: length, data bytes
         if event.metadata and "bytes" in event.metadata:
             data_bytes = event.metadata["bytes"]
@@ -162,22 +156,14 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
             # Format: Track, Time, System_exclusive, Length, byte1, byte2, ...
             bytes_str = ", ".join(str(b) for b in data_bytes)
             return f"{track}, {time}, {event_name}, {length}, {bytes_str}"
-        else:
-            return ""  # Skip if no data
+        return ""  # Skip if no data
 
     # System common messages
-    elif event_type_name == "mtc_quarter_frame":
+    if event_type_name == "mtc_quarter_frame" or event_type_name == "song_position" or event_type_name == "song_select":
         return f"{track}, {time}, {event_name}, {event.data1}"
 
-    elif event_type_name == "song_position":
-        return f"{track}, {time}, {event_name}, {event.data1}"
-
-    elif event_type_name == "song_select":
-        return f"{track}, {time}, {event_name}, {event.data1}"
-
-    else:
-        # Unknown event type - skip
-        return ""
+    # Unknown event type - skip
+    return ""
 
 
 def _event_type_to_midicsv_name(event_type: EventType) -> str:
@@ -226,9 +212,8 @@ def _event_type_to_midicsv_name(event_type: EventType) -> str:
     # Check each mapping
     if event_type in channel_events:
         return channel_events[event_type]
-    elif event_type in meta_events:
+    if event_type in meta_events:
         return meta_events[event_type]
-    elif event_type in system_events:
+    if event_type in system_events:
         return system_events[event_type]
-    else:
-        return ""  # Unsupported event type
+    return ""  # Unsupported event type

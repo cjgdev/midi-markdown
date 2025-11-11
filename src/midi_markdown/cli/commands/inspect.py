@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -14,7 +13,7 @@ from midi_markdown.cli.error_handler import ErrorContext, cli_error_handler
 from ...codegen import export_to_csv, export_to_json
 from ...core import compile_ast_to_ir
 from ...diagnostics import display_events_table
-from ...parser.parser import MMLParser
+from ...parser.parser import MMDParser
 
 
 def inspect(
@@ -64,10 +63,10 @@ def inspect(
     MIDI events in various formats. Unlike 'compile', it never writes MIDI files.
 
     Examples:
-        midimarkup inspect song.mml
-        midimarkup inspect song.mml --format json
-        midimarkup inspect song.mml --limit 50 --no-stats
-        midimarkup inspect song.mml -f csv > events.csv
+        midimarkup inspect song.mmd
+        midimarkup inspect song.mmd --format json
+        midimarkup inspect song.mmd --limit 50 --no-stats
+        midimarkup inspect song.mmd -f csv > events.csv
     """
     console = Console(no_color=no_color, force_terminal=not no_color)
 
@@ -98,7 +97,7 @@ def inspect(
         if verbose:
             console.print("  [dim]Parsing MML file...[/dim]")
 
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_file(str(input_file))
 
         if verbose:

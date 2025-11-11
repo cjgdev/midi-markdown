@@ -169,7 +169,9 @@ def examples(
         for key in sorted(EXAMPLES.keys()):
             console.print(f"  • [green]{key}[/green]")
         console.print()
-        console.print("[dim]Run[/dim] [cyan]midimarkup examples[/cyan] [dim]to see all examples[/dim]")
+        console.print(
+            "[dim]Run[/dim] [cyan]midimarkup examples[/cyan] [dim]to see all examples[/dim]"
+        )
         raise typer.Exit(1)
 
     example = EXAMPLES[name]
@@ -187,11 +189,11 @@ def examples(
         line_numbers=True,
         word_wrap=False,
     )
-    console.print(Panel(syntax, title=f"[cyan]{name}.mml[/cyan]", border_style="cyan"))
+    console.print(Panel(syntax, title=f"[cyan]{name}.mmd[/cyan]", border_style="cyan"))
 
     console.print()
     console.print("[dim]💡 Try it out:[/dim]")
-    console.print(f"   1. Copy the code above to [cyan]{name}.mml[/cyan]")
-    console.print(f"   2. Compile: [cyan]midimarkup compile {name}.mml[/cyan]")
-    console.print(f"   3. Play: [cyan]midimarkup play {name}.mml --port 0[/cyan]")
+    console.print(f"   1. Copy the code above to [cyan]{name}.mmd[/cyan]")
+    console.print(f"   2. Compile: [cyan]midimarkup compile {name}.mmd[/cyan]")
+    console.print(f"   3. Play: [cyan]midimarkup play {name}.mmd --port 0[/cyan]")
     console.print()
