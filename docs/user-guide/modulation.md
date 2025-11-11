@@ -1,20 +1,26 @@
 # Enhanced Modulation
 
-MIDI Markdown provides three powerful modulation types for smooth, natural-sounding parameter automation: **Bezier curves**, **waveforms** (LFO), and **envelopes**. These go far beyond simple linear ramps, enabling professional-quality automation for filters, volume, pitch, and any MIDI CC parameter.
+MIDI Markdown provides three powerful modulation types for smooth, natural-sounding parameter automation: **Bezier curves**, **waveforms** (LFO), and **envelopes**. These go far beyond simple linear ramps, enabling professional-quality automation for filters, volume, pitch, and any MIDI parameter.
 
 ## Overview
 
-Modulation expressions can be used anywhere a CC value is expected, providing smooth transitions and periodic variations:
+Modulation expressions can be used in **any parameter context**: CC values, pitch bend, and aftertouch/pressure. This provides smooth transitions and periodic variations across all MIDI message types:
 
 ```mml
-# Bezier curve for smooth filter opening
+# CC: Bezier curve for smooth filter opening
 - cc 1.74.curve(0, 127, ease-out)
 
-# Sine wave for vibrato
+# CC: Sine wave for vibrato
 - cc 1.1.wave(sine, 64, freq=5.0, depth=10)
 
-# ADSR envelope for dynamic filter
+# CC: ADSR envelope for dynamic filter
 - cc 1.74.envelope(adsr, attack=0.1, decay=0.2, sustain=0.7, release=0.3)
+
+# Pitch bend: Natural vibrato effect
+- pitch_bend 1.wave(sine, 8192, freq=5.5, depth=5)
+
+# Channel pressure: Expression swell
+- channel_pressure 1.curve(0, 127, ease-in-out)
 ```
 
 ---
@@ -307,20 +313,36 @@ Envelopes support two curve shapes:
 - cc 1.74.wave(sine, 64, freq=0.2, depth=60)
 ```
 
-### Vibrato and Tremolo
+### Vibrato and Pitch Effects
 
 ```mml
-# Natural vibrato (pitch)
+# CC vibrato (mod wheel)
 [00:00.000]
 - cc 1.1.wave(sine, 64, freq=6.0, depth=8)
 
-# Tremolo (volume)
+# Pitch bend vibrato (more natural for pitch)
 [00:02.000]
+- pitch_bend 1.wave(sine, 8192, freq=5.5, depth=5)
+
+# Pitch sweep with curve
+[00:04.000]
+- pitch_bend 1.curve(-4096, 4096, ease-in-out)
+
+# Pitch dive with envelope
+[00:06.000]
+- pitch_bend 1.envelope(ad, attack=0.01, decay=1.5)
+```
+
+### Tremolo and Volume
+
+```mml
+# Tremolo (volume)
+[00:00.000]
 - cc 1.7.wave(triangle, 100, freq=4.0, depth=25)
 
-# Pitch bend vibrato (wider range)
-[00:04.000]
-- pitch_bend 1.wave(sine, 8192, freq=5.5, depth=5)
+# Volume swell with envelope
+[00:02.000]
+- cc 1.7.envelope(ar, attack=2.0, release=1.5)
 ```
 
 ### Volume Automation
@@ -342,13 +364,42 @@ Envelopes support two curve shapes:
 ### Expression and Dynamics
 
 ```mml
-# Musical expression curve
+# Musical expression curve (CC#11)
 [00:00.000]
 - cc 1.11.curve(40, 120, ease-in-out)
 
-# Breath controller envelope
+# Breath controller envelope (CC#2)
 [00:02.000]
 - cc 1.2.envelope(adsr, attack=0.3, decay=0.2, sustain=0.8, release=0.5)
+```
+
+### Pressure and Aftertouch
+
+Channel pressure and polyphonic pressure (aftertouch) support all modulation types, enabling expressive per-note or per-channel dynamics:
+
+```mml
+# Channel pressure swell for pads
+[00:00.000]
+- note_on 1.60.80 4b
+- channel_pressure 1.curve(0, 127, ease-in-out)
+
+# Channel pressure with envelope
+[00:04.000]
+- note_on 1.60.100 4b
+- channel_pressure 1.envelope(adsr, attack=0.2, decay=0.1, sustain=0.8, release=0.3)
+
+# Polyphonic pressure vibrato (per-note expression)
+[00:08.000]
+- note_on 1.C4.100 4b
+- poly_pressure 1.C4.wave(sine, 64, freq=3.0, depth=40)
+
+# Multiple notes with independent pressure
+[00:12.000]
+- note_on 1.C4.100 4b
+- poly_pressure 1.C4.curve(0, 127, ease-in)
+[@]
+- note_on 1.E4.100 4b
+- poly_pressure 1.E4.curve(0, 100, ease-out)
 ```
 
 ---
@@ -451,10 +502,22 @@ Stack multiple LFOs for complex motion:
 
 ## Reference
 
+Modulation expressions work in **all parameter contexts**. Use the same syntax with different MIDI message types.
+
 ### Curve Syntax
 
 ```mml
+# CC values
 cc {channel}.{cc_number}.curve(start, end, curve_type)
+
+# Pitch bend
+pitch_bend {channel}.curve(start, end, curve_type)
+
+# Channel pressure
+channel_pressure {channel}.curve(start, end, curve_type)
+
+# Polyphonic pressure
+poly_pressure {channel}.{note}.curve(start, end, curve_type)
 
 curve_type:
   - ease-in
@@ -467,7 +530,15 @@ curve_type:
 ### Wave Syntax
 
 ```mml
+# CC values
 cc {channel}.{cc_number}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
+
+# Pitch bend
+pitch_bend {channel}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
+
+# Channel/poly pressure
+channel_pressure {channel}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
+poly_pressure {channel}.{note}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
 
 type:
   - sine
@@ -479,7 +550,15 @@ type:
 ### Envelope Syntax
 
 ```mml
+# CC values
 cc {channel}.{cc_number}.envelope(type, params [, curve=type])
+
+# Pitch bend
+pitch_bend {channel}.envelope(type, params [, curve=type])
+
+# Channel/poly pressure
+channel_pressure {channel}.envelope(type, params [, curve=type])
+poly_pressure {channel}.{note}.envelope(type, params [, curve=type])
 
 ADSR: envelope(adsr, attack=t, decay=t, sustain=lvl, release=t [, curve=type])
 AR:   envelope(ar, attack=t, release=t [, curve=type])
@@ -487,6 +566,15 @@ AD:   envelope(ad, attack=t, decay=t [, curve=type])
 
 curve: linear | exponential
 ```
+
+### Value Ranges
+
+| Context | Range | Resolution |
+|---------|-------|------------|
+| CC values | 0-127 | 7-bit |
+| Pitch bend | -8192 to +8191 | 14-bit |
+| Channel pressure | 0-127 | 7-bit |
+| Poly pressure | 0-127 | 7-bit |
 
 ---
 

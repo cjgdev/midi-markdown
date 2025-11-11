@@ -54,6 +54,17 @@ class Validator:
         Raises:
             ValidationError: If value is out of range
         """
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
+        # Allow modulation expressions - validation happens during expansion
+        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+            return
+
         if not isinstance(value, int):
             raise ValidationError(
                 f"MIDI value must be an integer, got {type(value).__name__}",
@@ -107,6 +118,12 @@ class Validator:
         Raises:
             ValidationError: If note is invalid
         """
+        from midi_markdown.parser.ast_nodes import RandomExpression
+
+        # Allow RandomExpression - validation happens during expansion
+        if isinstance(note, RandomExpression):
+            return note
+
         if isinstance(note, str):
             try:
                 note_num = note_to_midi(note)
@@ -144,6 +161,17 @@ class Validator:
         Raises:
             ValidationError: If velocity is invalid
         """
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
+        # Allow modulation expressions - validation happens during expansion
+        if isinstance(velocity, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+            return
+
         if not isinstance(velocity, int):
             raise ValidationError(
                 f"Velocity must be an integer, got {type(velocity).__name__}",
@@ -193,6 +221,19 @@ class Validator:
         Raises:
             ValidationError: If value is invalid
         """
+        # Import modulation expression types for type checking
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
+        # Allow modulation expression AST nodes (will be expanded later)
+        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+            # Validation happens during expansion - just accept it here
+            return
+
         # Allow dict values for ramp and random expressions
         if isinstance(value, dict):
             if value.get("type") in ("ramp", "random"):
@@ -268,6 +309,17 @@ class Validator:
         Raises:
             ValidationError: If value is invalid
         """
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
+
+        # Allow modulation expressions - validation happens during expansion
+        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
+            return
+
         if not isinstance(value, int):
             raise ValidationError(
                 f"Pitch bend must be an integer, got {type(value).__name__}",

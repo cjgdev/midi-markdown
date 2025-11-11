@@ -6,15 +6,23 @@ Technical reference for Stage 7 modulation expressions: curves, waves, and envel
 
 ## Quick Syntax Reference
 
+Modulation expressions work in **all parameter contexts**: CC values, pitch bend, and aftertouch/pressure.
+
 ```mml
 # Bezier curve - smooth parameter transitions
 cc {ch}.{cc}.curve(start, end, type)
+pitch_bend {ch}.curve(start, end, type)
+channel_pressure {ch}.curve(start, end, type)
 
 # Waveform (LFO) - periodic modulation
 cc {ch}.{cc}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
+pitch_bend {ch}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
+poly_pressure {ch}.{note}.wave(type, base [, freq=Hz] [, phase=0-1] [, depth=percent])
 
 # Envelope - time-based parameter shaping
 cc {ch}.{cc}.envelope(adsr|ar|ad, params [, curve=type])
+pitch_bend {ch}.envelope(adsr|ar|ad, params [, curve=type])
+channel_pressure {ch}.envelope(adsr|ar|ad, params [, curve=type])
 ```
 
 ---
@@ -69,17 +77,26 @@ Generates time-interpolated CC values between start and end over the event durat
 ### Example
 
 ```mml
+# CC automation
 [00:00.000]
 - cc 1.74.curve(0, 127, ease-out)        # Filter open: fast then slow
 - cc 1.7.curve(0, 100, ease-in)          # Volume build: slow then fast
-- pitch_bend 1.curve(0, 4096, linear)    # Pitch slide: constant rate
+
+# Pitch bend sweep
+[00:04.000]
+- pitch_bend 1.curve(-4096, 4096, ease-in-out)  # Smooth pitch sweep
+
+# Channel pressure swell
+[00:08.000]
+- channel_pressure 1.curve(0, 127, ease-in-out)  # Expression swell
 ```
 
 ### Compatibility
 
-- **MIDI**: Works with any CC number (0-127) and pitch bend (-8192 to +8191)
+- **MIDI**: Works with any CC number (0-127), pitch bend (-8192 to +8191), and pressure (0-127)
 - **Timing**: Respects document tempo and timing mode
 - **Channels**: All 16 MIDI channels supported
+- **Contexts**: CC values, pitch_bend, channel_pressure, poly_pressure
 
 ### Error Conditions
 
@@ -150,9 +167,13 @@ Generates continuous periodic CC values oscillating around base_value with speci
 ### Example
 
 ```mml
-# Vibrato: 6 Hz sine at center (64), ±10% depth
+# CC vibrato: 6 Hz sine at center (64), ±10% depth
 [00:00.000]
 - cc 1.1.wave(sine, 64, freq=6.0, depth=10)
+
+# Pitch bend vibrato (more natural for pitch)
+[00:01.000]
+- pitch_bend 1.wave(sine, 8192, freq=5.5, depth=5)
 
 # Auto-pan stereo (180° phase shift between channels)
 [00:02.000]
@@ -164,11 +185,16 @@ Generates continuous periodic CC values oscillating around base_value with speci
 # Slow filter sweep (triangle, 30 seconds per cycle)
 [00:04.000]
 - cc 1.74.wave(triangle, 64, freq=0.033, depth=60)
+
+# Polyphonic pressure vibrato (per-note expression)
+[00:06.000]
+- poly_pressure 1.C4.wave(sine, 64, freq=3.0, depth=40)
 ```
 
 ### Compatibility
 
-- **MIDI**: Works with any CC number and pitch bend
+- **MIDI**: Works with any CC number (0-127), pitch bend (-8192 to +8191), and pressure (0-127)
+- **Contexts**: CC values, pitch_bend, channel_pressure, poly_pressure
 - **Polyphony**: Independent LFO per voice when applied to note velocity/expressions
 - **Stacking**: Multiple LFOs can modulate different parameters simultaneously
 
@@ -294,19 +320,29 @@ Time-interpolated parameter values following specified envelope shape.
 ### Example
 
 ```mml
-# Synth pad filter: slow attack, smooth sustain, long release
+# CC: Synth pad filter with slow attack, smooth sustain, long release
 [00:00.000]
 - note_on 1.60.80 4b
 - cc 1.74.envelope(adsr, attack=1.0, decay=0.3, sustain=0.75, release=2.0, curve=exponential)
 
-# Percussive hit: instant attack, quick decay
+# CC: Percussive hit with instant attack, quick decay
 [00:04.000]
 - cc 1.74.envelope(ar, attack=0.005, release=0.15, curve=linear)
+
+# Pitch bend: Pitch dive effect
+[00:08.000]
+- pitch_bend 1.envelope(ad, attack=0.01, decay=1.5)
+
+# Channel pressure: Dynamic expression envelope
+[00:12.000]
+- note_on 1.60.100 4b
+- channel_pressure 1.envelope(adsr, attack=0.2, decay=0.1, sustain=0.8, release=0.3)
 ```
 
 ### Compatibility
 
-- **MIDI**: Works with any CC number (0-127) and pitch bend (-8192 to +8191)
+- **MIDI**: Works with any CC number (0-127), pitch bend (-8192 to +8191), and pressure (0-127)
+- **Contexts**: CC values, pitch_bend, channel_pressure, poly_pressure
 - **Velocity**: Can modulate note velocity for dynamic articulation
 - **Stacking**: Multiple envelopes on different CCs create complex evolving textures
 
@@ -365,8 +401,9 @@ Multiple modulations on same event use simultaneous timing (`[@]`):
 ### MIDI Limitations
 
 - **CC Range**: 0-127 per MIDI spec
-- **Pitch Bend**: -8192 to +8191 per MIDI spec
-- **Resolution**: 14-bit resolution for pitch bend, 7-bit for CC
+- **Pitch Bend**: -8192 to +8191 per MIDI spec (14-bit resolution)
+- **Pressure**: 0-127 per MIDI spec (7-bit resolution)
+- **Resolution**: 14-bit for pitch bend, 7-bit for CC and pressure
 - **Sample Rate**: Default 100 Hz is sufficient for most audio (Nyquist ~50 Hz)
 
 ### Device Compatibility

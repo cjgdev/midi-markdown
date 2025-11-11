@@ -170,6 +170,11 @@ MML supports multiple timing formats that can be mixed in the same document:
 - pb 1.16383                 # Maximum bend up
 
 # Range: -8192 to +8191, or 0 to 16383
+
+# Modulation support - smooth vibrato and pitch effects
+- pb 1.wave(sine, 8192, freq=5.5, depth=5)              # Vibrato
+- pb 1.curve(-4096, 4096, ease-in-out)                  # Pitch sweep
+- pb 1.envelope(ar, attack=0.5, release=1.0)            # Pitch envelope
 ```
 
 #### Aftertouch/Pressure
@@ -184,6 +189,11 @@ MML supports multiple timing formats that can be mixed in the same document:
 - pp <channel>.<note>.<value>    # Shorthand
 - pp 1.C4.80
 - pp 1.60.100
+
+# Modulation support - dynamic pressure swells and envelopes
+- cp 1.curve(0, 127, ease-in-out)                       # Pressure swell
+- cp 1.envelope(adsr, attack=0.2, decay=0.1, sustain=0.8, release=0.3)  # ADSR pressure
+- pp 1.60.wave(sine, 64, freq=3.0, depth=40)           # Per-note vibrato effect
 ```
 
 #### Channel Reset Commands
@@ -645,7 +655,7 @@ See [docs/user-guide/generative-music.md](docs/user-guide/generative-music.md) f
 
 ### Enhanced Modulation
 
-MML provides three powerful modulation types for smooth, natural-sounding parameter automation that goes beyond simple linear ramps.
+MML provides three powerful modulation types for smooth, natural-sounding parameter automation that goes beyond simple linear ramps. Modulation expressions can be used in **any parameter context** including CC values, pitch bend, and aftertouch/pressure.
 
 #### Bezier Curves
 
@@ -785,15 +795,23 @@ envelope(ad, attack=time, decay=time [, curve=type])
 - cc 1.74.wave(sine, 64, freq=0.2, depth=60)
 ```
 
-*Vibrato and Tremolo:*
+*Vibrato and Pitch Effects:*
 ```markdown
-# Natural vibrato (pitch)
+# Natural vibrato using CC#1 (mod wheel)
 [00:00.000]
 - cc 1.1.wave(sine, 64, freq=6.0, depth=8)
 
-# Pitch bend vibrato (wider range)
+# Pitch bend vibrato (wider range, more natural)
 [00:02.000]
-- pitch_bend 1.wave(sine, 8192, freq=5.5, depth=5)
+- pb 1.wave(sine, 8192, freq=5.5, depth=5)
+
+# Smooth pitch sweep for transitions
+[00:04.000]
+- pb 1.curve(-4096, 4096, ease-in-out)
+
+# Pitch dive with envelope
+[00:06.000]
+- pb 1.envelope(ad, attack=0.01, decay=1.5)
 ```
 
 *Volume Automation:*
@@ -805,6 +823,24 @@ envelope(ad, attack=time, decay=time [, curve=type])
 # Volume swell
 [00:02.000]
 - cc 1.7.envelope(ar, attack=2.0, release=1.5)
+```
+
+*Pressure/Aftertouch Effects:*
+```markdown
+# Channel pressure swell for expressive pads
+[00:00.000]
+- note_on 1.60.80 4b
+- cp 1.curve(0, 127, ease-in-out)
+
+# Polyphonic pressure vibrato (per-note expression)
+[00:04.000]
+- note_on 1.C4.100 4b
+- pp 1.C4.wave(sine, 64, freq=3.0, depth=40)
+
+# Dynamic pressure envelope following note
+[00:08.000]
+- note_on 1.60.100 4b
+- cp 1.envelope(adsr, attack=0.2, decay=0.1, sustain=0.8, release=0.3)
 ```
 
 ### Groups and Sections
