@@ -1,6 +1,6 @@
-# MIDI Markup Language Documentation
+# MIDI Markdown Documentation
 
-Welcome to the MIDI Markup Language (MML) documentation. MML is a human-readable, text-based format for creating MIDI sequences, designed for live performance automation and compositional workflows.
+Welcome to the MIDI Markdown (MML) documentation. MMD is a human-readable, text-based format for creating MIDI sequences, designed for live performance automation and compositional workflows.
 
 ---
 
@@ -13,14 +13,16 @@ Welcome to the MIDI Markup Language (MML) documentation. MML is a human-readable
 
 ## User Guides
 
-Learn how to use MML effectively:
+Learn how to use MMD effectively:
 
-- **[Basic Syntax](guides/basic-syntax.md)** - Fundamentals: frontmatter, timing, commands *(Coming Soon)*
-- **[Timing Systems](guides/timing-systems.md)** - Absolute, musical, relative, and simultaneous timing *(Coming Soon)*
-- **[Alias System](guides/alias-system.md)** - Create reusable command shortcuts
-- **[Device Libraries](guides/device-libraries.md)** - Control MIDI hardware with high-level commands
-- **[Real-time Playback](guides/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
-- **[Advanced Features](guides/variables-loops-sweeps.md)** - Variables, loops, and sweep automation *(Coming Soon)*
+- **[Basic Syntax](user-guide/mml-syntax.md)** - Fundamentals: frontmatter, timing, commands
+- **[Timing Systems](user-guide/timing-system.md)** - Absolute, musical, relative, and simultaneous timing
+- **[Alias System](user-guide/alias-system.md)** - Create reusable command shortcuts
+- **[Device Libraries](user-guide/device-libraries.md)** - Control MIDI hardware with high-level commands
+- **[Real-time Playback](user-guide/realtime-playback.md)** - Live MIDI playback with interactive Terminal UI
+- **[Computed Values](user-guide/computed_values.md)** - Variables, expressions, and computed parameters
+- **[Modulation](user-guide/modulation.md)** - Curves, waveforms, and envelopes
+- **[Generative Music](user-guide/generative-music.md)** - Random values and algorithmic composition
 
 ---
 
@@ -28,11 +30,14 @@ Learn how to use MML effectively:
 
 Complete API and command references:
 
-- **[Language Specification](../spec.md)** - Complete MML specification (1,300+ lines)
-- **[CLI Commands](reference/cli-commands.md)** - Command-line interface reference
-- **[Alias API](reference/alias-api.md)** - Alias definition and parameter syntax
-- **[MIDI Commands](reference/midi-commands.md)** - Quick MIDI command reference *(Coming Soon)*
-- **[Grammar](grammar/GRAMMAR_DOCUMENTATION.md)** - Lark grammar documentation
+- **[Language Specification](../spec.md)** - Complete MMD specification (1,600+ lines)
+- **[CLI Commands](cli-reference/overview.md)** - Command-line interface reference
+- **[Alias API](user-guide/alias-api.md)** - Alias definition and parameter syntax
+- **[MIDI Commands](user-guide/midi-commands.md)** - Quick MIDI command reference
+- **[Modulation Reference](reference/modulation-reference.md)** - Curves, waveforms, and envelopes
+- **[Random Expressions](reference/random-expressions.md)** - Random value generation
+- **[FAQ](reference/faq.md)** - Frequently asked questions
+- **[Troubleshooting](reference/troubleshooting.md)** - Common issues and solutions
 
 ---
 
@@ -43,10 +48,10 @@ Progressive learning path with 16 examples:
 - **[Examples README](../examples/README.md)** - Complete guide with learning path and feature matrix
 
 **Quick Links:**
-- [00_hello_world.mml](../examples/00_hello_world.mml) - Simplest possible MML file
-- [05_multi_channel_basic.mml](../examples/05_multi_channel_basic.mml) - Multiple MIDI channels
-- [09_comprehensive_song.mml](../examples/09_comprehensive_song.mml) - All features combined
-- [13_device_import.mml](../examples/13_device_import.mml) - Device library imports
+- [00_hello_world.mmd](../examples/00_basics/00_hello_world.mmd) - Simplest possible MMD file
+- [05_multi_channel_basic.mmd](../examples/02_midi_features/05_multi_channel_basic.mmd) - Multiple MIDI channels
+- [09_comprehensive_song.mmd](../examples/03_advanced/09_comprehensive_song.mmd) - All features combined
+- [13_device_import.mmd](../examples/04_device_libraries/13_device_import.mmd) - Device library imports
 
 ---
 
@@ -67,10 +72,10 @@ Architecture and implementation details:
 
 Pre-built libraries for controlling MIDI hardware:
 
-- **[Neural DSP Quad Cortex](../devices/quad_cortex.mml)** - 86 aliases for Quad Cortex control
-- **[Eventide H90](../devices/eventide_h90.mml)** - 61 aliases for H90 harmonizer/effects
-- **[Kemper Profiler](../devices/kemper_profiler.mml)** - 51 aliases for Kemper control
-- **[Line 6 Helix](../devices/line6_helix.mml)** - 49 aliases for Helix control
+- **[Neural DSP Quad Cortex](../devices/quad_cortex.mmd)** - 86 aliases for Quad Cortex control
+- **[Eventide H90](../devices/eventide_h90.mmd)** - 61 aliases for H90 harmonizer/effects
+- **[Kemper Profiler](../devices/kemper_profiler.mmd)** - 51 aliases for Kemper control
+- **[Line 6 Helix](../devices/line6_helix.mmd)** - 49 aliases for Helix control
 
 See the [Device Library Creation Guide](guides/device-libraries.md) to create your own.
 
@@ -113,8 +118,8 @@ See the [Device Library Creation Guide](guides/device-libraries.md) to create yo
 ## Need Help?
 
 - **Examples**: Start with [examples/README.md](../examples/README.md)
-- **CLI Help**: Run `uv run midimarkup --help`
-- **Issues**: Report bugs on [GitHub](https://github.com/anthropics/midi-markdown/issues)
+- **CLI Help**: Run `uv run mmdc --help`
+- **Issues**: Report bugs on [GitHub](https://github.com/cjgdev/midi-markdown/issues)
 - **Specification**: See [spec.md](../spec.md) for complete reference
 
 ---

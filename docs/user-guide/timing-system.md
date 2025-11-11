@@ -515,7 +515,7 @@ ppq: 960
 Specify PPQ when compiling:
 
 ```bash
-midimarkup compile song.mml --ppq 960
+mmdc compile song.mmd --ppq 960
 ```
 
 Or in frontmatter:
@@ -530,7 +530,7 @@ ppq: 960
 
 ### Common PPQ Values
 
-- **480**: MML default, Logic Pro default, widely compatible
+- **480**: MMD default, Logic Pro default, widely compatible
 - **960**: Cubase/Nuendo default, very precise
 - **384**: Pro Tools default (unusual but supported)
 - **96**: Old MIDI files, simple applications
@@ -1210,7 +1210,7 @@ title: "Quad Cortex Preset Changes"
 
 ## See Also
 
-- [Getting Started Guide](getting-started.md) - Basic MML introduction
+- [Getting Started Guide](getting-started.md) - Basic MMD introduction
 - [MIDI Commands Reference](../reference/midi-commands.md) - All MIDI command types
 - [Frontmatter Reference](../reference/frontmatter.md) - Document metadata options
 - [Alias System Guide](alias-system.md) - Creating reusable command shortcuts

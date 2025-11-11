@@ -494,21 +494,21 @@ The import system allows loading aliases from external files.
 ### Syntax
 
 ```markdown
-@import "path/to/library.mml"
+@import "path/to/library.mmd"
 ```
 
 ### Path Resolution
 
 - Relative to current file
 - Searched in `devices/` directory
-- `.mml` extension optional
+- `.mmd` extension optional
 
 ### Examples
 
 ```markdown
-@import "devices/quad_cortex.mml"
-@import "quad_cortex"                # .mml assumed
-@import "../shared/common_aliases.mml"
+@import "devices/quad_cortex.mmd"
+@import "quad_cortex"                # .mmd assumed
+@import "../shared/common_aliases.mmd"
 ```
 
 ### Import Behavior

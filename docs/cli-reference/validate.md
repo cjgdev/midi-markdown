@@ -3,14 +3,14 @@
 > **Audience**: Users
 > **Level**: Beginner to Intermediate
 
-Validate MML file syntax and semantics without generating output files.
+Validate MMD file syntax and semantics without generating output files.
 
 ---
 
 ## Synopsis
 
 ```bash
-midimarkup validate [OPTIONS] INPUT_FILE
+mmdc validate [OPTIONS] INPUT_FILE
 mml validate [OPTIONS] INPUT_FILE       # Shorter alias
 ```
 
@@ -18,12 +18,12 @@ mml validate [OPTIONS] INPUT_FILE       # Shorter alias
 
 ## Description
 
-The `validate` command performs **comprehensive validation** of MML files without generating MIDI output. It's faster than full compilation and useful for:
+The `validate` command performs **comprehensive validation** of MMD files without generating MIDI output. It's faster than full compilation and useful for:
 
 - Quick error checking during development
 - Pre-commit hooks and CI/CD pipelines
 - Batch validation of multiple files
-- Learning MML syntax (immediate feedback)
+- Learning MMD syntax (immediate feedback)
 
 **What validate checks**:
 
@@ -59,11 +59,11 @@ The `validate` command performs **comprehensive validation** of MML files withou
 ### Input
 
 #### `INPUT_FILE` (required)
-Path to `.mml` file to validate.
+Path to `.mmd` file to validate.
 
 ```bash
-midimarkup validate song.mml
-midimarkup validate path/to/performance.mml
+mmdc validate song.mmd
+mmdc validate path/to/performance.mmd
 ```
 
 ---
@@ -74,7 +74,7 @@ midimarkup validate path/to/performance.mml
 Show detailed validation steps.
 
 ```bash
-midimarkup validate song.mml --verbose
+mmdc validate song.mmd --verbose
 ```
 
 **Verbose output shows**:
@@ -86,7 +86,7 @@ midimarkup validate song.mml --verbose
 
 **Example verbose output**:
 ```
-Validating: song.mml
+Validating: song.mmd
   Parsing file...
   Parsed: 38 event(s)
   Validating MIDI values...
@@ -101,7 +101,7 @@ Validating: song.mml
 Disable progress indicators (for scripting/CI).
 
 ```bash
-midimarkup validate large_file.mml --no-progress
+mmdc validate large_file.mmd --no-progress
 ```
 
 **Progress appears for**:
@@ -117,7 +117,7 @@ midimarkup validate large_file.mml --no-progress
 Show full error tracebacks instead of formatted errors.
 
 ```bash
-midimarkup validate broken.mml --debug
+mmdc validate broken.mmd --debug
 ```
 
 **Useful for**: Bug reports, understanding internal errors.
@@ -136,7 +136,7 @@ midimarkup validate broken.mml --debug
 
 **Script usage**:
 ```bash
-if midimarkup validate song.mml; then
+if mmdc validate song.mmd; then
   echo "File is valid"
 else
   echo "Validation failed with code $?"
@@ -151,19 +151,19 @@ fi
 
 ```bash
 # Simplest usage
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 **Success output**:
 ```
-Validating: song.mml
+Validating: song.mmd
 ✓ Validation passed
   File is valid and ready for compilation
 ```
 
 **Error output**:
 ```
-Validating: song.mml
+Validating: song.mmd
 
 ✗ Validation failed with 2 error(s):
 
@@ -178,12 +178,12 @@ Validating: song.mml
 
 ```bash
 # See all validation steps
-midimarkup validate song.mml --verbose
+mmdc validate song.mmd --verbose
 ```
 
 **Output**:
 ```
-Validating: song.mml
+Validating: song.mmd
   Parsing file...
   Parsed: 38 event(s)
   Validating MIDI values...
@@ -197,9 +197,9 @@ Validating: song.mml
 ### Batch Validation
 
 ```bash
-# Validate all MML files in directory
-for file in *.mml; do
-  if midimarkup validate "$file"; then
+# Validate all MMD files in directory
+for file in *.mmd; do
+  if mmdc validate "$file"; then
     echo "✓ $file"
   else
     echo "✗ $file"
@@ -210,7 +210,7 @@ done
 **Advanced batch validation**:
 ```bash
 # Parallel validation with xargs
-find . -name "*.mml" | xargs -P 4 -I {} midimarkup validate {}
+find . -name "*.mmd" | xargs -P 4 -I {} mmdc validate {}
 ```
 
 ---
@@ -221,21 +221,21 @@ find . -name "*.mml" | xargs -P 4 -I {} midimarkup validate {}
 #!/bin/bash
 # .git/hooks/pre-commit
 
-# Validate all staged .mml files
-staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.mml$')
+# Validate all staged .mmd files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.mmd$')
 
 if [ -n "$staged_files" ]; then
-  echo "Validating MML files..."
+  echo "Validating MMD files..."
 
   for file in $staged_files; do
-    if ! midimarkup validate "$file" --no-progress; then
+    if ! mmdc validate "$file" --no-progress; then
       echo "Validation failed: $file"
       echo "Commit aborted."
       exit 1
     fi
   done
 
-  echo "All MML files valid ✓"
+  echo "All MMD files valid ✓"
 fi
 
 exit 0
@@ -252,7 +252,7 @@ chmod +x .git/hooks/pre-commit
 
 ```yaml
 # .github/workflows/validate-mml.yml
-name: Validate MML Files
+name: Validate MMD Files
 
 on: [push, pull_request]
 
@@ -262,12 +262,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install midimarkup
-        run: pipx install midimarkup
+      - name: Install mmdc
+        run: pipx install mmdc
 
-      - name: Validate all MML files
+      - name: Validate all MMD files
         run: |
-          find . -name "*.mml" -exec midimarkup validate {} --no-progress \;
+          find . -name "*.mmd" -exec mmdc validate {} --no-progress \;
 ```
 
 **GitLab CI**:
@@ -276,8 +276,8 @@ jobs:
 validate-mml:
   stage: test
   script:
-    - pipx install midimarkup
-    - find . -name "*.mml" | xargs midimarkup validate --no-progress
+    - pipx install mmdc
+    - find . -name "*.mmd" | xargs mmdc validate --no-progress
   only:
     - merge_requests
     - main
@@ -289,19 +289,19 @@ validate-mml:
 
 ```bash
 # 1. Quick syntax check (fastest)
-midimarkup check song.mml
+mmdc check song.mmd
 
 # 2. Full validation
-midimarkup validate song.mml
+mmdc validate song.mmd
 
 # 3. Compile to MIDI
-midimarkup compile song.mml
+mmdc compile song.mmd
 ```
 
 **Watch mode** (with `entr`):
 ```bash
 # Auto-validate on file change
-ls *.mml | entr midimarkup validate song.mml
+ls *.mmd | entr mmdc validate song.mmd
 ```
 
 ---
@@ -310,12 +310,12 @@ ls *.mml | entr midimarkup validate song.mml
 
 ```bash
 # Validate with progress indicator
-midimarkup validate large_composition.mml --verbose
+mmdc validate large_composition.mmd --verbose
 ```
 
 **Output**:
 ```
-Validating: large_composition.mml
+Validating: large_composition.mmd
   Parsing file...
   Parsed: 1247 event(s)
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% Validating...
@@ -329,7 +329,7 @@ Validating: large_composition.mml
 
 ```bash
 # Show full traceback on error
-midimarkup validate broken.mml --debug
+mmdc validate broken.mmd --debug
 ```
 
 **Normal error**:
@@ -459,7 +459,7 @@ time_signature: "4/4"
 - cortex_load 1.2.3.5  # ERROR: cortex_load not defined
 
 # ✅ Correct - import first
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 - cortex_load 1.2.3.5
 ```
 
@@ -476,10 +476,10 @@ time_signature: "4/4"
 **Example errors**:
 ```yaml
 # ❌ Wrong - file not found
-@import "devices/nonexistent.mml"  # ERROR
+@import "devices/nonexistent.mmd"  # ERROR
 
 # ✅ Correct
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 ```
 
 ---
@@ -507,17 +507,17 @@ time_signature: "4/4"
 
 1. **Use `check` for quick feedback**:
    ```bash
-   midimarkup check song.mml  # 5-10x faster
+   mmdc check song.mmd  # 5-10x faster
    ```
 
 2. **Disable progress for small files**:
    ```bash
-   midimarkup validate song.mml --no-progress
+   mmdc validate song.mmd --no-progress
    ```
 
 3. **Batch validate in parallel**:
    ```bash
-   find . -name "*.mml" | xargs -P 4 -I {} midimarkup validate {}
+   find . -name "*.mmd" | xargs -P 4 -I {} mmdc validate {}
    ```
 
 ---
@@ -573,7 +573,7 @@ time_signature: "4/4"
 - cortex_load 1.2.3.5  # Not defined
 
 # ✅ Correct - Option 1: Import
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 - cortex_load 1.2.3.5
 
 # ✅ Correct - Option 2: Define locally
@@ -629,10 +629,10 @@ time_signature: "4/4"
 **Solution**: Always test with `compile` before performance:
 ```bash
 # 1. Validate (quick check)
-midimarkup validate song.mml
+mmdc validate song.mmd
 
 # 2. Compile (full check)
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 ```
 
 ---
@@ -650,7 +650,7 @@ midimarkup compile song.mml --format table
     {
       "label": "Validate MML",
       "type": "shell",
-      "command": "midimarkup validate ${file}",
+      "command": "mmdc validate ${file}",
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -674,12 +674,12 @@ brew install entr  # macOS
 apt-get install entr  # Linux
 
 # Auto-validate on save
-ls *.mml | entr midimarkup validate /_
+ls *.mmd | entr mmdc validate /_
 ```
 
 **Alternative** (with `fswatch`):
 ```bash
-fswatch -o song.mml | xargs -n1 -I{} midimarkup validate song.mml
+fswatch -o song.mmd | xargs -n1 -I{} mmdc validate song.mmd
 ```
 
 ---
@@ -691,12 +691,12 @@ fswatch -o song.mml | xargs -n1 -I{} midimarkup validate song.mml
 .PHONY: validate validate-all
 
 validate:
-	midimarkup validate song.mml
+	mmdc validate song.mmd
 
 validate-all:
-	@for file in *.mml; do \
+	@for file in *.mmd; do \
 		echo "Validating $$file..."; \
-		midimarkup validate "$$file" || exit 1; \
+		mmdc validate "$$file" || exit 1; \
 	done
 	@echo "All files valid ✓"
 ```
@@ -715,8 +715,8 @@ make validate-all   # All files
 # Validate before every commit
 # .git/hooks/pre-commit
 #!/bin/bash
-git diff --cached --name-only --diff-filter=ACM | grep '\.mml$' | \
-  xargs -I {} midimarkup validate {} --no-progress
+git diff --cached --name-only --diff-filter=ACM | grep '\.mmd$' | \
+  xargs -I {} mmdc validate {} --no-progress
 ```
 
 ---
@@ -729,9 +729,9 @@ git diff --cached --name-only --diff-filter=ACM | grep '\.mml$' | \
 FILE=$1
 PORT=${2:-"IAC Driver Bus 1"}
 
-if midimarkup validate "$FILE"; then
+if mmdc validate "$FILE"; then
   echo "Validation passed, starting playback..."
-  midimarkup play "$FILE" --port "$PORT"
+  mmdc play "$FILE" --port "$PORT"
 else
   echo "Validation failed, aborting playback"
   exit 1
@@ -751,7 +751,7 @@ fi
 - Perfect for editor integration
 
 ```bash
-midimarkup check song.mml  # <20ms
+mmdc check song.mmd  # <20ms
 ```
 
 ---
@@ -765,7 +765,7 @@ midimarkup check song.mml  # <20ms
 - Catches most issues
 
 ```bash
-midimarkup validate song.mml  # <100ms
+mmdc validate song.mmd  # <100ms
 ```
 
 ---
@@ -779,7 +779,7 @@ midimarkup validate song.mml  # <100ms
 - Creates output file
 
 ```bash
-midimarkup compile song.mml  # <200ms
+mmdc compile song.mmd  # <200ms
 ```
 
 ---
@@ -788,13 +788,13 @@ midimarkup compile song.mml  # <200ms
 
 ```bash
 # 1. During editing: check (fastest)
-midimarkup check song.mml
+mmdc check song.mmd
 
 # 2. Before commit: validate (comprehensive)
-midimarkup validate song.mml
+mmdc validate song.mmd
 
 # 3. Before performance: compile (complete)
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 ```
 
 ---
@@ -806,7 +806,7 @@ midimarkup compile song.mml --format table
 - [inspect command](inspect.md) - Analyze compiled events
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Common validation errors
 - [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
-- [First Song Tutorial](../getting-started/first-song.md) - Learn MML basics
+- [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---
 

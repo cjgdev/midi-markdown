@@ -3,14 +3,14 @@
 > **Audience**: Users
 > **Level**: Beginner to Advanced
 
-Play MML files in real-time to MIDI output devices with interactive terminal UI.
+Play MMD files in real-time to MIDI output devices with interactive terminal UI.
 
 ---
 
 ## Synopsis
 
 ```bash
-midimarkup play [OPTIONS] [INPUT_FILE]
+mmdc play [OPTIONS] [INPUT_FILE]
 mml play [OPTIONS] [INPUT_FILE]         # Shorter alias
 ```
 
@@ -18,7 +18,7 @@ mml play [OPTIONS] [INPUT_FILE]         # Shorter alias
 
 ## Description
 
-The `play` command provides **real-time MIDI playback** of compiled MML files directly to hardware or software MIDI devices. Unlike `compile` which generates MIDI files, `play` sends MIDI messages in real-time with sub-5ms timing precision.
+The `play` command provides **real-time MIDI playback** of compiled MMD files directly to hardware or software MIDI devices. Unlike `compile` which generates MIDI files, `play` sends MIDI messages in real-time with sub-5ms timing precision.
 
 **Key Features**:
 - Interactive Terminal UI (TUI) with 30 FPS refresh
@@ -30,7 +30,7 @@ The `play` command provides **real-time MIDI playback** of compiled MML files di
 
 **What play does**:
 
-1. **Parse** - Parse MML file to AST
+1. **Parse** - Parse MMD file to AST
 2. **Compile** - Convert to Intermediate Representation (IR)
 3. **Connect** - Open MIDI output port
 4. **Schedule** - Queue events with precise timing
@@ -54,13 +54,13 @@ MIDI output port name or index (required for playback).
 
 ```bash
 # By port name (recommended)
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 
 # By port index
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 
 # Shorter alias
-mml play song.mml -p "Network Session 1"
+mml play song.mmd -p "Network Session 1"
 ```
 
 **Finding port names**: Use `--list-ports` to see available ports.
@@ -72,7 +72,7 @@ List available MIDI output ports and exit.
 
 ```bash
 # Show all available MIDI ports
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Example output:
 # Available MIDI output ports:
@@ -92,7 +92,7 @@ Disable interactive TUI and use simple progress display.
 
 ```bash
 # Simple mode (no keyboard controls)
-midimarkup play song.mml --port 0 --no-ui
+mmdc play song.mmd --port 0 --no-ui
 ```
 
 **When to use**:
@@ -113,7 +113,7 @@ midimarkup play song.mml --port 0 --no-ui
 Show full error tracebacks instead of formatted errors.
 
 ```bash
-midimarkup play song.mml --port 0 --debug
+mmdc play song.mmd --port 0 --debug
 ```
 
 **Useful for**: Bug reports, troubleshooting MIDI issues, development.
@@ -129,8 +129,8 @@ The default playback mode features a rich Terminal UI with:
 **Header**:
 ```
 ╭──────────────────────────────────────────────╮
-│  🎵 MML Player - Live MIDI Playback          │
-│  File: performance.mml                       │
+│  🎵 MMD Player - Live MIDI Playback          │
+│  File: performance.mmd                       │
 │  Port: IAC Driver Bus 1                      │
 │  Title: Live Performance Automation          │
 ╰──────────────────────────────────────────────╯
@@ -191,16 +191,16 @@ Status: ▶ Playing
 **Usage**:
 ```bash
 # List IAC ports
-midimarkup play --list-ports
+mmdc play --list-ports
 # Output: 0: IAC Driver Bus 1
 
 # Play to IAC
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 **Connecting to DAW**:
 - In your DAW (Logic, Ableton, etc.), select "IAC Driver Bus 1" as MIDI input
-- MML player sends MIDI → IAC → DAW receives
+- MMD player sends MIDI → IAC → DAW receives
 
 ---
 
@@ -223,10 +223,10 @@ sudo modprobe snd-virmidi
 **Usage**:
 ```bash
 # List ports
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Play to ALSA port
-midimarkup play song.mml --port "TiMidity port 0"
+mmdc play song.mmd --port "TiMidity port 0"
 ```
 
 **Virtual MIDI** (virmidi):
@@ -253,16 +253,16 @@ echo "snd-virmidi" | sudo tee -a /etc/modules
 **Usage**:
 ```bash
 # List ports
-midimarkup play --list-ports
+mmdc play --list-ports
 # Output: 0: loopMIDI Port 1
 
 # Play to loopMIDI
-midimarkup play song.mml --port "loopMIDI Port 1"
+mmdc play song.mmd --port "loopMIDI Port 1"
 ```
 
 **Connecting to DAW**:
 - In DAW, select "loopMIDI Port 1" as MIDI input
-- MML player sends MIDI → loopMIDI → DAW receives
+- MMD player sends MIDI → loopMIDI → DAW receives
 
 ---
 
@@ -272,7 +272,7 @@ midimarkup play song.mml --port "loopMIDI Port 1"
 
 ```bash
 # Show all MIDI output ports
-midimarkup play --list-ports
+mmdc play --list-ports
 ```
 
 **Example output**:
@@ -290,7 +290,7 @@ Available MIDI output ports:
 
 ```bash
 # Play to IAC Driver (default virtual port on macOS)
-midimarkup play performance.mml --port "IAC Driver Bus 1"
+mmdc play performance.mmd --port "IAC Driver Bus 1"
 ```
 
 **Use case**: Route MIDI to DAW (Logic, Ableton) for recording.
@@ -301,7 +301,7 @@ midimarkup play performance.mml --port "IAC Driver Bus 1"
 
 ```bash
 # Play directly to hardware synthesizer
-midimarkup play song.mml --port "QuadCortex MIDI 1"
+mmdc play song.mmd --port "QuadCortex MIDI 1"
 ```
 
 **Use case**: Live performance automation, preset changes, CC automation.
@@ -312,7 +312,7 @@ midimarkup play song.mml --port "QuadCortex MIDI 1"
 
 ```bash
 # Use port index instead of name
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 ```
 
 **When to use**: Scripting, when port names are long or contain special characters.
@@ -323,12 +323,12 @@ midimarkup play song.mml --port 0
 
 ```bash
 # Disable TUI for non-interactive use
-midimarkup play song.mml --port 0 --no-ui
+mmdc play song.mmd --port 0 --no-ui
 ```
 
 **Output**:
 ```
-Compiling: song.mml
+Compiling: song.mmd
 Opening MIDI port: IAC Driver Bus 1
 Duration: 50.00s (104 events)
 
@@ -344,7 +344,7 @@ Duration: 50.00s (104 events)
 
 ```bash
 # Full TUI with keyboard controls
-midimarkup play setlist.mml --port "IAC Driver Bus 1"
+mmdc play setlist.mmd --port "IAC Driver Bus 1"
 ```
 
 **During playback**:
@@ -358,11 +358,11 @@ midimarkup play setlist.mml --port "IAC Driver Bus 1"
 
 ```bash
 # First, identify your devices
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Play to specific device by name
-midimarkup play quad_cortex_presets.mml --port "QuadCortex MIDI 1"
-midimarkup play h90_automation.mml --port "H90 MIDI 1"
+mmdc play quad_cortex_presets.mmd --port "QuadCortex MIDI 1"
+mmdc play h90_automation.mmd --port "H90 MIDI 1"
 ```
 
 ---
@@ -371,11 +371,11 @@ midimarkup play h90_automation.mml --port "H90 MIDI 1"
 
 ```bash
 # Test automation sequence before live show
-midimarkup play setlist.mml --port "IAC Driver Bus 1"
+mmdc play setlist.mmd --port "IAC Driver Bus 1"
 
 # Watch event feed in TUI to verify timing
 # Press Q to stop early if issues found
-# Edit MML file, recompile, test again
+# Edit MMD file, recompile, test again
 ```
 
 ---
@@ -422,7 +422,7 @@ midimarkup play setlist.mml --port "IAC Driver Bus 1"
 
 **Script usage**:
 ```bash
-if midimarkup play song.mml --port 0; then
+if mmdc play song.mmd --port 0; then
   echo "Playback successful"
 else
   echo "Playback failed with code $?"
@@ -440,10 +440,10 @@ fi
 **Solution**:
 ```bash
 # List all available ports
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Use exact port name from list
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 **Common causes**:
@@ -465,7 +465,7 @@ midimarkup play song.mml --port "IAC Driver Bus 1"
 **Manual fallback**:
 ```bash
 # Explicitly use simple mode
-midimarkup play song.mml --port 0 --no-ui
+mmdc play song.mmd --port 0 --no-ui
 ```
 
 ---
@@ -482,7 +482,7 @@ midimarkup play song.mml --port 0 --no-ui
 **Solutions**:
 ```bash
 # Use simple mode
-midimarkup play song.mml --port 0 --no-ui
+mmdc play song.mmd --port 0 --no-ui
 
 # Or use modern terminal emulator (iTerm2, Windows Terminal, Alacritty)
 ```
@@ -496,7 +496,7 @@ midimarkup play song.mml --port 0 --no-ui
 **Diagnosis**:
 ```bash
 # Check if issue is timing or compilation
-midimarkup inspect song.mml --format table
+mmdc inspect song.mmd --format table
 
 # Verify event times are correct
 ```
@@ -510,7 +510,7 @@ midimarkup inspect song.mml --format table
 **Solutions**:
 ```bash
 # Increase PPQ for better precision
-midimarkup compile song.mml --ppq 960
+mmdc compile song.mmd --ppq 960
 
 # Verify frontmatter
 ---
@@ -536,7 +536,7 @@ ppq: 480
 **Debugging**:
 ```bash
 # Inspect compiled events
-midimarkup inspect song.mml --format table
+mmdc inspect song.mmd --format table
 
 # Verify channels, note numbers, CC values
 # Compare with device manual
@@ -567,10 +567,10 @@ groups
 
 ```bash
 # Create shell alias for your main port
-alias mml-play='midimarkup play --port "IAC Driver Bus 1"'
+alias mml-play='mmdc play --port "IAC Driver Bus 1"'
 
 # Usage
-mml-play song.mml
+mml-play song.mmd
 ```
 
 ---
@@ -579,7 +579,7 @@ mml-play song.mml
 
 ```bash
 # Start playback
-midimarkup play setlist.mml --port 0
+mmdc play setlist.mmd --port 0
 
 # During playback:
 # - Press Space to pause at current position
@@ -593,7 +593,7 @@ midimarkup play setlist.mml --port 0
 ### Testing Specific Sections
 
 ```bash
-# Edit MML to comment out unwanted sections
+# Edit MMD to comment out unwanted sections
 # [00:00.000]
 # - note_on 1.60 80 1b
 # ...
@@ -601,7 +601,7 @@ midimarkup play setlist.mml --port 0
 # #- pc 1.10
 
 # Play reduced file
-midimarkup play test_section.mml --port 0
+mmdc play test_section.mmd --port 0
 ```
 
 ---
@@ -612,8 +612,8 @@ midimarkup play test_section.mml --port 0
 # 1. Setup virtual MIDI port (IAC/loopMIDI)
 # 2. Configure DAW to receive from virtual port
 # 3. Arm MIDI track in DAW for recording
-# 4. Play MML file
-midimarkup play automation.mml --port "IAC Driver Bus 1"
+# 4. Play MMD file
+mmdc play automation.mmd --port "IAC Driver Bus 1"
 
 # 5. DAW records incoming MIDI
 # 6. Edit recorded MIDI in DAW if needed
@@ -626,18 +626,18 @@ midimarkup play automation.mml --port "IAC Driver Bus 1"
 ```bash
 # Before show:
 # 1. Test all devices
-midimarkup play --list-ports
+mmdc play --list-ports
 
-# 2. Validate MML files
-midimarkup validate setlist_*.mml
+# 2. Validate MMD files
+mmdc validate setlist_*.mmd
 
 # 3. Test playback
-midimarkup play setlist_01.mml --port "QuadCortex MIDI 1"
+mmdc play setlist_01.mmd --port "QuadCortex MIDI 1"
 
-# 4. Create backup copy of MML files
+# 4. Create backup copy of MMD files
 
 # 5. Have device libraries ready
-ls devices/*.mml
+ls devices/*.mmd
 
 # During show:
 # - Use TUI to monitor playback
@@ -651,14 +651,14 @@ ls devices/*.mml
 
 ```bash
 # 1. Inspect events before playing
-midimarkup inspect song.mml --format table --limit 50
+mmdc inspect song.mmd --format table --limit 50
 
 # 2. Verify timing and values
 # 3. Play and watch TUI event feed
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 
 # 4. Compare TUI feed with inspect output
-# 5. Fix any discrepancies in MML source
+# 5. Fix any discrepancies in MMD source
 ```
 
 ---
@@ -673,9 +673,9 @@ midimarkup play song.mml --port 0
 
 PORT="IAC Driver Bus 1"
 
-for song in setlist_*.mml; do
+for song in setlist_*.mmd; do
   echo "Now playing: $song"
-  midimarkup play "$song" --port "$PORT" --no-ui
+  mmdc play "$song" --port "$PORT" --no-ui
   sleep 2  # Pause between songs
 done
 ```
@@ -686,10 +686,10 @@ done
 
 ```bash
 # Play different files to different devices
-midimarkup play guitar.mml --port "QuadCortex MIDI 1" &
+mmdc play guitar.mmd --port "QuadCortex MIDI 1" &
 PID1=$!
 
-midimarkup play keys.mml --port "Synthesizer MIDI 1" &
+mmdc play keys.mmd --port "Synthesizer MIDI 1" &
 PID2=$!
 
 # Wait for both to complete
@@ -719,7 +719,7 @@ tempo: 120  # Starting tempo
 
 ```bash
 # Play with tempo changes
-midimarkup play dynamic_tempo.mml --port 0
+mmdc play dynamic_tempo.mmd --port 0
 
 # TUI will show current tempo in real-time
 ```
@@ -730,10 +730,10 @@ midimarkup play dynamic_tempo.mml --port 0
 
 - [compile command](compile.md) - Generate MIDI files for DAW import
 - [inspect command](inspect.md) - Debug event timing and values
-- [validate command](validate.md) - Verify MML before playback
+- [validate command](validate.md) - Verify MMD before playback
 - [Real-time Playback Guide](../user-guide/realtime-playback.md) - Detailed playback documentation
 - [Troubleshooting Guide](../reference/troubleshooting.md) - MIDI port and playback issues
-- [First Song Tutorial](../getting-started/first-song.md) - Learn MML basics
+- [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---
 

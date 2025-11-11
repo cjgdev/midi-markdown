@@ -1,9 +1,9 @@
-# Contributing to MIDI Markup Language
+# Contributing to MIDI Markdown
 
 **Date**: 2025-11-08
 **Version**: 0.1.0
 
-Thank you for your interest in contributing to MIDI Markup Language (MML)! This document provides guidelines for developers who want to contribute to the codebase.
+Thank you for your interest in contributing to MIDI Markdown (MML)! This document provides guidelines for developers who want to contribute to the codebase.
 
 ## Table of Contents
 
@@ -55,7 +55,7 @@ Good first issues for new contributors:
 
 - Fix typos or improve documentation
 - Add more device libraries (devices/)
-- Add more example MML files (examples/)
+- Add more example MMD files (examples/)
 - Improve error messages
 - Add unit tests for uncovered code
 - Fix "good first issue" labeled GitHub issues
@@ -160,8 +160,8 @@ midi-markdown/
 ├── tests/                      # Test suite (10,681 lines)
 │   ├── unit/                   # Unit tests (598 tests)
 │   ├── integration/            # Integration tests (242 tests)
-│   └── fixtures/               # Test MML files
-├── examples/                   # 16 example MML files
+│   └── fixtures/               # Test MMD files
+├── examples/                   # 16 example MMD files
 ├── devices/                    # 6 MIDI device libraries
 ├── docs/                       # Documentation
 │   ├── developer-guide/        # Developer docs (you are here)
@@ -172,7 +172,7 @@ midi-markdown/
 ├── justfile                    # Development commands
 ├── README.md                   # Project README
 ├── CLAUDE.md                   # AI assistant instructions
-└── spec.md                     # Complete MML specification
+└── spec.md                     # Complete MMD specification
 ```
 
 ### Key Files
@@ -217,9 +217,9 @@ just qa                 # Quality assurance (fmt + lint-fix + test)
 just ci                 # CI pipeline (check + test-cov)
 
 # CLI commands
-just run [ARGS]         # Run midimarkup CLI
-just compile INPUT OUTPUT  # Compile MML file
-just validate FILE      # Validate MML file
+just run [ARGS]         # Run mmdc CLI
+just compile INPUT OUTPUT  # Compile MMD file
+just validate FILE      # Validate MMD file
 
 # Validation
 just validate-devices   # Validate all device libraries
@@ -253,8 +253,8 @@ uv run ruff check --fix .        # Auto-fix issues
 uv run mypy src                  # Type check
 
 # Run CLI
-uv run midimarkup --help
-uv run midimarkup compile examples/00_hello_world.mml
+uv run mmdc --help
+uv run mmdc compile examples/00_basics/00_hello_world.mmd
 ```
 
 ### Git Workflow
@@ -383,7 +383,7 @@ Use **Google-style docstrings**:
 
 ```python
 def compile_ast_to_ir(document: MMLDocument, ppq: int = 480) -> IRProgram:
-    """Compile MML document AST to IR program.
+    """Compile MMD document AST to IR program.
 
     This is the main entry point for compilation. It orchestrates:
     1. Event generation from AST commands
@@ -393,7 +393,7 @@ def compile_ast_to_ir(document: MMLDocument, ppq: int = 480) -> IRProgram:
     5. Time computation (ticks → seconds using tempo map)
 
     Args:
-        document: Parsed MML document AST
+        document: Parsed MMD document AST
         ppq: Pulses per quarter note (MIDI resolution)
 
     Returns:
@@ -406,7 +406,7 @@ def compile_ast_to_ir(document: MMLDocument, ppq: int = 480) -> IRProgram:
     Example:
         >>> from midi_markdown.parser.parser import MMLParser
         >>> parser = MMLParser()
-        >>> doc = parser.parse_file("song.mml")
+        >>> doc = parser.parse_file("song.mmd")
         >>> ir = compile_ast_to_ir(doc, ppq=480)
         >>> print(f"Duration: {ir.duration_seconds}s")
     """
@@ -432,7 +432,7 @@ Use custom exceptions with helpful messages:
 # Good
 raise ValidationError(
     f"MIDI note {note} out of range (0-127)",
-    location=SourceLocation(line=12, column=5, file="song.mml")
+    location=SourceLocation(line=12, column=5, file="song.mmd")
 )
 
 # Bad
@@ -477,8 +477,8 @@ tests/
 │   ├── test_device_libraries.py
 │   └── ...
 └── fixtures/               # Test data
-    ├── valid/              # Valid MML files
-    └── invalid/            # Invalid MML files
+    ├── valid/              # Valid MMD files
+    └── invalid/            # Invalid MMD files
 ```
 
 ### Test Markers
@@ -524,7 +524,7 @@ def parser():
 
 @pytest.fixture
 def sample_mml():
-    """Provide sample MML source code."""
+    """Provide sample MMD source code."""
     return """---
 title: "Test Song"
 ---
@@ -652,8 +652,8 @@ A clear description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce:
-1. Create MML file with...
-2. Run `midimarkup compile ...`
+1. Create MMD file with...
+2. Run `mmdc compile ...`
 3. See error
 
 **Expected behavior**
@@ -665,7 +665,7 @@ What actually happened (error message, incorrect output, etc.)
 **Environment**
 - OS: macOS 14.0
 - Python: 3.12.0
-- MML version: 0.1.0
+- MMD version: 0.1.0
 
 **MML source code**
 ```mml
@@ -676,7 +676,7 @@ What actually happened (error message, incorrect output, etc.)
 **Error message** (if applicable)
 ```
 ValidationError: CC controller 999 out of range (0-127)
-  → song.mml:2:5
+  → song.mmd:2:5
 ```
 ```
 
@@ -727,7 +727,7 @@ Any other context, screenshots, examples.
 User-facing documentation lives in `docs/`:
 
 - **Getting Started**: Installation, quickstart, first song
-- **User Guide**: MML syntax, timing, commands, aliases
+- **User Guide**: MMD syntax, timing, commands, aliases
 - **Tutorials**: Step-by-step examples
 - **Reference**: CLI commands, error codes, FAQ
 - **Device Libraries**: Available device libraries
@@ -759,7 +759,7 @@ Include working code examples:
 from midi_markdown.parser.parser import MMLParser
 
 parser = MMLParser()
-doc = parser.parse_file("song.mml")
+doc = parser.parse_file("song.mmd")
 print(f"Title: {doc.frontmatter['title']}")
 
 # Bad - incomplete snippet
@@ -858,13 +858,13 @@ Unacceptable behavior will not be tolerated. Report issues to the maintainers.
 
 ## License
 
-By contributing to MIDI Markup Language, you agree that your contributions will be licensed under the **MIT License**.
+By contributing to MIDI Markdown, you agree that your contributions will be licensed under the **MIT License**.
 
 ---
 
 ## Acknowledgments
 
-Thank you for contributing to MIDI Markup Language! Your contributions help make MML better for everyone.
+Thank you for contributing to MIDI Markdown! Your contributions help make MMD better for everyone.
 
 ---
 

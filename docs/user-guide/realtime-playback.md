@@ -1,10 +1,10 @@
 # Real-time MIDI Playback Guide
 
-> Complete guide to using MIDI Markup Language's real-time playback engine with interactive Terminal UI
+> Complete guide to using MIDI Markdown's real-time playback engine with interactive Terminal UI
 
 ## Overview
 
-MML's real-time playback engine enables live MIDI performance directly from `.mml` files to connected MIDI devices. Instead of compiling to a `.mid` file, the `play` command sends MIDI events in real-time with sub-5ms timing precision.
+MML's real-time playback engine enables live MIDI performance directly from `.mmd` files to connected MIDI devices. Instead of compiling to a `.mid` file, the `play` command sends MIDI events in real-time with sub-5ms timing precision.
 
 **Key Features:**
 - **Interactive Terminal UI** with live event visualization
@@ -21,7 +21,7 @@ MML's real-time playback engine enables live MIDI performance directly from `.mm
 Before playback, discover available MIDI output ports on your system:
 
 ```bash
-midimarkup play --list-ports
+mmdc play --list-ports
 ```
 
 **Example Output:**
@@ -38,12 +38,12 @@ Available MIDI output ports:
 Launch playback with the full Terminal UI experience:
 
 ```bash
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 **Or use port index:**
 ```bash
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 ```
 
 ### 3. Simple Mode (No UI)
@@ -51,7 +51,7 @@ midimarkup play song.mml --port 0
 For automation, CI/CD, or non-TTY environments:
 
 ```bash
-midimarkup play song.mml --port 0 --no-ui
+mmdc play song.mmd --port 0 --no-ui
 ```
 
 ## Terminal UI Display
@@ -62,7 +62,7 @@ When using the default TUI mode, you'll see a Rich-based interface with real-tim
 ╭─────────────────────────────────────────────────────────────╮
 │            MIDI Markup Realtime Player                      │
 │                                                              │
-│ File:  song.mml                                             │
+│ File:  song.mmd                                             │
 │ Port:  IAC Driver Bus 1                                     │
 │ Title: My Performance Song                                  │
 ╰─────────────────────────────────────────────────────────────╯
@@ -122,7 +122,7 @@ Status: ▶ PLAYING  |  Tempo: 120.0 BPM  |  Tick: 11040
 Specify the exact port name:
 
 ```bash
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 **Advantages:**
@@ -135,7 +135,7 @@ midimarkup play song.mml --port "IAC Driver Bus 1"
 Use numeric index from `--list-ports`:
 
 ```bash
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 ```
 
 **Advantages:**
@@ -193,7 +193,7 @@ Install a virtual MIDI driver like:
 Create a virtual port, then use with MML:
 
 ```bash
-midimarkup play song.mml --port "loopMIDI Port"
+mmdc play song.mmd --port "loopMIDI Port"
 ```
 
 ## Timing Precision
@@ -219,12 +219,12 @@ The playback engine uses a **hybrid sleep/busy-wait scheduler** for sub-5ms timi
 ### Example
 
 ```bash
-midimarkup play automation.mml --port 0 --no-ui
+mmdc play automation.mmd --port 0 --no-ui
 ```
 
 **Output:**
 ```
-Compiling: automation.mml
+Compiling: automation.mmd
 Opening MIDI port: IAC Driver Bus 1
 Duration: 30.50s (104 events)
 
@@ -242,15 +242,15 @@ Duration: 30.50s (104 events)
 
 ### "Error: File not found"
 
-**Cause:** MML file path is incorrect.
+**Cause:** MMD file path is incorrect.
 
 **Solution:**
 ```bash
 # Use absolute path
-midimarkup play /path/to/song.mml --port 0
+mmdc play /path/to/song.mmd --port 0
 
 # Or relative from current directory
-midimarkup play ./song.mml --port 0
+mmdc play ./song.mmd --port 0
 ```
 
 ### "Error: --port is required for playback"
@@ -260,10 +260,10 @@ midimarkup play ./song.mml --port 0
 **Solution:**
 ```bash
 # List ports first
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Then specify port
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 ### "Error: No MIDI ports found"
@@ -277,15 +277,15 @@ midimarkup play song.mml --port "IAC Driver Bus 1"
 
 ### "Compilation error"
 
-**Cause:** Syntax error or validation failure in MML file.
+**Cause:** Syntax error or validation failure in MMD file.
 
 **Solution:**
 ```bash
 # Validate syntax first
-midimarkup validate song.mml
+mmdc validate song.mmd
 
 # Check for detailed errors
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 ```
 
 ### "No TTY detected, falling back to simple mode"
@@ -303,7 +303,7 @@ midimarkup compile song.mml --format table
 **Solution:**
 ```bash
 # Reinstall with optional dependencies
-pip install --upgrade midimarkup[tui]
+pip install --upgrade mmdc[tui]
 
 # Or install readchar directly
 pip install readchar
@@ -319,13 +319,13 @@ Automate playback in a shell script:
 #!/bin/bash
 
 # Script: play_setlist.sh
-# Plays a setlist of MML files to Quad Cortex
+# Plays a setlist of MMD files to Quad Cortex
 
 MIDI_PORT="Quad Cortex USB MIDI"
 
-for song in setlist/*.mml; do
+for song in setlist/*.mmd; do
     echo "Playing: $song"
-    midimarkup play "$song" --port "$MIDI_PORT" --no-ui
+    mmdc play "$song" --port "$MIDI_PORT" --no-ui
 
     if [ $? -ne 0 ]; then
         echo "Error playing $song"
@@ -340,15 +340,15 @@ echo "Setlist complete!"
 
 ### Integration with DAW
 
-Route MML playback to your DAW:
+Route MMD playback to your DAW:
 
 1. Create virtual MIDI port (IAC Bus on macOS)
 2. Set DAW to listen on that port
-3. Play MML file to virtual port
+3. Play MMD file to virtual port
 4. DAW records incoming MIDI
 
 ```bash
-midimarkup play song.mml --port "IAC Driver Bus 1"
+mmdc play song.mmd --port "IAC Driver Bus 1"
 ```
 
 ### Live Performance Workflow
@@ -405,9 +405,9 @@ midimarkup play song.mml --port "IAC Driver Bus 1"
 
 - [CLI Reference](../reference/cli-commands.md) - Complete `play` command documentation
 - [Getting Started](../getting-started.md) - Introduction to MML
-- [Examples](../../examples/README.md) - Sample MML files to try
+- [Examples](../../examples/README.md) - Sample MMD files to try
 
 ## Feedback
 
 Encounter issues with real-time playback? Please report at:
-https://github.com/yourusername/midi-markdown/issues
+https://github.com/cjgdev/midi-markdown/issues

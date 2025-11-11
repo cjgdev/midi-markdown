@@ -13,7 +13,7 @@
 
 ## Introduction
 
-The MIDI Markup Language (MML) alias system allows you to create reusable, named shortcuts for common MIDI command sequences. Instead of writing repetitive MIDI commands, you can define an alias once and use it throughout your document with different parameters.
+The MIDI Markdown (MML) alias system allows you to create reusable, named shortcuts for common MIDI command sequences. Instead of writing repetitive MIDI commands, you can define an alias once and use it throughout your document with different parameters.
 
 **Why use aliases?**
 
@@ -330,8 +330,8 @@ Use `@import` to load a device library:
 title: My Performance
 ---
 
-@import "devices/quad_cortex.mml"
-@import "devices/helix.mml"
+@import "devices/quad_cortex.mmd"
+@import "devices/helix.mmd"
 
 [00:00.000]
 - qc_scene 1 0
@@ -344,34 +344,34 @@ title: My Performance
 
 MML includes libraries for:
 
-- **Neural DSP Quad Cortex** (`devices/quad_cortex.mml`)
+- **Neural DSP Quad Cortex** (`devices/quad_cortex.mmd`)
   - Preset/scene management
   - Expression pedals
   - Stomp switches
   - Tuner, tap tempo
 
-- **Eventide H90** (`devices/eventide_h90.mml`)
+- **Eventide H90** (`devices/eventide_h90.mmd`)
   - Dual algorithm control
   - Program changes
   - Expression mapping
 
-- **Line 6 Helix Floor/LT/Rack** (`devices/helix.mml`)
+- **Line 6 Helix Floor/LT/Rack** (`devices/helix.mmd`)
   - Setlist/preset navigation
   - 8 snapshots
   - Footswitch control
   - Looper commands
 
-- **Line 6 HX Effects** (`devices/hx_effects.mml`)
+- **Line 6 HX Effects** (`devices/hx_effects.mmd`)
   - Preset navigation (32 banks × 4)
   - 4 snapshots
   - Effects-only control
 
-- **Line 6 HX Stomp** (`devices/hx_stomp.mml`)
+- **Line 6 HX Stomp** (`devices/hx_stomp.mmd`)
   - Direct preset addressing
   - 3 snapshots
   - Compact model controls
 
-- **Line 6 HX Stomp XL** (`devices/hx_stomp_xl.mml`)
+- **Line 6 HX Stomp XL** (`devices/hx_stomp_xl.mmd`)
   - Direct preset addressing
   - 4 snapshots
   - 8 footswitches

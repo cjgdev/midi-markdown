@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document defines the complete design and implementation strategy for the MIDI Markup Language (MML) lexer. The lexer is the first component in the compilation pipeline, responsible for breaking source code into tokens.
+This document defines the complete design and implementation strategy for the MIDI Markdown (MML) lexer. The lexer is the first component in the compilation pipeline, responsible for breaking source code into tokens.
 
 ## Goals
 
-1. **Tokenize MML source code** into a stream of typed tokens
+1. **Tokenize MMD source code** into a stream of typed tokens
 2. **Track position information** (line/column) for error reporting
-3. **Handle all MML syntax elements** per [spec.md](../spec.md)
+3. **Handle all MMD syntax elements** per [spec.md](../spec.md)
 4. **Provide clear error messages** for invalid syntax
 5. **Support incremental parsing** via `next_token()` and `peek_token()`
 
@@ -567,7 +567,7 @@ The test suite in [tests/unit/test_lexer.py](../tests/unit/test_lexer.py) provid
 - [ ] Run all 55 tests and fix failures
 - [ ] Add type hints and docstrings
 - [ ] Run ruff and mypy for code quality
-- [ ] Test with real MML examples from [examples/](../examples/)
+- [ ] Test with real MMD examples from [examples/](../examples/)
 
 ## Performance Considerations
 
@@ -589,4 +589,4 @@ The test suite in [tests/unit/test_lexer.py](../tests/unit/test_lexer.py) provid
 - **Specification**: [spec.md](../spec.md) lines 84-531
 - **Test Suite**: [tests/unit/test_lexer.py](../tests/unit/test_lexer.py)
 - **Implementation**: [src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)
-- **Examples**: [examples/basic_usage.mml](../examples/basic_usage.mml)
+- **Examples**: [examples/00_basics/00_hello_world.mmd](../../../examples/00_basics/00_hello_world.mmd)

@@ -1,4 +1,4 @@
-# MML Architecture Overview
+# MMD Architecture Overview
 
 **Date**: 2025-11-08
 **Status**: Production-ready
@@ -19,7 +19,7 @@
 
 ## Introduction
 
-MIDI Markup Language (MML) is a human-readable, text-based format for creating and automating MIDI sequences. The implementation follows a **multi-stage compilation pipeline** that transforms MML source code into executable MIDI output or real-time playback.
+MIDI Markdown (MML) is a human-readable, text-based format for creating and automating MIDI sequences. The implementation follows a **multi-stage compilation pipeline** that transforms MMD source code into executable MIDI output or real-time playback.
 
 This document provides a comprehensive overview of the architecture, intended for developers who want to understand, maintain, or extend the codebase.
 
@@ -35,12 +35,12 @@ This document provides a comprehensive overview of the architecture, intended fo
 
 ## High-Level Architecture
 
-The MML compiler follows a traditional compiler architecture with these major phases:
+The MMD compiler follows a traditional compiler architecture with these major phases:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Input Layer                             │
-│  .mml files (MIDI Markup Language source code)                 │
+│  .mmd files (MIDI Markdown source code)                 │
 └──────────────────────────┬──────────────────────────────────────┘
                            ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -100,11 +100,11 @@ The MML compiler follows a traditional compiler architecture with these major ph
 The compilation process follows this linear pipeline:
 
 ### Stage 1: Parsing
-**Input**: MML source code (string or file)
+**Input**: MMD source code (string or file)
 **Output**: AST (Abstract Syntax Tree)
 **Components**: `parser/parser.py`, `parser/transformer.py`, `parser/mml.lark`
 
-The parser uses Lark (LALR parser generator) to convert MML text into a structured AST. Position tracking is enabled for error reporting.
+The parser uses Lark (LALR parser generator) to convert MMD text into a structured AST. Position tracking is enabled for error reporting.
 
 ### Stage 2: Import Resolution
 **Input**: AST with `@import` statements
@@ -163,7 +163,7 @@ Converts event dictionaries to `MIDIEvent` objects and wraps them in an `IRProgr
 
 ### 1. Parser (`src/midi_markdown/parser/`)
 
-**Responsibility**: Convert MML source text to AST
+**Responsibility**: Convert MMD source text to AST
 
 **Key Files**:
 - `mml.lark` (280 lines): Lark grammar in EBNF format
@@ -185,7 +185,7 @@ Converts event dictionaries to `MIDIEvent` objects and wraps them in an `IRProgr
 from midi_markdown.parser.parser import MMLParser
 
 parser = MMLParser()
-doc = parser.parse_file("song.mml")  # Returns MMLDocument AST
+doc = parser.parse_file("song.mmd")  # Returns MMLDocument AST
 ```
 
 See [architecture/parser.md](architecture/parser.md) for detailed parser documentation.
@@ -197,7 +197,7 @@ See [architecture/parser.md](architecture/parser.md) for detailed parser documen
 **Responsibility**: Load device library files and merge alias definitions
 
 **Key Features**:
-- Resolves `@import "devices/device_name.mml"` statements
+- Resolves `@import "devices/device_name.mmd"` statements
 - Detects circular imports
 - Validates device library format
 - Returns merged alias dictionary
@@ -206,7 +206,7 @@ See [architecture/parser.md](architecture/parser.md) for detailed parser documen
 ```python
 from midi_markdown.alias.imports import resolve_imports
 
-imports = ["devices/quad_cortex.mml", "devices/eventide_h90.mml"]
+imports = ["devices/quad_cortex.mmd", "devices/eventide_h90.mmd"]
 aliases = resolve_imports(imports, base_path=".")
 # Returns: {"cortex_load": {...}, "h90_preset": {...}, ...}
 ```
@@ -460,8 +460,8 @@ player.play()  # Blocks until playback complete
 **Framework**: Typer + Rich
 
 **Commands** (`commands/`):
-- `compile.py`: Compile MML → MIDI/JSON/CSV
-- `validate.py`: Validate MML without compiling
+- `compile.py`: Compile MMD → MIDI/JSON/CSV
+- `validate.py`: Validate MMD without compiling
 - `check.py`: Syntax check only (no validation)
 - `play.py`: Real-time playback
 - `inspect.py`: Display event timeline
@@ -476,17 +476,17 @@ player.play()  # Blocks until playback complete
 
 **Example**:
 ```bash
-# Compile MML to MIDI
-midimarkup compile song.mml -o output.mid
+# Compile MMD to MIDI
+mmdc compile song.mmd -o output.mid
 
 # Real-time playback
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 
 # Export to JSON
-midimarkup compile song.mml --format json -o events.json
+mmdc compile song.mmd --format json -o events.json
 
 # Inspect event timeline
-midimarkup inspect song.mml
+mmdc inspect song.mmd
 ```
 
 ---
@@ -496,7 +496,7 @@ midimarkup inspect song.mml
 ### Compilation Flow (MML → MIDI)
 
 ```
-.mml file
+.mmd file
     ↓
 [Parser] parse_file()
     ↓
@@ -534,7 +534,7 @@ Path.write_bytes()
 ### Playback Flow (MML → Real-time MIDI)
 
 ```
-.mml file
+.mmd file
     ↓
 [Same as above through IR Compiler]
     ↓
@@ -653,7 +653,7 @@ if format == "new_format":
 
 ### Adding New Device Libraries
 
-1. **Create device file** (`devices/device_name.mml`):
+1. **Create device file** (`devices/device_name.mmd`):
 ```mml
 ---
 device: "Device Name"
@@ -734,7 +734,7 @@ manufacturer: "Company"
 
 ## Summary
 
-The MML architecture follows proven compiler design patterns:
+The MMD architecture follows proven compiler design patterns:
 
 ✅ **Multi-stage pipeline**: Clear separation of parsing, expansion, validation, compilation
 ✅ **Intermediate representation**: Enables multiple outputs and runtime modes

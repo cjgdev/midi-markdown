@@ -27,10 +27,10 @@ By the end of this tutorial, you'll have created a complete 1-minute 48-second s
 
 ## Step 1: Create Your Project File
 
-Create a new file called `my_first_song.mml`:
+Create a new file called `my_first_song.mmd`:
 
 ```bash
-touch my_first_song.mml
+touch my_first_song.mmd
 ```
 
 Open it in your favorite text editor. We'll build the song incrementally.
@@ -39,7 +39,7 @@ Open it in your favorite text editor. We'll build the song incrementally.
 
 ## Step 2: Add Frontmatter
 
-Every MML file starts with YAML frontmatter containing document properties:
+Every MMD file starts with YAML frontmatter containing document properties:
 
 ```yaml
 ---
@@ -47,7 +47,7 @@ title: "My First Song"
 author: "Your Name"
 midi_format: 1
 ppq: 480
-description: "A complete song demonstrating MML features"
+description: "A complete song demonstrating MMD features"
 ---
 ```
 
@@ -581,7 +581,7 @@ End the song with a gradual fade:
 Save your file and compile it:
 
 ```bash
-midimarkup compile my_first_song.mml -o output/my_first_song.mid
+mmdc compile my_first_song.mmd -o output/my_first_song.mid
 ```
 
 Expected output:
@@ -616,17 +616,17 @@ Play directly to hardware MIDI devices:
 
 ```bash
 # List available MIDI ports
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Play to specific port
-midimarkup play my_first_song.mml --port "IAC Driver Bus 1"
+mmdc play my_first_song.mmd --port "IAC Driver Bus 1"
 ```
 
 ---
 
 ## Complete File
 
-Here's the complete `my_first_song.mml` (simplified version):
+Here's the complete `my_first_song.mmd` (simplified version):
 
 <details>
 <summary>Click to expand full code (140 lines)</summary>
@@ -637,7 +637,7 @@ title: "My First Song"
 author: "Your Name"
 midi_format: 1
 ppq: 480
-description: "A complete song demonstrating MML features"
+description: "A complete song demonstrating MMD features"
 ---
 
 @define LEAD_CHANNEL 1
@@ -811,10 +811,10 @@ Try these improvements:
 ### Explore Examples
 
 Check out the `examples/` directory for more inspiration:
-- `examples/09_comprehensive_song.mml` - Full version of this tutorial
-- `examples/10_loops_and_patterns.mml` - Using `@loop` for repetition
-- `examples/11_sweep_automation.mml` - Advanced CC automation
-- `examples/12_musical_timing.mml` - Musical time (bars.beats.ticks)
+- `examples/03_advanced/09_comprehensive_song.mmd` - Full version of this tutorial
+- `examples/03_advanced/10_loops_and_patterns.mmd` - Using `@loop` for repetition
+- `examples/03_advanced/11_sweep_automation.mmd` - Advanced CC automation
+- `examples/01_timing/12_musical_timing.mmd` - Musical time (bars.beats.ticks)
 
 ---
 
@@ -822,7 +822,7 @@ Check out the `examples/` directory for more inspiration:
 
 ### "Parse error: Unexpected token"
 
-**Problem**: Syntax error in your MML file.
+**Problem**: Syntax error in your MMD file.
 
 **Solution**: Check that all commands are spelled correctly and values are in valid ranges. See [Troubleshooting Guide](../reference/troubleshooting.md).
 
@@ -859,8 +859,8 @@ Check out the `examples/` directory for more inspiration:
 **Problem**: MIDI port not configured or no instruments loaded.
 
 **Solution**:
-1. List available ports: `midimarkup play --list-ports`
-2. Select correct port: `midimarkup play song.mml --port "Your Port"`
+1. List available ports: `mmdc play --list-ports`
+2. Select correct port: `mmdc play song.mmd --port "Your Port"`
 3. In DAW, assign instruments to MIDI channels 1, 2, 3
 
 ---
@@ -875,6 +875,6 @@ Check out the `examples/` directory for more inspiration:
 
 ---
 
-**Congratulations!** You've created your first complete MIDI song with MIDI Markup Language. 🎉
+**Congratulations!** You've created your first complete MIDI song with MIDI Markdown. 🎉
 
 Keep experimenting and share your creations!

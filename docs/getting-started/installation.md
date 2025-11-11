@@ -1,6 +1,6 @@
 # Installation Guide
 
-Detailed installation instructions for MIDI Markup Language.
+Detailed installation instructions for MIDI Markdown.
 
 ## System Requirements
 
@@ -31,7 +31,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 **2. Clone Repository**
 
 ```bash
-git clone https://github.com/anthropics/midi-markdown.git
+git clone https://github.com/cjgdev/midi-markdown.git
 cd midi-markdown
 ```
 
@@ -45,8 +45,8 @@ uv sync
 **4. Verify Installation**
 
 ```bash
-uv run midimarkup version
-# Output: MIDI Markup Language (MML) Compiler
+uv run mmdc version
+# Output: MIDI Markdown (MML) Compiler
 #         Version: 0.1.0
 ```
 
@@ -57,7 +57,7 @@ If you prefer traditional Python tools:
 **1. Clone Repository**
 
 ```bash
-git clone https://github.com/anthropics/midi-markdown.git
+git clone https://github.com/cjgdev/midi-markdown.git
 cd midi-markdown
 ```
 
@@ -83,7 +83,7 @@ pip install -e .
 **4. Verify Installation**
 
 ```bash
-midimarkup version
+mmdc version
 ```
 
 ## Post-Installation Setup
@@ -99,7 +99,7 @@ mkdir -p output
 
 ```bash
 # Compile a simple example
-uv run midimarkup compile examples/00_hello_world.mml -o output/test.mid
+uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/test.mid
 
 # Should output:
 # ✅ Compilation successful
@@ -111,13 +111,13 @@ Enable tab completion for your shell:
 
 ```bash
 # Bash
-uv run midimarkup --install-completion bash
+uv run mmdc --install-completion bash
 
 # Zsh
-uv run midimarkup --install-completion zsh
+uv run mmdc --install-completion zsh
 
 # Fish
-uv run midimarkup --install-completion fish
+uv run mmdc --install-completion fish
 ```
 
 ## Development Setup
@@ -327,10 +327,10 @@ uv --version
 python3 --version
 
 # ✓ Project dependencies installed
-uv run midimarkup version
+uv run mmdc version
 
 # ✓ Can compile examples
-uv run midimarkup compile examples/00_hello_world.mml -o output/test.mid
+uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/test.mid
 
 # ✓ Tests pass
 uv run pytest -m unit
@@ -353,7 +353,7 @@ git pull origin main
 uv sync
 
 # Verify update
-uv run midimarkup version
+uv run mmdc version
 ```
 
 ## Uninstalling
@@ -378,6 +378,6 @@ rm -rf ~/.cargo/bin/uv
 ## Getting Help
 
 - Check [Troubleshooting](#troubleshooting) section above
-- Review [GitHub Issues](https://github.com/anthropics/midi-markdown/issues)
+- Review [GitHub Issues](https://github.com/cjgdev/midi-markdown/issues)
 - Read the [FAQ](reference/faq.md) (if available)
 - Ask for help by creating a new issue

@@ -10,7 +10,7 @@ Fast syntax-only validation for rapid development feedback.
 ## Synopsis
 
 ```bash
-midimarkup check [OPTIONS] INPUT_FILE
+mmdc check [OPTIONS] INPUT_FILE
 mml check [OPTIONS] INPUT_FILE         # Shorter alias
 ```
 
@@ -18,12 +18,12 @@ mml check [OPTIONS] INPUT_FILE         # Shorter alias
 
 ## Description
 
-The `check` command performs **syntax-only validation** of MML files - the fastest way to catch typos and syntax errors without full semantic validation.
+The `check` command performs **syntax-only validation** of MMD files - the fastest way to catch typos and syntax errors without full semantic validation.
 
 **Key Difference**: `check` only verifies that your file can be **parsed**, not that it's valid MIDI.
 
 **What check does**:
-1. Parse MML file with Lark grammar
+1. Parse MMD file with Lark grammar
 2. Verify syntax structure (brackets, commands, timing format)
 3. Report parse errors immediately
 
@@ -42,7 +42,7 @@ The `check` command performs **syntax-only validation** of MML files - the faste
 - Editor save hooks for instant feedback
 - Watch mode during development
 - Quick syntax verification
-- Learning MML syntax
+- Learning MMD syntax
 
 ---
 
@@ -51,11 +51,11 @@ The `check` command performs **syntax-only validation** of MML files - the faste
 ### Input
 
 #### `INPUT_FILE` (required)
-Path to `.mml` file to check.
+Path to `.mmd` file to check.
 
 ```bash
-midimarkup check song.mml
-midimarkup check path/to/draft.mml
+mmdc check song.mmd
+mmdc check path/to/draft.mmd
 ```
 
 ---
@@ -66,12 +66,12 @@ midimarkup check path/to/draft.mml
 Show verbose output with event count.
 
 ```bash
-midimarkup check song.mml --verbose
+mmdc check song.mmd --verbose
 ```
 
 **Verbose output**:
 ```
-Checking syntax: song.mml
+Checking syntax: song.mmd
   Parsing file...
 ✓ Syntax is valid
   Parsed: 38 event(s)
@@ -86,7 +86,7 @@ Checking syntax: song.mml
 Show full error tracebacks instead of formatted errors.
 
 ```bash
-midimarkup check broken.mml --debug
+mmdc check broken.mmd --debug
 ```
 
 **Useful for**: Bug reports, understanding parser behavior.
@@ -103,7 +103,7 @@ midimarkup check broken.mml --debug
 
 **Script usage**:
 ```bash
-if midimarkup check song.mml; then
+if mmdc check song.mmd; then
   echo "Syntax OK"
 else
   echo "Syntax error, code $?"
@@ -118,20 +118,20 @@ fi
 
 ```bash
 # Simplest usage
-midimarkup check song.mml
+mmdc check song.mmd
 ```
 
 **Success output**:
 ```
-Checking syntax: song.mml
+Checking syntax: song.mmd
 ✓ Syntax is valid
 ```
 
 **Error output**:
 ```
-Checking syntax: song.mml
+Checking syntax: song.mmd
 ❌ error[E101]: Unexpected token 'foo'
-  → song.mml:12:5
+  → song.mmd:12:5
 
    10 │ [00:01.000]
    11 │ - note_on 1.60 80 1b
@@ -148,12 +148,12 @@ Checking syntax: song.mml
 
 ```bash
 # See parsing details
-midimarkup check song.mml --verbose
+mmdc check song.mmd --verbose
 ```
 
 **Output**:
 ```
-Checking syntax: song.mml
+Checking syntax: song.mmd
   Parsing file...
 ✓ Syntax is valid
   Parsed: 38 event(s)
@@ -165,9 +165,9 @@ Checking syntax: song.mml
 ### Batch Syntax Check
 
 ```bash
-# Check all MML files quickly
-for file in *.mml; do
-  if midimarkup check "$file"; then
+# Check all MMD files quickly
+for file in *.mmd; do
+  if mmdc check "$file"; then
     echo "✓ $file"
   else
     echo "✗ $file"
@@ -177,10 +177,10 @@ done
 
 **Output**:
 ```
-✓ song1.mml
-✓ song2.mml
-✗ broken.mml
-✓ song3.mml
+✓ song1.mmd
+✓ song2.mmd
+✗ broken.mmd
+✓ song3.mmd
 ```
 
 ---
@@ -193,12 +193,12 @@ brew install entr  # macOS
 apt-get install entr  # Linux
 
 # Auto-check on file change
-ls *.mml | entr midimarkup check /_
+ls *.mmd | entr mmdc check /_
 ```
 
 **Alternative with `fswatch`**:
 ```bash
-fswatch -o song.mml | xargs -n1 -I{} midimarkup check song.mml
+fswatch -o song.mmd | xargs -n1 -I{} mmdc check song.mmd
 ```
 
 ---
@@ -211,9 +211,9 @@ fswatch -o song.mml | xargs -n1 -I{} midimarkup check song.mml
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Check MML Syntax",
+      "label": "Check MMD Syntax",
       "type": "shell",
-      "command": "midimarkup check ${file}",
+      "command": "mmdc check ${file}",
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -233,16 +233,16 @@ fswatch -o song.mml | xargs -n1 -I{} midimarkup check song.mml
 
 ```bash
 # 1. Check syntax (fastest - <20ms)
-midimarkup check song.mml
+mmdc check song.mmd
 
 # Edit file...
 
 # 2. Check again
-midimarkup check song.mml
+mmdc check song.mmd
 
 # When syntax is correct, validate semantics
 # 3. Full validation (~100ms)
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -251,13 +251,13 @@ midimarkup validate song.mml
 
 ```bash
 # Check multiple files
-midimarkup check song1.mml song2.mml song3.mml
+mmdc check song1.mmd song2.mmd song3.mmd
 
 # Check all files in directory
-midimarkup check *.mml
+mmdc check *.mmd
 
 # Check files matching pattern
-midimarkup check setlist_*.mml
+mmdc check setlist_*.mmd
 ```
 
 ---
@@ -333,7 +333,7 @@ title: "Song"
 - cc 1.7.200  # Check won't catch this!
 
 # Need validate to catch:
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -346,7 +346,7 @@ midimarkup validate song.mml
 - note_on 17.60 80 1b  # Check won't catch this!
 
 # Need validate to catch:
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -362,7 +362,7 @@ midimarkup validate song.mml
 - note_off 1.60
 
 # Need validate to catch:
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -375,7 +375,7 @@ midimarkup validate song.mml
 - cortex_load 1.2.3.5  # Check won't catch this!
 
 # Need validate to catch:
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -385,10 +385,10 @@ midimarkup validate song.mml
 ```yaml
 # ✓ Passes check (valid syntax)
 # ✗ Fails validate (file not found)
-@import "devices/nonexistent.mml"  # Check won't catch this!
+@import "devices/nonexistent.mmd"  # Check won't catch this!
 
 # Need validate to catch:
-midimarkup validate song.mml
+mmdc validate song.mmd
 ```
 
 ---
@@ -416,19 +416,19 @@ midimarkup validate song.mml
 **During editing**: Use `check` for instant feedback
 ```bash
 # Fast enough for save hooks
-midimarkup check song.mml  # <10ms
+mmdc check song.mmd  # <10ms
 ```
 
 **Before commit**: Use `validate` for comprehensive checking
 ```bash
 # Catches semantic errors
-midimarkup validate song.mml  # <100ms
+mmdc validate song.mmd  # <100ms
 ```
 
 **Before performance**: Use `compile` to verify everything
 ```bash
 # Full pipeline test
-midimarkup compile song.mml  # <200ms
+mmdc compile song.mmd  # <200ms
 ```
 
 ---
@@ -448,18 +448,18 @@ midimarkup compile song.mml  # <200ms
 - cc 1.7.200  # But value > 127!
 
 # Check says OK:
-midimarkup check song.mml
+mmdc check song.mmd
 # ✓ Syntax is valid
 
 # Validate catches the error:
-midimarkup validate song.mml
+mmdc validate song.mmd
 # ✗ MIDI value out of range: 200 exceeds maximum (127)
 ```
 
 **Solution**: Always validate before important use:
 ```bash
-midimarkup check song.mml     # Quick syntax check
-midimarkup validate song.mml  # Full validation
+mmdc check song.mmd     # Quick syntax check
+mmdc validate song.mmd  # Full validation
 ```
 
 ---
@@ -477,13 +477,13 @@ midimarkup validate song.mml  # Full validation
 **Debugging**:
 ```bash
 # Show hidden characters
-cat -A song.mml
+cat -A song.mmd
 
 # Check file encoding
-file song.mml  # Should be "UTF-8 Unicode text"
+file song.mmd  # Should be "UTF-8 Unicode text"
 
 # Fix encoding
-iconv -f ISO-8859-1 -t UTF-8 song.mml > song_fixed.mml
+iconv -f ISO-8859-1 -t UTF-8 song.mmd > song_fixed.mmd
 ```
 
 ---
@@ -496,9 +496,9 @@ iconv -f ISO-8859-1 -t UTF-8 song.mml > song_fixed.mml
 
 **Solution**: Always test full compilation:
 ```bash
-midimarkup check song.mml      # Syntax OK
-midimarkup validate song.mml   # Validation OK
-midimarkup compile song.mml    # May still have expansion errors
+mmdc check song.mmd      # Syntax OK
+mmdc validate song.mmd   # Validation OK
+mmdc compile song.mmd    # May still have expansion errors
 ```
 
 ---
@@ -510,13 +510,13 @@ midimarkup compile song.mml    # May still have expansion errors
 ```vim
 " .vimrc
 " Quick syntax check on save
-autocmd BufWritePost *.mml :!midimarkup check %
+autocmd BufWritePost *.mmd :!mmdc check %
 ```
 
 **Or with statusline**:
 ```vim
 function! CheckMMLSyntax()
-  let l:output = system('midimarkup check ' . shellescape(expand('%')))
+  let l:output = system('mmdc check ' . shellescape(expand('%')))
   if v:shell_error == 0
     echo "✓ Syntax OK"
   else
@@ -534,9 +534,9 @@ nnoremap <leader>c :call CheckMMLSyntax()<CR>
 ```elisp
 ;; .emacs or init.el
 (defun mml-check-syntax ()
-  "Check MML file syntax"
+  "Check MMD file syntax"
   (interactive)
-  (compile (concat "midimarkup check " (buffer-file-name))))
+  (compile (concat "mmdc check " (buffer-file-name))))
 
 (add-hook 'mml-mode-hook
   (lambda ()
@@ -549,10 +549,10 @@ nnoremap <leader>c :call CheckMMLSyntax()<CR>
 
 ```bash
 # .bashrc or .zshrc
-alias mmlc='midimarkup check'
+alias mmlc='mmdc check'
 
 # Usage
-mmlc song.mml
+mmlc song.mmd
 ```
 
 ---
@@ -563,9 +563,9 @@ mmlc song.mml
 .PHONY: check-syntax
 
 check-syntax:
-	@for file in *.mml; do \
+	@for file in *.mmd; do \
 		echo "Checking $$file..."; \
-		midimarkup check "$$file" || exit 1; \
+		mmdc check "$$file" || exit 1; \
 	done
 	@echo "All files have valid syntax ✓"
 ```
@@ -584,8 +584,8 @@ make check-syntax
 # .git/hooks/pre-commit
 
 # Quick syntax check only (fast enough for pre-commit)
-git diff --cached --name-only --diff-filter=ACM | grep '\.mml$' | \
-  xargs -I {} midimarkup check {}
+git diff --cached --name-only --diff-filter=ACM | grep '\.mmd$' | \
+  xargs -I {} mmdc check {}
 
 if [ $? -ne 0 ]; then
   echo "Syntax errors found. Commit aborted."
@@ -608,16 +608,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install midimarkup
-        run: pipx install midimarkup
+      - name: Install mmdc
+        run: pipx install mmdc
       - name: Check syntax
-        run: find . -name "*.mml" -exec midimarkup check {} \;
+        run: find . -name "*.mmd" -exec mmdc check {} \;
 ```
 
 **Note**: For production, add full validation:
 ```yaml
       - name: Full validation
-        run: find . -name "*.mml" -exec midimarkup validate {} \;
+        run: find . -name "*.mmd" -exec mmdc validate {} \;
 ```
 
 ---
@@ -626,10 +626,10 @@ jobs:
 
 ```bash
 # Check all files in parallel (4 workers)
-find . -name "*.mml" | xargs -P 4 -I {} midimarkup check {}
+find . -name "*.mmd" | xargs -P 4 -I {} mmdc check {}
 
 # With progress indicator
-find . -name "*.mml" | parallel --progress midimarkup check {}
+find . -name "*.mmd" | parallel --progress mmdc check {}
 ```
 
 ---
@@ -642,24 +642,24 @@ find . -name "*.mml" | parallel --progress midimarkup check {}
 ```bash
 # Edit file...
 # Save
-midimarkup check song.mml  # <10ms - instant feedback
+mmdc check song.mmd  # <10ms - instant feedback
 
 # Edit more...
 # Save
-midimarkup check song.mml  # <10ms
+mmdc check song.mmd  # <10ms
 ```
 
 **Stage 2: Pre-Commit** (use `validate`)
 ```bash
 # Before committing changes
-midimarkup validate song.mml  # <100ms - full validation
+mmdc validate song.mmd  # <100ms - full validation
 ```
 
 **Stage 3: Pre-Performance** (use `compile`)
 ```bash
 # Before live performance or recording
-midimarkup compile song.mml  # <200ms - complete test
-midimarkup play song.mml --port 0  # Test playback
+mmdc compile song.mmd  # <200ms - complete test
+mmdc play song.mmd --port 0  # Test playback
 ```
 
 ---
@@ -668,15 +668,15 @@ midimarkup play song.mml --port 0  # Test playback
 
 ```bash
 # Terminal 1: Edit file in vim/emacs/nano
-vim song.mml
+vim song.mmd
 
 # Terminal 2: Auto-check on save
-ls song.mml | entr midimarkup check /_
+ls song.mmd | entr mmdc check /_
 ```
 
 **Output refreshes on every save**:
 ```
-Checking syntax: song.mml
+Checking syntax: song.mmd
 ✓ Syntax is valid
 
 # (Refreshes when you save)
@@ -688,7 +688,7 @@ Checking syntax: song.mml
 
 ### Use `check` when:
 - ✅ Editing files (need instant feedback)
-- ✅ Learning MML syntax
+- ✅ Learning MMD syntax
 - ✅ Testing parser changes (development)
 - ✅ Batch syntax checking many files
 - ✅ CI/CD first pass (fast)
@@ -715,7 +715,7 @@ Checking syntax: song.mml
 - [compile command](compile.md) - Complete compilation with output
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Common parse errors
 - [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
-- [First Song Tutorial](../getting-started/first-song.md) - Learn MML basics
+- [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---
 

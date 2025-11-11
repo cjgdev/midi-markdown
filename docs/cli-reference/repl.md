@@ -10,7 +10,7 @@ Interactive REPL (Read-Eval-Print Loop) for live MIDI composition and testing.
 ## Synopsis
 
 ```bash
-midimarkup repl [OPTIONS]
+mmdc repl [OPTIONS]
 mml repl [OPTIONS]                     # Shorter alias
 ```
 
@@ -18,9 +18,9 @@ mml repl [OPTIONS]                     # Shorter alias
 
 ## Description
 
-The `repl` command starts an **interactive session** for live MML composition, testing, and experimentation. It provides a REPL (Read-Eval-Print Loop) environment where you can:
+The `repl` command starts an **interactive session** for live MMD composition, testing, and experimentation. It provides a REPL (Read-Eval-Print Loop) environment where you can:
 
-- Write MML commands interactively
+- Write MMD commands interactively
 - Define and test aliases on the fly
 - Import device libraries dynamically
 - Inspect compiled events immediately
@@ -39,7 +39,7 @@ The `repl` command starts an **interactive session** for live MML composition, t
 - Testing alias definitions before adding to device libraries
 - Experimenting with timing and commands
 - Live coding MIDI sequences
-- Learning MML syntax interactively
+- Learning MMD syntax interactively
 - Quick prototyping before writing full files
 
 ---
@@ -50,7 +50,7 @@ The `repl` command starts an **interactive session** for live MML composition, t
 Enable debug mode (show full tracebacks on errors).
 
 ```bash
-midimarkup repl --debug
+mmdc repl --debug
 ```
 
 **Use when**: Troubleshooting REPL issues, reporting bugs.
@@ -63,7 +63,7 @@ midimarkup repl --debug
 
 ```
 ╭─────────────────────────────────────────╮
-│  MML REPL - Interactive MIDI Session   │
+│  MMD REPL - Interactive MIDI Session   │
 ╰─────────────────────────────────────────╯
 
 Type .help for commands, Ctrl+D to exit
@@ -110,14 +110,14 @@ mml> @alias test {val}
 
 ## Meta-Commands
 
-Meta-commands start with `.` and control REPL behavior (not MML code).
+Meta-commands start with `.` and control REPL behavior (not MMD code).
 
 ### `.help`
 Show available meta-commands.
 
 ```
 mml> .help
-MML REPL Commands:
+MMD REPL Commands:
   .help         - Show this help message
   .quit/.exit   - Exit REPL
   .reset        - Clear all state
@@ -176,7 +176,7 @@ Current State:
     fade_in
     cortex_load
   Imports (1):
-    devices/quad_cortex.mml
+    devices/quad_cortex.mmd
   Settings:
     Tempo: 120 BPM
     PPQ: 480
@@ -306,8 +306,8 @@ mml> [00:00.000]
 Load device libraries dynamically.
 
 ```
-mml> @import "devices/quad_cortex.mml"
-✓ Imported: devices/quad_cortex.mml (86 aliases)
+mml> @import "devices/quad_cortex.mmd"
+✓ Imported: devices/quad_cortex.mmd (86 aliases)
 
 mml> [00:00.000]
 ...  - cortex_load 1.2.3.5
@@ -365,7 +365,7 @@ REPL state preserved - continue working
 
 ### Command History
 
-**Persistent history** saved to `.mml_history` in current directory.
+**Persistent history** saved to `.mmd_history` in current directory.
 
 **Navigation**:
 - **Up/Down arrows** - Navigate history
@@ -476,8 +476,8 @@ mml> .inspect
 ### Import and Use
 
 ```
-mml> @import "devices/quad_cortex.mml"
-✓ Imported: devices/quad_cortex.mml (86 aliases)
+mml> @import "devices/quad_cortex.mmd"
+✓ Imported: devices/quad_cortex.mmd (86 aliases)
 
 mml> [00:00.000]
 ...  - cortex_load 1.2.3.5
@@ -619,7 +619,7 @@ Aliases: (none)
 
 ## Use Cases
 
-### Learning MML Syntax
+### Learning MMD Syntax
 
 **Interactive experimentation**:
 ```
@@ -692,8 +692,8 @@ mml> [+0.5s]
 
 **Verify device library**:
 ```
-mml> @import "devices/quad_cortex.mml"
-✓ Imported: devices/quad_cortex.mml (86 aliases)
+mml> @import "devices/quad_cortex.mmd"
+✓ Imported: devices/quad_cortex.mmd (86 aliases)
 
 mml> .list
 Aliases (86):
@@ -791,18 +791,18 @@ mml>  # Back to main prompt
 
 **Problem**: Command history lost between sessions.
 
-**Cause**: `.mml_history` file not writable or deleted.
+**Cause**: `.mmd_history` file not writable or deleted.
 
 **Solution**:
 ```bash
 # Check if history file exists
-ls -la .mml_history
+ls -la .mmd_history
 
 # Ensure it's writable
-chmod 644 .mml_history
+chmod 644 .mmd_history
 
 # Or delete and let REPL recreate
-rm .mml_history
+rm .mmd_history
 ```
 
 ---
@@ -851,10 +851,10 @@ mml> - cc 1.7.${VAR}
 ```bash
 # Start REPL from project root
 cd /path/to/project
-midimarkup repl
+mmdc repl
 
 # Now imports work
-mml> @import "devices/quad_cortex.mml"
+mml> @import "devices/quad_cortex.mmd"
 ```
 
 ---
@@ -877,15 +877,15 @@ mml> @import "devices/quad_cortex.mml"
 
 ```bash
 # Create test file
-cat > test_alias.mml << 'EOF'
+cat > test_alias.mmd << 'EOF'
 @alias myalias {val}
   - cc 1.7.{val}
 @end
 EOF
 
 # Test in REPL
-midimarkup repl
-mml> @import "test_alias.mml"
+mmdc repl
+mml> @import "test_alias.mmd"
 mml> - myalias 100
 ```
 
@@ -900,8 +900,8 @@ mml> @alias test {val}
 ...    - cc 1.7.{val}
 ...  @end
 
-# Later, copy to .mml file:
-cat > song.mml << 'EOF'
+# Later, copy to .mmd file:
+cat > song.mmd << 'EOF'
 @define VEL 80
 @alias test {val}
   - cc 1.7.{val}
@@ -940,7 +940,7 @@ mml> @alias cortex_load {ch}.{sl}.{gr}.{pr}
 mml> - cortex_load 1.2.3.5
 mml> .inspect
 
-# If correct, copy to devices/quad_cortex.mml
+# If correct, copy to devices/quad_cortex.mmd
 ```
 
 ---
@@ -949,7 +949,7 @@ mml> .inspect
 
 ```
 # Export history to share with team
-cp .mml_history team_repl_examples.txt
+cp .mmd_history team_repl_examples.txt
 
 # Or create cheatsheet
 cat > repl_cheatsheet.md << 'EOF'
@@ -987,7 +987,7 @@ cat > test_commands.txt << 'EOF'
 EOF
 
 # Pipe to REPL
-midimarkup repl < test_commands.txt
+mmdc repl < test_commands.txt
 ```
 
 ---
@@ -996,7 +996,7 @@ midimarkup repl < test_commands.txt
 
 ```
 # 1. Start REPL
-midimarkup repl
+mmdc repl
 
 # 2. Try simple commands
 mml> [00:00.000]
@@ -1024,8 +1024,8 @@ mml> @loop 4
 
 ```bash
 # Use custom history location
-export MML_HISTORY_FILE=~/.mml_history_global
-midimarkup repl
+export MML_HISTORY_FILE=~/.mmd_history_global
+mmdc repl
 ```
 
 ---
@@ -1034,10 +1034,10 @@ midimarkup repl
 
 ```bash
 # Terminal 1: Editor
-vim song.mml
+vim song.mmd
 
 # Terminal 2: REPL for testing
-midimarkup repl
+mmdc repl
 
 # Test snippets from editor in REPL
 # Copy working code back to editor
@@ -1051,8 +1051,8 @@ midimarkup repl
 # test_aliases.sh
 #!/bin/bash
 
-cat << 'EOF' | midimarkup repl
-@import "devices/quad_cortex.mml"
+cat << 'EOF' | mmdc repl
+@import "devices/quad_cortex.mmd"
 [00:00.000]
 - cortex_load 1.2.3.5
 .inspect
@@ -1068,11 +1068,11 @@ EOF
 
 - [compile command](compile.md) - Generate MIDI files from MML
 - [inspect command](inspect.md) - Analyze compiled events
-- [validate command](validate.md) - Validate MML syntax
+- [validate command](validate.md) - Validate MMD syntax
 - [Alias System Guide](../user-guide/alias-system.md) - Complete alias documentation
 - [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
-- [First Song Tutorial](../getting-started/first-song.md) - Learn MML basics
+- [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---
 
-**Next Steps**: Try the REPL with `midimarkup repl`, or learn about [aliases](../user-guide/alias-system.md).
+**Next Steps**: Try the REPL with `mmdc repl`, or learn about [aliases](../user-guide/alias-system.md).

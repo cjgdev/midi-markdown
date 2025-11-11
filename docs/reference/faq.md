@@ -3,13 +3,13 @@
 > **Audience**: All users
 > **Level**: Beginner to Advanced
 
-Quick answers to common questions about MIDI Markup Language.
+Quick answers to common questions about MIDI Markdown.
 
 ---
 
 ## General Questions
 
-### What is MIDI Markup Language (MML)?
+### What is MIDI Markdown (MML)?
 
 MML is a human-readable, text-based format for creating MIDI sequences. It uses Markdown-inspired syntax to define MIDI events with precise timing, making it ideal for:
 
@@ -22,9 +22,9 @@ Think of it as "Markdown for MIDI" - easy to write, easy to read, easy to versio
 
 ---
 
-### How is MML different from ABC notation or LilyPond?
+### How is MMD different from ABC notation or LilyPond?
 
-| Feature | MML | ABC Notation | LilyPond |
+| Feature | MMD | ABC Notation | LilyPond |
 |---------|-----|--------------|----------|
 | **Focus** | MIDI automation | Sheet music | Professional engraving |
 | **Target** | Hardware devices, DAWs | Folk music notation | Classical sheet music |
@@ -34,15 +34,15 @@ Think of it as "Markdown for MIDI" - easy to write, easy to read, easy to versio
 | **Device Control** | ✅ Built-in aliases | ❌ No | ❌ No |
 | **Learning Curve** | Gentle | Gentle | Steep |
 
-**Summary**: MML is purpose-built for MIDI performance and automation, not sheet music notation.
+**Summary**: MMD is purpose-built for MIDI performance and automation, not sheet music notation.
 
 ---
 
-### Can I use MML for live performance?
+### Can I use MMD for live performance?
 
 **Yes!** This is MML's primary use case. Features designed for live performance:
 
-- **Real-time playback** - `midimarkup play` sends MIDI to hardware in real-time
+- **Real-time playback** - `mmdc play` sends MIDI to hardware in real-time
 - **Device libraries** - Pre-built commands for Quad Cortex, H90, Helix, etc.
 - **Precise timing** - Sub-5ms scheduling accuracy
 - **Aliases** - Create shortcuts for complex preset changes
@@ -65,7 +65,7 @@ See: [Live Performance Tutorial](../tutorials/live-performance.md) (coming soon)
 
 ### What MIDI devices are supported?
 
-**All MIDI devices are supported** because MML generates standard MIDI. However, some devices have **device libraries** with pre-built aliases:
+**All MIDI devices are supported** because MMD generates standard MIDI. However, some devices have **device libraries** with pre-built aliases:
 
 **Currently available**:
 - Neural DSP Quad Cortex (86 aliases)
@@ -81,9 +81,9 @@ See: [Live Performance Tutorial](../tutorials/live-performance.md) (coming soon)
 
 ---
 
-### Is MML free and open source?
+### Is MMD free and open source?
 
-**Yes!** MML is MIT licensed and completely free:
+**Yes!** MMD is MIT licensed and completely free:
 
 - ✅ Use commercially without restrictions
 - ✅ Modify and distribute freely
@@ -132,7 +132,7 @@ See: [Troubleshooting MIDI Playback](troubleshooting.md#midi-playback-issues)
 
 ---
 
-### Can I use MML without Python installed?
+### Can I use MMD without Python installed?
 
 **Yes!** Download the standalone executable from GitHub Releases:
 
@@ -169,7 +169,7 @@ ppq: 480
 
 ### Can I use note names instead of MIDI numbers?
 
-**Yes!** MML supports standard note names:
+**Yes!** MMD supports standard note names:
 
 ```yaml
 # ✅ All of these are equivalent (MIDI note 60 = C4)
@@ -235,17 +235,17 @@ spanning multiple lines
 
 ---
 
-### Can I split my MML file into multiple files?
+### Can I split my MMD file into multiple files?
 
 **Yes!** Use `@import` to include other files:
 
 ```yaml
 # Import device library
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 
 # Import shared song sections
-@import "sections/verse.mml"
-@import "sections/chorus.mml"
+@import "sections/verse.mmd"
+@import "sections/chorus.mmd"
 ```
 
 **Import paths** are relative to the current file.
@@ -277,7 +277,7 @@ spanning multiple lines
 - Supports variable substitution
 - Nest loops up to reasonable depth
 
-See: [Loops Example](../../examples/10_loops_and_patterns.mml)
+See: [Loops Example](../../examples/03_advanced/10_loops_and_patterns.mmd)
 
 ---
 
@@ -331,7 +331,7 @@ See: [MIDI CC Reference](../user-guide/midi-commands.md#control-change)
 
 ### Can I create my own aliases for my devices?
 
-**Yes!** Aliases are a core MML feature:
+**Yes!** Aliases are a core MMD feature:
 
 ```yaml
 @alias my_preset {channel}.{preset_num}
@@ -354,22 +354,235 @@ See: [Alias System Guide](../user-guide/alias-system.md)
 
 ---
 
-### Does MML support MIDI 2.0?
+### Does MMD support MIDI 2.0?
 
-**Not yet.** MML currently generates **MIDI 1.0** files (the standard supported by all devices).
+**Not yet.** MMD currently generates **MIDI 1.0** files (the standard supported by all devices).
 
 MIDI 2.0 support is planned for a future release.
 
 ---
 
+## Random Functions (Phase 6)
+
+### What is random() and how do I use it?
+
+`random()` generates random numbers within a specified range for creating variation in MIDI sequences. Use it to add humanization, randomness, or generative patterns without manual variation:
+
+```yaml
+# Random velocity
+- note_on 1.60 random(60, 100) 1b
+
+# Random CC values
+- cc 1.74.random(0, 127)
+```
+
+The basic syntax is `random(min, max)` where both values are inclusive integers (0-127 for MIDI values).
+
+---
+
+### Where can I use random() expressions?
+
+`random()` works in **command parameters** where numeric values are expected:
+
+- **Velocity**: `note_on 1.60 random(60, 100) 1b`
+- **CC values**: `cc 1.74.random(0, 127)`
+- **Note numbers**: `note_on 1.random(48, 72) 80 0.5b`
+- **Pitch bend**: `pitch_bend 1.random(-2000, 2000)`
+- **Multiple per command**: `note_on 1.random(60, 72) random(70, 90) 0.5b`
+
+See: [Random Expressions Reference](./random-expressions.md)
+
+---
+
+### Why doesn't random() work in timing/duration/define?
+
+`random()` is designed for **MIDI parameter values** (velocity, CC, notes), not for **timing control**. Timing must be deterministic (known in advance) to:
+
+- Schedule events correctly
+- Synchronize with hardware devices
+- Support live performance playback
+
+If you need randomized timing, use multiple loops with fixed timing instead, or create separate variations of your sequence.
+
+---
+
+### How do I make random patterns reproducible?
+
+Use the **seed parameter** in `random()` calls to make generation reproducible:
+
+```yaml
+# Same seed = same random sequence every time
+@loop 8
+  [+1b]
+  - note_on 1.random(48, 72, seed=42) random(60, 100, seed=42) 0.5b
+@end
+```
+
+Without a seed, each `random()` call generates a different value. With `seed=N`, the same seed always produces the same value for that call.
+
+See: [Random Expressions Guide](./random-expressions.md#seed-parameter)
+
+---
+
+### Can I combine random() with modulation features?
+
+**Yes!** You can use random values in notes and CC values while using modulation for automation:
+
+```yaml
+# Random notes with wave modulation
+[00:00.000]
+- note_on 1.random(48, 72) 80 2b
+- cc 1.74.wave(sine, 70, freq=0.5, depth=30)
+
+# Random CC with fixed value
+[00:02.000]
+- cc 1.74.random(40, 90)
+```
+
+However, you **cannot** use random values for timing or modulation parameters (frequency, depth, duration) - those must be deterministic.
+
+See: [Modulation Guide](../user-guide/modulation.md) and [Random Expressions](./random-expressions.md#combining-random-with-modulation)
+
+---
+
+### What's the difference between random() and wave() modulation?
+
+**random()** and **wave()** serve different purposes:
+
+| Feature | random() | wave() |
+|---------|----------|--------|
+| **Purpose** | Introduce unpredictability | Create periodic oscillation |
+| **Pattern** | Unpredictable variation | Repeating waveform (sine/square/triangle) |
+| **Use case** | Humanization, generative patterns | Tremolo, vibrato, LFO-style modulation |
+| **Determinism** | With seed (reproducible) | Always repeating (deterministic) |
+| **MIDI application** | Velocity, CC values, notes | CC automation, pitch bend effects |
+
+**Example comparison**:
+```yaml
+# random() - unpredictable
+- cc 1.74.random(20, 100)  # Each call is different
+
+# wave() - periodic
+- cc 1.74.wave(sine, 60, freq=1.0, depth=20)  # Smooth oscillation
+```
+
+See: [Modulation Guide](../user-guide/modulation.md) and [Generative Music Guide](../user-guide/generative-music.md)
+
+---
+
+## Computed Values in Aliases (Stage 4)
+
+### How do computed value blocks work in aliases?
+
+Computed value blocks allow aliases to calculate parameter values dynamically at expansion time:
+
+```yaml
+@alias scaled_cc {ch}.{param}.{input:0-100}
+  - cc {ch}.{param}.{computed = (${input} * 127 / 100)}
+@end
+
+# Use it - scales 0-100% input to 0-127 MIDI range
+[00:00.000]
+- scaled_cc 1.7.75  # 75% of volume = MIDI value 95
+```
+
+Computed values bridge the gap between human-readable parameters and MIDI values, enabling powerful abstractions.
+
+---
+
+### What expressions can I use in computed values?
+
+Computed values support **arithmetic expressions** with the following operations:
+
+- **Arithmetic**: `+`, `-`, `*`, `/` (standard order of operations)
+- **Parentheses**: `(expression)` for grouping
+- **Integer division**: Results automatically rounded/truncated
+- **Parameter references**: `${param_name}` to reference other parameters
+
+```yaml
+@alias ramped_cc {ch}.{param}.{start:0-100}.{end:0-100}.{time_ms}
+  - cc {ch}.{param}.{computed = (${start} * 127 / 100)}
+  @sweep {ch}.{param} ${computed} {computed = (${end} * 127 / 100)} {time_ms}ms linear
+@end
+```
+
+See: [Alias System Guide](../user-guide/alias-system.md#computed-values)
+
+---
+
+## Modulation Features (Stage 7)
+
+### When should I use curve vs wave vs envelope?
+
+**curve()** - Smooth transitions between values:
+```yaml
+@sweep 1.74 0 127 5000ms curve ease-in  # Natural-sounding filter sweep
+```
+
+**wave()** - Repeating oscillation (LFO-style):
+```yaml
+@modulate wave sine 1.1.0 0.5s 8  # Vibrato (0.5s period, 8 Hz)
+```
+
+**envelope()** - Amplitude shaping (ADSR-style, future):
+```yaml
+@envelope 1.1.0 attack:100ms decay:200ms sustain:80 release:500ms
+```
+
+Use **curve** for organic transitions, **wave** for oscillating effects, and **envelope** for complex amplitude shaping.
+
+---
+
+### How do I create vibrato or tremolo effects?
+
+**Vibrato** (pitch modulation) using pitch bend:
+```yaml
+[00:00.000]
+- note_on 1.60 80 2000ms
+- @modulate wave sine 1.pb 0.5s 5  # 5Hz vibrato
+```
+
+**Tremolo** (volume modulation) using CC 7 (volume):
+```yaml
+[00:00.000]
+- note_on 1.60 80 2000ms
+- @modulate wave sine 1.7.0 0.3s 4  # 4Hz tremolo
+```
+
+Both use `@modulate wave sine` with different CC channels and frequencies. Adjust the period (0.5s, 0.3s) and PPQ for different rates.
+
+---
+
+### Can I layer multiple modulations?
+
+**Yes!** Stack multiple `@modulate` directives for complex effects:
+
+```yaml
+[00:00.000]
+- note_on 1.60 80 3000ms
+
+# Layer 1: Vibrato (pitch bend)
+- @modulate wave sine 1.pb 0.4s 6
+
+# Layer 2: Tremolo (volume)
+- @modulate wave sine 1.7.0 1.2s 2
+
+# Layer 3: Filter sweep (automation)
+- @sweep 1.74 30 100 3000ms linear
+```
+
+Each modulation runs independently in parallel, creating complex, expressive sounds. Start simple and add layers gradually to avoid overwhelming the effect.
+
+---
+
 ## Workflow & Integration
 
-### Can I version control my MML files?
+### Can I version control my MMD files?
 
 **Yes! This is a major advantage of text-based formats.**
 
 ```bash
-git add song.mml
+git add song.mmd
 git commit -m "Added chorus section"
 git push
 ```
@@ -384,22 +597,22 @@ git push
 
 ### Can I convert existing MIDI files to MML?
 
-**Not yet.** MIDI → MML conversion is planned for a future release.
+**Not yet.** MIDI → MMD conversion is planned for a future release.
 
-**Workaround**: Use `midimarkup inspect` to view MIDI file contents and manually recreate in MML:
+**Workaround**: Use `mmdc inspect` to view MIDI file contents and manually recreate in MML:
 
 ```bash
-midimarkup inspect existing.mid
+mmdc inspect existing.mid
 ```
 
 ---
 
-### Can I use MML with my DAW?
+### Can I use MMD with my DAW?
 
 **Yes!** Compile to MIDI and import:
 
 ```bash
-midimarkup compile song.mml -o output.mid
+mmdc compile song.mmd -o output.mid
 ```
 
 Then drag `output.mid` into your DAW:
@@ -413,17 +626,17 @@ Then drag `output.mid` into your DAW:
 
 ---
 
-### Can I trigger MML playback from another application?
+### Can I trigger MMD playback from another application?
 
 **Yes!** Use the CLI in scripts:
 
 ```bash
 # Shell script
-midimarkup play setlist/song1.mml --port "IAC Driver"
+mmdc play setlist/song1.mmd --port "IAC Driver"
 
 # Python script
 import subprocess
-subprocess.run(["midimarkup", "play", "song.mml", "--port", "IAC Driver"])
+subprocess.run(["mmdc", "play", "song.mmd", "--port", "IAC Driver"])
 ```
 
 **Use cases**:
@@ -435,7 +648,7 @@ subprocess.run(["midimarkup", "play", "song.mml", "--port", "IAC Driver"])
 
 ## Performance & Optimization
 
-### How fast is MML compilation?
+### How fast is MMD compilation?
 
 **Very fast!** Performance benchmarks:
 
@@ -444,7 +657,7 @@ subprocess.run(["midimarkup", "play", "song.mml", "--port", "IAC Driver"])
 - Large files (1000+ events): <1s
 
 **Tips for faster compilation**:
-- Use `midimarkup check` for syntax-only validation (faster)
+- Use `mmdc check` for syntax-only validation (faster)
 - Break large files into sections with `@import`
 - Use `--dry-run` flag to skip file writing
 
@@ -500,12 +713,12 @@ See: [Troubleshooting Guide](troubleshooting.md)
 
 1. **MIDI port configured?**
    ```bash
-   midimarkup play --list-ports  # List available ports
+   mmdc play --list-ports  # List available ports
    ```
 
 2. **Port selected?**
    ```bash
-   midimarkup play song.mml --port "Your Port Name"
+   mmdc play song.mmd --port "Your Port Name"
    ```
 
 3. **Instruments loaded?** (in DAW)
@@ -560,12 +773,12 @@ See: [MIDI Playback Troubleshooting](troubleshooting.md#midi-playback-issues)
 
 Check the `examples/` directory in the project:
 
-- `00_hello_world.mml` - Simplest possible file
+- `00_hello_world.mmd` - Simplest possible file
 - `01-08` - Feature-specific examples
-- `09_comprehensive_song.mml` - Complete song demonstration
+- `09_comprehensive_song.mmd` - Complete song demonstration
 - `10-13` - Advanced features (loops, sweeps, musical timing, imports)
-- `alias_showcase.mml` - Alias system demonstration
-- `live_performance_aliases.mml` - Real-world live performance
+- `alias_showcase.mmd` - Alias system demonstration
+- `live_performance_aliases.mmd` - Real-world live performance
 
 ---
 
@@ -576,8 +789,8 @@ Check the `examples/` directory in the project:
 **Before posting**:
 1. Check [Troubleshooting Guide](troubleshooting.md)
 2. Search existing issues
-3. Include MML file and error message
-4. Specify version: `midimarkup version`
+3. Include MMD file and error message
+4. Specify version: `mmdc version`
 
 ---
 

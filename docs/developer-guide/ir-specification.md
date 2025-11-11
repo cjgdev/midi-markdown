@@ -105,7 +105,7 @@ event = MIDIEvent(
     data2=100,             # Velocity
     time_seconds=0.5,      # Computed from tempo
     metadata={
-        "source_file": "song.mml",
+        "source_file": "song.mmd",
         "source_line": 12,
         "track": "Main"
     }
@@ -178,7 +178,7 @@ The complete compiled program containing all events and metadata:
 ```python
 @dataclass
 class IRProgram:
-    """Intermediate representation of compiled MML program.
+    """Intermediate representation of compiled MMD program.
 
     Attributes:
         resolution: PPQ (ticks per quarter note)
@@ -227,7 +227,7 @@ class IRProgram:
 | `title` | str | Song title (from frontmatter) |
 | `author` | str | Author name (from frontmatter) |
 | `description` | str | Description (from frontmatter) |
-| `version` | str | MML version (from frontmatter) |
+| `version` | str | MMD version (from frontmatter) |
 | `tempo` | int | Initial tempo in BPM |
 | `time_signature` | tuple | Time signature (numerator, denominator) |
 
@@ -329,7 +329,7 @@ def compile_ast_to_ir(
     document: MMLDocument,
     ppq: int = 480,
 ) -> IRProgram:
-    """Compile MML document AST to IR program.
+    """Compile MMD document AST to IR program.
 
     This is the main entry point for compilation. It orchestrates:
     1. Event generation from AST commands
@@ -339,7 +339,7 @@ def compile_ast_to_ir(
     5. Time computation (ticks → seconds using tempo map)
 
     Args:
-        document: Parsed MML document AST
+        document: Parsed MMD document AST
         ppq: Pulses per quarter note (MIDI resolution)
 
     Returns:
@@ -644,9 +644,9 @@ from midi_markdown.core import compile_ast_to_ir
 from midi_markdown.codegen.midi_file import generate_midi_file
 from pathlib import Path
 
-# Step 1: Parse MML file
+# Step 1: Parse MMD file
 parser = MMLParser()
-document = parser.parse_file("song.mml")
+document = parser.parse_file("song.mmd")
 
 # Step 2: Compile to IR
 ir_program = compile_ast_to_ir(document, ppq=480)

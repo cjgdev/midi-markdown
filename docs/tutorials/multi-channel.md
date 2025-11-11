@@ -37,7 +37,7 @@ You'll create a 16-bar song with:
 
 Let's start with the document structure and tempo setup.
 
-Create a file named `my_song.mml`:
+Create a file named `my_song.mmd`:
 
 ```markdown
 ---
@@ -71,7 +71,7 @@ ppq: 480
 
 **Test basic structure:**
 ```bash
-midimarkup validate my_song.mml
+mmdc validate my_song.mmd
 ```
 
 Should output: "✓ Validation passed"
@@ -147,7 +147,7 @@ ppq: 480
 
 **Test with lead only:**
 ```bash
-midimarkup compile my_song.mml -o my_song.mid
+mmdc compile my_song.mmd -o my_song.mid
 ```
 
 You should hear just the lead melody.
@@ -223,7 +223,7 @@ Add this section after the lead melody:
 
 **Test lead + bass:**
 ```bash
-midimarkup compile my_song.mml -o my_song.mid
+mmdc compile my_song.mmd -o my_song.mid
 ```
 
 You should hear melody with bass foundation.
@@ -290,7 +290,7 @@ Add sustained chord pads on channel 3 for harmonic fullness.
 
 **Test with all harmonic instruments:**
 ```bash
-midimarkup compile my_song.mml -o my_song.mid
+mmdc compile my_song.mmd -o my_song.mid
 ```
 
 You should hear melody, bass, and chord pads working together.
@@ -405,7 +405,7 @@ Add drums on channel 10 (General MIDI drum channel).
 
 **Test complete arrangement:**
 ```bash
-midimarkup compile my_song.mml -o my_song.mid
+mmdc compile my_song.mmd -o my_song.mid
 ```
 
 You should hear a complete band: melody, bass, chords, and drums!
@@ -710,8 +710,8 @@ ppq: 480
 
 **Compile final version:**
 ```bash
-midimarkup compile my_song.mml -o my_song.mid
-midimarkup compile my_song.mml --format table  # View event timeline
+mmdc compile my_song.mmd -o my_song.mid
+mmdc compile my_song.mmd --format table  # View event timeline
 ```
 
 ## Complete Code
@@ -856,7 +856,7 @@ Add independent melody on another channel:
 - [General MIDI Instrument List](https://www.midi.org/specifications-old/item/gm-level-1-sound-set)
 - [General MIDI Drum Map](https://www.midi.org/specifications-old/item/general-midi-2)
 - [MML Specification](../../spec.md) - Complete language reference
-- [Example: 05_multi_channel_basic.mml](../../examples/05_multi_channel_basic.mml)
+- [Example: 05_multi_channel_basic.mmd](../../examples/02_midi_features/05_multi_channel_basic.mmd)
 - [Device Control Tutorial](device-control.md) - Control hardware devices
 - [Basic Melody Tutorial](basic-melody.md) - Single-channel foundations
 

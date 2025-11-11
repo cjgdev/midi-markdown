@@ -1,8 +1,8 @@
 # CLI Design Guidelines
 
-**MIDI Markup Language (MML) Command-Line Interface Design Standards**
+**MIDI Markdown (MML) Command-Line Interface Design Standards**
 
-This document defines the conventions, patterns, and best practices for all CLI commands in the MIDI Markup Language project. Follow these guidelines to ensure consistency, usability, and maintainability across all commands.
+This document defines the conventions, patterns, and best practices for all CLI commands in the MIDI Markdown project. Follow these guidelines to ensure consistency, usability, and maintainability across all commands.
 
 ---
 
@@ -60,7 +60,7 @@ console.print("[red]✗[/red] Error message")
 console.print("[red]Error:[/red] Detailed error description")
 
 # Information
-console.print("[cyan]Processing:[/cyan] filename.mml")
+console.print("[cyan]Processing:[/cyan] filename.mmd")
 console.print("[cyan]Output:[/cyan] output.mid")
 
 # Warnings
@@ -96,7 +96,7 @@ Standard symbols for consistency:
 console.print("[bold cyan]Section Title[/bold cyan]")
 
 # Commands and code
-console.print("[cyan]midimarkup compile song.mml[/cyan]")
+console.print("[cyan]mmdc compile song.mmd[/cyan]")
 
 # File paths
 console.print(f"[cyan]{filename}[/cyan]")
@@ -162,17 +162,17 @@ Always provide context and next steps:
 console.print("[red]File not found[/red]")
 
 # Good
-console.print("[red]✗ File not found:[/red] song.mml")
+console.print("[red]✗ File not found:[/red] song.mmd")
 console.print("[dim]Make sure the file exists and the path is correct[/dim]")
 
 # Best
 console.print()
-console.print("[red]✗ File not found:[/red] [bold]song.mml[/bold]")
+console.print("[red]✗ File not found:[/red] [bold]song.mmd[/bold]")
 console.print()
 console.print("[dim]💡 Tips:[/dim]")
 console.print("  • Check the file path is correct")
-console.print("  • Verify the file has [cyan].mml[/cyan] extension")
-console.print("  • Try: [cyan]midimarkup examples[/cyan] to see example files")
+console.print("  • Verify the file has [cyan].mmd[/cyan] extension")
+console.print("  • Try: [cyan]mmdc examples[/cyan] to see example files")
 console.print()
 ```
 
@@ -254,13 +254,13 @@ def command_name(
 
     Examples:
         # Basic usage
-        midimarkup command file.mml
+        mmdc command file.mmd
 
         # With options
-        midimarkup command file.mml --option value
+        mmdc command file.mmd --option value
 
         # Advanced usage
-        midimarkup command file.mml --flag -v
+        mmdc command file.mmd --flag -v
     """
     pass
 ```
@@ -296,13 +296,13 @@ def command(...) -> None:
 
     Examples:
         # Example 1: Basic usage
-        midimarkup command file.mml
+        mmdc command file.mmd
 
         # Example 2: With common option
-        midimarkup command file.mml --option value
+        mmdc command file.mmd --option value
 
         # Example 3: Advanced usage
-        midimarkup command file.mml --flag1 --flag2
+        mmdc command file.mmd --flag1 --flag2
 
         # Include at least 3-5 examples covering:
         # - Basic usage
@@ -472,7 +472,7 @@ with progress_ctx as progress:
 ### Progress Phases
 
 Standard phase names for consistency:
-- **Parsing** - Reading and parsing MML file
+- **Parsing** - Reading and parsing MMD file
 - **Resolving aliases** - Expanding device library aliases
 - **Validating** - Running validation checks
 - **Generating** - Creating output (MIDI/CSV/JSON)
@@ -501,7 +501,7 @@ def example_command(
     input_file: Annotated[
         Path,
         typer.Argument(
-            help="Input .mml file to process",
+            help="Input .mmd file to process",
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -521,23 +521,23 @@ def example_command(
         typer.Option("--debug", help="Show full error tracebacks"),
     ] = False,
 ) -> None:
-    """Process MML file and generate output.
+    """Process MMD file and generate output.
 
     This command demonstrates all CLI design guidelines including proper
     error handling, consistent styling, and comprehensive help text.
 
     Examples:
         # Basic usage
-        midimarkup example input.mml
+        mmdc example input.mmd
 
         # With custom output
-        midimarkup example input.mml -o output.txt
+        mmdc example input.mmd -o output.txt
 
         # Verbose mode
-        midimarkup example input.mml -v
+        mmdc example input.mmd -v
 
         # Debug mode for troubleshooting
-        midimarkup example input.mml --debug
+        mmdc example input.mmd --debug
 
     Exit Codes:
         0  Processing completed successfully
@@ -600,7 +600,7 @@ runner = CliRunner()
 def test_command_basic_usage(tmp_path: Path) -> None:
     """Test basic command usage."""
     # Create test file
-    test_file = tmp_path / "test.mml"
+    test_file = tmp_path / "test.mmd"
     test_file.write_text("# test content")
 
     # Run command
@@ -615,7 +615,7 @@ def test_command_basic_usage(tmp_path: Path) -> None:
 def test_command_error_handling(tmp_path: Path) -> None:
     """Test command handles errors correctly."""
     # Test with non-existent file
-    result = runner.invoke(app, ["command-name", "/nonexistent/file.mml"])
+    result = runner.invoke(app, ["command-name", "/nonexistent/file.mmd"])
 
     # Should fail
     assert result.exit_code != 0
@@ -624,7 +624,7 @@ def test_command_error_handling(tmp_path: Path) -> None:
 @pytest.mark.integration
 def test_command_verbose_mode(tmp_path: Path) -> None:
     """Test verbose output."""
-    test_file = tmp_path / "test.mml"
+    test_file = tmp_path / "test.mmd"
     test_file.write_text("# test content")
 
     # Run with verbose
@@ -645,23 +645,23 @@ Typer provides built-in shell completion. Users can enable it with:
 
 ```bash
 # Bash
-midimarkup --install-completion bash
+mmdc --install-completion bash
 source ~/.bashrc
 
 # Zsh
-midimarkup --install-completion zsh
+mmdc --install-completion zsh
 source ~/.zshrc
 
 # Fish
-midimarkup --install-completion fish
+mmdc --install-completion fish
 ```
 
 ### Testing Completion
 
 ```bash
 # Test that completion is working
-midimarkup <TAB>       # Should show all commands
-midimarkup compile <TAB>  # Should show files in current directory
+mmdc <TAB>       # Should show all commands
+mmdc compile <TAB>  # Should show files in current directory
 ```
 
 ---
@@ -679,14 +679,14 @@ midimarkup compile <TAB>  # Should show files in current directory
 
 ```bash
 # Test without colors
-midimarkup command --no-color
+mmdc command --no-color
 
 # Test with NO_COLOR environment variable
-NO_COLOR=1 midimarkup command
+NO_COLOR=1 mmdc command
 
 # Test output piping
-midimarkup command | less
-midimarkup command > output.txt
+mmdc command | less
+mmdc command > output.txt
 ```
 
 ---

@@ -1,6 +1,6 @@
-## MML Parser Quick Reference
+## MMD Parser Quick Reference
 
-**Fast lookup guide for the MML parser implementation**
+**Fast lookup guide for the MMD parser implementation**
 
 ---
 
@@ -13,10 +13,10 @@ from midi_markdown.parser.ast_builder import Parser
 parser = Parser()
 
 # Parse string
-doc = parser.parse(source, source_file="test.mml")
+doc = parser.parse(source, source_file="test.mmd")
 
 # Parse file
-doc = parser.parse_file(Path("file.mml"))
+doc = parser.parse_file(Path("file.mmd"))
 ```
 
 ---

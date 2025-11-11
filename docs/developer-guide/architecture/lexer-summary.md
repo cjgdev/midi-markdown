@@ -152,7 +152,7 @@ All code must pass:
 ```python
 from midi_markdown.parser.lexer import Lexer
 
-# Tokenize MML source
+# Tokenize MMD source
 source = """
 [00:00.000]
 - pc 1.5
@@ -179,7 +179,7 @@ for token in tokens:
 
 ## Performance Targets
 
-Based on typical MML file sizes:
+Based on typical MMD file sizes:
 - **Small files** (< 100 lines): < 10ms
 - **Medium files** (100-1000 lines): < 100ms
 - **Large files** (1000+ lines): < 1s
@@ -193,7 +193,7 @@ Based on typical MML file sizes:
 ## Resources
 
 - **Specification**: [spec.md](../spec.md) lines 84-531 (timing and syntax)
-- **Examples**: [examples/basic_usage.mml](../examples/basic_usage.mml)
+- **Examples**: [examples/00_basics/00_hello_world.mmd](../../../examples/00_basics/00_hello_world.mmd)
 - **Current Implementation**: [src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)
 
 ## Estimated Implementation Time

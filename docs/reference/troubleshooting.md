@@ -3,7 +3,7 @@
 > **Audience**: Users
 > **Level**: Beginner to Intermediate
 
-Common issues and solutions when working with MIDI Markup Language.
+Common issues and solutions when working with MIDI Markdown.
 
 ---
 
@@ -14,7 +14,7 @@ Common issues and solutions when working with MIDI Markup Language.
 **Symptom**:
 ```
 ❌ error[E101]: Unexpected token 'DOT'
-  → example.mml:15:16
+  → example.mmd:15:16
 
 13 | # Simple drum pattern
 14 | [00:01.000]
@@ -23,7 +23,7 @@ Common issues and solutions when working with MIDI Markup Language.
 ```
 
 **Causes**:
-1. **Decimal note durations** - MML doesn't support decimal beat durations like `0.25b`
+1. **Decimal note durations** - MMD doesn't support decimal beat durations like `0.25b`
 2. **Invalid syntax** - Using unsupported features
 
 **Solutions**:
@@ -223,7 +223,7 @@ ppq: 480
 # - Check "Device is online"
 
 # 2. Verify ports
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # Should show: IAC Driver Bus 1
 ```
@@ -240,7 +240,7 @@ sudo modprobe snd-virmidi
 aconnect -l
 
 # 4. Play with specific port
-midimarkup play song.mml --port 0
+mmdc play song.mmd --port 0
 ```
 
 #### Windows:
@@ -251,10 +251,10 @@ midimarkup play song.mml --port 0
 # 2. Create virtual port in loopMIDI application
 
 # 3. Verify
-midimarkup play --list-ports
+mmdc play --list-ports
 
 # 4. Play
-midimarkup play song.mml --port "loopMIDI Port"
+mmdc play song.mmd --port "loopMIDI Port"
 ```
 
 ---
@@ -275,7 +275,7 @@ sudo usermod -a -G audio $USER
 groups  # Should show "audio"
 
 # Alternative: Run with sudo (not recommended)
-sudo midimarkup play song.mml
+sudo mmdc play song.mmd
 ```
 
 ---
@@ -368,10 +368,10 @@ sudo midimarkup play song.mml
 
 ```bash
 # Fast syntax check
-midimarkup check large_file.mml  # <1s
+mmdc check large_file.mmd  # <1s
 
 # Full compilation
-midimarkup compile large_file.mml  # May take 2-3s for large files
+mmdc compile large_file.mmd  # May take 2-3s for large files
 ```
 
 ---
@@ -382,7 +382,7 @@ midimarkup compile large_file.mml  # May take 2-3s for large files
 
 **Symptom**:
 ```
-❌ Import error: File not found: devices/my_device.mml
+❌ Import error: File not found: devices/my_device.mmd
 ```
 
 **Cause**:
@@ -393,16 +393,16 @@ midimarkup compile large_file.mml  # May take 2-3s for large files
 ```yaml
 # File structure:
 # project/
-#   song.mml
+#   song.mmd
 #   devices/
-#     quad_cortex.mml
+#     quad_cortex.mmd
 
-# In song.mml:
+# In song.mmd:
 # ❌ WRONG: Absolute path
-@import "/devices/quad_cortex.mml"
+@import "/devices/quad_cortex.mmd"
 
 # ✅ CORRECT: Relative path
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 ```
 
 ---
@@ -412,27 +412,27 @@ midimarkup compile large_file.mml  # May take 2-3s for large files
 ### Still Stuck?
 
 1. **Check the examples** - `examples/` directory has working code
-2. **Run with verbose** - `midimarkup compile -v` shows detailed output
-3. **Use inspect** - `midimarkup inspect file.mml` shows parsed events
+2. **Run with verbose** - `mmdc compile -v` shows detailed output
+3. **Use inspect** - `mmdc inspect file.mmd` shows parsed events
 4. **File an issue** - [GitHub Issues](https://github.com/cjgdev/midi-markdown/issues)
 
 ### Useful Commands
 
 ```bash
 # Syntax check only (fast)
-midimarkup check file.mml
+mmdc check file.mmd
 
 # Full validation
-midimarkup validate file.mml
+mmdc validate file.mmd
 
 # Verbose output
-midimarkup compile file.mml -v
+mmdc compile file.mmd -v
 
 # Inspect parsed events
-midimarkup inspect file.mml
+mmdc inspect file.mmd
 
 # Show version and dependencies
-midimarkup version
+mmdc version
 ```
 
 ---

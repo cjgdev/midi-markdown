@@ -3,14 +3,14 @@
 > **Audience**: Users
 > **Level**: Beginner to Advanced
 
-Compile MML source files to MIDI or other output formats.
+Compile MMD source files to MIDI or other output formats.
 
 ---
 
 ## Synopsis
 
 ```bash
-midimarkup compile [OPTIONS] INPUT_FILE
+mmdc compile [OPTIONS] INPUT_FILE
 mml compile [OPTIONS] INPUT_FILE         # Shorter alias
 ```
 
@@ -18,13 +18,13 @@ mml compile [OPTIONS] INPUT_FILE         # Shorter alias
 
 ## Description
 
-The `compile` command is the primary MML workflow tool. It parses your `.mml` source file, resolves aliases and imports, expands advanced features (loops, variables, sweeps), validates MIDI commands, and generates output in your chosen format.
+The `compile` command is the primary MMD workflow tool. It parses your `.mmd` source file, resolves aliases and imports, expands advanced features (loops, variables, sweeps), validates MIDI commands, and generates output in your chosen format.
 
 **Default behavior**: Compiles to Standard MIDI File (`.mid`) with the same basename as input.
 
 **What compile does**:
 
-1. **Parse** - Parse MML syntax to AST (Abstract Syntax Tree)
+1. **Parse** - Parse MMD syntax to AST (Abstract Syntax Tree)
 2. **Import** - Load device libraries (`@import` statements)
 3. **Resolve** - Expand aliases to base MIDI commands
 4. **Expand** - Process loops, variables, sweeps, conditionals
@@ -39,11 +39,11 @@ The `compile` command is the primary MML workflow tool. It parses your `.mml` so
 ### Input/Output
 
 #### `INPUT_FILE` (required)
-Path to `.mml` source file to compile.
+Path to `.mmd` source file to compile.
 
 ```bash
-midimarkup compile song.mml
-midimarkup compile path/to/performance.mml
+mmdc compile song.mmd
+mmdc compile path/to/performance.mmd
 ```
 
 #### `-o, --output PATH`
@@ -51,13 +51,13 @@ Output file path. Default: same as input with `.mid` extension.
 
 ```bash
 # Default output: song.mid
-midimarkup compile song.mml
+mmdc compile song.mmd
 
 # Custom output path
-midimarkup compile song.mml -o output/final.mid
+mmdc compile song.mmd -o output/final.mid
 
 # Different name
-midimarkup compile song.mml --output performance.mid
+mmdc compile song.mmd --output performance.mid
 ```
 
 ---
@@ -76,19 +76,19 @@ Output format selection. Default: `midi`
 
 ```bash
 # MIDI file (default)
-midimarkup compile song.mml
+mmdc compile song.mmd
 
 # Display as formatted table
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 
 # Export to CSV for Excel/spreadsheets
-midimarkup compile song.mml --format csv -o events.csv
+mmdc compile song.mmd --format csv -o events.csv
 
 # Export to JSON for programmatic processing
-midimarkup compile song.mml --format json -o data.json
+mmdc compile song.mmd --format json -o data.json
 
 # Simplified JSON (easier to parse)
-midimarkup compile song.mml --format json-simple -o simple.json
+mmdc compile song.mmd --format json-simple -o simple.json
 ```
 
 **Format comparison**:
@@ -112,13 +112,13 @@ Higher PPQ = finer timing resolution but larger files.
 
 ```bash
 # Standard resolution (default)
-midimarkup compile song.mml --ppq 480
+mmdc compile song.mmd --ppq 480
 
 # High resolution for precise timing
-midimarkup compile song.mml --ppq 960
+mmdc compile song.mmd --ppq 960
 
 # Lower resolution for smaller files
-midimarkup compile song.mml --ppq 240
+mmdc compile song.mmd --ppq 240
 ```
 
 **Common PPQ values**:
@@ -147,13 +147,13 @@ MIDI file format. Default: `1` (multi-track)
 
 ```bash
 # Multi-track (default, best for DAWs)
-midimarkup compile song.mml --midi-format 1
+mmdc compile song.mmd --midi-format 1
 
 # Single-track (simpler, all events merged)
-midimarkup compile song.mml --midi-format 0
+mmdc compile song.mmd --midi-format 0
 
 # Async multi-track (advanced, rarely used)
-midimarkup compile song.mml --midi-format 2
+mmdc compile song.mmd --midi-format 2
 ```
 
 **When to use each format**:
@@ -178,10 +178,10 @@ Validation checks for:
 
 ```bash
 # Validate (default, recommended)
-midimarkup compile song.mml --validate
+mmdc compile song.mmd --validate
 
 # Skip validation (faster, but dangerous)
-midimarkup compile song.mml --no-validate
+mmdc compile song.mmd --no-validate
 ```
 
 **⚠️ Warning**: Using `--no-validate` may produce invalid MIDI files that crash devices or software. Only use for quick syntax checks.
@@ -194,7 +194,7 @@ midimarkup compile song.mml --no-validate
 Show detailed compilation steps.
 
 ```bash
-midimarkup compile song.mml --verbose
+mmdc compile song.mmd --verbose
 ```
 
 **Verbose output shows**:
@@ -207,9 +207,9 @@ midimarkup compile song.mml --verbose
 
 **Example verbose output**:
 ```
-Compiling: song.mml
+Compiling: song.mmd
 Output: song.mid
-  Parsing MML file...
+  Parsing MMD file...
   Parsed: 38 events, 0 tracks
   Loading 4 import(s)...
   Loaded 157 alias(es) from imports
@@ -233,7 +233,7 @@ Progress indicators appear automatically for:
 
 ```bash
 # Disable progress for CI/scripts
-midimarkup compile large_song.mml --no-progress
+mmdc compile large_song.mmd --no-progress
 ```
 
 ---
@@ -244,7 +244,7 @@ midimarkup compile large_song.mml --no-progress
 Disable colored output (for accessibility or piping).
 
 ```bash
-midimarkup compile song.mml --no-color
+mmdc compile song.mmd --no-color
 ```
 
 **Also enabled by**:
@@ -257,7 +257,7 @@ midimarkup compile song.mml --no-color
 Disable emoji in output (for screen readers or terminals without emoji support).
 
 ```bash
-midimarkup compile song.mml --no-emoji
+mmdc compile song.mmd --no-emoji
 ```
 
 **Changes**:
@@ -273,19 +273,19 @@ midimarkup compile song.mml --no-emoji
 Show full error tracebacks (for bug reports).
 
 ```bash
-midimarkup compile broken.mml --debug
+mmdc compile broken.mmd --debug
 ```
 
 **Normal error**:
 ```
 ❌ error[E101]: Unexpected token 'foo'
-  → song.mml:12:5
+  → song.mmd:12:5
 ```
 
 **Debug error** (with `--debug`):
 ```
 ❌ error[E101]: Unexpected token 'foo'
-  → song.mml:12:5
+  → song.mmd:12:5
 
 Traceback (most recent call last):
   File "...parser.py", line 45, in parse_file
@@ -300,7 +300,7 @@ Traceback (most recent call last):
 
 ```bash
 # Simplest usage - compile to MIDI
-midimarkup compile song.mml
+mmdc compile song.mmd
 
 # Result: song.mid created
 ```
@@ -311,10 +311,10 @@ midimarkup compile song.mml
 
 ```bash
 # Save to specific directory
-midimarkup compile song.mml -o output/performance.mid
+mmdc compile song.mmd -o output/performance.mid
 
 # Save with different name
-midimarkup compile verse.mml -o song_verse.mid
+mmdc compile verse.mmd -o song_verse.mid
 ```
 
 ---
@@ -323,7 +323,7 @@ midimarkup compile verse.mml -o song_verse.mid
 
 ```bash
 # Double standard resolution for precise timing
-midimarkup compile song.mml --ppq 960 -o precise.mid
+mmdc compile song.mmd --ppq 960 -o precise.mid
 ```
 
 **Use case**: Submillisecond timing accuracy for live performance.
@@ -334,7 +334,7 @@ midimarkup compile song.mml --ppq 960 -o precise.mid
 
 ```bash
 # Export to CSV for spreadsheet analysis
-midimarkup compile song.mml --format csv -o events.csv
+mmdc compile song.mmd --format csv -o events.csv
 
 # Open in Excel/Google Sheets
 # Columns: Track, Time, Type, Channel, Data1, Data2, Text
@@ -346,7 +346,7 @@ midimarkup compile song.mml --format csv -o events.csv
 
 ```bash
 # Display events as formatted table (no file created)
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 ```
 
 **Output**:
@@ -366,10 +366,10 @@ midimarkup compile song.mml --format table
 
 ```bash
 # Complete JSON with all metadata
-midimarkup compile song.mml --format json -o data.json
+mmdc compile song.mmd --format json -o data.json
 
 # Simplified JSON (easier to parse)
-midimarkup compile song.mml --format json-simple -o simple.json
+mmdc compile song.mmd --format json-simple -o simple.json
 ```
 
 **JSON structure** (`json` format):
@@ -406,7 +406,7 @@ midimarkup compile song.mml --format json-simple -o simple.json
 
 ```bash
 # See what's happening during compilation
-midimarkup compile song.mml -v
+mmdc compile song.mmd -v
 ```
 
 **Useful for**:
@@ -421,7 +421,7 @@ midimarkup compile song.mml -v
 
 ```bash
 # Disable color and progress for scripts
-midimarkup compile song.mml --no-color --no-progress
+mmdc compile song.mmd --no-color --no-progress
 
 # Check exit code
 if [ $? -eq 0 ]; then
@@ -438,7 +438,7 @@ fi
 
 ```bash
 # Compile to single-track format (all events in one track)
-midimarkup compile song.mml --midi-format 0 -o single.mid
+mmdc compile song.mmd --midi-format 0 -o single.mid
 ```
 
 **Use case**: Simpler MIDI files for basic playback devices.
@@ -449,13 +449,13 @@ midimarkup compile song.mml --midi-format 0 -o single.mid
 
 ```bash
 # Quick syntax check (skip validation for speed)
-midimarkup compile dev.mml --no-validate --format table
+mmdc compile dev.mmd --no-validate --format table
 
 # Full compilation with validation
-midimarkup compile dev.mml -v
+mmdc compile dev.mmd -v
 
 # Export to JSON for testing
-midimarkup compile dev.mml --format json | jq '.tracks[0].events'
+mmdc compile dev.mmd --format json | jq '.tracks[0].events'
 ```
 
 ---
@@ -468,7 +468,7 @@ Standard MIDI File (.mid) ready for:
 - DAW import (Ableton, FL Studio, Logic, etc.)
 - Hardware sequencers
 - MIDI players
-- Real-time playback (`midimarkup play`)
+- Real-time playback (`mmdc play`)
 
 **Features**:
 - Standard-compliant SMF
@@ -551,7 +551,7 @@ Complete MIDI event data in JSON format.
 
 **Tips for faster compilation**:
 1. Use `--no-validate` (only for development)
-2. Use `midimarkup check` for syntax-only checks
+2. Use `mmdc check` for syntax-only checks
 3. Break large files into sections with `@import`
 4. Use `@loop` to reduce source file size
 
@@ -588,7 +588,7 @@ Complete MIDI event data in JSON format.
 
 **Script usage**:
 ```bash
-if midimarkup compile song.mml; then
+if mmdc compile song.mmd; then
   echo "Compilation succeeded"
 else
   echo "Compilation failed with code $?"
@@ -601,7 +601,7 @@ fi
 
 ### "Parse error: Unexpected token"
 
-**Problem**: Syntax error in MML file.
+**Problem**: Syntax error in MMD file.
 
 **Solution**: Check command spelling and syntax. See [Troubleshooting Guide](../reference/troubleshooting.md#parse-errors).
 
@@ -646,11 +646,11 @@ fi
 **Solution**: Check import path (relative to current file):
 ```yaml
 # ❌ Wrong
-@import "/absolute/path/device.mml"
+@import "/absolute/path/device.mmd"
 
 # ✅ Correct
-@import "devices/device.mml"
-@import "../shared/aliases.mml"
+@import "devices/device.mmd"
+@import "../shared/aliases.mmd"
 ```
 
 ---
@@ -665,7 +665,7 @@ fi
 mkdir -p output/
 
 # Compile with explicit path
-midimarkup compile song.mml -o output/song.mid
+mmdc compile song.mmd -o output/song.mid
 
 # Check permissions
 ls -la output/
@@ -679,7 +679,7 @@ ls -la output/
 
 ```bash
 # Always validate before live performance
-midimarkup compile setlist.mml --validate -v
+mmdc compile setlist.mmd --validate -v
 ```
 
 ---
@@ -688,13 +688,13 @@ midimarkup compile setlist.mml --validate -v
 
 ```bash
 # Standard resolution for most use cases
-midimarkup compile song.mml --ppq 480
+mmdc compile song.mmd --ppq 480
 
 # High precision for automation-heavy songs
-midimarkup compile automation.mml --ppq 960
+mmdc compile automation.mmd --ppq 960
 
 # Lower resolution for simple click tracks
-midimarkup compile click.mml --ppq 240
+mmdc compile click.mmd --ppq 240
 ```
 
 ---
@@ -703,13 +703,13 @@ midimarkup compile click.mml --ppq 240
 
 ```bash
 # 1. Check syntax (fastest)
-midimarkup check song.mml
+mmdc check song.mmd
 
 # 2. Inspect events
-midimarkup compile song.mml --format table
+mmdc compile song.mmd --format table
 
 # 3. Full compile
-midimarkup compile song.mml -v
+mmdc compile song.mmd -v
 ```
 
 ---
@@ -718,7 +718,7 @@ midimarkup compile song.mml -v
 
 ```bash
 # Export to CSV
-midimarkup compile song.mml --format csv -o events.csv
+mmdc compile song.mmd --format csv -o events.csv
 
 # Analyze with Python
 python3 << EOF

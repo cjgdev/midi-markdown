@@ -1,4 +1,4 @@
-# MML Parser Design Document
+# MMD Parser Design Document
 
 **Date**: 2025-10-29
 **Status**: Implementation Complete
@@ -20,14 +20,14 @@
 
 ## Overview
 
-The MML parser transforms MIDI Markdown Language source code into an Abstract Syntax Tree (AST) that can be validated and compiled to MIDI files. The parser uses **Lark**, a modern parsing toolkit for Python, to provide a clean separation between grammar definition and AST construction.
+The MMD parser transforms MIDI Markdown Language source code into an Abstract Syntax Tree (AST) that can be validated and compiled to MIDI files. The parser uses **Lark**, a modern parsing toolkit for Python, to provide a clean separation between grammar definition and AST construction.
 
 ### Key Design Decisions
 
 1. **Lark LALR Parser**: Fast, deterministic parsing with clear grammar syntax
 2. **Transformer Pattern**: Clean separation between parse tree and AST
 3. **Position Tracking**: Full source location tracking for error reporting
-4. **Comprehensive AST**: Rich node types covering all MML features
+4. **Comprehensive AST**: Rich node types covering all MMD features
 5. **YAML Frontmatter**: PyYAML for metadata parsing
 
 ---
@@ -434,7 +434,7 @@ All AST nodes include source location for detailed error reporting.
 2. **Parsing**
    ```python
    source = "- pc 1.5\n"
-   doc = parser.parse(source, source_file="test.mml")
+   doc = parser.parse(source, source_file="test.mmd")
    ```
 
 3. **Lark Processing**
@@ -579,7 +579,7 @@ Target: **85%+ coverage** of parser module
 
 ### 1. Grammar: `mml.lark` (280 lines)
 
-**Purpose**: Defines complete MML syntax in Lark EBNF format
+**Purpose**: Defines complete MMD syntax in Lark EBNF format
 
 **Key Sections**:
 - Document structure and frontmatter
@@ -653,7 +653,7 @@ from midi_markdown.parser.ast_builder import Parser
 # Initialize parser
 parser = Parser()
 
-# Parse MML source
+# Parse MMD source
 source = """---
 title: "My Song"
 ---
@@ -666,7 +666,7 @@ title: "My Song"
 - cc 1.7.100
 """
 
-doc = parser.parse(source, source_file="song.mml")
+doc = parser.parse(source, source_file="song.mmd")
 
 # Access AST
 print(doc.frontmatter.parsed_data["title"])  # "My Song"
@@ -685,7 +685,7 @@ for statement in doc.statements:
 from pathlib import Path
 
 parser = Parser()
-doc = parser.parse_file(Path("examples/basic_usage.mml"))
+doc = parser.parse_file(Path("examples/00_basics/00_hello_world.mmd"))
 ```
 
 ### Error Handling
@@ -784,17 +784,17 @@ After parser implementation, the pipeline continues:
 
 ## Summary
 
-The MML parser provides:
+The MMD parser provides:
 
 ✅ **Clean Grammar**: Readable EBNF syntax in `mml.lark`
-✅ **Rich AST**: 30+ node types covering all MML features
+✅ **Rich AST**: 30+ node types covering all MMD features
 ✅ **Position Tracking**: Full source location info for errors
 ✅ **Comprehensive Tests**: 60+ tests, 85%+ coverage goal
 ✅ **Good Error Messages**: Lark provides helpful parse errors
 ✅ **Maintainable**: Grammar separate from code, transformer pattern
 ✅ **Fast**: LALR parsing, deterministic performance
 
-The parser is **production-ready** and serves as the foundation for the MML compiler pipeline.
+The parser is **production-ready** and serves as the foundation for the MMD compiler pipeline.
 
 ---
 

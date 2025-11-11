@@ -14,7 +14,7 @@
 
 ## Introduction
 
-Device libraries are MML files that define reusable aliases for specific MIDI hardware. They encapsulate device-specific MIDI implementation details behind human-readable command names, making it easier for users to control their gear.
+Device libraries are MMD files that define reusable aliases for specific MIDI hardware. They encapsulate device-specific MIDI implementation details behind human-readable command names, making it easier for users to control their gear.
 
 ### Why Create a Device Library?
 
@@ -28,12 +28,12 @@ Device libraries are MML files that define reusable aliases for specific MIDI ha
 
 - Device MIDI implementation chart (from manufacturer)
 - Understanding of the device's features and organization
-- MML alias syntax knowledge
+- MMD alias syntax knowledge
 - Test device (or MIDI monitor) for validation
 
 ## Library Structure
 
-A device library is an `.mml` file with three main sections:
+A device library is an `.mmd` file with three main sections:
 
 ```markdown
 ---
@@ -49,13 +49,13 @@ A device library is an `.mml` file with three main sections:
 
 Use lowercase with underscores, matching manufacturer/device naming:
 
-- `neural_dsp_quad_cortex.mml` or `quad_cortex.mml`
-- `helix.mml` (Line 6 Helix Floor/LT/Rack)
-- `hx_effects.mml` (Line 6 HX Effects)
-- `hx_stomp.mml` (Line 6 HX Stomp)
-- `hx_stomp_xl.mml` (Line 6 HX Stomp XL)
-- `eventide_h90.mml`
-- `fractal_axe_fx_iii.mml`
+- `neural_dsp_quad_cortex.mmd` or `quad_cortex.mmd`
+- `helix.mmd` (Line 6 Helix Floor/LT/Rack)
+- `hx_effects.mmd` (Line 6 HX Effects)
+- `hx_stomp.mmd` (Line 6 HX Stomp)
+- `hx_stomp_xl.mmd` (Line 6 HX Stomp XL)
+- `eventide_h90.mmd`
+- `fractal_axe_fx_iii.mmd`
 
 ### Directory Structure
 
@@ -64,13 +64,13 @@ Place libraries in the `devices/` directory:
 ```
 midi-markdown/
 ├── devices/
-│   ├── quad_cortex.mml
-│   ├── eventide_h90.mml
-│   ├── helix.mml
-│   ├── hx_effects.mml
-│   ├── hx_stomp.mml
-│   ├── hx_stomp_xl.mml
-│   └── your_device.mml
+│   ├── quad_cortex.mmd
+│   ├── eventide_h90.mmd
+│   ├── helix.mmd
+│   ├── hx_effects.mmd
+│   ├── hx_stomp.mmd
+│   ├── hx_stomp_xl.mmd
+│   └── your_device.mmd
 ```
 
 ## Frontmatter Requirements
@@ -334,7 +334,7 @@ title: Device Library Test
 
 If you have the physical device:
 
-1. Compile test MML to MIDI file
+1. Compile test MMD to MIDI file
 2. Play MIDI file to device
 3. Verify each command does what's expected
 4. Adjust aliases if behavior differs
@@ -347,7 +347,7 @@ Create integration tests (see `tests/integration/test_device_libraries.py`):
 ```python
 def test_your_device_library_parses(parser, devices_dir):
     """Test that your device library parses."""
-    library_path = devices_dir / "your_device.mml"
+    library_path = devices_dir / "your_device.mmd"
     with open(library_path) as f:
         content = f.read()
 
@@ -592,7 +592,7 @@ Include a README section in your library:
 # This library provides aliases for the Example Audio Processor.
 #
 # Quick Start:
-# @import "devices/example_processor.mml"
+# @import "devices/example_processor.mmd"
 # - example_preset 1 10
 #
 # Requirements:
@@ -606,7 +606,7 @@ Include a README section in your library:
 
 ### Contribution Process
 
-1. Fork the MML repository
+1. Fork the MMD repository
 2. Create your device library in `devices/`
 3. Add integration tests in `tests/integration/test_device_libraries.py`
 4. Update `devices/README.md` with your device

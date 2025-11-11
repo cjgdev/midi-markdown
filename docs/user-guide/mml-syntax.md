@@ -1,9 +1,9 @@
-# MML Syntax Reference
+# MMD Syntax Reference
 
 > **Audience**: Users
 > **Level**: Beginner to Intermediate
 
-Complete reference for MIDI Markup Language (MML) syntax. This document covers all syntax elements, timing formats, MIDI commands, and directives.
+Complete reference for MIDI Markdown (MML) syntax. This document covers all syntax elements, timing formats, MIDI commands, and directives.
 
 ## Table of Contents
 
@@ -14,6 +14,7 @@ Complete reference for MIDI Markup Language (MML) syntax. This document covers a
 - [Directives](#directives)
 - [Comments](#comments)
 - [Advanced Features](#advanced-features)
+  - [Random Expressions](#random-expressions)
 - [Examples](#examples)
 - [See Also](#see-also)
 
@@ -21,7 +22,7 @@ Complete reference for MIDI Markup Language (MML) syntax. This document covers a
 
 ## Document Structure
 
-An MML file consists of four main parts:
+An MMD file consists of four main parts:
 
 1. **Frontmatter** (YAML) - Document properties and metadata
 2. **Imports** - Device libraries and shared definitions
@@ -603,13 +604,13 @@ Directives start with `@` and provide advanced functionality.
 Import device libraries and shared definitions.
 
 ```markdown
-@import "path/to/file.mml"
+@import "path/to/file.mmd"
 ```
 
 ```markdown
-@import "devices/quad_cortex.mml"
-@import "devices/eventide_h90.mml"
-@import "shared/common_macros.mml"
+@import "devices/quad_cortex.mmd"
+@import "devices/eventide_h90.mmd"
+@import "shared/common_macros.mmd"
 ```
 
 **Features:**
@@ -952,6 +953,58 @@ Some devices (e.g., Quad Cortex) require delays between bank and preset changes:
 - note_on 1.${BASE_NOTE + INTERVAL * 2} 100 1b  # Two fifths
 ```
 
+### Random Expressions
+
+Generate random values for creating variations and humanized sequences.
+
+**Basic syntax:**
+```markdown
+random(min, max)                    # Random value between min and max
+random(min, max, seed=number)       # Reproducible with fixed seed
+```
+
+**Supported contexts:**
+```markdown
+# Random velocity for humanized dynamics
+[00:00.000]
+- note_on 1.60 random(70, 100) 1b
+
+# Random note selection
+[00:01.000]
+- note_on 1.random(C3, C5) 80 1b
+
+# Random CC value for parameter variation
+[00:02.000]
+- cc 1.74.random(30, 90)            # Random filter cutoff
+```
+
+**Use cases:**
+- **Humanization**: Add subtle velocity variation (±5-15%) for natural feel
+- **Generative melodies**: Random note selection from specified range
+- **Parameter variation**: Evolving CC values (filter, reverb, pan, etc.)
+- **Reproducibility**: Use `seed` parameter for consistent testing
+
+**Examples:**
+```markdown
+# Humanized drum pattern
+@loop 8 times every 1b
+  - note_on 1.36.random(100, 127) 0.5b    # Kick with varying velocity
+@end
+
+# Generative arpeggio
+@loop 16 times every 0.5b
+  - note_on 1.random(C4, G4).random(70, 100) 0.5b
+@end
+
+# Reproducible variation
+- note_on 1.60 random(70, 90, seed=42) 1b   # Same value each run
+```
+
+**Limitations:**
+- Cannot use random in timing markers or durations
+- Cannot use random in variable definitions (`@define`)
+- For advanced techniques, see [Generative Music Guide](generative-music.md)
+
 ---
 
 ## Examples
@@ -1053,8 +1106,8 @@ author: "Guitarist"
 ppq: 480
 ---
 
-@import "devices/quad_cortex.mml"
-@import "devices/eventide_h90.mml"
+@import "devices/quad_cortex.mmd"
+@import "devices/eventide_h90.mmd"
 
 @define CORTEX_CH 1
 @define H90_CH 2

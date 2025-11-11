@@ -1,10 +1,10 @@
 # API Reference
 
-This page provides auto-generated API documentation for the MIDI Markup Language implementation.
+This page provides auto-generated API documentation for the MIDI Markdown implementation.
 
 ## Overview
 
-The MML codebase is organized into several key packages:
+The MMD codebase is organized into several key packages:
 
 - **Parser** - Lark-based parsing and AST generation
 - **Core/IR** - Intermediate Representation layer
@@ -435,7 +435,7 @@ class MIDICommand:
 ### Pipeline Overview
 
 ```
-Input (.mml)
+Input (.mmd)
     ↓
 Parser                → Parse to AST (Lark grammar + transformer)
     ↓
@@ -476,7 +476,7 @@ Output (.mid, .json)    Live MIDI Output
 - **Unit tests**: Component isolation
 - **Integration tests**: Multi-component workflows
 - **E2E tests**: Full compilation pipeline
-- **Fixtures**: 37 test MML files (25 valid, 12 invalid)
+- **Fixtures**: 37 test MMD files (25 valid, 12 invalid)
 
 ---
 
@@ -484,5 +484,5 @@ Output (.mid, .json)    Live MIDI Output
 
 - [Parser Design](architecture/parser.md) - Parser architecture details
 - [Lexer Design](architecture/lexer.md) - Lexer implementation
-- [Language Specification](../../spec.md) - Complete MML spec
+- [Language Specification](../../spec.md) - Complete MMD spec
 - [CLAUDE.md](../../CLAUDE.md) - Developer context

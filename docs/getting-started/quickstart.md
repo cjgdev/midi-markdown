@@ -1,10 +1,10 @@
-# Getting Started with MIDI Markup Language
+# Getting Started with MIDI Markdown
 
-Get up and running with MML in 5 minutes.
+Get up and running with MMD in 5 minutes.
 
 ## What is MML?
 
-MIDI Markup Language (MML) is a human-readable, text-based format for creating MIDI sequences. Write MIDI commands in a simple, markdown-inspired syntax and compile them to standard MIDI files.
+MIDI Markdown (MML) is a human-readable, text-based format for creating MIDI sequences. Write MIDI commands in a simple, markdown-inspired syntax and compile them to standard MIDI files.
 
 ## Prerequisites
 
@@ -15,21 +15,21 @@ MIDI Markup Language (MML) is a human-readable, text-based format for creating M
 
 ```bash
 # Clone the repository
-git clone https://github.com/anthropics/midi-markdown.git
+git clone https://github.com/cjgdev/midi-markdown.git
 cd midi-markdown
 
 # Install with UV (recommended)
 uv sync
 
 # Verify installation
-uv run midimarkup version
+uv run mmdc version
 ```
 
 For detailed installation instructions, see [Installation Guide](installation.md).
 
-## Your First MML File
+## Your First MMD File
 
-Create a file called `hello.mml`:
+Create a file called `hello.mmd`:
 
 ```yaml
 ---
@@ -63,7 +63,7 @@ ppq: 480
 mkdir -p output
 
 # Compile your file
-uv run midimarkup compile hello.mml -o output/hello.mid
+uv run mmdc compile hello.mmd -o output/hello.mid
 
 # Success! You should see:
 # ✅ Compilation successful (0.12s)
@@ -119,17 +119,17 @@ Work through the progressive examples:
 
 ```bash
 # Start with the basics
-uv run midimarkup compile examples/00_hello_world.mml
-uv run midimarkup compile examples/01_minimal_midi.mml
-uv run midimarkup compile examples/02_simple_click_track.mml
+uv run mmdc compile examples/00_basics/00_hello_world.mmd
+uv run mmdc compile examples/00_basics/01_minimal_midi.mmd
+uv run mmdc compile examples/00_basics/02_simple_click_track.mmd
 
 # Move to intermediate
-uv run midimarkup compile examples/04_tempo_changes.mml
-uv run midimarkup compile examples/05_multi_channel_basic.mml
+uv run mmdc compile examples/01_timing/04_tempo_changes.mmd
+uv run mmdc compile examples/02_midi_features/05_multi_channel_basic.mmd
 
 # Explore advanced features
-uv run midimarkup compile examples/09_comprehensive_song.mml
-uv run midimarkup compile examples/13_device_import.mml
+uv run mmdc compile examples/03_advanced/09_comprehensive_song.mmd
+uv run mmdc compile examples/04_device_libraries/13_device_import.mmd
 ```
 
 See [examples/README.md](../examples/README.md) for a complete learning path.
@@ -144,7 +144,7 @@ See [examples/README.md](../examples/README.md) for a complete learning path.
 
 ### Reference Documentation
 
-- **[Language Specification](../spec.md)** - Complete MML reference (1,300+ lines)
+- **[Language Specification](../spec.md)** - Complete MMD reference (1,300+ lines)
 - **[CLI Commands](reference/cli-commands.md)** - Command-line reference
 - **[MIDI Commands](reference/midi-commands.md)** - Quick MIDI command lookup
 
@@ -152,31 +152,31 @@ See [examples/README.md](../examples/README.md) for a complete learning path.
 
 ```bash
 # Compile with verbose output
-uv run midimarkup compile song.mml -o output.mid -v
+uv run mmdc compile song.mmd -o output.mid -v
 
 # Validate before compiling
-uv run midimarkup validate song.mml
+uv run mmdc validate song.mmd
 
 # Quick syntax check (faster)
-uv run midimarkup check song.mml
+uv run mmdc check song.mmd
 
 # Real-time playback (NEW)
-uv run midimarkup play song.mml --port "IAC Driver Bus 1"
-uv run midimarkup play --list-ports  # List available MIDI ports
+uv run mmdc play song.mmd --port "IAC Driver Bus 1"
+uv run mmdc play --list-ports  # List available MIDI ports
 
 # Custom PPQ (higher resolution)
-uv run midimarkup compile song.mml --ppq 960
+uv run mmdc compile song.mmd --ppq 960
 
 # Single-track MIDI (format 0)
-uv run midimarkup compile song.mml --format 0
+uv run mmdc compile song.mmd --format 0
 ```
 
 ## Getting Help
 
 - **Documentation**: Browse the [docs/](index.md) directory
 - **Examples**: Study the [examples/](../examples/) directory (16 examples)
-- **Issues**: Report bugs on [GitHub](https://github.com/anthropics/midi-markdown/issues)
-- **CLI Help**: Run `uv run midimarkup --help`
+- **Issues**: Report bugs on [GitHub](https://github.com/cjgdev/midi-markdown/issues)
+- **CLI Help**: Run `uv run mmdc --help`
 
 ## What's Next?
 

@@ -1,4 +1,4 @@
-# MML Parser Implementation Summary
+# MMD Parser Implementation Summary
 
 **Date**: 2025-10-29
 **Status**: ✅ Implementation Complete
@@ -7,7 +7,7 @@
 
 ## Overview
 
-The MML parser has been fully specified and implemented using **Lark**, a modern Python parsing toolkit. The parser converts MIDI Markdown Language source code into a comprehensive Abstract Syntax Tree (AST) ready for validation and MIDI generation.
+The MMD parser has been fully specified and implemented using **Lark**, a modern Python parsing toolkit. The parser converts MIDI Markdown Language source code into a comprehensive Abstract Syntax Tree (AST) ready for validation and MIDI generation.
 
 ---
 
@@ -15,7 +15,7 @@ The MML parser has been fully specified and implemented using **Lark**, a modern
 
 ### 1. Lark Grammar (`mml.lark`) - 280 lines
 
-Complete EBNF-style grammar covering all MML syntax:
+Complete EBNF-style grammar covering all MMD syntax:
 
 ✅ Document structure with YAML frontmatter
 ✅ All directives (@import, @define, @alias, @loop, @if, @track, etc.)
@@ -149,7 +149,7 @@ Comprehensive test coverage:
 
 ### 2. AST Design
 
-✅ **Rich node types**: 30+ specialized nodes cover all MML features
+✅ **Rich node types**: 30+ specialized nodes cover all MMD features
 ✅ **Source locations**: Every node tracks line/column for errors
 ✅ **Type safety**: Full type hints for better IDE support
 ✅ **Dataclasses**: Clean, serializable node definitions
@@ -205,7 +205,7 @@ title: "My Song"
 - pc 1.0
 """
 
-doc = parser.parse(source, source_file="song.mml")
+doc = parser.parse(source, source_file="song.mmd")
 print(doc.frontmatter.parsed_data["title"])  # "My Song"
 ```
 
@@ -215,7 +215,7 @@ print(doc.frontmatter.parsed_data["title"])  # "My Song"
 from pathlib import Path
 
 parser = Parser()
-doc = parser.parse_file(Path("examples/basic_usage.mml"))
+doc = parser.parse_file(Path("examples/00_basics/00_hello_world.mmd"))
 ```
 
 ### Walk AST
@@ -349,7 +349,7 @@ dependencies = [
 
 ## Success Criteria
 
-✅ **Grammar Completeness**: All MML syntax covered
+✅ **Grammar Completeness**: All MMD syntax covered
 ✅ **AST Richness**: 30+ node types, full feature coverage
 ✅ **Test Coverage**: 60+ tests, all features exercised
 ✅ **Error Handling**: Position tracking, helpful messages
@@ -386,10 +386,10 @@ The parser can now handle:
 
 ## Conclusion
 
-The MML parser is **complete and production-ready**. It provides:
+The MMD parser is **complete and production-ready**. It provides:
 
 1. **Clean architecture**: Grammar, AST, and transformation clearly separated
-2. **Comprehensive coverage**: All MML features supported
+2. **Comprehensive coverage**: All MMD features supported
 3. **Excellent testing**: 60+ tests covering all scenarios
 4. **Good documentation**: Design docs, quick reference, inline docs
 5. **Type safety**: Full type hints for better development experience

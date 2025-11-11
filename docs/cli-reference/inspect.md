@@ -3,14 +3,14 @@
 > **Audience**: Users
 > **Level**: Intermediate to Advanced
 
-Analyze compiled MML events without creating output files - perfect for debugging and verification.
+Analyze compiled MMD events without creating output files - perfect for debugging and verification.
 
 ---
 
 ## Synopsis
 
 ```bash
-midimarkup inspect [OPTIONS] INPUT_FILE
+mmdc inspect [OPTIONS] INPUT_FILE
 mml inspect [OPTIONS] INPUT_FILE       # Shorter alias
 ```
 
@@ -18,7 +18,7 @@ mml inspect [OPTIONS] INPUT_FILE       # Shorter alias
 
 ## Description
 
-The `inspect` command compiles MML files and displays the resulting MIDI events in various formats **without writing any output files**. It's the ideal tool for:
+The `inspect` command compiles MMD files and displays the resulting MIDI events in various formats **without writing any output files**. It's the ideal tool for:
 
 - Debugging timing issues
 - Verifying event expansion (loops, sweeps, aliases)
@@ -27,7 +27,7 @@ The `inspect` command compiles MML files and displays the resulting MIDI events 
 - Quick event inspection during development
 
 **What inspect does**:
-1. Parse MML file to AST
+1. Parse MMD file to AST
 2. Resolve imports and aliases
 3. Expand loops, sweeps, variables
 4. Compile to IR (Intermediate Representation)
@@ -50,11 +50,11 @@ The `inspect` command compiles MML files and displays the resulting MIDI events 
 ### Input
 
 #### `INPUT_FILE` (required)
-Path to `.mml` file to analyze.
+Path to `.mmd` file to analyze.
 
 ```bash
-midimarkup inspect song.mml
-midimarkup inspect path/to/performance.mml
+mmdc inspect song.mmd
+mmdc inspect path/to/performance.mmd
 ```
 
 ---
@@ -72,16 +72,16 @@ Output format selection. Default: `table`
 
 ```bash
 # Rich table (default)
-midimarkup inspect song.mml
+mmdc inspect song.mmd
 
 # CSV to stdout
-midimarkup inspect song.mml --format csv
+mmdc inspect song.mmd --format csv
 
 # JSON (complete)
-midimarkup inspect song.mml --format json
+mmdc inspect song.mmd --format json
 
 # JSON (simplified)
-midimarkup inspect song.mml -f json-simple
+mmdc inspect song.mmd -f json-simple
 ```
 
 ---
@@ -93,10 +93,10 @@ Maximum number of events to display (table format only).
 
 ```bash
 # Show first 50 events
-midimarkup inspect song.mml --limit 50
+mmdc inspect song.mmd --limit 50
 
 # Show first 10 events
-midimarkup inspect song.mml -n 10
+mmdc inspect song.mmd -n 10
 ```
 
 **Default**: 100 events (table format only)
@@ -110,7 +110,7 @@ Hide statistics summary (table format only).
 
 ```bash
 # Table without statistics
-midimarkup inspect song.mml --no-stats
+mmdc inspect song.mmd --no-stats
 ```
 
 **Statistics include**:
@@ -128,14 +128,14 @@ midimarkup inspect song.mml --no-stats
 Show compilation steps.
 
 ```bash
-midimarkup inspect song.mml --verbose
+mmdc inspect song.mmd --verbose
 ```
 
 **Verbose output**:
 ```
-Analyzing: song.mml
+Analyzing: song.mmd
 Format: table
-  Parsing MML file...
+  Parsing MMD file...
   Parsed: 38 events, 0 tracks
   Compiling to IR...
   Compiled: 104 MIDI events
@@ -149,7 +149,7 @@ Format: table
 Disable colored output.
 
 ```bash
-midimarkup inspect song.mml --no-color
+mmdc inspect song.mmd --no-color
 ```
 
 **Use when**:
@@ -165,7 +165,7 @@ midimarkup inspect song.mml --no-color
 Show full error tracebacks.
 
 ```bash
-midimarkup inspect broken.mml --debug
+mmdc inspect broken.mmd --debug
 ```
 
 ---
@@ -227,13 +227,13 @@ Track,Time,Type,Channel,Data1,Data2,Text
 **Usage**:
 ```bash
 # Pipe to file
-midimarkup inspect song.mml --format csv > events.csv
+mmdc inspect song.mmd --format csv > events.csv
 
 # Open in Excel/Google Sheets
 open events.csv
 
 # Analyze with pandas
-midimarkup inspect song.mml -f csv | python3 << EOF
+mmdc inspect song.mmd -f csv | python3 << EOF
 import pandas as pd
 import sys
 df = pd.read_csv(sys.stdin)
@@ -322,7 +322,7 @@ EOF
 
 ```bash
 # Default: table format with first 100 events
-midimarkup inspect song.mml
+mmdc inspect song.mmd
 ```
 
 ---
@@ -331,10 +331,10 @@ midimarkup inspect song.mml
 
 ```bash
 # Show first 20 events only
-midimarkup inspect song.mml --limit 20
+mmdc inspect song.mmd --limit 20
 
 # Show first 5 events (quick peek)
-midimarkup inspect song.mml -n 5
+mmdc inspect song.mmd -n 5
 ```
 
 ---
@@ -343,13 +343,13 @@ midimarkup inspect song.mml -n 5
 
 ```bash
 # View in terminal
-midimarkup inspect song.mml --format csv
+mmdc inspect song.mmd --format csv
 
 # Save to file
-midimarkup inspect song.mml --format csv > events.csv
+mmdc inspect song.mmd --format csv > events.csv
 
 # Pipe to column formatter
-midimarkup inspect song.mml -f csv | column -t -s,
+mmdc inspect song.mmd -f csv | column -t -s,
 ```
 
 ---
@@ -358,16 +358,16 @@ midimarkup inspect song.mml -f csv | column -t -s,
 
 ```bash
 # Complete JSON
-midimarkup inspect song.mml --format json > data.json
+mmdc inspect song.mmd --format json > data.json
 
 # Simplified JSON
-midimarkup inspect song.mml --format json-simple > simple.json
+mmdc inspect song.mmd --format json-simple > simple.json
 
 # Pretty-print with jq
-midimarkup inspect song.mml -f json | jq '.'
+mmdc inspect song.mmd -f json | jq '.'
 
 # Query with jq
-midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type == "note_on")'
+mmdc inspect song.mmd -f json | jq '.tracks[0].events[] | select(.type == "note_on")'
 ```
 
 ---
@@ -376,7 +376,7 @@ midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type == 
 
 ```bash
 # Inspect timing of first 50 events
-midimarkup inspect song.mml --limit 50
+mmdc inspect song.mmd --limit 50
 
 # Look for timing gaps or issues in table
 ```
@@ -398,7 +398,7 @@ Time      Event        Channel  Data
 # Before expansion: 1 @loop statement
 # After expansion: N events
 
-midimarkup inspect loop_test.mml --limit 20
+mmdc inspect loop_test.mmd --limit 20
 ```
 
 **Example**:
@@ -423,13 +423,13 @@ midimarkup inspect loop_test.mml --limit 20
 
 ```bash
 # Inspect file with imports
-midimarkup inspect device_test.mml --verbose
+mmdc inspect device_test.mmd --verbose
 ```
 
 **Verbose output shows**:
 ```
-Analyzing: device_test.mml
-  Parsing MML file...
+Analyzing: device_test.mmd
+  Parsing MMD file...
   Parsed: 5 events, 0 tracks
   Loading 1 import(s)...
   Loaded 86 alias(es) from imports
@@ -445,7 +445,7 @@ Analyzing: device_test.mml
 
 ```bash
 # Compare pre/post expansion
-midimarkup inspect alias_test.mml
+mmdc inspect alias_test.mmd
 ```
 
 **Example**:
@@ -465,13 +465,13 @@ midimarkup inspect alias_test.mml
 
 ```bash
 # Table for visual
-midimarkup inspect song.mml --format table
+mmdc inspect song.mmd --format table
 
 # CSV for analysis
-midimarkup inspect song.mml --format csv > analysis.csv
+mmdc inspect song.mmd --format csv > analysis.csv
 
 # JSON for scripting
-midimarkup inspect song.mml --format json | jq '.tracks[0].events | length'
+mmdc inspect song.mmd --format json | jq '.tracks[0].events | length'
 ```
 
 ---
@@ -480,7 +480,7 @@ midimarkup inspect song.mml --format json | jq '.tracks[0].events | length'
 
 ```bash
 # Table without stats footer
-midimarkup inspect song.mml --no-stats
+mmdc inspect song.mmd --no-stats
 ```
 
 **Use when**: Only interested in events, not summary.
@@ -491,7 +491,7 @@ midimarkup inspect song.mml --no-stats
 
 ```bash
 # See all compilation steps
-midimarkup inspect song.mml --verbose
+mmdc inspect song.mmd --verbose
 ```
 
 **Output includes**:
@@ -508,13 +508,13 @@ midimarkup inspect song.mml --verbose
 
 ```bash
 # Count event types with awk
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {count[$3]++} END {for(type in count) print type, count[type]}'
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 {count[$3]++} END {for(type in count) print type, count[type]}'
 
 # Find all CC events
-midimarkup inspect song.mml -f csv | grep "^0,[0-9]*,CC"
+mmdc inspect song.mmd -f csv | grep "^0,[0-9]*,CC"
 
 # Extract note events only
-midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type | startswith("note"))'
+mmdc inspect song.mmd -f json | jq '.tracks[0].events[] | select(.type | startswith("note"))'
 ```
 
 ---
@@ -528,7 +528,7 @@ midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type | s
 **Solution**:
 ```bash
 # Inspect with table format
-midimarkup inspect song.mml --limit 50
+mmdc inspect song.mmd --limit 50
 
 # Look for:
 # - Timing gaps
@@ -545,7 +545,7 @@ midimarkup inspect song.mml --limit 50
 **Solution**:
 ```bash
 # Inspect before/after event count
-midimarkup inspect loop_test.mml
+mmdc inspect loop_test.mmd
 
 # Check statistics for event count
 # Verify expanded events in table
@@ -560,7 +560,7 @@ midimarkup inspect loop_test.mml
 **Solution**:
 ```bash
 # Verbose inspect shows import details
-midimarkup inspect device_test.mml --verbose
+mmdc inspect device_test.mmd --verbose
 
 # See alias expansion in event table
 ```
@@ -574,10 +574,10 @@ midimarkup inspect device_test.mml --verbose
 **Solution**:
 ```bash
 # Table shows all values clearly
-midimarkup inspect song.mml
+mmdc inspect song.mmd
 
 # Or export to CSV for filtering
-midimarkup inspect song.mml -f csv | grep "CC"
+mmdc inspect song.mmd -f csv | grep "CC"
 ```
 
 ---
@@ -589,7 +589,7 @@ midimarkup inspect song.mml -f csv | grep "CC"
 **Solution**:
 ```bash
 # Statistics show duration
-midimarkup inspect song.mml
+mmdc inspect song.mmd
 
 # Output includes:
 # Duration: 50.00s
@@ -599,15 +599,15 @@ midimarkup inspect song.mml
 
 ---
 
-### Learning MML Compilation
+### Learning MMD Compilation
 
-**Problem**: Want to understand how MML compiles to MIDI.
+**Problem**: Want to understand how MMD compiles to MIDI.
 
 **Solution**:
 ```bash
 # Start with simple file
 echo '[00:00.000]
-- note_on 1.60 80 1b' | midimarkup inspect -
+- note_on 1.60 80 1b' | mmdc inspect -
 
 # Inspect shows exact MIDI events:
 # 0:00.000  Tempo     -    120 BPM
@@ -626,10 +626,10 @@ echo '[00:00.000]
 **Solution**:
 ```bash
 # Increase limit
-midimarkup inspect song.mml --limit 500
+mmdc inspect song.mmd --limit 500
 
 # Or export to CSV for full view
-midimarkup inspect song.mml --format csv > all_events.csv
+mmdc inspect song.mmd --format csv > all_events.csv
 ```
 
 ---
@@ -642,7 +642,7 @@ midimarkup inspect song.mml --format csv > all_events.csv
 
 **Solution**: Use `table` format for colored output:
 ```bash
-midimarkup inspect song.mml --format table
+mmdc inspect song.mmd --format table
 ```
 
 ---
@@ -653,7 +653,7 @@ midimarkup inspect song.mml --format table
 
 **Solution**: Remove flag:
 ```bash
-midimarkup inspect song.mml  # Stats shown by default
+mmdc inspect song.mmd  # Stats shown by default
 ```
 
 ---
@@ -665,10 +665,10 @@ midimarkup inspect song.mml  # Stats shown by default
 **Solution**:
 ```bash
 # Limit display to first N events
-midimarkup inspect large.mml --limit 100
+mmdc inspect large.mmd --limit 100
 
 # Or use validate (faster, no display)
-midimarkup validate large.mml
+mmdc validate large.mmd
 ```
 
 ---
@@ -679,7 +679,7 @@ midimarkup validate large.mml
 
 **Solution**: Use `--no-color`:
 ```bash
-midimarkup inspect song.mml --format csv --no-color > events.csv
+mmdc inspect song.mmd --format csv --no-color > events.csv
 ```
 
 ---
@@ -690,10 +690,10 @@ midimarkup inspect song.mml --format csv --no-color > events.csv
 
 ```bash
 # Get total event count
-midimarkup inspect song.mml --format json | jq '.tracks[0].events | length'
+mmdc inspect song.mmd --format json | jq '.tracks[0].events | length'
 
 # Or from statistics
-midimarkup inspect song.mml | grep "Events:"
+mmdc inspect song.mmd | grep "Events:"
 ```
 
 ---
@@ -702,10 +702,10 @@ midimarkup inspect song.mml | grep "Events:"
 
 ```bash
 # CSV: Show only CC events
-midimarkup inspect song.mml -f csv | grep "^0,[0-9]*,CC"
+mmdc inspect song.mmd -f csv | grep "^0,[0-9]*,CC"
 
 # JSON: Extract note events
-midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type | startswith("note"))'
+mmdc inspect song.mmd -f json | jq '.tracks[0].events[] | select(.type | startswith("note"))'
 ```
 
 ---
@@ -714,10 +714,10 @@ midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type | s
 
 ```bash
 # CSV: Extract timing column
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {print $2}' | head -20
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 {print $2}' | head -20
 
 # Find timing gaps >1 second
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {if ($2 - prev > 480) print "Gap at tick", $2; prev=$2}'
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 {if ($2 - prev > 480) print "Gap at tick", $2; prev=$2}'
 ```
 
 ---
@@ -726,12 +726,12 @@ midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {if ($2 - prev > 480) print "
 
 ```bash
 # Before edit
-midimarkup inspect song.mml > before.txt
+mmdc inspect song.mmd > before.txt
 
 # Edit file...
 
 # After edit
-midimarkup inspect song.mml > after.txt
+mmdc inspect song.mmd > after.txt
 
 # Compare
 diff before.txt after.txt
@@ -743,7 +743,7 @@ diff before.txt after.txt
 
 ```bash
 # Count event types with awk
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {count[$3]++} END {for (t in count) print t, count[t]}'
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 {count[$3]++} END {for (t in count) print t, count[t]}'
 
 # Example output:
 # Note_on 24
@@ -759,13 +759,13 @@ midimarkup inspect song.mml -f csv | awk -F, 'NR>1 {count[$3]++} END {for (t in 
 
 ```bash
 # Get PPQ
-midimarkup inspect song.mml -f json | jq '.ppq'
+mmdc inspect song.mmd -f json | jq '.ppq'
 
 # Get initial tempo
-midimarkup inspect song.mml -f json | jq '.initial_tempo'
+mmdc inspect song.mmd -f json | jq '.initial_tempo'
 
 # Get all tempos
-midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type == "tempo") | .tempo_bpm'
+mmdc inspect song.mmd -f json | jq '.tracks[0].events[] | select(.type == "tempo") | .tempo_bpm'
 ```
 
 ---
@@ -774,10 +774,10 @@ midimarkup inspect song.mml -f json | jq '.tracks[0].events[] | select(.type == 
 
 ```bash
 # List unique channels
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 && $4 != "" {channels[$4]=1} END {for (c in channels) print "Channel", c}'
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 && $4 != "" {channels[$4]=1} END {for (c in channels) print "Channel", c}'
 
 # Count events per channel
-midimarkup inspect song.mml -f csv | awk -F, 'NR>1 && $4 != "" {count[$4]++} END {for (c in count) print "Channel", c, ":", count[c], "events"}'
+mmdc inspect song.mmd -f csv | awk -F, 'NR>1 && $4 != "" {count[$4]++} END {for (c in count) print "Channel", c, ":", count[c], "events"}'
 ```
 
 ---
@@ -791,21 +791,21 @@ midimarkup inspect song.mml -f csv | awk -F, 'NR>1 && $4 != "" {count[$4]++} END
 FILE=$1
 
 echo "=== Event Summary ==="
-midimarkup inspect "$FILE" --no-stats | head -20
+mmdc inspect "$FILE" --no-stats | head -20
 
 echo ""
 echo "=== Statistics ==="
-midimarkup inspect "$FILE" | grep -A 5 "Statistics:"
+mmdc inspect "$FILE" | grep -A 5 "Statistics:"
 
 echo ""
 echo "=== Event Type Count ==="
-midimarkup inspect "$FILE" -f csv | awk -F, 'NR>1 {count[$3]++} END {for (t in count) print t ":", count[t]}'
+mmdc inspect "$FILE" -f csv | awk -F, 'NR>1 {count[$3]++} END {for (t in count) print t ":", count[t]}'
 ```
 
 **Usage**:
 ```bash
 chmod +x inspect_debug.sh
-./inspect_debug.sh song.mml
+./inspect_debug.sh song.mmd
 ```
 
 ---
@@ -814,15 +814,15 @@ chmod +x inspect_debug.sh
 
 ```bash
 # Find all note events in range
-midimarkup inspect song.mml -f json | \
+mmdc inspect song.mmd -f json | \
   jq '.tracks[0].events[] | select(.type == "note_on" and .note >= 60 and .note <= 72)'
 
 # Calculate total duration
-midimarkup inspect song.mml -f json | \
+mmdc inspect song.mmd -f json | \
   jq '.tracks[0].events[-1].time / .ppq / .initial_tempo * 60'
 
 # Extract CC automation
-midimarkup inspect song.mml -f json | \
+mmdc inspect song.mmd -f json | \
   jq '.tracks[0].events[] | select(.type == "cc" and .cc_number == 7)'
 ```
 
@@ -834,8 +834,8 @@ midimarkup inspect song.mml -f json | \
 
 ```bash
 # Compare event counts across files
-for file in *.mml; do
-  count=$(midimarkup inspect "$file" -f json | jq '.tracks[0].events | length')
+for file in *.mmd; do
+  count=$(mmdc inspect "$file" -f json | jq '.tracks[0].events | length')
   echo "$file: $count events"
 done
 ```
@@ -846,7 +846,7 @@ done
 
 ```bash
 # Generate timeline CSV
-midimarkup inspect song.mml -f csv | \
+mmdc inspect song.mmd -f csv | \
   awk -F, 'NR>1 {printf "%s,%s,%s\n", $2/480, $3, $4}' > timeline.csv
 
 # Import to plotting tool (Python, R, etc.)
@@ -859,7 +859,7 @@ midimarkup inspect song.mml -f csv | \
 ```bash
 # Test that compilation doesn't change event count
 expected=104
-actual=$(midimarkup inspect song.mml -f json | jq '.tracks[0].events | length')
+actual=$(mmdc inspect song.mmd -f json | jq '.tracks[0].events | length')
 
 if [ "$actual" -eq "$expected" ]; then
   echo "✓ Event count correct ($actual)"

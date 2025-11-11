@@ -3,7 +3,7 @@
 > **Audience**: Users
 > **Level**: Beginner to Intermediate
 
-Complete reference for all MIDI commands supported by MIDI Markup Language. This guide covers channel voice messages, meta events, system messages, and provides practical examples for each command type.
+Complete reference for all MIDI commands supported by MIDI Markdown. This guide covers channel voice messages, meta events, system messages, and provides practical examples for each command type.
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ Complete reference for all MIDI commands supported by MIDI Markup Language. This
 
 ## Overview
 
-MIDI commands in MML are written as list items (prefixed with `-`) and placed after timing markers. All commands follow the pattern:
+MIDI commands in MMD are written as list items (prefixed with `-`) and placed after timing markers. All commands follow the pattern:
 
 ```markdown
 [timing_marker]
@@ -51,11 +51,11 @@ Channel voice messages are the most commonly used MIDI commands. They control no
 
 ### Note Commands
 
-Note commands trigger sound on MIDI instruments. MML supports both note names (C4, D#5) and MIDI note numbers (0-127).
+Note commands trigger sound on MIDI instruments. MMD supports both note names (C4, D#5) and MIDI note numbers (0-127).
 
 #### Note On with Automatic Note Off
 
-The most common way to play notes - MML automatically generates the note_off message:
+The most common way to play notes - MMD automatically generates the note_off message:
 
 ```markdown
 # Basic syntax
@@ -1250,6 +1250,6 @@ midi_format: 1
 ## See Also
 
 - **[MML Syntax Reference](mml-syntax.md)** - Complete language syntax
-- **[Compile Command](../cli-reference/compile.md)** - Compile MML to MIDI
-- **[Example Files](../../examples/)** - Real-world MML examples
+- **[Compile Command](../cli-reference/compile.md)** - Compile MMD to MIDI
+- **[Example Files](../../examples/)** - Real-world MMD examples
 - **[Troubleshooting](../reference/troubleshooting.md)** - Common issues and solutions

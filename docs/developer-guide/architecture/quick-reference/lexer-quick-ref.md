@@ -1,6 +1,6 @@
 # Lexer Quick Reference Card
 
-Quick lookup for implementing the MML lexer. See [lexer_design.md](./lexer_design.md) for full details.
+Quick lookup for implementing the MMD lexer. See [lexer_design.md](./lexer_design.md) for full details.
 
 ## Token Types (26 total)
 

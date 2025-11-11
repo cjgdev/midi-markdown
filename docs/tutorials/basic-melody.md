@@ -13,12 +13,12 @@ In this tutorial, you will learn how to:
 - Control note duration
 - Structure a complete musical phrase
 
-By the end, you'll have a working MML file that plays a complete melody with dynamic expression.
+By the end, you'll have a working MMD file that plays a complete melody with dynamic expression.
 
 ## Prerequisites
 
 Before starting this tutorial, you should:
-- Have MIDI Markup Language installed (`midimarkup --version`)
+- Have MIDI Markdown installed (`mmdc --version`)
 - Know basic MIDI concepts (what notes, channels, and CC messages are)
 - Have a MIDI player or DAW to test your output files
 - Understand musical timing (seconds, bars, beats)
@@ -35,7 +35,7 @@ You'll create a simple 8-bar melody with:
 
 Let's start with the absolute minimum - a file that plays one note.
 
-Create a file named `my_melody.mml`:
+Create a file named `my_melody.mmd`:
 
 ```markdown
 ---
@@ -69,7 +69,7 @@ ppq: 480
 
 **Test it:**
 ```bash
-midimarkup compile my_melody.mml -o output.mid
+mmdc compile my_melody.mmd -o output.mid
 ```
 
 Play `output.mid` in your MIDI player. You should hear a single middle C note lasting one second.
@@ -122,7 +122,7 @@ ppq: 480
 
 **Test it:**
 ```bash
-midimarkup compile my_melody.mml -o output.mid
+mmdc compile my_melody.mmd -o output.mid
 ```
 
 You should now hear a 4-note ascending phrase.
@@ -232,7 +232,7 @@ ppq: 480
 
 **Test it:**
 ```bash
-midimarkup compile my_melody.mml -o output.mid
+mmdc compile my_melody.mmd -o output.mid
 ```
 
 You should now hear a complete 16-second melody with a clear beginning, middle, and end.
@@ -358,7 +358,7 @@ ppq: 480
 
 **Test it:**
 ```bash
-midimarkup compile my_melody.mml -o output.mid
+mmdc compile my_melody.mmd -o output.mid
 ```
 
 The melody should now feel more expressive with volume changes matching the musical phrases.
@@ -493,7 +493,7 @@ ppq: 480
 
 **Test it:**
 ```bash
-midimarkup compile my_melody.mml -o output.mid
+mmdc compile my_melody.mmd -o output.mid
 ```
 
 Listen with headphones or stereo speakers. You should hear the melody move from center → left → right → center.
@@ -626,14 +626,195 @@ ppq: 480
 **Compile and test:**
 ```bash
 # Compile to MIDI file
-midimarkup compile my_melody.mml -o my_melody.mid
+mmdc compile my_melody.mmd -o my_melody.mid
 
 # View event timeline (optional)
-midimarkup compile my_melody.mml --format table
+mmdc compile my_melody.mmd --format table
 
 # Validate syntax
-midimarkup validate my_melody.mml
+mmdc validate my_melody.mmd
 ```
+
+## Step 6: Humanizing Your Melody with Random Velocity (Phase 6)
+
+Your melody now has perfect timing and volume automation, but it might sound a bit *too perfect* - like a machine. Real musicians vary their playing dynamics naturally. Phase 6 introduces the `random()` function, which lets you add realistic variation to your melodies.
+
+### The Problem: Robotic Precision
+
+Static velocity values create mechanical-sounding MIDI:
+
+```markdown
+# This sounds robotic - every note has identical velocity
+[00:00.000]
+- note_on 1.C4 80 500ms
+[00:00.500]
+- note_on 1.E4 80 500ms
+[00:01.000]
+- note_on 1.G4 80 500ms
+```
+
+### The Solution: Randomized Velocity
+
+Use the `random(min, max)` function to add subtle velocity variation:
+
+```markdown
+---
+title: "My Humanized Melody"
+author: "Your Name"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# 8-Bar Melody with Humanized Velocity
+
+[00:00.000]
+- tempo 120
+- time_signature 4/4
+- marker "Humanized Introduction"
+
+# Initialize with medium volume
+[00:00.000]
+- cc 1.7.80
+
+# Bar 1-2: Opening phrase with subtle velocity variation
+[00:00.000]
+- note_on 1.C4 random(75,85) 500ms    # Velocity varies between 75-85
+
+[00:00.500]
+- note_on 1.E4 random(75,85) 500ms
+
+[00:01.000]
+- note_on 1.G4 random(75,85) 1000ms
+
+[00:02.000]
+- note_on 1.E4 random(75,85) 500ms
+
+[00:02.500]
+- note_on 1.C4 random(75,85) 1500ms
+
+# For more expressive sections, use wider ranges
+[00:04.000]
+- cc 1.7.90
+- marker "Rising Section - More Expression"
+
+[00:04.000]
+- note_on 1.D4 random(70,95) 500ms    # Wider range for more dynamics
+
+[00:04.500]
+- note_on 1.F4 random(70,95) 500ms
+
+[00:05.000]
+- note_on 1.A4 random(70,95) 1000ms
+
+[00:06.000]
+- note_on 1.F4 random(70,95) 500ms
+
+[00:06.500]
+- note_on 1.D4 random(70,95) 1500ms
+
+# Peak section - maximum expression with variable velocity
+[00:08.000]
+- cc 1.7.110
+- marker "Climax - Full Variation"
+
+[00:08.000]
+- note_on 1.G4 random(85,110) 500ms   # Strong variation for impact
+
+[00:08.500]
+- note_on 1.B4 random(85,110) 500ms
+
+[00:09.000]
+- note_on 1.D5 random(85,110) 1000ms
+
+[00:10.000]
+- note_on 1.B4 random(85,110) 500ms
+
+[00:10.500]
+- note_on 1.G4 random(85,110) 1500ms
+
+# Resolution - back to subtle variation
+[00:12.000]
+- cc 1.7.85
+- marker "Resolution"
+
+[00:12.000]
+- note_on 1.E4 random(75,85) 500ms
+
+[00:12.500]
+- note_on 1.C4 random(75,85) 500ms
+
+[00:13.000]
+- note_on 1.A3 random(75,85) 1000ms
+
+[00:14.000]
+- cc 1.7.70
+- note_on 1.C4 random(70,80) 2000ms   # Final note with gentle variation
+
+[00:16.000]
+- text "End of humanized melody"
+- end_of_track
+```
+
+### How Velocity Humanization Works
+
+The `random(min, max)` function:
+- Generates a random integer between the minimum and maximum values (inclusive)
+- Gets evaluated each time the file is compiled, creating different variations each compilation
+- Works with MIDI velocity (0-127 range)
+
+**Key ranges for humanization:**
+- **±5 range** (e.g., `random(75,80)`): Subtle, professional, almost imperceptible
+- **±10 range** (e.g., `random(75,95)`): Noticeable but natural
+- **±15+ range** (e.g., `random(70,100)`): Very expressive, more human-like
+
+### Comparing Before and After
+
+**Before humanization (robotic):**
+```markdown
+[00:00.000]
+- note_on 1.C4 80 500ms
+[00:00.500]
+- note_on 1.E4 80 500ms
+[00:01.000]
+- note_on 1.G4 80 500ms
+```
+
+**After humanization (musical):**
+```markdown
+[00:00.000]
+- note_on 1.C4 random(75,85) 500ms   # Varies naturally
+[00:00.500]
+- note_on 1.E4 random(75,85) 500ms
+[00:01.000]
+- note_on 1.G4 random(75,85) 500ms
+```
+
+Listen to both compiled versions side-by-side. The humanized version should feel more alive and expressive, even though the timing and notes are identical.
+
+### Pro Tips for Humanization
+
+1. **Match variation to musical intent**: Strong beats can use wider ranges:
+   ```markdown
+   [00:00.000]
+   - note_on 1.C4 random(90,110) 500ms  # Downbeat - punchy, louder
+   [00:00.500]
+   - note_on 1.E4 random(70,80) 500ms   # Offbeat - softer
+   ```
+
+2. **Combine with CC automation**: Humanize velocity AND volume:
+   ```markdown
+   [00:00.000]
+   - cc 1.7.random(75,90)               # Volume also varies
+   - note_on 1.C4 random(75,85) 500ms
+   ```
+
+3. **Recompile to hear different variations**: Each compilation generates a new random seed, so running `mmdc compile` multiple times creates different humanized versions!
+
+**See also:**
+- [Generative Techniques Tutorial](generative-techniques.md) - Deep dive into `random()` and algorithmic composition
+- [random_humanization.mmd Example](../../examples/04_generative/random_humanization.mmd) - Working example of velocity humanization
+- [Generative Music Guide](../generative-music.md) - Comprehensive reference on randomization techniques
 
 ## Troubleshooting
 
@@ -665,7 +846,7 @@ midimarkup validate my_melody.mml
 **Solution**: Verify your tempo calculation:
 - 120 BPM = 2 beats per second
 - 1 bar of 4/4 = 2 seconds
-- Use `midimarkup compile --format table` to see exact timing
+- Use `mmdc compile --format table` to see exact timing
 
 ## Next Steps
 
@@ -690,7 +871,7 @@ Now that you understand basic melody creation, try:
 
 In this tutorial, you learned:
 
-- How to structure an MML file with frontmatter
+- How to structure an MMD file with frontmatter
 - Using absolute timing markers (`[mm:ss.milliseconds]`)
 - Creating notes with `note_on channel.note velocity duration`
 - Using CC#7 for volume automation

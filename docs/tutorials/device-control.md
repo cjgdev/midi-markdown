@@ -14,7 +14,7 @@ In this tutorial, you will learn how to:
 - Handle timing delays required by hardware
 - Create complete live performance sequences
 
-By the end, you'll have a working MML file that controls your guitar processor or effects unit in sync with a backing track.
+By the end, you'll have a working MMD file that controls your guitar processor or effects unit in sync with a backing track.
 
 ## Prerequisites
 
@@ -38,10 +38,10 @@ You'll create a live performance sequence with:
 ## Supported Devices
 
 This tutorial covers:
-- **Neural DSP Quad Cortex** (`devices/quad_cortex.mml`) - 86 aliases
-- **Eventide H90** (`devices/eventide_h90.mml`) - 61 aliases
-- **Line 6 Helix** (`devices/helix.mml`) - 49 aliases
-- **Line 6 HX Stomp** (`devices/hx_stomp.mml`) - 39 aliases
+- **Neural DSP Quad Cortex** (`devices/quad_cortex.mmd`) - 86 aliases
+- **Eventide H90** (`devices/eventide_h90.mmd`) - 61 aliases
+- **Line 6 Helix** (`devices/helix.mmd`) - 49 aliases
+- **Line 6 HX Stomp** (`devices/hx_stomp.mmd`) - 39 aliases
 
 Choose the section that matches your device, or follow the Quad Cortex example and adapt for your device.
 
@@ -63,7 +63,7 @@ Device libraries provide human-readable aliases for complex MIDI commands.
 **With device library (alias):**
 ```markdown
 # Clear and self-documenting!
-@import "../devices/quad_cortex.mml"
+@import "../devices/quad_cortex.mmd"
 
 [00:00.000]
 - qc_load_preset 1 2 0 5   # Channel 1, Group 2, Setlist 0, Preset 5
@@ -78,7 +78,7 @@ Device libraries provide human-readable aliases for complex MIDI commands.
 
 **Test library import:**
 
-Create a file named `device_test.mml`:
+Create a file named `device_test.mmd`:
 
 ```markdown
 ---
@@ -89,7 +89,7 @@ ppq: 480
 ---
 
 # Import your device library
-@import "../devices/quad_cortex.mml"
+@import "../devices/quad_cortex.mmd"
 
 [00:00.000]
 - tempo 120
@@ -98,7 +98,7 @@ ppq: 480
 
 **Validate:**
 ```bash
-midimarkup validate device_test.mml
+mmdc validate device_test.mmd
 ```
 
 If successful, the library loaded all aliases without errors.
@@ -107,7 +107,7 @@ If successful, the library loaded all aliases without errors.
 
 Let's start with simple preset changes.
 
-Create `live_performance.mml`:
+Create `live_performance.mmd`:
 
 ```markdown
 ---
@@ -119,7 +119,7 @@ ppq: 480
 ---
 
 # Import Neural DSP Quad Cortex library
-@import "../devices/quad_cortex.mml"
+@import "../devices/quad_cortex.mmd"
 
 # ============================================
 # SONG: Example Song
@@ -152,7 +152,7 @@ ppq: 480
 
 **Test preset loading:**
 ```bash
-midimarkup compile live_performance.mml -o live_performance.mid
+mmdc compile live_performance.mmd -o live_performance.mid
 ```
 
 Connect your Quad Cortex and play the MIDI file. Preset 0 should load.
@@ -170,7 +170,7 @@ time_signature: [4, 4]
 ppq: 480
 ---
 
-@import "../devices/quad_cortex.mml"
+@import "../devices/quad_cortex.mmd"
 
 # ============================================
 # SONG STRUCTURE
@@ -245,7 +245,7 @@ ppq: 480
 
 **Test with scenes:**
 ```bash
-midimarkup compile live_performance.mml -o live_performance.mid
+mmdc compile live_performance.mmd -o live_performance.mid
 ```
 
 ## Step 4: Expression Pedal Automation
@@ -400,7 +400,7 @@ ppq: 480
 ---
 
 # Import Quad Cortex device library
-@import "../devices/quad_cortex.mml"
+@import "../devices/quad_cortex.mmd"
 
 # ============================================
 # SONG 1: "Electric Dreams"
@@ -626,8 +626,8 @@ ppq: 480
 
 **Compile and test:**
 ```bash
-midimarkup compile live_performance.mml -o live_performance.mid
-midimarkup compile live_performance.mml --format table  # View timeline
+mmdc compile live_performance.mmd -o live_performance.mid
+mmdc compile live_performance.mmd --format table  # View timeline
 ```
 
 ## Step 7: Using Other Devices
@@ -635,7 +635,7 @@ midimarkup compile live_performance.mml --format table  # View timeline
 ### Eventide H90 Example
 
 ```markdown
-@import "../devices/eventide_h90.mml"
+@import "../devices/eventide_h90.mmd"
 
 [00:00.000]
 - marker "Intro - Shimmer Reverb"
@@ -683,7 +683,7 @@ midimarkup compile live_performance.mml --format table  # View timeline
 ### Line 6 Helix Example
 
 ```markdown
-@import "../devices/helix.mml"
+@import "../devices/helix.mmd"
 
 [00:00.000]
 - marker "Intro - Clean"
@@ -782,7 +782,82 @@ Now that you understand device control, try:
 4. **Add loops**: Repeat chorus sections with `@loop`
 5. **Layer devices**: Control Quad Cortex + H90 simultaneously
 6. **MIDI learn**: Map device parameters and create custom aliases
-7. **Real-time playback**: Use `midimarkup play` for live performance
+7. **Real-time playback**: Use `mmdc play` for live performance
+
+## Step 8: Using Computed Values in Device Aliases (Phase 6)
+
+Phase 6 introduces **computed values** - mathematical expressions in device aliases that let you parameterize complex sequences. This is powerful for device control because it lets you write flexible aliases that adapt based on inputs.
+
+### Understanding Computed Values
+
+Device aliases can now include computed parameters that calculate values based on inputs:
+
+```markdown
+@alias qc_tempo_to_cc {ch}.{bpm} "Convert BPM to CC value for tempo-synced delay"
+  # Example: Map BPM to delay feedback
+  # Higher BPM = higher feedback CC value
+  {feedback = bpm / 120 * 127}  # Normalize 120 BPM to 127
+  [00:00.000]
+  - cc {ch}.91.{feedback}        # Send as reverb parameter (CC#91)
+@end
+
+# Use it
+[00:00.000]
+- qc_tempo_to_cc 1 140          # Adjust delay feedback based on 140 BPM song
+```
+
+### Real-World Example: BPM-Linked Filter Expression
+
+Here's a practical example that scales expression pedal range based on song tempo:
+
+```markdown
+@alias cortex_tempo_expression {ch}.{bpm}.{velocity} "Expression scaled to tempo"
+  # Faster songs (high BPM) get more aggressive expression range
+  {expr_range = (bpm - 80) / 2}     # Range increases with BPM
+  {expr_value = velocity * expr_range / 100}
+  [00:00.000]
+  - qc_exp1 {ch}.{expr_value}
+@end
+
+# Use it for different tempos
+[00:00.000]
+- tempo 120
+- cortex_tempo_expression 1 120 100   # 120 BPM, full velocity
+
+[00:32.000]
+- tempo 140
+- cortex_tempo_expression 1 140 100   # 140 BPM, wider expression range
+```
+
+### Using Computed Values with Device Presets
+
+Computed values shine when automating preset selection based on musical parameters:
+
+```markdown
+@alias h90_preset_for_section {ch}.{section_num}.{tempo} "Auto-select H90 program based on section"
+  # Map section number to H90 program (0-99)
+  {program = section_num * 10 + (tempo / 60)}  # Section determines base, tempo determines variant
+  [00:00.000]
+  - h90_program {ch}.{program}
+@end
+
+# Use it
+[00:00.000]
+- tempo 120
+- h90_preset_for_section 1 0 120      # Section 0, 120 BPM -> Program 2
+[00:16.000]
+- h90_preset_for_section 1 1 120      # Section 1, 120 BPM -> Program 12
+```
+
+### Referencing Existing Device Aliases
+
+The built-in device aliases in `quad_cortex.mmd` and `eventide_h90.mmd` now support computed values. Check the device library documentation for aliases that accept calculated parameters.
+
+**See also:**
+- [Device Library Creation Guide](../device_library_creation.md) - Writing computed value aliases
+- [Alias API Reference](../alias_api_reference.md) - Complete computed value syntax
+- [quad_cortex.mmd](../../devices/quad_cortex.mmd) - Examples of computed alias patterns
+- [eventide_h90.mmd](../../devices/eventide_h90.mmd) - H90-specific computed aliases
 
 ## Advanced Techniques
 
@@ -791,8 +866,8 @@ Now that you understand device control, try:
 Control multiple devices in one song:
 
 ```markdown
-@import "../devices/quad_cortex.mml"
-@import "../devices/eventide_h90.mml"
+@import "../devices/quad_cortex.mmd"
+@import "../devices/eventide_h90.mmd"
 
 [00:00.000]
 # Quad Cortex on channel 1
@@ -824,7 +899,7 @@ Create custom expression curves:
 
 ### Technique 3: Macro Aliases
 
-Create your own convenience aliases in your MML file:
+Create your own convenience aliases in your MMD file:
 
 ```markdown
 @alias my_intro_tone {ch} "Load my intro preset and scene"
@@ -847,7 +922,7 @@ Create your own convenience aliases in your MML file:
 - [Device Library Creation Guide](../device_library_creation.md)
 - [Alias System Guide](../alias_system_guide.md)
 - [MML Specification](../../spec.md)
-- [Example: 13_device_import.mml](../../examples/13_device_import.mml)
+- [Example: 13_device_import.mmd](../../examples/04_device_libraries/13_device_import.mmd)
 
 ## Summary
 
@@ -863,4 +938,4 @@ In this tutorial, you learned:
 - Device-specific considerations (Quad Cortex, H90, Helix)
 - Troubleshooting common MIDI control issues
 
-You now have the skills to create professional live performance automation with MML. Connect your device, create your setlist, and let MML handle the preset changes while you focus on playing!
+You now have the skills to create professional live performance automation with MML. Connect your device, create your setlist, and let MMD handle the preset changes while you focus on playing!
