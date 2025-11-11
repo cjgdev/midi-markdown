@@ -314,18 +314,28 @@ random_expr: "random" "(" (INT | note_value) "," (INT | note_value) ("," "seed" 
 
 // Bezier Curve Expression (Stage 7 - Enhanced Modulation)
 curve_expr: "curve" "(" number "," number "," curve_type ")"
-curve_type: "ease-in" | "ease-out" | "ease-in-out" | "linear"
+curve_type: CURVE_TYPE_NAME
           | ("bezier" "(" number "," number "," number "," number ")")
+
+CURVE_TYPE_NAME: "ease-in" | "ease-out" | "ease-in-out" | "linear"
 
 // Waveform Expression (Stage 7 - Enhanced Modulation)
 wave_expr: "wave" "(" wave_type "," number ("," wave_params)? ")"
-wave_type: "sine" | "triangle" | "square" | "sawtooth"
-wave_params: "freq" "=" number ("," "phase" "=" number)? ("," "depth" "=" number)?
+wave_type: WAVE_TYPE_NAME
+wave_params: wave_param ("," wave_param)*
+
+wave_param: "freq" "=" number   -> wave_freq
+          | "phase" "=" number  -> wave_phase
+          | "depth" "=" number  -> wave_depth
+
+WAVE_TYPE_NAME: "sine" | "triangle" | "square" | "sawtooth"
 
 // Envelope Expression (Stage 7 - Enhanced Modulation)
 envelope_expr: "envelope" "(" envelope_type "," envelope_params ")"
-envelope_type: "adsr" | "ar" | "ad"
-envelope_params: adsr_params | ar_params | ad_params
+envelope_type: ENVELOPE_TYPE_NAME
+?envelope_params: adsr_params | ar_params | ad_params
+
+ENVELOPE_TYPE_NAME: "adsr" | "ar" | "ad"
 
 // ADSR: attack, decay, sustain, release
 adsr_params: "attack" "=" number "," "decay" "=" number "," "sustain" "=" number "," "release" "=" number ("," envelope_curve)?

@@ -1142,7 +1142,7 @@ class MMDTransformer(Transformer):
         end_value = float(end)
 
         # Determine curve type and control points
-        # curve_type_arg is always a Tree node from the grammar rule
+        # curve_type_arg can be a Tree (for bezier) or Token (for preset curves)
         if isinstance(curve_type_arg, Tree):
             # Check if it has 4 children (bezier with control points)
             if len(curve_type_arg.children) == 4:
@@ -1155,23 +1155,28 @@ class MMDTransformer(Transformer):
                     float(curve_type_arg.children[3]),
                 )
             elif len(curve_type_arg.children) == 1:
-                # It's a preset curve type with a single Token child
+                # It's a Tree with a single Token child (CURVE_TYPE_NAME)
                 curve_type = str(curve_type_arg.children[0])
                 control_points = None
             elif len(curve_type_arg.children) == 0:
-                # Empty tree - use the tree's data (rule name) as curve type
-                # This handles built-in curve types like ease-in, ease-out
-                curve_type = str(curve_type_arg.data)
-                control_points = None
+                # Empty tree - shouldn't happen with updated grammar
+                raise ValueError(
+                    f"Unexpected empty curve_type tree: {curve_type_arg}"
+                )
             else:
                 # Shouldn't happen, but handle gracefully
                 raise ValueError(
                     f"Unexpected curve_type structure: {curve_type_arg}"
                 )
-        else:
-            # Direct Token (shouldn't happen with current grammar, but handle it)
+        elif isinstance(curve_type_arg, Token):
+            # Direct Token (CURVE_TYPE_NAME from updated grammar)
             curve_type = str(curve_type_arg)
             control_points = None
+        else:
+            # Unknown type
+            raise ValueError(
+                f"Unexpected curve_type type: {type(curve_type_arg)}"
+            )
 
         return CurveExpression(
             start_value=start_value,
@@ -1187,43 +1192,68 @@ class MMDTransformer(Transformer):
         wave_params: "freq" "=" number ("," "phase" "=" number)? ("," "depth" "=" number)?
 
         Args:
-            wave_type: Wave type string ('sine', 'triangle', 'square', 'sawtooth')
+            wave_type: Token containing wave type ('sine', 'triangle', 'square', 'sawtooth')
             base_value: Base/center value
-            *params: Optional wave parameters (freq, phase, depth)
+            *params: Optional wave_params dict (if wave_params transformer is called)
 
         Returns:
             WaveExpression AST node
         """
+        from lark import Token
         from midi_markdown.parser.ast_nodes import WaveExpression
 
-        frequency = None
-        phase = None
-        depth = None
+        # Extract wave type from Token or Tree
+        if isinstance(wave_type, Token):
+            wave_type_str = str(wave_type)
+        elif hasattr(wave_type, "children") and len(wave_type.children) == 1:
+            wave_type_str = str(wave_type.children[0])
+        else:
+            wave_type_str = str(wave_type)
 
-        # Parse optional parameters
-        if params:
-            wave_params = params[0]
-            # wave_params is a Tree with named children
-            if hasattr(wave_params, "children"):
-                for child in wave_params.children:
-                    if hasattr(child, "data"):
-                        # Named parameter
-                        param_name = child.data
-                        param_value = float(child.children[0])
-                        if param_name == "freq":
-                            frequency = param_value
-                        elif param_name == "phase":
-                            phase = param_value
-                        elif param_name == "depth":
-                            depth = param_value
+        # Extract wave parameters from dict (returned by wave_params transformer)
+        if params and isinstance(params[0], dict):
+            wave_params_dict = params[0]
+            frequency = wave_params_dict.get("freq")
+            phase = wave_params_dict.get("phase")
+            depth = wave_params_dict.get("depth")
+        else:
+            frequency = None
+            phase = None
+            depth = None
 
         return WaveExpression(
-            wave_type=str(wave_type),
+            wave_type=wave_type_str,
             base_value=float(base_value),
             frequency=frequency,
             phase=phase,
             depth=depth,
         )
+
+    def wave_params(self, *wave_param_list):
+        """Transform wave parameters.
+
+        Grammar: wave_param ("," wave_param)*
+        wave_param: "freq" "=" number | "phase" "=" number | "depth" "=" number
+
+        Returns dict with wave parameters.
+        """
+        result = {}
+        for param_dict in wave_param_list:
+            if isinstance(param_dict, dict):
+                result.update(param_dict)
+        return result
+
+    def wave_freq(self, value):
+        """Transform freq= wave parameter"""
+        return {"freq": float(value)}
+
+    def wave_phase(self, value):
+        """Transform phase= wave parameter"""
+        return {"phase": float(value)}
+
+    def wave_depth(self, value):
+        """Transform depth= wave parameter"""
+        return {"depth": float(value)}
 
     def envelope_expr(self, envelope_type, envelope_params):
         """Transform envelope() expression to EnvelopeExpression AST node.
@@ -1232,46 +1262,99 @@ class MMDTransformer(Transformer):
         envelope_params: adsr_params | ar_params | ad_params
 
         Args:
-            envelope_type: Envelope type string ('adsr', 'ar', 'ad')
-            envelope_params: Tree containing envelope parameters
+            envelope_type: Token containing envelope type ('adsr', 'ar', 'ad')
+            envelope_params: Dict with parsed envelope parameters from adsr_params/ar_params/ad_params
 
         Returns:
             EnvelopeExpression AST node
         """
+        from lark import Token
         from midi_markdown.parser.ast_nodes import EnvelopeExpression
 
-        attack = None
-        decay = None
-        sustain = None
-        release = None
-        curve = "linear"
+        # Extract envelope type from Token or Tree
+        if isinstance(envelope_type, Token):
+            envelope_type_str = str(envelope_type)
+        elif hasattr(envelope_type, "children") and len(envelope_type.children) == 1:
+            envelope_type_str = str(envelope_type.children[0])
+        else:
+            envelope_type_str = str(envelope_type)
 
-        # Parse envelope parameters from the tree
-        if hasattr(envelope_params, "children"):
-            for child in envelope_params.children:
-                if hasattr(child, "data"):
-                    param_name = child.data
-                    if param_name == "envelope_curve":
-                        curve = str(child.children[0])
-                    else:
-                        param_value = float(child.children[0])
-                        if param_name == "attack":
-                            attack = param_value
-                        elif param_name == "decay":
-                            decay = param_value
-                        elif param_name == "sustain":
-                            sustain = param_value
-                        elif param_name == "release":
-                            release = param_value
+        # envelope_params is now a dict returned by adsr_params/ar_params/ad_params transformers
+        if isinstance(envelope_params, dict):
+            attack = envelope_params.get("attack")
+            decay = envelope_params.get("decay")
+            sustain = envelope_params.get("sustain")
+            release = envelope_params.get("release")
+            curve = envelope_params.get("curve", "linear")
+        else:
+            # Fallback for unexpected format
+            attack = decay = sustain = release = None
+            curve = "linear"
 
         return EnvelopeExpression(
-            envelope_type=str(envelope_type),
+            envelope_type=envelope_type_str,
             attack=attack,
             decay=decay,
             sustain=sustain,
             release=release,
             curve=curve,
         )
+
+    def adsr_params(self, attack, decay, sustain, release, *curve_args):
+        """Transform ADSR envelope parameters.
+
+        Grammar: "attack" "=" number "," "decay" "=" number "," "sustain" "=" number "," "release" "=" number ("," envelope_curve)?
+
+        Returns dict with envelope parameters.
+        """
+        result = {
+            "attack": float(attack),
+            "decay": float(decay),
+            "sustain": float(sustain),
+            "release": float(release),
+        }
+        if curve_args:
+            result["curve"] = str(curve_args[0])
+        return result
+
+    def ar_params(self, attack, release, *curve_args):
+        """Transform AR envelope parameters.
+
+        Grammar: "attack" "=" number "," "release" "=" number ("," envelope_curve)?
+
+        Returns dict with envelope parameters.
+        """
+        result = {
+            "attack": float(attack),
+            "release": float(release),
+        }
+        if curve_args:
+            result["curve"] = str(curve_args[0])
+        return result
+
+    def ad_params(self, attack, decay, *curve_args):
+        """Transform AD envelope parameters.
+
+        Grammar: "attack" "=" number "," "decay" "=" number ("," envelope_curve)?
+
+        Returns dict with envelope parameters.
+        """
+        result = {
+            "attack": float(attack),
+            "decay": float(decay),
+        }
+        if curve_args:
+            result["curve"] = str(curve_args[0])
+        return result
+
+    def envelope_curve(self, curve_type):
+        """Transform envelope_curve parameter.
+
+        Grammar: "curve" "=" ("linear" | "exponential")
+
+        Returns the curve type string.
+        """
+        return str(curve_type)
 
     # Helper Methods
     def _resolve_define_value(self, value):
@@ -1651,10 +1734,16 @@ class MMDTransformer(Transformer):
         if isinstance(value, tuple) and value[0] == "percent":
             # Use shared utility for percent conversion
             return percent_to_midi(value[1])
-        # Handle ramp and random expressions (AST nodes or old dict format)
-        from midi_markdown.parser.ast_nodes import RandomExpression
+        # Handle all modulation expressions (AST nodes or old dict format)
+        from midi_markdown.parser.ast_nodes import (
+            RandomExpression,
+            CurveExpression,
+            WaveExpression,
+            EnvelopeExpression,
+        )
 
-        if isinstance(value, RandomExpression):
+        # Pass through modulation expression objects unchanged
+        if isinstance(value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)):
             return value
         if isinstance(value, dict) and value.get("type") in ("ramp", "random"):
             return value
