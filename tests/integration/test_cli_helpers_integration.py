@@ -97,10 +97,7 @@ class TestLearningWorkflow:
         assert result.exit_code == 0
 
         # Should show libraries or "not found" message
-        assert (
-            "Device Libraries" in result.stdout
-            or "not found" in result.stdout.lower()
-        )
+        assert "Device Libraries" in result.stdout or "not found" in result.stdout.lower()
 
     def test_new_user_checks_midi_ports(self) -> None:
         """Test that new users can check MIDI ports before playing."""
@@ -109,10 +106,7 @@ class TestLearningWorkflow:
         assert result.exit_code == 0
 
         # Should show ports table or setup instructions
-        assert (
-            "MIDI Output Ports" in result.stdout
-            or "No MIDI output ports found" in result.stdout
-        )
+        assert "MIDI Output Ports" in result.stdout or "No MIDI output ports found" in result.stdout
 
 
 @pytest.mark.integration
@@ -122,7 +116,7 @@ class TestDeviceLibraryWorkflow:
     def test_explore_device_libraries(self) -> None:
         """Test complete workflow of exploring device libraries."""
         devices_dir = Path(__file__).parent.parent.parent / "devices"
-        if not devices_dir.exists() or not list(devices_dir.glob("*.mml")):
+        if not devices_dir.exists() or not list(devices_dir.glob("*.mmd")):
             pytest.skip("No device libraries found")
 
         # Step 1: List all libraries
@@ -132,11 +126,7 @@ class TestDeviceLibraryWorkflow:
 
         # Step 2: Get info about a specific library (use first one found)
         libraries = sorted(
-            [
-                f.stem
-                for f in devices_dir.glob("*.mml")
-                if not f.stem.startswith("README")
-            ]
+            [f.stem for f in devices_dir.glob("*.mmd") if not f.stem.startswith("README")]
         )
         if not libraries:
             pytest.skip("No device libraries found")
@@ -148,7 +138,7 @@ class TestDeviceLibraryWorkflow:
         assert "Aliases:" in result.stdout
 
         # Step 3: Validate the library
-        lib_file = devices_dir / f"{lib_name}.mml"
+        lib_file = devices_dir / f"{lib_name}.mmd"
         result = runner.invoke(app, ["library", "validate", str(lib_file)])
         assert result.exit_code == 0 or result.exit_code == 1  # May fail validation
         assert "Validation" in result.stdout
@@ -201,9 +191,7 @@ class TestCLIConsistency:
 
         for command in commands:
             result = runner.invoke(app, command + ["--help"])
-            assert (
-                result.exit_code == 0
-            ), f"Command {' '.join(command)} --help failed"
+            assert result.exit_code == 0, f"Command {' '.join(command)} --help failed"
             assert len(result.stdout) > 50, f"Command {' '.join(command)} help is too short"
 
     def test_library_subcommands_have_help(self) -> None:
@@ -238,9 +226,7 @@ class TestErrorHandling:
 
     def test_library_validate_invalid_path(self) -> None:
         """Test error for validating non-existent file."""
-        result = runner.invoke(
-            app, ["library", "validate", "/tmp/nonexistent_file.mml"]
-        )
+        result = runner.invoke(app, ["library", "validate", "/tmp/nonexistent_file.mmd"])
 
         # Typer should catch this before the command runs
         assert result.exit_code != 0
@@ -277,4 +263,4 @@ class TestOutputFormatting:
         assert "Python:" in result.stdout
         assert "Dependencies:" in result.stdout
         # Should show checkmarks or indicators for dependencies
-        assert ("✓" in result.stdout or "✗" in result.stdout or "unknown" in result.stdout)
+        assert "✓" in result.stdout or "✗" in result.stdout or "unknown" in result.stdout

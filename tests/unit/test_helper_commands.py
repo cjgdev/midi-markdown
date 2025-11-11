@@ -20,9 +20,7 @@ class TestPortsCommand:
 
     def test_ports_with_available_ports(self) -> None:
         """Test ports command when MIDI ports are available."""
-        with patch(
-            "midi_markdown.cli.commands.ports.MIDIOutputManager"
-        ) as mock_manager:
+        with patch("midi_markdown.cli.commands.ports.MIDIOutputManager") as mock_manager:
             mock_instance = MagicMock()
             mock_instance.list_ports.return_value = ["Port 1", "Port 2", "Port 3"]
             mock_manager.return_value = mock_instance
@@ -37,9 +35,7 @@ class TestPortsCommand:
 
     def test_ports_with_no_ports(self) -> None:
         """Test ports command when no MIDI ports are available."""
-        with patch(
-            "midi_markdown.cli.commands.ports.MIDIOutputManager"
-        ) as mock_manager:
+        with patch("midi_markdown.cli.commands.ports.MIDIOutputManager") as mock_manager:
             mock_instance = MagicMock()
             mock_instance.list_ports.return_value = []
             mock_manager.return_value = mock_instance
@@ -54,9 +50,7 @@ class TestPortsCommand:
 
     def test_ports_with_error(self) -> None:
         """Test ports command when an error occurs."""
-        with patch(
-            "midi_markdown.cli.commands.ports.MIDIOutputManager"
-        ) as mock_manager:
+        with patch("midi_markdown.cli.commands.ports.MIDIOutputManager") as mock_manager:
             mock_instance = MagicMock()
             mock_instance.list_ports.side_effect = Exception("MIDI error")
             mock_manager.return_value = mock_instance
@@ -89,7 +83,7 @@ class TestExamplesCommand:
         assert result.exit_code == 0
         assert "Hello World - Simple Note" in result.stdout
         assert "note_on 1.60 80 1b" in result.stdout
-        assert "hello.mml" in result.stdout
+        assert "hello.mmd" in result.stdout
 
     def test_examples_show_timing(self) -> None:
         """Test examples command with timing example."""
@@ -184,7 +178,10 @@ class TestLibraryCommand:
 
         assert result.exit_code == 0
         # Should show some libraries from the devices/ directory
-        assert "Device Libraries" in result.stdout or "device libraries directory not found" in result.stdout.lower()
+        assert (
+            "Device Libraries" in result.stdout
+            or "device libraries directory not found" in result.stdout.lower()
+        )
 
     def test_library_info_nonexistent(self) -> None:
         """Test library info with non-existent library."""
@@ -195,9 +192,7 @@ class TestLibraryCommand:
 
     def test_library_validate_nonexistent(self) -> None:
         """Test library validate with non-existent file."""
-        result = runner.invoke(
-            app, ["library", "validate", "/tmp/nonexistent_library.mml"]
-        )
+        result = runner.invoke(app, ["library", "validate", "/tmp/nonexistent_library.mmd"])
 
         # Typer validates path existence before calling the function
         assert result.exit_code != 0
@@ -219,15 +214,12 @@ class TestLibraryIntegration:
         assert result.exit_code == 0
         assert "Device Libraries" in result.stdout
         # Check for at least one expected device
-        assert any(
-            device in result.stdout
-            for device in ["quad_cortex", "eventide_h90", "helix"]
-        )
+        assert any(device in result.stdout for device in ["quad_cortex", "eventide_h90", "helix"])
 
     def test_library_info_quad_cortex(self) -> None:
         """Test library info with Quad Cortex device."""
         devices_dir = Path(__file__).parent.parent.parent / "devices"
-        if not (devices_dir / "quad_cortex.mml").exists():
+        if not (devices_dir / "quad_cortex.mmd").exists():
             pytest.skip("Quad Cortex library not found")
 
         result = runner.invoke(app, ["library", "info", "quad_cortex"])
@@ -240,7 +232,7 @@ class TestLibraryIntegration:
     def test_library_validate_quad_cortex(self) -> None:
         """Test library validate with Quad Cortex device."""
         devices_dir = Path(__file__).parent.parent.parent / "devices"
-        lib_file = devices_dir / "quad_cortex.mml"
+        lib_file = devices_dir / "quad_cortex.mmd"
         if not lib_file.exists():
             pytest.skip("Quad Cortex library not found")
 

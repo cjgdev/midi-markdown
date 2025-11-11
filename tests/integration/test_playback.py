@@ -74,9 +74,7 @@ def mock_midi_port(monkeypatch: Any) -> MagicMock:
         mock_send(message)
 
     monkeypatch.setattr("midi_markdown.runtime.midi_io.MIDIOutputManager.__init__", mock_init)
-    monkeypatch.setattr(
-        "midi_markdown.runtime.midi_io.MIDIOutputManager.open_port", mock_open_port
-    )
+    monkeypatch.setattr("midi_markdown.runtime.midi_io.MIDIOutputManager.open_port", mock_open_port)
     monkeypatch.setattr(
         "midi_markdown.runtime.midi_io.MIDIOutputManager.close_port", mock_close_port
     )
@@ -131,9 +129,7 @@ class TestRealtimePlayer:
 
         player.stop()
 
-    def test_player_duration(
-        self, simple_ir_program: IRProgram, mock_midi_port: MagicMock
-    ) -> None:
+    def test_player_duration(self, simple_ir_program: IRProgram, mock_midi_port: MagicMock) -> None:
         """Test duration calculation."""
         player = RealtimePlayer(simple_ir_program, "Test Port")
 

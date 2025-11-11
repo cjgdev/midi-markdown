@@ -21,21 +21,21 @@ class TestImportManager:
 
     def test_resolve_path_absolute(self, manager):
         """Test absolute path resolution."""
-        abs_path = "/usr/local/share/mml/device.mml"
-        resolved = manager.resolve_path(abs_path, current_file="/home/user/song.mml")
+        abs_path = "/usr/local/share/mml/device.mmd"
+        resolved = manager.resolve_path(abs_path, current_file="/home/user/song.mmd")
         assert resolved == Path(abs_path).resolve()
 
     def test_resolve_path_relative(self, manager):
         """Test relative path resolution."""
-        import_path = "devices/quad_cortex.mml"
-        current_file = "/home/user/songs/main.mml"
+        import_path = "devices/quad_cortex.mmd"
+        current_file = "/home/user/songs/main.mmd"
         resolved = manager.resolve_path(import_path, current_file)
-        expected = Path("/home/user/songs/devices/quad_cortex.mml").resolve()
+        expected = Path("/home/user/songs/devices/quad_cortex.mmd").resolve()
         assert resolved == expected
 
     def test_resolve_path_no_current_file(self, manager):
         """Test path resolution when current_file is None (stdin case)."""
-        import_path = "devices/test.mml"
+        import_path = "devices/test.mmd"
         resolved = manager.resolve_path(import_path, current_file=None)
         # Should resolve relative to cwd
         expected = (Path.cwd() / import_path).resolve()
@@ -44,21 +44,21 @@ class TestImportManager:
     def test_check_circular_import_no_cycle(self, manager):
         """Test circular import detection with no cycle."""
         # Should not raise
-        manager.check_circular_import(Path("/a.mml"), ["/b.mml", "/c.mml"])
+        manager.check_circular_import(Path("/a.mmd"), ["/b.mmd", "/c.mmd"])
 
     def test_check_circular_import_direct_cycle(self, manager):
         """Test detection of direct circular import (A imports A)."""
         with pytest.raises(CircularImportError) as exc_info:
-            manager.check_circular_import(Path("/a.mml"), ["/a.mml"])
+            manager.check_circular_import(Path("/a.mmd"), ["/a.mmd"])
         assert "Circular import detected" in str(exc_info.value)
-        assert "/a.mml → /a.mml" in str(exc_info.value)
+        assert "/a.mmd → /a.mmd" in str(exc_info.value)
 
     def test_check_circular_import_indirect_cycle(self, manager):
         """Test detection of indirect circular import (A → B → C → A)."""
         with pytest.raises(CircularImportError) as exc_info:
-            manager.check_circular_import(Path("/a.mml"), ["/a.mml", "/b.mml", "/c.mml"])
+            manager.check_circular_import(Path("/a.mmd"), ["/a.mmd", "/b.mmd", "/c.mmd"])
         assert "Circular import detected" in str(exc_info.value)
-        assert "/a.mml → /b.mml → /c.mml → /a.mml" in str(exc_info.value)
+        assert "/a.mmd → /b.mmd → /c.mmd → /a.mmd" in str(exc_info.value)
 
 
 class TestImportLibraryLoading:
@@ -72,13 +72,13 @@ class TestImportLibraryLoading:
     def test_load_nonexistent_file(self, manager):
         """Test error when loading nonexistent file."""
         with pytest.raises(ImportError) as exc_info:
-            manager.load_library(Path("/nonexistent/file.mml"))
+            manager.load_library(Path("/nonexistent/file.mmd"))
         assert "File not found" in str(exc_info.value)
 
     def test_load_device_library(self, manager, tmp_path):
         """Test loading a basic device library."""
         # Create a simple device library
-        lib_file = tmp_path / "test_device.mml"
+        lib_file = tmp_path / "test_device.mmd"
         lib_file.write_text("""---
 device: Test Device
 ---
@@ -99,7 +99,7 @@ device: Test Device
     def test_resolve_imports_multiple(self, manager, tmp_path):
         """Test resolving multiple imports."""
         # Create two device libraries
-        lib1 = tmp_path / "device1.mml"
+        lib1 = tmp_path / "device1.mmd"
         lib1.write_text("""---
 device: Device 1
 ---
@@ -109,7 +109,7 @@ device: Device 1
 @end
 """)
 
-        lib2 = tmp_path / "device2.mml"
+        lib2 = tmp_path / "device2.mmd"
         lib2.write_text("""---
 device: Device 2
 ---
@@ -121,7 +121,7 @@ device: Device 2
 
         # Resolve imports
         aliases = manager.resolve_imports(
-            imports=["device1.mml", "device2.mml"], current_file=str(tmp_path / "main.mml")
+            imports=["device1.mmd", "device2.mmd"], current_file=str(tmp_path / "main.mmd")
         )
 
         # Both aliases should be present
@@ -131,7 +131,7 @@ device: Device 2
     def test_import_conflict_detection(self, manager, tmp_path):
         """Test detection of alias name conflicts between imports."""
         # Create two libraries with conflicting alias names
-        lib1 = tmp_path / "device1.mml"
+        lib1 = tmp_path / "device1.mmd"
         lib1.write_text("""---
 device: Device 1
 ---
@@ -141,7 +141,7 @@ device: Device 1
 @end
 """)
 
-        lib2 = tmp_path / "device2.mml"
+        lib2 = tmp_path / "device2.mmd"
         lib2.write_text("""---
 device: Device 2
 ---
@@ -154,7 +154,7 @@ device: Device 2
         # Should raise ImportError
         with pytest.raises(ImportError) as exc_info:
             manager.resolve_imports(
-                imports=["device1.mml", "device2.mml"], current_file=str(tmp_path / "main.mml")
+                imports=["device1.mmd", "device2.mmd"], current_file=str(tmp_path / "main.mmd")
             )
         assert "Alias name conflict" in str(exc_info.value)
         assert "duplicate" in str(exc_info.value)
@@ -162,7 +162,7 @@ device: Device 2
     def test_recursive_imports(self, manager, tmp_path):
         """Test recursive import resolution (A imports B, B imports C)."""
         # Create C (leaf)
-        lib_c = tmp_path / "c.mml"
+        lib_c = tmp_path / "c.mmd"
         lib_c.write_text("""---
 device: Device C
 ---
@@ -173,12 +173,12 @@ device: Device C
 """)
 
         # Create B (imports C)
-        lib_b = tmp_path / "b.mml"
+        lib_b = tmp_path / "b.mmd"
         lib_b.write_text("""---
 device: Device B
 ---
 
-@import "c.mml"
+@import "c.mmd"
 
 @alias cmd_b {ch} "Command from B"
   - cc {ch}.2.0
@@ -186,12 +186,12 @@ device: Device B
 """)
 
         # Create A (imports B)
-        lib_a = tmp_path / "a.mml"
+        lib_a = tmp_path / "a.mmd"
         lib_a.write_text("""---
 device: Device A
 ---
 
-@import "b.mml"
+@import "b.mmd"
 
 @alias cmd_a {ch} "Command from A"
   - cc {ch}.1.0
@@ -209,12 +209,12 @@ device: Device A
     def test_circular_import_detection_in_loading(self, manager, tmp_path):
         """Test circular import detection during library loading."""
         # Create A (imports B)
-        lib_a = tmp_path / "a.mml"
+        lib_a = tmp_path / "a.mmd"
         lib_a.write_text("""---
 device: Device A
 ---
 
-@import "b.mml"
+@import "b.mmd"
 
 @alias cmd_a {ch} "Command from A"
   - cc {ch}.1.0
@@ -222,12 +222,12 @@ device: Device A
 """)
 
         # Create B (imports A - circular!)
-        lib_b = tmp_path / "b.mml"
+        lib_b = tmp_path / "b.mmd"
         lib_b.write_text("""---
 device: Device B
 ---
 
-@import "a.mml"
+@import "a.mmd"
 
 @alias cmd_b {ch} "Command from B"
   - cc {ch}.2.0
@@ -242,7 +242,7 @@ device: Device B
     def test_cache_functionality(self, manager, tmp_path):
         """Test that import cache works correctly."""
         # Create a device library
-        lib_file = tmp_path / "test.mml"
+        lib_file = tmp_path / "test.mmd"
         lib_file.write_text("""---
 device: Test Device
 ---
@@ -279,7 +279,7 @@ class TestImportTypedParameters:
 
     def test_import_with_types(self, manager, tmp_path):
         """Test importing library with typed parameters."""
-        lib_file = tmp_path / "typed.mml"
+        lib_file = tmp_path / "typed.mmd"
         lib_file.write_text("""---
 device: Typed Device
 ---

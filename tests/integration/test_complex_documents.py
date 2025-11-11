@@ -18,7 +18,7 @@ title: "Complete Song"
 author: "Test"
 ppq: 480
 ---
-@import "devices/common.mml"
+@import "devices/common.mmd"
 
 @define MAIN_CHANNEL 1
 @define MAIN_TEMPO 120
@@ -63,7 +63,7 @@ title: "Multi-Track"
     def test_device_library_pattern(self, parser):
         """Test device library usage pattern"""
         mml = """
-@import "devices/quad_cortex.mml"
+@import "devices/quad_cortex.mmd"
 
 @alias cortex_load {ch} {preset} "Load preset"
   - cc {ch}.32.0
@@ -74,7 +74,7 @@ title: "Multi-Track"
 - cortex_load 1 5
 """
         doc = parser.parse_string(mml)
-        assert "devices/quad_cortex.mml" in doc.imports
+        assert "devices/quad_cortex.mmd" in doc.imports
         assert "cortex_load" in doc.aliases
 
     @pytest.mark.skip(reason="Multi-line SysEx not yet implemented")

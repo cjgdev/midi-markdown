@@ -70,16 +70,16 @@ class TestErrorHandling:
 
     def test_undefined_variable_error_format(self):
         """Test UndefinedVariableError message format."""
-        error = UndefinedVariableError("MISSING", line=10, file="test.mml")
+        error = UndefinedVariableError("MISSING", line=10, file="test.mmd")
 
         error_str = str(error)
-        assert "test.mml:10" in error_str
+        assert "test.mmd:10" in error_str
         assert "MISSING" in error_str
 
     def test_undefined_variable_suggestions(self):
         """Test 'did you mean' suggestions."""
         similar = ["PRESENT", "PRESET"]
-        error = UndefinedVariableError("PRSET", line=5, file="test.mml", similar_names=similar)
+        error = UndefinedVariableError("PRSET", line=5, file="test.mmd", similar_names=similar)
 
         error_str = str(error)
         assert "Did you mean" in error_str
@@ -88,7 +88,7 @@ class TestErrorHandling:
     def test_invalid_loop_config_error(self):
         """Test InvalidLoopConfigError."""
         error = InvalidLoopConfigError(
-            "count must be positive", line=3, file="test.mml", suggestion="Use a positive integer"
+            "count must be positive", line=3, file="test.mmd", suggestion="Use a positive integer"
         )
 
         error_str = str(error)
@@ -97,14 +97,14 @@ class TestErrorHandling:
 
     def test_invalid_sweep_config_error(self):
         """Test InvalidSweepConfigError."""
-        error = InvalidSweepConfigError("end before start", line=7, file="test.mml")
+        error = InvalidSweepConfigError("end before start", line=7, file="test.mmd")
 
         error_str = str(error)
         assert "end before start" in error_str
 
     def test_timing_conflict_error(self):
         """Test TimingConflictError."""
-        error = TimingConflictError("time decreased", event_time=500, line=12, file="test.mml")
+        error = TimingConflictError("time decreased", event_time=500, line=12, file="test.mmd")
 
         error_str = str(error)
         assert "500" in error_str
@@ -112,7 +112,7 @@ class TestErrorHandling:
 
     def test_value_range_error(self):
         """Test ValueRangeError with helpful message."""
-        error = ValueRangeError("velocity", 200, 0, 127, line=15, file="test.mml")
+        error = ValueRangeError("velocity", 200, 0, 127, line=15, file="test.mmd")
 
         error_str = str(error)
         assert "velocity" in error_str

@@ -36,7 +36,16 @@ title: Simple Alias Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         # Should have one program change event
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
@@ -66,7 +75,16 @@ title: Multi-Command Alias
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         # Should have 2 CC + 1 PC = 3 events
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -117,7 +135,16 @@ title: Timing Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 4
@@ -162,7 +189,16 @@ title: Nested Alias Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 2
@@ -202,7 +238,16 @@ title: Computed Value Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -246,7 +291,16 @@ title: Conditional Alias Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -292,7 +346,16 @@ title: Note Parameter Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         note_on_events = [e for e in events if e.type.name == "NOTE_ON"]
         note_off_events = [e for e in events if e.type.name == "NOTE_OFF"]
@@ -324,7 +387,16 @@ title: Percent Parameter Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -355,7 +427,16 @@ title: Enum Parameter Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 2
@@ -399,7 +480,16 @@ title: Multi-Track Alias Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         note_on_events = [e for e in events if e.type.name == "NOTE_ON"]
 
@@ -485,7 +575,16 @@ title: Quad Cortex Scene Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 3
@@ -528,7 +627,16 @@ title: H90 Dual Setup
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 3
@@ -587,7 +695,16 @@ tempo: 120
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]

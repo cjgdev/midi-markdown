@@ -21,7 +21,7 @@ def runner():
 @pytest.fixture
 def temp_history():
     """Create temporary history file."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".mml_history", delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".mmd_history", delete=False) as f:
         yield Path(f.name)
     Path(f.name).unlink(missing_ok=True)
 
@@ -49,7 +49,7 @@ class TestReplIntegration:
         result = runner.invoke(app, ["repl"])
 
         assert result.exit_code == 0
-        assert "Goodbye!" in result.output or "MML REPL" in result.output
+        assert "Goodbye!" in result.output or "MMD REPL" in result.output
 
     @patch("midi_markdown.cli.commands.repl.PromptSession")
     def test_repl_exits_on_exit(self, mock_session_class, runner):
@@ -61,7 +61,7 @@ class TestReplIntegration:
         result = runner.invoke(app, ["repl"])
 
         assert result.exit_code == 0
-        assert "Goodbye!" in result.output or "MML REPL" in result.output
+        assert "Goodbye!" in result.output or "MMD REPL" in result.output
 
     @patch("midi_markdown.cli.commands.repl.PromptSession")
     def test_repl_handles_help_command(self, mock_session_class, runner):
@@ -90,7 +90,7 @@ class TestReplIntegration:
         result = runner.invoke(app, ["repl"])
 
         assert result.exit_code == 0
-        assert "State reset" in result.output or "MML REPL" in result.output
+        assert "State reset" in result.output or "MMD REPL" in result.output
 
     @patch("midi_markdown.cli.commands.repl.PromptSession")
     def test_repl_handles_list_command(self, mock_session_class, runner):
@@ -220,7 +220,7 @@ class TestReplIntegration:
         result = runner.invoke(app, ["repl"])
 
         assert result.exit_code == 0
-        assert "MML REPL" in result.output or "Interactive" in result.output
+        assert "MMD REPL" in result.output or "Interactive" in result.output
 
     @patch("midi_markdown.cli.commands.repl.PromptSession")
     def test_repl_debug_mode_crashes_on_error(self, mock_session_class, runner):
@@ -236,7 +236,9 @@ class TestReplIntegration:
 
         # Should crash (non-zero exit code) or show traceback
         # Note: Exact behavior depends on error handling
-        assert result.exit_code != 0 or "Traceback" in result.output or "Fatal error" in result.output
+        assert (
+            result.exit_code != 0 or "Traceback" in result.output or "Fatal error" in result.output
+        )
 
     @patch("midi_markdown.cli.commands.repl.PromptSession")
     def test_repl_inspect_empty_state(self, mock_session_class, runner):

@@ -430,11 +430,11 @@ class TestVariableErrors:
 
 
 class TestVariablesBasicFixture:
-    """Test the variables_basic.mml fixture file."""
+    """Test the variables_basic.mmd fixture file."""
 
     def test_variables_basic_file(self, parser):
-        """Test that variables_basic.mml parses correctly."""
-        fixture_path = Path(__file__).parent.parent / "fixtures" / "variables_basic.mml"
+        """Test that variables_basic.mmd parses correctly."""
+        fixture_path = Path(__file__).parent.parent / "fixtures" / "variables_basic.mmd"
 
         doc = parser.parse_file(fixture_path)
 

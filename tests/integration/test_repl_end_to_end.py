@@ -38,10 +38,10 @@ class TestBasicFunctionality:
 
     def test_repl_startup(self):
         """Test REPL starts and shows prompt."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             # Wait for welcome banner
-            child.expect("MML REPL", timeout=5)
+            child.expect("MMD REPL", timeout=5)
             # Wait for prompt
             child.expect(r"mml>", timeout=5)
             assert child.isalive()
@@ -53,7 +53,7 @@ class TestBasicFunctionality:
 
     def test_repl_simple_command(self):
         """Test executing simple MIDI command."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -74,7 +74,7 @@ class TestBasicFunctionality:
 
     def test_repl_exit(self):
         """Test .quit command exits cleanly."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         child.expect(r"mml>", timeout=5)
 
         child.sendline(".quit")
@@ -92,10 +92,12 @@ class TestBasicFunctionality:
 class TestMultilineInput:
     """Multi-line input and continuation prompt tests."""
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_multiline_alias(self):
         """Test multi-line @alias definition with continuation prompts."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -124,10 +126,12 @@ class TestMultilineInput:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_multiline_loop(self):
         """Test @loop block with continuation prompts."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -150,10 +154,12 @@ class TestMultilineInput:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_continuation_prompt(self):
         """Test prompt changes from 'mml> ' to '...  ' for incomplete input."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -184,7 +190,7 @@ class TestStateManagement:
 
     def test_repl_define_persistence(self):
         """Test variables persist across commands."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -207,7 +213,7 @@ class TestStateManagement:
 
     def test_repl_alias_persistence(self):
         """Test aliases persist across commands."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -237,12 +243,12 @@ class TestStateManagement:
         """Test imports persist across commands."""
         # Note: This test requires a valid device library file
         # For now, we'll test that imports don't crash the REPL
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
             # Try to import (may fail if file doesn't exist, but shouldn't crash)
-            child.sendline('@import "devices/quad_cortex.mml"')
+            child.sendline('@import "devices/quad_cortex.mmd"')
 
             # Wait for either success or error message
             # Should still show prompt afterward (not crash)
@@ -258,10 +264,12 @@ class TestStateManagement:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_reset_command(self):
         """Test .reset clears all state."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -303,7 +311,7 @@ class TestErrorRecovery:
 
     def test_repl_syntax_error_recovery(self):
         """Test syntax error doesn't crash REPL."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -329,7 +337,7 @@ class TestErrorRecovery:
 
     def test_repl_validation_error_recovery(self):
         """Test validation error doesn't crash REPL."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -356,10 +364,12 @@ class TestErrorRecovery:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_keyboard_interrupt(self):
         """Test Ctrl+C cancels input without exiting."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -393,7 +403,7 @@ class TestMetaCommands:
 
     def test_repl_help_command(self):
         """Test .help displays information."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -417,7 +427,7 @@ class TestMetaCommands:
 
     def test_repl_list_command(self):
         """Test .list shows current state."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -443,10 +453,12 @@ class TestMetaCommands:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_tempo_command(self):
         """Test .tempo sets tempo."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 
@@ -464,10 +476,12 @@ class TestMetaCommands:
                 child.expect(pexpect.EOF, timeout=2)
                 child.close()
 
-    @pytest.mark.skip(reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context")
+    @pytest.mark.skip(
+        reason="Flaky pexpect EOF handling with prompt_toolkit - REPL .quit doesn't exit cleanly in pexpect context"
+    )
     def test_repl_ppq_command(self):
         """Test .ppq sets resolution."""
-        child = pexpect.spawn("uv run midimarkup repl", timeout=5)
+        child = pexpect.spawn("uv run mmdc repl", timeout=5)
         try:
             child.expect(r"mml>", timeout=5)
 

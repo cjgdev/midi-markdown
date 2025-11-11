@@ -6,7 +6,7 @@ import pytest
 
 from midi_markdown.alias.resolver import AliasResolver
 from midi_markdown.parser.ast_nodes import Timing
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 class TestAliasTiming:
@@ -21,7 +21,7 @@ class TestAliasTiming:
   - cc {ch}.7.{val}
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
 
         # Check alias was parsed
@@ -47,7 +47,7 @@ class TestAliasTiming:
   - pc {ch}.5
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
 
         alias = doc.aliases["test_multi_timing"]
@@ -77,7 +77,7 @@ class TestAliasTiming:
   @end
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
 
         # Check alias was parsed
@@ -106,7 +106,7 @@ class TestAliasTimingResolution:
   - cc {ch}.7.{val}
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
         resolver = AliasResolver(doc.aliases)
 
@@ -141,7 +141,7 @@ class TestAliasTimingResolution:
   - cc {ch}.0.2
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
         resolver = AliasResolver(doc.aliases)
 
@@ -160,7 +160,7 @@ class TestAliasTimingResolution:
   - cc {ch}.7.127
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
         resolver = AliasResolver(doc.aliases)
 
@@ -181,7 +181,7 @@ class TestAliasTimingResolution:
   - cc {ch}.0.3
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml)
         resolver = AliasResolver(doc.aliases)
 

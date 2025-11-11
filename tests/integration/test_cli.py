@@ -34,7 +34,7 @@ class TestCLI:
 
     def test_compile_command_basic(self, tmp_path: Path, valid_fixtures_dir: Path) -> None:
         """Test basic compile command."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
         output_file = tmp_path / "output.mid"
 
         result = runner.invoke(
@@ -50,14 +50,14 @@ class TestCLI:
         """Test compile command with non-existent file."""
         result = runner.invoke(
             app,
-            ["compile", "nonexistent.mml"],
+            ["compile", "nonexistent.mmd"],
         )
 
         assert result.exit_code != 0
 
     def test_validate_command(self, valid_fixtures_dir: Path) -> None:
         """Test validate command."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["validate", str(input_file)])
 
@@ -66,7 +66,7 @@ class TestCLI:
 
     def test_validate_command_invalid(self, invalid_fixtures_dir: Path) -> None:
         """Test validate command with invalid file."""
-        input_file = invalid_fixtures_dir / "syntax_error.mml"
+        input_file = invalid_fixtures_dir / "syntax_error.mmd"
 
         result = runner.invoke(app, ["validate", str(input_file)])
 
@@ -84,7 +84,7 @@ class TestCLI:
         """Test compile command with --midi-format 0 (single-track)."""
         import mido
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
         output_file = tmp_path / "format0.mid"
 
         result = runner.invoke(
@@ -103,7 +103,7 @@ class TestCLI:
         """Test compile command with --midi-format 1 (multi-track) explicit."""
         import mido
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
         output_file = tmp_path / "format1.mid"
 
         result = runner.invoke(
@@ -122,7 +122,7 @@ class TestCLI:
         """Test compile command with --midi-format 2 (independent sequences)."""
         import mido
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
         output_file = tmp_path / "format2.mid"
 
         result = runner.invoke(
@@ -141,7 +141,7 @@ class TestCLI:
         """Test compile command without --midi-format defaults to Format 1."""
         import mido
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
         output_file = tmp_path / "default.mid"
 
         result = runner.invoke(
@@ -158,7 +158,7 @@ class TestCLI:
 
     def test_compile_output_format_table(self, valid_fixtures_dir: Path) -> None:
         """Test compile command with --format table."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(
             app,
@@ -171,7 +171,7 @@ class TestCLI:
 
     def test_compile_output_format_csv(self, valid_fixtures_dir: Path) -> None:
         """Test compile command with --format csv."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(
             app,
@@ -186,7 +186,7 @@ class TestCLI:
         """Test compile command with --format json."""
         import json
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(
             app,
@@ -203,7 +203,7 @@ class TestCLI:
         """Test compile command with --format json-simple."""
         import json
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(
             app,
@@ -218,7 +218,7 @@ class TestCLI:
 
     def test_inspect_command_basic(self, valid_fixtures_dir: Path) -> None:
         """Test inspect command with default table format."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file)])
 
@@ -228,7 +228,7 @@ class TestCLI:
 
     def test_inspect_command_csv(self, valid_fixtures_dir: Path) -> None:
         """Test inspect command with CSV format."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--format", "csv"])
 
@@ -240,7 +240,7 @@ class TestCLI:
         """Test inspect command with JSON format."""
         import json
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--format", "json"])
 
@@ -254,7 +254,7 @@ class TestCLI:
         """Test inspect command with simplified JSON format."""
         import json
 
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--format", "json-simple"])
 
@@ -266,7 +266,7 @@ class TestCLI:
 
     def test_inspect_command_with_limit(self, valid_fixtures_dir: Path) -> None:
         """Test inspect command with --limit option."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--limit", "10"])
 
@@ -275,7 +275,7 @@ class TestCLI:
 
     def test_inspect_command_no_stats(self, valid_fixtures_dir: Path) -> None:
         """Test inspect command with --no-stats option."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--no-stats"])
 
@@ -285,7 +285,7 @@ class TestCLI:
 
     def test_inspect_command_invalid_format(self, valid_fixtures_dir: Path) -> None:
         """Test inspect command with invalid format."""
-        input_file = valid_fixtures_dir / "basic.mml"
+        input_file = valid_fixtures_dir / "basic.mmd"
 
         result = runner.invoke(app, ["inspect", str(input_file), "--format", "invalid"])
 

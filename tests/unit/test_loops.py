@@ -109,8 +109,13 @@ class TestParseInterval:
             parse_interval("invalid")
 
     def test_parse_invalid_bbt(self):
-        """Test that invalid BBT format raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid BBT format"):
+        """Test that invalid BBT format raises ValueError.
+
+        Note: With improved BBT validation, "1.2.x" is now rejected earlier
+        because the third part is non-numeric, so it falls through to the
+        default parser which also fails.
+        """
+        with pytest.raises(ValueError, match="Invalid interval format"):
             parse_interval("1.2.x")
 
 

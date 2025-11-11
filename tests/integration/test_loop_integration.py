@@ -291,11 +291,11 @@ class TestLoopIntervalParsing:
 
 
 class TestLoopsBasicFixture:
-    """Test the loops_basic.mml fixture file."""
+    """Test the loops_basic.mmd fixture file."""
 
     def test_loops_basic_file(self, parser):
-        """Test that loops_basic.mml parses correctly."""
-        fixture_path = Path(__file__).parent.parent / "fixtures" / "loops_basic.mml"
+        """Test that loops_basic.mmd parses correctly."""
+        fixture_path = Path(__file__).parent.parent / "fixtures" / "loops_basic.mmd"
 
         # This will be implemented when parser grammar is fully integrated
         doc = parser.parse_file(fixture_path)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from midi_markdown.parser.ast_nodes import MMLDocument
+from midi_markdown.parser.ast_nodes import MMDDocument
 from midi_markdown.runtime.repl import MMLRepl
 
 
@@ -66,7 +66,6 @@ class TestTryParseIncomplete:
         assert result is None
 
 
-
 @pytest.mark.unit
 class TestTryParseComplete:
     """Test try_parse() with complete and valid input."""
@@ -79,7 +78,7 @@ class TestTryParseComplete:
         complete, result = repl.try_parse(text)
 
         assert complete is True
-        assert isinstance(result, MMLDocument)
+        assert isinstance(result, MMDDocument)
 
     def test_complete_alias_definition(self):
         """Test that single-line @alias definition is complete."""
@@ -89,17 +88,17 @@ class TestTryParseComplete:
         complete, result = repl.try_parse(text)
 
         assert complete is True
-        assert isinstance(result, MMLDocument)
+        assert isinstance(result, MMDDocument)
 
     def test_complete_import_statement(self):
         """Test that @import statement is complete and valid."""
         repl = MMLRepl()
-        text = '@import "devices/quad_cortex.mml"'
+        text = '@import "devices/quad_cortex.mmd"'
 
         complete, result = repl.try_parse(text)
 
         assert complete is True
-        assert isinstance(result, MMLDocument)
+        assert isinstance(result, MMDDocument)
 
     def test_complete_loop_block(self):
         """Test that complete @loop block parses successfully."""
@@ -109,8 +108,7 @@ class TestTryParseComplete:
         complete, result = repl.try_parse(text)
 
         assert complete is True
-        assert isinstance(result, MMLDocument)
-
+        assert isinstance(result, MMDDocument)
 
     def test_complete_empty_input(self):
         """Test that empty input is considered complete."""
@@ -120,7 +118,7 @@ class TestTryParseComplete:
         complete, result = repl.try_parse(text)
 
         assert complete is True
-        assert isinstance(result, MMLDocument)
+        assert isinstance(result, MMDDocument)
 
 
 @pytest.mark.unit
@@ -150,7 +148,7 @@ class TestTryParseErrors:
     def test_missing_import_quotes(self):
         """Test that missing quotes in import returns exception."""
         repl = MMLRepl()
-        text = "@import devices/test.mml"  # Missing quotes
+        text = "@import devices/test.mmd"  # Missing quotes
 
         complete, result = repl.try_parse(text)
 
@@ -266,8 +264,7 @@ class TestMultiLineWorkflow:
         # Complete with @end
         complete, result = repl.try_parse("@loop 4 times every 1b\n- pc 1.10\n@end")
         assert complete is True
-        assert isinstance(result, MMLDocument)
-
+        assert isinstance(result, MMDDocument)
 
     def test_multiple_statements(self):
         """Test that multiple complete statements parse correctly."""
@@ -279,7 +276,7 @@ class TestMultiLineWorkflow:
 """
         complete, result = repl.try_parse(text)
         assert complete is True
-        assert isinstance(result, MMLDocument)
+        assert isinstance(result, MMDDocument)
 
 
 @pytest.mark.unit
@@ -669,7 +666,7 @@ class TestErrorHandling:
         repl = MMLRepl()
 
         # Create a FileNotFoundError
-        error = FileNotFoundError("No such file or directory: 'devices/missing.mml'")
+        error = FileNotFoundError("No such file or directory: 'devices/missing.mmd'")
 
         # Should not raise exception
         repl.handle_error(error)

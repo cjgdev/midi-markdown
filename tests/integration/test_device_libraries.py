@@ -22,7 +22,7 @@ class TestDeviceLibraries:
 
     def test_quad_cortex_library_parses(self, parser, devices_dir):
         """Test that Quad Cortex library parses without errors."""
-        library_path = devices_dir / "quad_cortex.mml"
+        library_path = devices_dir / "quad_cortex.mmd"
         assert library_path.exists(), "Quad Cortex library not found"
 
         with open(library_path) as f:
@@ -42,7 +42,7 @@ class TestDeviceLibraries:
 
     def test_eventide_h90_library_parses(self, parser, devices_dir):
         """Test that Eventide H90 library parses without errors."""
-        library_path = devices_dir / "eventide_h90.mml"
+        library_path = devices_dir / "eventide_h90.mmd"
         assert library_path.exists(), "Eventide H90 library not found"
 
         with open(library_path) as f:
@@ -60,7 +60,7 @@ class TestDeviceLibraries:
 
     def test_helix_library_parses(self, parser, devices_dir):
         """Test that Line 6 Helix Floor/LT/Rack library parses without errors."""
-        library_path = devices_dir / "helix.mml"
+        library_path = devices_dir / "helix.mmd"
         assert library_path.exists(), "Line 6 Helix library not found"
 
         with open(library_path) as f:
@@ -80,7 +80,7 @@ class TestDeviceLibraries:
 
     def test_hx_effects_library_parses(self, parser, devices_dir):
         """Test that HX Effects library parses without errors."""
-        library_path = devices_dir / "hx_effects.mml"
+        library_path = devices_dir / "hx_effects.mmd"
         assert library_path.exists(), "HX Effects library not found"
 
         with open(library_path) as f:
@@ -98,7 +98,7 @@ class TestDeviceLibraries:
 
     def test_hx_stomp_library_parses(self, parser, devices_dir):
         """Test that HX Stomp library parses without errors."""
-        library_path = devices_dir / "hx_stomp.mml"
+        library_path = devices_dir / "hx_stomp.mmd"
         assert library_path.exists(), "HX Stomp library not found"
 
         with open(library_path) as f:
@@ -116,7 +116,7 @@ class TestDeviceLibraries:
 
     def test_hx_stomp_xl_library_parses(self, parser, devices_dir):
         """Test that HX Stomp XL library parses without errors."""
-        library_path = devices_dir / "hx_stomp_xl.mml"
+        library_path = devices_dir / "hx_stomp_xl.mmd"
         assert library_path.exists(), "HX Stomp XL library not found"
 
         with open(library_path) as f:
@@ -156,7 +156,16 @@ title: Cortex Preset Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
         assert len(pc_events) == 1
@@ -183,7 +192,16 @@ title: Cortex Scene Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -213,7 +231,16 @@ title: Cortex Complete Load Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         # Should have 2 CC events and 1 PC event
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
@@ -257,7 +284,16 @@ title: Helix Snapshot Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         assert len(cc_events) == 1
@@ -286,7 +322,16 @@ title: Helix Bank Preset Test
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]
         pc_events = [e for e in events if e.type.name == "PROGRAM_CHANGE"]
@@ -347,7 +392,16 @@ tempo: 120
 
         expanded_dicts = expander.process_ast(doc.events)
 
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         # Should have 8 CC events (4 cortex + 4 helix)
         cc_events = [e for e in events if e.type.name == "CONTROL_CHANGE"]

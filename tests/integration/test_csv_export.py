@@ -9,13 +9,13 @@ import pytest
 
 from midi_markdown.codegen import export_to_csv
 from midi_markdown.core import compile_ast_to_ir
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 @pytest.fixture
 def parser():
     """Create MML parser instance."""
-    return MMLParser()
+    return MMDParser()
 
 
 @pytest.fixture
@@ -372,9 +372,7 @@ ppq: 480
 
         # Count non-structural lines (exclude Start_track, End_track)
         event_lines = [
-            line
-            for line in lines
-            if "Start_track" not in line and "End_track" not in line
+            line for line in lines if "Start_track" not in line and "End_track" not in line
         ]
 
         # Should match IR program event count

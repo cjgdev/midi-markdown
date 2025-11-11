@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from typer.testing import CliRunner
@@ -17,9 +17,9 @@ runner = CliRunner()
 
 @pytest.fixture
 def mock_compile(monkeypatch: Any) -> tuple[MagicMock, MagicMock]:
-    """Mock MMLParser and compile_ast_to_ir."""
+    """Mock MMDParser and compile_ast_to_ir."""
     import sys
-    import midi_markdown.cli.commands.play
+
 
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
@@ -33,7 +33,7 @@ def mock_compile(monkeypatch: Any) -> tuple[MagicMock, MagicMock]:
         metadata={"title": "Test Song"},
     )
 
-    # Mock MMLParser
+    # Mock MMDParser
     mock_doc = MagicMock()
     mock_parser_instance = MagicMock()
     mock_parser_instance.parse_file.return_value = mock_doc
@@ -42,7 +42,7 @@ def mock_compile(monkeypatch: Any) -> tuple[MagicMock, MagicMock]:
     # Mock compile_ast_to_ir
     mock_compile_func = MagicMock(return_value=mock_ir)
 
-    monkeypatch.setattr(play_module, "MMLParser", mock_parser_class)
+    monkeypatch.setattr(play_module, "MMDParser", mock_parser_class)
     monkeypatch.setattr(play_module, "compile_ast_to_ir", mock_compile_func)
 
     return mock_parser_instance, mock_compile_func
@@ -52,7 +52,7 @@ def mock_compile(monkeypatch: Any) -> tuple[MagicMock, MagicMock]:
 def mock_realtime_player(monkeypatch: Any) -> MagicMock:
     """Mock RealtimePlayer class."""
     import sys
-    import midi_markdown.cli.commands.play
+
 
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
@@ -70,7 +70,7 @@ def mock_realtime_player(monkeypatch: Any) -> MagicMock:
 def mock_midi_manager(monkeypatch: Any) -> MagicMock:
     """Mock MIDIOutputManager for port listing."""
     import sys
-    import midi_markdown.cli.commands.play
+
 
     play_module = sys.modules["midi_markdown.cli.commands.play"]
 
@@ -112,7 +112,7 @@ class TestPlayCLI:
     def test_play_list_ports_empty(self, monkeypatch: Any) -> None:
         """Test --list-ports with no ports available."""
         import sys
-        import midi_markdown.cli.commands.play
+
 
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 
@@ -129,7 +129,7 @@ class TestPlayCLI:
     def test_play_missing_port(self, tmp_path: Path) -> None:
         """Test error when --port is not provided."""
         # Create dummy file
-        test_file = tmp_path / "test.mml"
+        test_file = tmp_path / "test.mmd"
         test_file.write_text("---\ntitle: Test\n---\n")
 
         result = runner.invoke(app, ["play", str(test_file)])
@@ -140,7 +140,7 @@ class TestPlayCLI:
 
     def test_play_missing_file(self) -> None:
         """Test error when file doesn't exist."""
-        result = runner.invoke(app, ["play", "nonexistent.mml", "--port", "Test Port"])
+        result = runner.invoke(app, ["play", "nonexistent.mmd", "--port", "Test Port"])
 
         assert result.exit_code == 1
         assert "File not found" in result.output
@@ -148,20 +148,20 @@ class TestPlayCLI:
     def test_play_compilation_error(self, tmp_path: Path, monkeypatch: Any) -> None:
         """Test error handling for compilation failure."""
         import sys
-        import midi_markdown.cli.commands.play
+
 
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 
         # Create file
-        test_file = tmp_path / "invalid.mml"
+        test_file = tmp_path / "invalid.mmd"
         test_file.write_text("---\ntitle: Invalid\n---\n")
 
-        # Mock MMLParser to raise exception
+        # Mock MMDParser to raise exception
         mock_parser_instance = MagicMock()
         mock_parser_instance.parse_file.side_effect = ValueError("Invalid syntax at line 5")
         mock_parser_class = MagicMock(return_value=mock_parser_instance)
 
-        monkeypatch.setattr(play_module, "MMLParser", mock_parser_class)
+        monkeypatch.setattr(play_module, "MMDParser", mock_parser_class)
 
         result = runner.invoke(app, ["play", str(test_file), "--port", "Test Port"])
 
@@ -174,12 +174,12 @@ class TestPlayCLI:
     ) -> None:
         """Test error handling for MIDI port issues."""
         import sys
-        import midi_markdown.cli.commands.play
+
 
         play_module = sys.modules["midi_markdown.cli.commands.play"]
 
         # Create file
-        test_file = tmp_path / "test.mml"
+        test_file = tmp_path / "test.mmd"
         test_file.write_text("---\ntitle: Test\n---\n")
 
         # Mock RealtimePlayer to raise exception
@@ -202,7 +202,7 @@ class TestPlayCLI:
     ) -> None:
         """Test successful playback with --no-ui (simple mode)."""
         # Create file
-        test_file = tmp_path / "test.mml"
+        test_file = tmp_path / "test.mmd"
         test_file.write_text("---\ntitle: Test\n---\n")
 
         mock_parser, mock_compile_func = mock_compile

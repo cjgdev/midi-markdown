@@ -6,8 +6,9 @@ import pytest
 
 from midi_markdown.alias.resolver import AliasResolver
 from midi_markdown.expansion.expander import CommandExpander
+
 # EventGenerator removed - tests now use CommandExpander directly
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 from midi_markdown.utils.validation.timing_validator import TimingValidator
 
 
@@ -88,9 +89,9 @@ def basic_mml(valid_fixtures_dir: Path) -> str:
     """Load basic valid MML file.
 
     Returns:
-        Contents of basic.mml
+        Contents of basic.mmd
     """
-    return (valid_fixtures_dir / "basic.mml").read_text()
+    return (valid_fixtures_dir / "basic.mmd").read_text()
 
 
 @pytest.fixture
@@ -98,9 +99,9 @@ def invalid_mml(invalid_fixtures_dir: Path) -> str:
     """Load invalid MML file for error testing.
 
     Returns:
-        Contents of syntax_error.mml
+        Contents of syntax_error.mmd
     """
-    return (invalid_fixtures_dir / "syntax_error.mml").read_text()
+    return (invalid_fixtures_dir / "syntax_error.mmd").read_text()
 
 
 @pytest.fixture
@@ -120,19 +121,19 @@ def sample_tokens() -> list[dict[str, any]]:
 
 
 @pytest.fixture(scope="session")
-def parser() -> MMLParser:
+def parser() -> MMDParser:
     """Provide MML parser instance.
 
     This is the most commonly used fixture across all tests.
     Previously duplicated in 43+ test files, now centralized here.
 
-    Session-scoped for performance since MMLParser is stateless.
+    Session-scoped for performance since MMDParser is stateless.
     Each test still gets isolated parsing results.
 
     Returns:
-        Reusable MMLParser instance for entire test session
+        Reusable MMDParser instance for entire test session
     """
-    return MMLParser()
+    return MMDParser()
 
 
 @pytest.fixture
@@ -196,7 +197,7 @@ def expander() -> CommandExpander:
     Returns:
         Fresh CommandExpander instance with default settings for each test
     """
-    return CommandExpander(source_file="test.mml")
+    return CommandExpander(source_file="test.mmd")
 
 
 @pytest.fixture

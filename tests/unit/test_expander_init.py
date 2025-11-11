@@ -23,11 +23,11 @@ class TestCommandExpanderInit:
 
     def test_custom_initialization(self):
         """Test expander with custom parameters."""
-        expander = CommandExpander(ppq=960, tempo=140.0, source_file="test.mml")
+        expander = CommandExpander(ppq=960, tempo=140.0, source_file="test.mmd")
 
         assert expander.ppq == 960
         assert expander.tempo == 140.0
-        assert expander.source_file == "test.mml"
+        assert expander.source_file == "test.mmd"
 
     def test_component_creation(self):
         """Test that sub-components are created."""

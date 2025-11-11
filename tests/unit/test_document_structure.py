@@ -61,19 +61,19 @@ tags:
     def test_imports(self, parser):
         """Test import statements"""
         mml = """
-@import "devices/quad_cortex.mml"
-@import "devices/eventide_h90.mml"
+@import "devices/quad_cortex.mmd"
+@import "devices/eventide_h90.mmd"
 """
         doc = parser.parse_string(mml)
-        assert "devices/quad_cortex.mml" in doc.imports
-        assert "devices/eventide_h90.mml" in doc.imports
+        assert "devices/quad_cortex.mmd" in doc.imports
+        assert "devices/eventide_h90.mmd" in doc.imports
 
     def test_single_import(self, parser):
         """Test single import statement"""
-        mml = '@import "my_library.mml"'
+        mml = '@import "my_library.mmd"'
         doc = parser.parse_string(mml)
         assert len(doc.imports) == 1
-        assert "my_library.mml" in doc.imports
+        assert "my_library.mmd" in doc.imports
 
     # ========================================================================
     # Define Tests
@@ -107,7 +107,7 @@ tags:
 title: "Full Document"
 ppq: 960
 ---
-@import "devices/common.mml"
+@import "devices/common.mmd"
 @define TEMPO 140
 @define CHANNEL 1
 
@@ -117,6 +117,6 @@ ppq: 960
         doc = parser.parse_string(mml)
         assert doc.frontmatter["title"] == "Full Document"
         assert doc.frontmatter["ppq"] == 960
-        assert "devices/common.mml" in doc.imports
+        assert "devices/common.mmd" in doc.imports
         assert len(doc.defines) >= 1
         assert len(doc.events) == 1

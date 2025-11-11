@@ -26,7 +26,7 @@ class TestDocumentValidation:
 
     def test_valid_document_no_errors(self, parser, validator, fixtures_dir):
         """Test that a valid document produces no validation errors."""
-        fixture = fixtures_dir / "valid" / "basic.mml"
+        fixture = fixtures_dir / "valid" / "basic.mmd"
         doc = parser.parse_file(fixture)
 
         errors = validator.validate(doc)
@@ -39,7 +39,7 @@ class TestDocumentValidation:
 
     def test_invalid_channel_detected(self, parser, validator, fixtures_dir):
         """Test that invalid channel (17) is detected."""
-        fixture = fixtures_dir / "invalid" / "invalid_channel.mml"
+        fixture = fixtures_dir / "invalid" / "invalid_channel.mmd"
         doc = parser.parse_file(fixture)
 
         errors = validator.validate(doc)
@@ -70,7 +70,7 @@ title: Test
 
     def test_invalid_velocity_detected(self, parser, validator, fixtures_dir):
         """Test that invalid velocity (200) is detected."""
-        fixture = fixtures_dir / "invalid" / "invalid_velocity.mml"
+        fixture = fixtures_dir / "invalid" / "invalid_velocity.mmd"
         doc = parser.parse_file(fixture)
 
         errors = validator.validate(doc)
@@ -101,7 +101,7 @@ title: Test
 
     def test_invalid_cc_value_detected(self, parser, validator, fixtures_dir):
         """Test that invalid CC value (255) is detected."""
-        fixture = fixtures_dir / "invalid" / "invalid_cc_value.mml"
+        fixture = fixtures_dir / "invalid" / "invalid_cc_value.mmd"
         doc = parser.parse_file(fixture)
 
         errors = validator.validate(doc)

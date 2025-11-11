@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
 from midi_markdown.diagnostics.formatter import (
     display_events_table,

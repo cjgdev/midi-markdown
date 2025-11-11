@@ -15,7 +15,7 @@ class TestSweepProcessing:
 
     @pytest.fixture
     def expander(self):
-        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mml")
+        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mmd")
 
     def test_simple_sweep_expansion(self, expander):
         """Test basic sweep with start/end/interval."""
@@ -142,7 +142,7 @@ class TestSweepRampParsing:
 
     @pytest.fixture
     def expander(self):
-        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mml")
+        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mmd")
 
     def test_linear_ramp_parsing(self, expander):
         """Test parsing linear ramp from CC command."""

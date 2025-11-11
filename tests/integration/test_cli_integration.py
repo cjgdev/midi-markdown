@@ -31,7 +31,7 @@ ppq: 480
 - cc 1.7.100
 - cc 1.10.64
 """
-    mml_file = tmp_path / "test_song.mml"
+    mml_file = tmp_path / "test_song.mmd"
     mml_file.write_text(mml_content)
     return mml_file
 
@@ -46,7 +46,7 @@ title: "Invalid Song"
 [00:00.000]
 - invalid_command 1.60
 """
-    mml_file = tmp_path / "invalid.mml"
+    mml_file = tmp_path / "invalid.mmd"
     mml_file.write_text(mml_content)
     return mml_file
 
@@ -237,7 +237,7 @@ title: "Invalid MIDI"
 [00:00.000]
 - note_on 17.60 80 1b  # Channel 17 is invalid (1-16)
 """
-        mml_file = tmp_path / "validation_error.mml"
+        mml_file = tmp_path / "validation_error.mmd"
         mml_file.write_text(mml_content)
 
         result = runner.invoke(app, ["validate", str(mml_file)])
@@ -245,7 +245,7 @@ title: "Invalid MIDI"
 
     def test_file_not_found_exit_code(self) -> None:
         """Test missing files return non-zero exit code."""
-        result = runner.invoke(app, ["compile", "/nonexistent/file.mml"])
+        result = runner.invoke(app, ["compile", "/nonexistent/file.mmd"])
         assert result.exit_code != 0
         # Typer catches file existence before the command runs
         # Exit code 2 from Typer's validation

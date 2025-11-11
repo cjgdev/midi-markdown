@@ -190,7 +190,16 @@ class TestAliases:
         # Generate MIDI events
         expander = CommandExpander(ppq=480, tempo=120)
         expanded_dicts = expander.process_ast(doc.events)
-        events = [MIDIEvent(time=d["time"], type=string_to_event_type(d["type"]), channel=d.get("channel", 0), data1=d.get("data1", 0), data2=d.get("data2", 0)) for d in expanded_dicts]
+        events = [
+            MIDIEvent(
+                time=d["time"],
+                type=string_to_event_type(d["type"]),
+                channel=d.get("channel", 0),
+                data1=d.get("data1", 0),
+                data2=d.get("data2", 0),
+            )
+            for d in expanded_dicts
+        ]
 
         # Should have one program change event
         assert len(events) == 1

@@ -8,13 +8,13 @@ import pytest
 
 from midi_markdown.codegen import export_to_json
 from midi_markdown.core import compile_ast_to_ir
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 @pytest.fixture
 def parser():
     """Create MML parser instance."""
-    return MMLParser()
+    return MMDParser()
 
 
 @pytest.fixture
@@ -381,4 +381,6 @@ class TestFormatComparison:
 
         # Both should have same metadata
         assert data_complete["metadata"]["title"] == data_simplified["metadata"]["title"]
-        assert data_complete["metadata"]["event_count"] == data_simplified["metadata"]["event_count"]
+        assert (
+            data_complete["metadata"]["event_count"] == data_simplified["metadata"]["event_count"]
+        )

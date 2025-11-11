@@ -9,7 +9,7 @@ import pytest
 from midi_markdown.codegen import generate_midi_file
 from midi_markdown.core.ir import MIDIEvent, create_ir_program, string_to_event_type
 from midi_markdown.expansion.expander import CommandExpander
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 class TestVariablesExpansion:
@@ -30,7 +30,7 @@ ppq: 480
 - pc ${CHANNEL}.${PRESET}
 """
         # Parse
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         assert len(doc.defines) == 2
@@ -90,7 +90,7 @@ ppq: 480
 [00:01.000]
 - tempo ${TEMPO_SLOW}
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -122,7 +122,7 @@ ppq: 480
 - pc 1.10
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -162,7 +162,7 @@ ppq: 480
 - pc ${CHANNEL}.${PRESET}
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -188,7 +188,7 @@ ppq: 480
 - cc 1.7.100
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -217,7 +217,7 @@ ppq: 480
 - cc 1.7.64
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -262,7 +262,7 @@ ppq: 480
 - cc ${CHANNEL}.7.64
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -315,7 +315,7 @@ ppq: 480
 @end
 """
         # 1. Parse
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         assert doc.frontmatter is not None
@@ -373,7 +373,7 @@ title: "Error Test"
 [00:00.000]
 - pc 1.${UNDEFINED_VAR}
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)
@@ -394,7 +394,7 @@ title: "Error Test"
 - pc 1.10
 @end
 """
-        parser = MMLParser()
+        parser = MMDParser()
         doc = parser.parse_string(mml_code)
 
         expander = CommandExpander(ppq=480, tempo=120.0)

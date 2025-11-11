@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-import pytest
 from rich.console import Console
 
 from midi_markdown.alias.errors import AliasMaxDepthError, AliasRecursionError
@@ -29,7 +28,7 @@ class TestExpansionHelpTables:
     def test_loop_error_help_table(self):
         """Test help table for loop configuration errors."""
         error = InvalidLoopConfigError(
-            "Invalid loop syntax", line=10, file="test.mml", suggestion="Use correct loop syntax"
+            "Invalid loop syntax", line=10, file="test.mmd", suggestion="Use correct loop syntax"
         )
 
         table = _create_expansion_help_table(error, no_color=False)
@@ -38,7 +37,7 @@ class TestExpansionHelpTables:
     def test_sweep_error_help_table(self):
         """Test help table for sweep configuration errors."""
         error = InvalidSweepConfigError(
-            "Invalid sweep syntax", line=15, file="test.mml", suggestion="Use correct sweep syntax"
+            "Invalid sweep syntax", line=15, file="test.mmd", suggestion="Use correct sweep syntax"
         )
 
         table = _create_expansion_help_table(error, no_color=False)
@@ -47,7 +46,7 @@ class TestExpansionHelpTables:
     def test_expansion_help_table_no_color(self):
         """Test expansion help table with no_color flag."""
         error = InvalidLoopConfigError(
-            "Invalid loop", line=10, file="test.mml", suggestion="Fix loop"
+            "Invalid loop", line=10, file="test.mmd", suggestion="Fix loop"
         )
 
         table = _create_expansion_help_table(error, no_color=True)
@@ -57,9 +56,7 @@ class TestExpansionHelpTables:
         """Test that non-loop/sweep errors return None."""
         from midi_markdown.expansion.errors import UndefinedVariableError
 
-        error = UndefinedVariableError(
-            "foo", line=10, file="test.mml", similar_names=["bar"]
-        )
+        error = UndefinedVariableError("foo", line=10, file="test.mmd", similar_names=["bar"])
 
         table = _create_expansion_help_table(error, no_color=False)
         assert table is None
@@ -157,9 +154,7 @@ class TestExpansionErrorDisplay:
 
     def test_loop_error_displays_help_table(self):
         """Test that loop errors display help table."""
-        error = InvalidLoopConfigError(
-            "Missing 'times' keyword", line=10, file="test.mml"
-        )
+        error = InvalidLoopConfigError("Missing 'times' keyword", line=10, file="test.mmd")
 
         console = Mock(spec=Console)
         show_expansion_error(error, console, no_color=False, no_emoji=False)
@@ -169,9 +164,7 @@ class TestExpansionErrorDisplay:
 
     def test_sweep_error_displays_help_table(self):
         """Test that sweep errors display help table."""
-        error = InvalidSweepConfigError(
-            "Invalid sweep duration", line=15, file="test.mml"
-        )
+        error = InvalidSweepConfigError("Invalid sweep duration", line=15, file="test.mmd")
 
         console = Mock(spec=Console)
         show_expansion_error(error, console, no_color=False, no_emoji=False)
@@ -262,12 +255,9 @@ class TestIntegratedErrorFormatting:
 
     def test_timing_error_has_e212_code(self):
         """Test that timing validators assign E212 code."""
-        from midi_markdown.utils.validation.timing_validator import TimingValidator
 
         # This would be tested via integration, but we verify the error structure
-        error = ValidationError(
-            "Timing error", error_code="E212", suggestion="Fix timing"
-        )
+        error = ValidationError("Timing error", error_code="E212", suggestion="Fix timing")
         assert error.error_code == "E212"
         assert error.suggestion is not None
 
@@ -276,7 +266,7 @@ class TestIntegratedErrorFormatting:
         loop_error = InvalidLoopConfigError(
             "Missing times keyword",
             line=10,
-            file="test.mml",
+            file="test.mmd",
             suggestion="Use: @loop <count> times every <interval>",
         )
         assert loop_error.suggestion is not None
@@ -284,7 +274,7 @@ class TestIntegratedErrorFormatting:
         sweep_error = InvalidSweepConfigError(
             "Missing duration",
             line=15,
-            file="test.mml",
+            file="test.mmd",
             suggestion="Specify sweep duration with units (e.g., 2s, 4b)",
         )
         assert sweep_error.suggestion is not None

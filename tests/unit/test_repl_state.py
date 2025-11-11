@@ -36,10 +36,10 @@ class TestREPLStateInitialization:
         state2 = REPLState()
 
         state1.variables["foo"] = 42
-        state1.imports.append("device.mml")
+        state1.imports.append("device.mmd")
 
         assert "foo" not in state2.variables
-        assert "device.mml" not in state2.imports
+        assert "device.mmd" not in state2.imports
 
 
 @pytest.mark.unit
@@ -68,8 +68,8 @@ class TestREPLStateReset:
     def test_reset_clears_imports(self):
         """Test that reset clears all imports."""
         state = REPLState()
-        state.imports.append("devices/quad_cortex.mml")
-        state.imports.append("devices/h90.mml")
+        state.imports.append("devices/quad_cortex.mmd")
+        state.imports.append("devices/h90.mmd")
 
         state.reset()
 
@@ -123,7 +123,7 @@ class TestREPLStateSessionPersistence:
         session_data = {
             "variables": {"velocity": 80, "channel": 1},
             "aliases": {},
-            "imports": ["devices/quad_cortex.mml"],
+            "imports": ["devices/quad_cortex.mmd"],
             "tempo": 140,
             "resolution": 960,
             "time_signature": [3, 4],
@@ -135,7 +135,7 @@ class TestREPLStateSessionPersistence:
         state.load_session(session_file)
 
         assert state.variables == {"velocity": 80, "channel": 1}
-        assert state.imports == ["devices/quad_cortex.mml"]
+        assert state.imports == ["devices/quad_cortex.mmd"]
         assert state.tempo == 140
         assert state.resolution == 960
         assert state.time_signature == (3, 4)
@@ -146,7 +146,7 @@ class TestREPLStateSessionPersistence:
         state1.variables["velocity"] = 80
         state1.variables["channel"] = 1
         state1.aliases["test_alias"] = {"name": "test", "params": []}
-        state1.imports.append("devices/quad_cortex.mml")
+        state1.imports.append("devices/quad_cortex.mmd")
         state1.tempo = 140
         state1.resolution = 960
         state1.time_signature = (3, 4)

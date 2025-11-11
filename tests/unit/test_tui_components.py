@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from rich.console import Group
 from rich.panel import Panel
 from rich.progress import Progress
-from rich.table import Table
 from rich.text import Text
 
 from midi_markdown.runtime.tui.components import (
@@ -25,14 +23,14 @@ class TestTUIComponents:
 
     def test_render_header(self) -> None:
         """Test render_header returns Panel with correct content."""
-        result = render_header("test.mml", "IAC Driver Bus 1", "Test Song")
+        result = render_header("test.mmd", "IAC Driver Bus 1", "Test Song")
 
         assert isinstance(result, Panel)
         # Panel should contain file name, port name, and title
 
     def test_render_header_no_title(self) -> None:
         """Test render_header with no title uses 'Untitled'."""
-        result = render_header("test.mml", "IAC Driver Bus 1", None)
+        result = render_header("test.mmd", "IAC Driver Bus 1", None)
 
         assert isinstance(result, Panel)
         # Should default to "Untitled"

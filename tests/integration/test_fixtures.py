@@ -18,7 +18,7 @@ class TestValidFixtures:
 
     def test_single_note(self, parser):
         """Test single note fixture"""
-        fixture = VALID_DIR / "single_note.mml"
+        fixture = VALID_DIR / "single_note.mmd"
         doc = parser.parse_file(fixture)
 
         assert len(doc.events) >= 1
@@ -34,7 +34,7 @@ class TestValidFixtures:
 
     def test_cc_commands(self, parser):
         """Test CC commands fixture"""
-        fixture = VALID_DIR / "cc_commands.mml"
+        fixture = VALID_DIR / "cc_commands.mmd"
         doc = parser.parse_file(fixture)
 
         # Should have multiple CC commands
@@ -50,7 +50,7 @@ class TestValidFixtures:
 
     def test_pitch_bend(self, parser):
         """Test pitch bend fixture"""
-        fixture = VALID_DIR / "pitch_bend.mml"
+        fixture = VALID_DIR / "pitch_bend.mmd"
         doc = parser.parse_file(fixture)
 
         # Should have pitch bend commands
@@ -65,7 +65,7 @@ class TestValidFixtures:
 
     def test_pressure_commands(self, parser):
         """Test pressure commands fixture"""
-        fixture = VALID_DIR / "pressure_commands.mml"
+        fixture = VALID_DIR / "pressure_commands.mmd"
         doc = parser.parse_file(fixture)
 
         # Should have channel and poly pressure
@@ -84,7 +84,7 @@ class TestValidFixtures:
 
     def test_meta_events(self, parser):
         """Test meta events fixture"""
-        fixture = VALID_DIR / "meta_events.mml"
+        fixture = VALID_DIR / "meta_events.mmd"
         doc = parser.parse_file(fixture)
 
         # Extract message types
@@ -102,7 +102,7 @@ class TestValidFixtures:
 
     def test_timing_types(self, parser):
         """Test different timing types fixture"""
-        fixture = VALID_DIR / "timing_types.mml"
+        fixture = VALID_DIR / "timing_types.mmd"
         doc = parser.parse_file(fixture)
 
         # Extract timing types
@@ -118,7 +118,7 @@ class TestValidFixtures:
 
     def test_defines(self, parser):
         """Test defines fixture"""
-        fixture = VALID_DIR / "defines.mml"
+        fixture = VALID_DIR / "defines.mmd"
         doc = parser.parse_file(fixture)
 
         # Should have defines
@@ -129,7 +129,7 @@ class TestValidFixtures:
 
     def test_sysex(self, parser):
         """Test SysEx fixture"""
-        fixture = VALID_DIR / "sysex.mml"
+        fixture = VALID_DIR / "sysex.mmd"
         doc = parser.parse_file(fixture)
 
         # Should have SysEx commands
@@ -144,7 +144,7 @@ class TestValidFixtures:
 
     def test_comments(self, parser):
         """Test comments fixture"""
-        fixture = VALID_DIR / "comments.mml"
+        fixture = VALID_DIR / "comments.mmd"
         doc = parser.parse_file(fixture)
 
         # Should parse successfully despite comments
@@ -152,7 +152,7 @@ class TestValidFixtures:
 
     def test_all_valid_fixtures_parse(self, parser):
         """Test that all valid fixtures parse without errors"""
-        for fixture_file in VALID_DIR.glob("*.mml"):
+        for fixture_file in VALID_DIR.glob("*.mmd"):
             try:
                 doc = parser.parse_file(fixture_file)
                 assert doc is not None, f"Failed to parse {fixture_file.name}"
@@ -165,7 +165,7 @@ class TestInvalidFixtures:
 
     def test_syntax_error(self, parser):
         """Test that syntax error fixture fails"""
-        fixture = INVALID_DIR / "syntax_error.mml"
+        fixture = INVALID_DIR / "syntax_error.mmd"
         with pytest.raises(Exception):
             parser.parse_file(fixture)
 
@@ -175,6 +175,6 @@ class TestInvalidFixtures:
 
     def test_missing_timing(self, parser):
         """Test that missing timing fails"""
-        fixture = INVALID_DIR / "missing_timing.mml"
+        fixture = INVALID_DIR / "missing_timing.mmd"
         with pytest.raises(Exception):
             parser.parse_file(fixture)

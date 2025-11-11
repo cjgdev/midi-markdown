@@ -15,7 +15,7 @@ class TestLoopProcessing:
 
     @pytest.fixture
     def expander(self):
-        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mml")
+        return CommandExpander(ppq=480, tempo=120.0, source_file="test.mmd")
 
     def test_simple_loop_expansion(self, expander):
         """Test basic loop with count and interval."""
