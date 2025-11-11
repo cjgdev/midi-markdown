@@ -176,10 +176,25 @@ class AliasResolver:
                         # Simultaneous timing means same time as previous command
                         # Store it to apply to next command
                         accumulated_timing = item
+                    elif item.type == "absolute":
+                        # Absolute timing not allowed in aliases
+                        raise AliasError(
+                            f"Absolute timing (e.g., [mm:ss.mmm]) is not supported in alias '{alias_name}'. "
+                            f"Use relative timing (e.g., [+100ms], [+1b]) instead to preserve reusability. "
+                            f"See docs/dev-guides/anti-patterns.md for details."
+                        )
+                    elif item.type == "musical":
+                        # Musical timing not allowed in aliases
+                        raise AliasError(
+                            f"Musical timing (e.g., [bars.beats.ticks]) is not supported in alias '{alias_name}'. "
+                            f"Use relative timing (e.g., [+100ms], [+1b]) instead to preserve reusability. "
+                            f"See docs/dev-guides/anti-patterns.md for details."
+                        )
                     else:
-                        # Absolute or musical timing - set as current timing
-                        current_timing = item
-                        accumulated_timing = None  # Reset accumulation
+                        # Unknown timing type
+                        raise AliasError(
+                            f"Unknown timing type '{item.type}' in alias '{alias_name}'"
+                        )
                     continue
 
                 # It's a command (str or MIDICommand)

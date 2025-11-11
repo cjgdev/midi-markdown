@@ -197,12 +197,44 @@ class TestAliasTimingResolution:
 class TestAliasTimingErrors:
     """Test error handling for timing in aliases."""
 
-    @pytest.mark.skip(reason="Beat/tick timing error handling not yet implemented")
-    def test_beat_timing_not_supported(self):
-        """Test that beat-based timing raises error."""
-        # TODO: Implement beat/tick validation in resolver
+    def test_musical_timing_not_supported(self):
+        """Test that musical timing (bars.beats.ticks) raises error in aliases."""
+        from midi_markdown.alias.errors import AliasError
 
-    @pytest.mark.skip(reason="Beat/tick timing error handling not yet implemented")
-    def test_tick_timing_not_supported(self):
-        """Test that tick-based timing raises error."""
-        # TODO: Implement beat/tick validation in resolver
+        # Musical timing format [bars.beats.ticks] is absolute positioning
+        # and should not be allowed in aliases (only relative timing allowed)
+        mml = """
+@alias test_musical_timing {ch} "Musical timing"
+  - cc {ch}.7.0
+  [1.1.0]
+  - cc {ch}.7.127
+@end
+"""
+        parser = MMDParser()
+        doc = parser.parse_string(mml)
+        resolver = AliasResolver(doc.aliases)
+
+        # Should raise error when trying to resolve alias with musical timing
+        with pytest.raises(AliasError, match="Musical timing.*not supported.*alias"):
+            resolver.resolve("test_musical_timing", [1])
+
+    def test_absolute_timing_not_supported(self):
+        """Test that absolute timing (mm:ss.mmm) raises error in aliases."""
+        from midi_markdown.alias.errors import AliasError
+
+        # Absolute timing format [mm:ss.mmm] is absolute positioning
+        # and should not be allowed in aliases (only relative timing allowed)
+        mml = """
+@alias test_absolute_timing {ch} "Absolute timing"
+  - cc {ch}.7.0
+  [00:05.000]
+  - cc {ch}.7.127
+@end
+"""
+        parser = MMDParser()
+        doc = parser.parse_string(mml)
+        resolver = AliasResolver(doc.aliases)
+
+        # Should raise error when trying to resolve alias with absolute timing
+        with pytest.raises(AliasError, match="Absolute timing.*not supported.*alias"):
+            resolver.resolve("test_absolute_timing", [1])
