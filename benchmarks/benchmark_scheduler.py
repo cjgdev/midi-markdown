@@ -71,7 +71,6 @@ class RecordingMIDIPort:
 
     def close_port(self) -> None:
         """Close port (no-op for recording)."""
-        pass
 
     def get_latency_stats(self, scheduled_times: list[float]) -> dict[str, float]:
         """Calculate latency statistics.
@@ -282,7 +281,7 @@ class TestSchedulerPerformance:
 
         print(f"\nHigh density - Events sent: {len(port.messages)}")
         print(f"High density - Time elapsed: {elapsed:.2f}s")
-        print(f"High density - Events/second: {len(port.messages)/elapsed:.1f}")
+        print(f"High density - Events/second: {len(port.messages) / elapsed:.1f}")
 
         # Should handle all events
         assert len(port.messages) >= 480, f"Only sent {len(port.messages)}/500 events"

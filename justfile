@@ -1,4 +1,4 @@
-# MIDI Markup Language - Development Commands
+# MIDI Markdown - Development Commands
 # https://github.com/casey/just
 
 # Default recipe - show available commands
@@ -73,19 +73,19 @@ fix: fmt lint-fix
 
 # Run the CLI (shows help)
 run *ARGS:
-    uv run midimarkup {{ARGS}}
+    uv run mmdc {{ARGS}}
 
-# Compile an MML file
+# Compile an MMD file
 compile INPUT OUTPUT:
-    uv run midimarkup compile {{INPUT}} -o {{OUTPUT}}
+    uv run mmdc compile {{INPUT}} -o {{OUTPUT}}
 
-# Validate an MML file
+# Validate an MMD file
 validate FILE:
-    uv run midimarkup validate {{FILE}}
+    uv run mmdc validate {{FILE}}
 
 # Show version information
 version:
-    uv run midimarkup version
+    uv run mmdc version
 
 # Clean build artifacts and cache
 clean:
@@ -108,33 +108,33 @@ build:
 build-exe:
     @echo "Building standalone executable with PyInstaller..."
     uv sync --group build
-    uv run pyinstaller midimarkup.spec --clean --noconfirm
-    @echo "\nExecutable built in: dist/midimarkup/"
-    @ls -lh dist/midimarkup/
+    uv run pyinstaller mmdc.spec --clean --noconfirm
+    @echo "\nExecutable built in: dist/mmdc/"
+    @ls -lh dist/mmdc/
 
 # Build standalone executable (onefile mode - single portable file)
 build-exe-onefile:
     @echo "Building single-file executable with PyInstaller..."
     uv sync --group build
-    uv run pyinstaller midimarkup.spec --clean --noconfirm --onefile
-    @echo "\nExecutable built: dist/midimarkup"
-    @ls -lh dist/midimarkup
+    uv run pyinstaller mmdc.spec --clean --noconfirm --onefile
+    @echo "\nExecutable built: dist/mmdc"
+    @ls -lh dist/mmdc
 
 # Test the built executable with sample files
 test-exe:
     @echo "Testing built executable..."
-    @if [ -f dist/midimarkup/midimarkup ]; then \
+    @if [ -f dist/mmdc/mmdc ]; then \
         echo "Testing version command:"; \
-        ./dist/midimarkup/midimarkup --version; \
+        ./dist/mmdc/mmdc --version; \
         echo "\nTesting compilation:"; \
-        ./dist/midimarkup/midimarkup compile $(pwd)/examples/00_hello_world.mml -o /tmp/test_exe_output.mid; \
+        ./dist/mmdc/mmdc compile $(pwd)/examples/00_basics/01_hello_world.mmd -o /tmp/test_exe_output.mid; \
         echo "\nVerifying output file:"; \
         ls -lh /tmp/test_exe_output.mid; \
-    elif [ -f dist/midimarkup.exe ]; then \
+    elif [ -f dist/mmdc.exe ]; then \
         echo "Testing version command:"; \
-        ./dist/midimarkup.exe --version; \
+        ./dist/mmdc.exe --version; \
         echo "\nTesting compilation:"; \
-        ./dist/midimarkup.exe compile $(pwd)/examples/00_hello_world.mml -o /tmp/test_exe_output.mid; \
+        ./dist/mmdc.exe compile $(pwd)/examples/00_basics/01_hello_world.mmd -o /tmp/test_exe_output.mid; \
         echo "\nVerifying output file:"; \
         ls -lh /tmp/test_exe_output.mid; \
     else \
@@ -144,10 +144,10 @@ test-exe:
 
 # Run example files to test compilation
 examples:
-    @echo "Compiling basic_usage.mml..."
-    uv run midimarkup compile examples/basic_usage.mml -o /tmp/basic_usage.mid
-    @echo "Compiling alias_showcase.mml..."
-    uv run midimarkup compile examples/alias_showcase.mml -o /tmp/alias_showcase.mid
+    @echo "Compiling 00_hello_world.mmd..."
+    uv run mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/hello_world.mid
+    @echo "Compiling alias_showcase.mmd..."
+    uv run mmdc compile examples/03_advanced/03_alias_showcase.mmd -o /tmp/alias_showcase.mid
     @echo "\nExamples compiled to /tmp/"
     @ls -lh /tmp/*.mid
 
@@ -208,7 +208,7 @@ deps:
 
 # Launch Python REPL with project loaded
 repl:
-    uv run python -i -c "from midi_markdown.parser.parser import MMLParser; from midi_markdown.midi.events import EventGenerator; from midi_markdown.midi.generator import MIDIGenerator; parser = MMLParser(); print('Parser loaded. Try: doc = parser.parse_file(\"examples/basic_usage.mml\")')"
+    uv run python -i -c "from midi_markdown.parser.parser import MMLParser; from midi_markdown.midi.events import EventGenerator; from midi_markdown.midi.generator import MIDIGenerator; parser = MMLParser(); print('Parser loaded. Try: doc = parser.parse_file(\"examples/00_basics/01_hello_world.mmd\")')"
 
 # Run formatter, linter, and tests in sequence
 qa: fmt lint-fix test
@@ -227,18 +227,18 @@ info:
 # Validate all device library files
 validate-devices:
     @echo "Validating device libraries..."
-    @for file in devices/*.mml; do \
+    @for file in devices/*.mmd; do \
         echo "Checking $$file..."; \
-        uv run midimarkup validate $$file || exit 1; \
+        uv run mmdc validate $$file || exit 1; \
     done
     @echo "All device libraries validated successfully!"
 
 # Validate all example files
 validate-examples:
     @echo "Validating example files..."
-    @for file in examples/*.mml; do \
+    @for file in examples/**/*.mmd; do \
         echo "Checking $$file..."; \
-        uv run midimarkup validate $$file || exit 1; \
+        uv run mmdc validate $$file || exit 1; \
     done
     @echo "All examples validated successfully!"
 

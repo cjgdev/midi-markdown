@@ -8,48 +8,48 @@ import pytest
 
 
 @pytest.fixture
-def small_mml_file() -> Path:
-    """Path to small MML file (<100 events)."""
-    return Path("benchmarks/fixtures/small_file.mml")
+def small_mmd_file() -> Path:
+    """Path to small MMD file (<100 events)."""
+    return Path("benchmarks/fixtures/small_file.mmd")
 
 
 @pytest.fixture
-def medium_mml_file() -> Path:
-    """Path to medium MML file (100-500 events)."""
-    return Path("benchmarks/fixtures/medium_file.mml")
+def medium_mmd_file() -> Path:
+    """Path to medium MMD file (100-500 events)."""
+    return Path("benchmarks/fixtures/medium_file.mmd")
 
 
 @pytest.fixture
-def large_mml_file() -> Path:
-    """Path to large MML file (>1000 events)."""
-    return Path("benchmarks/fixtures/large_file.mml")
+def large_mmd_file() -> Path:
+    """Path to large MMD file (>1000 events)."""
+    return Path("benchmarks/fixtures/large_file.mmd")
 
 
 @pytest.fixture
-def parsed_small_document(small_mml_file):
-    """Parse small MML file and return AST."""
-    from midi_markdown.parser.parser import MMLParser
+def parsed_small_document(small_mmd_file):
+    """Parse small MMD file and return AST."""
+    from midi_markdown.parser.parser import MMDParser
 
-    parser = MMLParser()
-    return parser.parse_file(str(small_mml_file))
-
-
-@pytest.fixture
-def parsed_medium_document(medium_mml_file):
-    """Parse medium MML file and return AST."""
-    from midi_markdown.parser.parser import MMLParser
-
-    parser = MMLParser()
-    return parser.parse_file(str(medium_mml_file))
+    parser = MMDParser()
+    return parser.parse_file(str(small_mmd_file))
 
 
 @pytest.fixture
-def parsed_large_document(large_mml_file):
-    """Parse large MML file and return AST."""
-    from midi_markdown.parser.parser import MMLParser
+def parsed_medium_document(medium_mmd_file):
+    """Parse medium MMD file and return AST."""
+    from midi_markdown.parser.parser import MMDParser
 
-    parser = MMLParser()
-    return parser.parse_file(str(large_mml_file))
+    parser = MMDParser()
+    return parser.parse_file(str(medium_mmd_file))
+
+
+@pytest.fixture
+def parsed_large_document(large_mmd_file):
+    """Parse large MMD file and return AST."""
+    from midi_markdown.parser.parser import MMDParser
+
+    parser = MMDParser()
+    return parser.parse_file(str(large_mmd_file))
 
 
 @pytest.fixture

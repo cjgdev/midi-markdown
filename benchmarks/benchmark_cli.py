@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import subprocess
 import time
-from pathlib import Path
 
 import pytest
 
@@ -36,7 +35,7 @@ class TestCLIStartup:
 
         def run_help():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "--help"],
+                ["uv", "run", "mmdc", "--help"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -46,7 +45,7 @@ class TestCLIStartup:
         result = benchmark(run_help)
 
         assert result.returncode == 0
-        assert "MIDI Markup Language" in result.stdout or "Usage:" in result.stdout
+        assert "MIDI Markdown Language" in result.stdout or "Usage:" in result.stdout
         print(f"\nCLI --help time: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_cli_version_speed(self, benchmark):
@@ -57,7 +56,7 @@ class TestCLIStartup:
 
         def run_version():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "version"],
+                ["uv", "run", "mmdc", "version"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -74,7 +73,7 @@ class TestCLIStartup:
 
         def run_list():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "--help"],
+                ["uv", "run", "mmdc", "--help"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -93,7 +92,7 @@ class TestCLIStartup:
 class TestCompileCommand:
     """Benchmark compile command execution."""
 
-    def test_compile_small_file(self, benchmark, small_mml_file, tmp_path):
+    def test_compile_small_file(self, benchmark, small_mmd_file, tmp_path):
         """Benchmark compile command with small file.
 
         Target: <2 seconds for small file
@@ -105,9 +104,9 @@ class TestCompileCommand:
                 [
                     "uv",
                     "run",
-                    "midimarkup",
+                    "mmdc",
                     "compile",
-                    str(small_mml_file),
+                    str(small_mmd_file),
                     "-o",
                     str(output_file),
                 ],
@@ -125,7 +124,7 @@ class TestCompileCommand:
         assert result.returncode == 0
         print(f"\nCompile small file: {benchmark.stats.get('mean', 0):.3f}s")
 
-    def test_compile_medium_file(self, medium_mml_file, tmp_path):
+    def test_compile_medium_file(self, medium_mmd_file, tmp_path):
         """Test compile command with medium file (not benchmarked in loop).
 
         Target: <3 seconds
@@ -137,9 +136,9 @@ class TestCompileCommand:
             [
                 "uv",
                 "run",
-                "midimarkup",
+                "mmdc",
                 "compile",
-                str(medium_mml_file),
+                str(medium_mmd_file),
                 "-o",
                 str(output_file),
             ],
@@ -162,7 +161,7 @@ class TestCompileCommand:
 class TestValidateCommand:
     """Benchmark validate command execution."""
 
-    def test_validate_small_file(self, benchmark, small_mml_file):
+    def test_validate_small_file(self, benchmark, small_mmd_file):
         """Benchmark validate command.
 
         Target: <1.5 seconds
@@ -173,7 +172,7 @@ class TestValidateCommand:
 
         def run_validate():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "validate", str(small_mml_file)],
+                ["uv", "run", "mmdc", "validate", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -185,7 +184,7 @@ class TestValidateCommand:
         assert result.returncode == 0
         print(f"\nValidate small file: {benchmark.stats.get('mean', 0):.3f}s")
 
-    def test_check_syntax_only(self, benchmark, small_mml_file):
+    def test_check_syntax_only(self, benchmark, small_mmd_file):
         """Benchmark check command (syntax only, no validation).
 
         Target: <1 second
@@ -196,7 +195,7 @@ class TestValidateCommand:
 
         def run_check():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "check", str(small_mml_file)],
+                ["uv", "run", "mmdc", "check", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -213,7 +212,7 @@ class TestValidateCommand:
 class TestInspectCommand:
     """Benchmark inspect command execution."""
 
-    def test_inspect_file(self, benchmark, small_mml_file):
+    def test_inspect_file(self, benchmark, small_mmd_file):
         """Benchmark inspect command.
 
         Target: <2 seconds
@@ -223,7 +222,7 @@ class TestInspectCommand:
 
         def run_inspect():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "inspect", str(small_mml_file)],
+                ["uv", "run", "mmdc", "inspect", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -241,7 +240,7 @@ class TestInspectCommand:
 class TestCLIOptions:
     """Benchmark CLI with various options."""
 
-    def test_compile_with_verbose(self, small_mml_file, tmp_path):
+    def test_compile_with_verbose(self, small_mmd_file, tmp_path):
         """Test compile with verbose flag.
 
         Verbose should add minimal overhead.
@@ -253,9 +252,9 @@ class TestCLIOptions:
             [
                 "uv",
                 "run",
-                "midimarkup",
+                "mmdc",
                 "compile",
-                str(small_mml_file),
+                str(small_mmd_file),
                 "-o",
                 str(output_file),
                 "-v",
@@ -273,7 +272,7 @@ class TestCLIOptions:
         if output_file.exists():
             output_file.unlink()
 
-    def test_compile_with_no_color(self, small_mml_file, tmp_path):
+    def test_compile_with_no_color(self, small_mmd_file, tmp_path):
         """Test compile with --no-color flag."""
         output_file = tmp_path / "output_nocolor.mid"
 
@@ -282,9 +281,9 @@ class TestCLIOptions:
             [
                 "uv",
                 "run",
-                "midimarkup",
+                "mmdc",
                 "compile",
-                str(small_mml_file),
+                str(small_mmd_file),
                 "-o",
                 str(output_file),
                 "--no-color",
@@ -302,7 +301,7 @@ class TestCLIOptions:
         if output_file.exists():
             output_file.unlink()
 
-    def test_compile_different_formats(self, small_mml_file, tmp_path):
+    def test_compile_different_formats(self, small_mmd_file, tmp_path):
         """Test compile with different output formats.
 
         Tests CSV and JSON export performance.
@@ -314,9 +313,9 @@ class TestCLIOptions:
             [
                 "uv",
                 "run",
-                "midimarkup",
+                "mmdc",
                 "compile",
-                str(small_mml_file),
+                str(small_mmd_file),
                 "-o",
                 str(csv_file),
                 "--format",
@@ -335,9 +334,9 @@ class TestCLIOptions:
             [
                 "uv",
                 "run",
-                "midimarkup",
+                "mmdc",
                 "compile",
-                str(small_mml_file),
+                str(small_mmd_file),
                 "-o",
                 str(json_file),
                 "--format",
@@ -374,7 +373,7 @@ class TestCLIErrorHandling:
 
         def run_invalid():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "compile", "nonexistent.mml"],
+                ["uv", "run", "mmdc", "compile", "nonexistent.mmd"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -388,8 +387,8 @@ class TestCLIErrorHandling:
 
     def test_error_invalid_syntax(self, benchmark, tmp_path):
         """Test CLI handles syntax errors gracefully."""
-        # Create invalid MML file
-        invalid_file = tmp_path / "invalid.mml"
+        # Create invalid MMD file
+        invalid_file = tmp_path / "invalid.mmd"
         invalid_file.write_text(
             """---
 title: Invalid
@@ -402,7 +401,7 @@ title: Invalid
 
         def run_invalid_syntax():
             result = subprocess.run(
-                ["uv", "run", "midimarkup", "compile", str(invalid_file)],
+                ["uv", "run", "mmdc", "compile", str(invalid_file)],
                 capture_output=True,
                 text=True,
                 check=False,

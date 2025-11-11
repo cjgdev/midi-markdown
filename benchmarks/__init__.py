@@ -1,4 +1,4 @@
-"""Performance benchmarks for MIDI Markup Language.
+"""Performance benchmarks for MIDI Markdown Language.
 
 This package contains performance benchmarks to establish baselines
 and prevent regressions.

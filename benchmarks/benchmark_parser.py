@@ -16,21 +16,21 @@ from __future__ import annotations
 
 import pytest
 
-from midi_markdown.parser.parser import MMLParser
+from midi_markdown.parser.parser import MMDParser
 
 
 @pytest.mark.benchmark
 class TestParserPerformance:
     """Parser performance benchmarks."""
 
-    def test_parse_small_file_speed(self, benchmark, small_mml_file):
+    def test_parse_small_file_speed(self, benchmark, small_mmd_file):
         """Benchmark parsing small file (<100 events).
 
         Target: <50ms average parse time
         """
-        parser = MMLParser()
+        parser = MMDParser()
 
-        result = benchmark(parser.parse_file, str(small_mml_file))
+        result = benchmark(parser.parse_file, str(small_mmd_file))
 
         # Verify parse succeeded
         assert result is not None
@@ -38,47 +38,47 @@ class TestParserPerformance:
 
         # Check performance (note: benchmark.stats available after run)
         # Small files should parse quickly
-        print(f"\nSmall file parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nSmall file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
-    def test_parse_medium_file_speed(self, benchmark, medium_mml_file):
+    def test_parse_medium_file_speed(self, benchmark, medium_mmd_file):
         """Benchmark parsing medium file (100-500 events).
 
         Target: <200ms average parse time
         """
-        parser = MMLParser()
+        parser = MMDParser()
 
-        result = benchmark(parser.parse_file, str(medium_mml_file))
+        result = benchmark(parser.parse_file, str(medium_mmd_file))
 
         # Verify parse succeeded
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nMedium file parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nMedium file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
-    def test_parse_large_file_speed(self, benchmark, large_mml_file):
+    def test_parse_large_file_speed(self, benchmark, large_mmd_file):
         """Benchmark parsing large file (>1000 events).
 
         Target: <1000ms average parse time
         """
-        parser = MMLParser()
+        parser = MMDParser()
 
-        result = benchmark(parser.parse_file, str(large_mml_file))
+        result = benchmark(parser.parse_file, str(large_mmd_file))
 
         # Verify parse succeeded
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nLarge file parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nLarge file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_string_performance(self, benchmark):
         """Benchmark parsing from string (in-memory).
 
         This tests pure parser speed without file I/O overhead.
         """
-        parser = MMLParser()
+        parser = MMDParser()
 
         # Create a moderately complex string inline
-        mml_content = """---
+        mmd_content = """---
 title: "Benchmark Test"
 tempo: 120
 ppq: 480
@@ -94,19 +94,19 @@ ppq: 480
 @end
 """
 
-        result = benchmark(parser.parse_string, mml_content)
+        result = benchmark(parser.parse_string, mmd_content)
 
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nString parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nString parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parser_with_loops(self, benchmark):
         """Benchmark parser performance with loop constructs.
 
         Tests parser overhead for loop syntax.
         """
-        parser = MMLParser()
+        parser = MMDParser()
         mml_content = """---
 title: "Loop Benchmark"
 tempo: 120
@@ -123,14 +123,14 @@ ppq: 480
 
         assert result is not None
         # Should have 1 loop construct (not expanded yet)
-        print(f"\nLoop parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nLoop parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parser_with_aliases(self, benchmark):
         """Benchmark parser performance with alias definitions.
 
         Tests parser overhead for alias syntax.
         """
-        parser = MMLParser()
+        parser = MMDParser()
         mml_content = """---
 title: "Alias Benchmark"
 tempo: 120
@@ -151,7 +151,7 @@ ppq: 480
 
         assert result is not None
         assert len(result.aliases) > 0
-        print(f"\nAlias parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nAlias parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
 
 @pytest.mark.benchmark
@@ -160,7 +160,7 @@ class TestParserScalability:
 
     def test_parse_many_channels(self, benchmark):
         """Benchmark parser with multi-channel content."""
-        parser = MMLParser()
+        parser = MMDParser()
 
         # Generate content with all 16 MIDI channels
         lines = ["---", "title: Multi-Channel", "tempo: 120", "ppq: 480", "---", "", "[00:00.000]"]
@@ -172,11 +172,11 @@ class TestParserScalability:
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nMulti-channel parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nMulti-channel parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_complex_timing(self, benchmark):
         """Benchmark parser with various timing formats."""
-        parser = MMLParser()
+        parser = MMDParser()
 
         mml_content = """---
 title: "Complex Timing"
@@ -204,11 +204,11 @@ ppq: 480
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nComplex timing parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nComplex timing parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_with_comments(self, benchmark):
         """Benchmark parser with heavy comment usage."""
-        parser = MMLParser()
+        parser = MMDParser()
 
         lines = ["---", "title: Comments", "tempo: 120", "ppq: 480", "---", ""]
         lines.append("# This is a comment")
@@ -218,11 +218,11 @@ ppq: 480
 
         for i in range(50):
             lines.append(f"# Comment line {i}")
-            lines.append(f"- note_on 1.60.80 0.1s  # inline comment")
+            lines.append("- note_on 1.60.80 0.1s  # inline comment")
 
         mml_content = "\n".join(lines)
 
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nComment-heavy parse time: {benchmark.stats.get('mean', 0)*1000:.2f}ms")
+        print(f"\nComment-heavy parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
