@@ -156,11 +156,11 @@ time_signature: [4, 4]
 # Dynamic filter cutoff following note envelope
 [00:36.000]
 - text "Synth filter envelope"
-- note_on 1.60.80 4b
+- note_on 1.60 80 4b
 - cc 1.74.envelope(adsr, attack=0.1, decay=0.2, sustain=0.6, release=0.3)
 
 [00:40.000]
-- note_off 1.60
+- note_off 1.60 64
 
 # Example 5: Slow Filter Modulation
 # Slow LFO for evolving pad sounds
@@ -228,11 +228,11 @@ time_signature: [4, 4]
 # Poly pressure with envelope
 [00:58.000]
 - text "Polyphonic aftertouch envelope"
-- note_on 1.60.80 2b
+- note_on 1.60 80 2b
 - poly_pressure 1.60.envelope(adsr, attack=0.05, decay=0.1, sustain=0.8, release=0.2)
 
 [01:00.000]
-- note_off 1.60
+- note_off 1.60 64
 
 # ============================================
 # Section 7: Advanced Techniques
