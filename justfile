@@ -260,3 +260,82 @@ docs-deploy:
 # Clean documentation build artifacts
 docs-clean:
     rm -rf site/
+
+# ============================================
+# Release Management
+# ============================================
+
+# Show current version
+show-version:
+    @echo "Current version: $(uv run python -c 'from midi_markdown import __version__; print(__version__)')"
+
+# Run pre-release checks (comprehensive)
+pre-release:
+    @echo "Running pre-release checks..."
+    @echo "\n1. Formatting check..."
+    just fmt-check
+    @echo "\n2. Linting..."
+    just lint
+    @echo "\n3. Type checking..."
+    just typecheck
+    @echo "\n4. Running tests with coverage..."
+    just test-cov
+    @echo "\n5. Validating device libraries..."
+    just validate-devices
+    @echo "\n6. Validating examples..."
+    just validate-examples
+    @echo "\n✅ All pre-release checks passed!"
+    @echo "\nReady to release. Next steps:"
+    @echo "  1. Review CHANGELOG.md [Unreleased] section"
+    @echo "  2. Run: just release-patch (or release-minor/release-major)"
+
+# Bump patch version (0.1.0 -> 0.1.1) and create tag
+release-patch:
+    @echo "Creating patch release..."
+    uv run python scripts/bump_version.py patch
+
+# Bump minor version (0.1.0 -> 0.2.0) and create tag
+release-minor:
+    @echo "Creating minor release..."
+    uv run python scripts/bump_version.py minor
+
+# Bump major version (0.1.0 -> 1.0.0) and create tag
+release-major:
+    @echo "Creating major release..."
+    uv run python scripts/bump_version.py major
+
+# Set specific version and create tag
+release-version VERSION:
+    @echo "Creating release for version {{VERSION}}..."
+    uv run python scripts/bump_version.py {{VERSION}}
+
+# Preview version bump (dry run)
+release-preview TYPE:
+    @echo "Previewing {{TYPE}} release..."
+    uv run python scripts/bump_version.py {{TYPE}} --dry-run
+
+# Push release tag to trigger GitHub Actions workflow
+release-push:
+    @echo "Pushing release tag..."
+    @TAG=$(git describe --tags --abbrev=0) && \
+    echo "Latest tag: $$TAG" && \
+    read -p "Push $$TAG to origin? [y/N] " -n 1 -r && \
+    echo && \
+    if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+        echo "Pushing main branch..."; \
+        git push origin main; \
+        echo "Pushing tag $$TAG..."; \
+        git push origin $$TAG; \
+        echo "✅ Release pushed! Monitor at: https://github.com/cjgdev/midi-markdown/actions"; \
+    else \
+        echo "Aborted."; \
+    fi
+
+# Complete release workflow: checks -> bump -> push
+release TYPE: pre-release
+    @echo "\nAll checks passed. Creating {{TYPE}} release..."
+    just release-{{TYPE}}
+    @echo "\n✅ Release created! Review changes:"
+    @git log -1 --stat
+    @echo "\nTo push and trigger GitHub Actions:"
+    @echo "  just release-push"
