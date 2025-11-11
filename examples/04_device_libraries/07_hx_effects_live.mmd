@@ -1,0 +1,601 @@
+---
+title: "HX Effects Live Performance Set"
+description: "Real-world live performance example demonstrating Line 6 HX Effects MIDI control"
+author: "MML Device Library Examples"
+tempo: 120
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * HX EFFECTS LIVE PERFORMANCE SET
+ * ============================================================================
+ *
+ * This example demonstrates professional HX Effects control for live
+ * performance with an external amp. HX Effects is an effects-only processor
+ * designed to integrate with your existing amp rig.
+ *
+ * SETUP REQUIREMENTS:
+ * - HX Effects on MIDI Channel 1
+ * - External amp on MIDI Channel 2 (optional - for amp integration)
+ * - Firmware 3.80 recommended (latest stable)
+ * - 5-pin DIN MIDI (advantage over HX Stomp/XL - hardware chaining)
+ * - Expression pedals connected to EXP1/EXP2 jacks for best response
+ *
+ * HX EFFECTS PRESET ORGANIZATION (for this example):
+ * Bank 1 (PC 0-3):   Song 1 "Electric Dawn" (Intro, Verse, Chorus, Bridge)
+ * Bank 2 (PC 4-7):   Song 2 "Heavy Water" (Verse, Chorus, Breakdown, Solo)
+ * Bank 3 (PC 8-11):  Song 3 "Ambient Sky" (Build 1-4)
+ * Bank 4 (PC 12-15): Song 4 "Rock Anthem" (Clean, Crunch, Drive, Lead)
+ *
+ * SNAPSHOT ORGANIZATION (consistent across presets):
+ * - Snapshot 1 (0): Verse/clean sound
+ * - Snapshot 2 (1): Chorus/rhythm sound
+ * - Snapshot 3 (2): Bridge/different texture
+ * - Snapshot 4 (3): Lead/solo sound
+ *
+ * CRITICAL TIMING NOTES:
+ * - HX Effects uses sequential preset addressing (Bank N Preset A = PC (N-1)*4)
+ * - 350ms delay required after preset load (firmware 3.5x)
+ * - Firmware 3.10+ buffers snapshot changes during preset load
+ * - Full Command Center available for external amp/pedal control
+ *
+ * UNIQUE FEATURES OF HX EFFECTS:
+ * - Effects processing only (no amp/cab modeling)
+ * - 5-pin DIN MIDI (vs USB-only on HX Stomp/XL)
+ * - 6 footswitches (FS1-6)
+ * - 4 snapshots (same as HX Stomp XL)
+ * - Designed for amp effects loop integration
+ */
+
+# Import HX Effects device library
+@import "../../devices/hx_effects.mmd"
+
+/*
+ * ============================================================================
+ * SONG 1: "ELECTRIC DAWN" (Indie Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Chorus → Bridge → Outro
+ * Duration: ~3:45
+ *
+ * Preset: Bank 1 Preset A (PC 0)
+ * External Amp: Channel 1 (clean/edge of breakup)
+ * Snapshots used: 1 (intro), 2 (verse), 3 (chorus), 4 (bridge)
+ */
+
+# Song Start - Load Bank 1 Preset A, Snapshot 1
+[00:00.000]
+- hxfx_preset 1 0                  # Bank 1 Preset A
+[+350ms]
+- hxfx_snap_1 1                    # Snapshot 1 (intro - clean with reverb)
+[@]
+# Switch external amp to clean channel
+- pc 2.0
+
+# Intro - Sparse clean arpeggios (8 bars)
+# Snapshot 1: Clean tone, long reverb, subtle delay
+
+# Verse 1 starts (bar 9)
+[00:16.000]
+- hxfx_snap_2 1                    # Snapshot 2 (verse - add compression)
+# Amp stays on clean channel
+# Snapshot adds compression and reduces reverb
+
+# Pre-chorus build
+[00:30.000]
+- hxfx_fs3 1                       # Toggle FS3 (drive pedal on)
+
+# Chorus - Full band energy
+[00:32.000]
+- hxfx_snap_3 1                    # Snapshot 3 (chorus - delay + reverb)
+[@]
+# Switch amp to edge of breakup
+- pc 2.1
+
+# Guitar fill using delay
+[00:48.000]
+- hxfx_fs4 1                       # Toggle FS4 (additional delay)
+
+# Verse 2 - Back to clean
+[00:56.000]
+- hxfx_snap_2 1                    # Snapshot 2 (verse)
+[@]
+- pc 2.0                           # Amp back to clean
+[+100ms]
+- hxfx_fs3 1                       # Drive off
+- hxfx_fs4 1                       # Extra delay off
+
+# Pre-chorus 2
+[01:10.000]
+- hxfx_fs3 1                       # Drive on
+
+# Chorus 2 - Extended
+[01:12.000]
+- hxfx_snap_3 1                    # Snapshot 3 (chorus)
+[@]
+- pc 2.1                           # Amp edge of breakup
+
+# Add modulation for texture
+[01:20.000]
+- hxfx_fs5 1                       # Toggle FS5 (phaser/chorus)
+
+# Bridge - Ambient texture
+[01:28.000]
+- hxfx_snap_4 1                    # Snapshot 4 (bridge - heavy reverb/delay)
+[@]
+- pc 2.0                           # Amp clean for contrast
+
+# Remove modulation
+[01:36.000]
+- hxfx_fs5 1                       # Phaser off
+
+# Build back to final chorus
+[01:42.000]
+- hxfx_snap_3 1                    # Chorus snapshot
+[@]
+- pc 2.1                           # Amp edge of breakup
+
+# Final Chorus - extended with lead tone
+[01:52.000]
+- hxfx_fs6 1                       # Toggle FS6 (boost for lead)
+
+# Outro - Return to clean
+[02:16.000]
+- hxfx_snap_1 1                    # Intro snapshot
+[@]
+- pc 2.0                           # Amp clean
+[+100ms]
+- hxfx_fs3 1                       # Drive off
+- hxfx_fs6 1                       # Boost off
+
+# End fade
+[02:32.000]
+
+/*
+ * ============================================================================
+ * SONG 2: "HEAVY WATER" (Progressive Metal)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Outro
+ * Duration: ~4:15
+ *
+ * Preset: Bank 2 Preset A (PC 4)
+ * External Amp: Channel 2 (high gain) + Channel 3 (ultra high gain)
+ * Snapshots: 1 (tight rhythm), 2 (open rhythm), 3 (lead), 4 (breakdown)
+ */
+
+# Load Bank 2 Preset A for Song 2
+[02:50.000]
+- hxfx_load_snapshot 1 4 0         # Load PC 4, Snapshot 1
+[@]
+# Switch amp to high gain channel
+- pc 2.2
+
+# Heavy intro riff (Snapshot 1 - tight rhythm with noise gate)
+
+# Verse - Open rhythm tone
+[03:16.000]
+- hxfx_snap_2 1                    # Snapshot 2 (open rhythm)
+# Same amp channel, different FX mix
+
+# Pre-chorus build with delay
+[03:32.000]
+- hxfx_fs2 1                       # Toggle FS2 (delay trails)
+
+# Chorus - Palm mute riffing
+[03:40.000]
+- hxfx_snap_1 1                    # Back to tight rhythm
+[+100ms]
+- hxfx_fs2 1                       # Delay off
+
+# Breakdown - Ultra heavy djent tone
+[03:56.000]
+- hxfx_snap_4 1                    # Snapshot 4 (breakdown - gate + octave)
+[@]
+- pc 2.3                           # Amp ultra high gain channel
+
+# Pre-solo - Switch to lead tone
+[04:12.000]
+- hxfx_snap_3 1                    # Snapshot 3 (lead - delay + reverb)
+
+# Guitar solo with expression pedal automation
+# Expression controls wah or delay mix
+[04:20.000]
+- hxfx_exp1 1 0                    # Start at heel
+[04:22.000]
+- hxfx_exp1 1 40
+[04:24.000]
+- hxfx_exp1 1 80
+[04:26.000]
+- hxfx_exp1 1 127                  # Full toe position
+[04:28.000]
+- hxfx_exp1 1 80                   # Back down
+[04:30.000]
+- hxfx_exp1 1 40
+[04:32.000]
+- hxfx_exp1 1 0                    # Heel
+
+# Back to tight rhythm for final section
+[04:40.000]
+- hxfx_snap_1 1
+[@]
+- pc 2.2                           # Back to high gain channel
+
+# Outro breakdown
+[04:56.000]
+- hxfx_snap_4 1                    # Breakdown snapshot
+[@]
+- pc 2.3                           # Ultra high gain
+
+# Final chord
+[05:12.000]
+
+/*
+ * ============================================================================
+ * SONG 3: "AMBIENT SKY" (Post-Rock/Ambient)
+ * ============================================================================
+ * Structure: Build 1 → Build 2 → Climax → Resolve
+ * Duration: ~4:00
+ *
+ * Preset: Bank 3 Preset A (PC 8)
+ * External Amp: Channel 1 (clean)
+ * Demonstrates layered effects build-up using footswitches
+ */
+
+# Load Bank 3 Preset A for Song 3
+[05:30.000]
+- hxfx_preset 1 8                  # Bank 3 Preset A
+[+350ms]
+- hxfx_snap_1 1                    # Snapshot 1 (minimal FX)
+[@]
+- pc 2.0                           # Amp clean channel
+
+# Intro - Sparse clean tones
+# Gradually add effects layers using footswitches
+
+# Add subtle reverb
+[05:46.000]
+- hxfx_fs1 1                       # Toggle FS1 (reverb)
+
+# Add delay
+[05:54.000]
+- hxfx_fs2 1                       # Toggle FS2 (delay)
+
+# Build 1 - Switch to Snapshot 2 for more intensity
+[06:02.000]
+- hxfx_snap_2 1                    # Snapshot 2 (moderate FX)
+
+# Add shimmer reverb
+[06:10.000]
+- hxfx_fs3 1                       # Toggle FS3 (shimmer)
+
+# Build 2 - More effects
+[06:18.000]
+- hxfx_snap_3 1                    # Snapshot 3 (wet FX)
+
+# Add modulation
+[06:26.000]
+- hxfx_fs4 1                       # Toggle FS4 (chorus/phaser)
+
+# Climax - Switch to lead snapshot with all effects
+[06:34.000]
+- hxfx_snap_4 1                    # Snapshot 4 (full wet ambient)
+
+# Peak moment - Add final layer
+[06:42.000]
+- hxfx_fs5 1                       # Toggle FS5 (tremolo/vibrato)
+
+# Begin resolving - Strip effects
+[06:58.000]
+- hxfx_fs5 1                       # Remove tremolo
+[07:02.000]
+- hxfx_fs4 1                       # Remove modulation
+[07:06.000]
+- hxfx_fs3 1                       # Remove shimmer
+
+# Return to Snapshot 1 for ending
+[07:10.000]
+- hxfx_snap_1 1                    # Minimal FX
+
+# Remove delay
+[07:18.000]
+- hxfx_fs2 1                       # Delay off
+
+# Final chord with just reverb
+[07:26.000]
+- hxfx_fs1 1                       # Reverb off for clean end
+
+# End
+[07:34.000]
+
+/*
+ * ============================================================================
+ * SONG 4: "ROCK ANTHEM" (Classic Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Solo → Bridge → Final Chorus → Outro
+ * Duration: ~4:30
+ *
+ * Preset: Bank 4 (PC 12-15) - Using all 4 presets for different gain stages
+ * External Amp: Channels 1-3 (clean, crunch, lead)
+ * Demonstrates preset changes within a song for major tone shifts
+ */
+
+# Intro - Clean with subtle effects
+[07:50.000]
+- hxfx_preset 1 12                 # Bank 4 Preset A (clean)
+[+350ms]
+- hxfx_snap_1 1
+[@]
+- pc 2.0                           # Amp clean channel
+
+# Verse 1 - Same preset, different snapshot
+[08:06.000]
+- hxfx_snap_2 1                    # Snapshot 2 (verse - comp + EQ)
+
+# Pre-chorus - Add drive
+[08:22.000]
+- hxfx_preset 1 13                 # Bank 4 Preset B (crunch)
+[+350ms]
+- hxfx_snap_1 1
+[@]
+- pc 2.1                           # Amp crunch channel
+
+# Chorus - Full rhythm tone
+[08:30.000]
+- hxfx_snap_2 1                    # Chorus snapshot (reverb + delay)
+
+# Verse 2 - Back to clean
+[08:46.000]
+- hxfx_preset 1 12                 # Bank 4 Preset A (clean)
+[+350ms]
+- hxfx_snap_2 1
+[@]
+- pc 2.0                           # Amp clean
+
+# Pre-chorus 2
+[09:02.000]
+- hxfx_preset 1 13                 # Bank 4 Preset B (crunch)
+[+350ms]
+- hxfx_snap_1 1
+[@]
+- pc 2.1                           # Amp crunch
+
+# Chorus 2
+[09:10.000]
+- hxfx_snap_2 1
+
+# Solo - Lead preset with boost
+[09:26.000]
+- hxfx_preset 1 15                 # Bank 4 Preset D (lead)
+[+350ms]
+- hxfx_snap_1 1                    # Lead snapshot
+[@]
+- pc 2.2                           # Amp lead channel
+
+# Solo expression automation (wah or delay mix)
+[09:34.000]
+- hxfx_exp1 1 0
+[09:36.000]
+- hxfx_exp1 1 64
+[09:38.000]
+- hxfx_exp1 1 127
+[09:40.000]
+- hxfx_exp1 1 64
+[09:42.000]
+- hxfx_exp1 1 0
+
+# Bridge - Different texture (driven rhythm)
+[09:50.000]
+- hxfx_preset 1 14                 # Bank 4 Preset C (driven)
+[+350ms]
+- hxfx_snap_3 1                    # Bridge snapshot
+[@]
+- pc 2.1                           # Amp crunch
+
+# Final Chorus - Full energy
+[10:06.000]
+- hxfx_preset 1 13                 # Bank 4 Preset B (crunch)
+[+350ms]
+- hxfx_snap_2 1
+[@]
+- pc 2.1
+
+# Outro - Return to clean
+[10:30.000]
+- hxfx_preset 1 12                 # Bank 4 Preset A (clean)
+[+350ms]
+- hxfx_snap_1 1
+[@]
+- pc 2.0
+
+# End
+[10:50.000]
+
+/*
+ * ============================================================================
+ * LOOPER DEMONSTRATION
+ * ============================================================================
+ *
+ * HX Effects includes a looper for creating live loops.
+ * This section demonstrates looper control via MIDI.
+ */
+
+# Song 5: Live Looping Improvisation
+[11:00.000]
+- hxfx_preset 1 16                 # Bank 5 Preset A (looper preset)
+[+350ms]
+- hxfx_snap_1 1
+[@]
+- pc 2.0                           # Amp clean
+
+# Enable looper mode
+[11:10.000]
+- hxfx_looper_on 1
+
+# Start recording first layer
+[11:12.000]
+- hxfx_looper_record_rec 1
+
+# Stop recording, start playback (4 bars later)
+[11:20.000]
+- hxfx_looper_record_overdub 1     # Switch to overdub mode
+- hxfx_looper_play 1
+
+# Add second layer (overdub)
+[11:28.000]
+- hxfx_looper_record_rec 1         # Record second layer
+
+# Back to playback
+[11:36.000]
+- hxfx_looper_play 1
+
+# Reverse playback for ambient texture
+[11:44.000]
+- hxfx_looper_reverse 1            # Toggle reverse
+
+# Back to forward playback
+[11:52.000]
+- hxfx_looper_forward 1
+
+# Half speed playback
+[12:00.000]
+- hxfx_looper_half_speed 1
+
+# Back to full speed
+[12:08.000]
+- hxfx_looper_full_speed 1
+
+# Undo last layer
+[12:16.000]
+- hxfx_looper_undo_redo 1
+
+# Stop looper and exit looper mode
+[12:24.000]
+- hxfx_looper_stop 1
+[+100ms]
+- hxfx_looper_off 1
+
+# End
+[12:30.000]
+
+/*
+ * ============================================================================
+ * ADVANCED TECHNIQUE: TUNER AND TAP TEMPO
+ * ============================================================================
+ */
+
+# Enable tuner between songs
+[12:40.000]
+- hxfx_tuner_on 1
+
+# Disable tuner
+[12:50.000]
+- hxfx_tuner_off 1
+
+# Tap tempo example (send multiple taps at desired tempo)
+# Example: 120 BPM = 500ms per beat
+[13:00.000]
+- hxfx_tap 1
+[+500ms]
+- hxfx_tap 1
+[+500ms]
+- hxfx_tap 1
+[+500ms]
+- hxfx_tap 1
+
+/*
+ * ============================================================================
+ * BEST PRACTICES DEMONSTRATED
+ * ============================================================================
+ *
+ * 1. PRESET ORGANIZATION:
+ *    - Organize by song (4 snapshots per song)
+ *    - Use sequential preset addressing: Bank N = PC ((N-1) × 4)
+ *    - Bank 1 Preset A = PC 0, Bank 2 Preset A = PC 4, etc.
+ *
+ * 2. SNAPSHOT STRATEGY:
+ *    - Snapshot 1: Intro/verse (clean/mild)
+ *    - Snapshot 2: Chorus/rhythm (driven/wet)
+ *    - Snapshot 3: Bridge/ambient (different texture)
+ *    - Snapshot 4: Solo/lead (lead tone)
+ *
+ * 3. FOOTSWITCH USAGE:
+ *    - FS1-2: Core effects (reverb, delay)
+ *    - FS3-4: Drives and modulation
+ *    - FS5-6: Special effects or boost
+ *    - Use footswitches for real-time effect toggles within snapshots
+ *
+ * 4. AMP INTEGRATION:
+ *    - Use Command Center to send PC/CC to external amp
+ *    - Coordinate HX Effects snapshots with amp channel changes
+ *    - 5-pin DIN MIDI chain: Controller → HX Effects → Amp
+ *    - Enable MIDI Thru in Global Settings for chaining
+ *
+ * 5. EXPRESSION PEDAL INTEGRATION:
+ *    - Physical expression pedals (EXP1/EXP2 jacks) for real-time control
+ *    - MIDI expression (CC#1/CC#2) for slow automation only
+ *    - Add 50-100ms delays between MIDI expression updates
+ *
+ * 6. TIMING CONSIDERATIONS:
+ *    - 350ms delay after preset changes (firmware 3.5x)
+ *    - Firmware 3.10+ buffers snapshot changes during preset load
+ *    - Use [@] for simultaneous MIDI messages (amp + HX Effects)
+ *
+ * 7. LIVE PERFORMANCE RELIABILITY:
+ *    - Test all MIDI mappings before performance
+ *    - Use 5-pin DIN MIDI instead of USB for stability
+ *    - Keep firmware updated but test thoroughly
+ *    - Backup presets before gigs
+ *
+ * ============================================================================
+ * HX EFFECTS MIDI IMPLEMENTATION NOTES
+ * ============================================================================
+ *
+ * PRESET ADDRESSING:
+ * - Sequential: PC 0-127 (32 banks × 4 presets)
+ * - Bank N Preset A = PC ((N-1) × 4) + 0
+ * - Bank N Preset B = PC ((N-1) × 4) + 1
+ * - Bank N Preset C = PC ((N-1) × 4) + 2
+ * - Bank N Preset D = PC ((N-1) × 4) + 3
+ * - No Bank Select needed (unlike full Helix)
+ *
+ * SNAPSHOT CONTROL:
+ * - CC#69 values 0-3 select snapshots 1-4
+ * - CC#69 value 8 = next snapshot (wraps)
+ * - CC#69 value 9 = previous snapshot (wraps)
+ *
+ * FOOTSWITCH CONTROL:
+ * - CC#49-54 control footswitches 1-6
+ * - Any value 64-127 toggles the footswitch
+ * - Controls whatever is assigned to each footswitch
+ *
+ * EXPRESSION PEDALS:
+ * - CC#1 = EXP1, CC#2 = EXP2
+ * - CC#59 = EXP toe switch (0-63=off, 64-127=on)
+ * - MIDI expression has latency vs physical pedals
+ *
+ * LOOPER CONTROL:
+ * - CC#60: Record/Overdub (0=overdub, 127=record)
+ * - CC#61: Play/Stop (0=stop, 127=play)
+ * - CC#62: Play Once (one-shot playback)
+ * - CC#63: Undo/Redo
+ * - CC#65: Direction (0=forward, 127=reverse)
+ * - CC#66: Speed (0=full, 127=half)
+ * - CC#67: Looper on/off (0=off, 127=on)
+ *
+ * GLOBAL FUNCTIONS:
+ * - CC#64: Tap tempo (send multiple times at desired tempo)
+ * - CC#68: Tuner (0-63=off, 64-127=on)
+ * - CC#72: Preset navigation (0=prev, 127=next)
+ *
+ * 5-PIN DIN MIDI ADVANTAGES:
+ * - Hardware MIDI Thru for daisy-chaining
+ * - Lower jitter vs USB MIDI
+ * - Optical isolation (no ground loops)
+ * - Standard MIDI controller compatibility
+ * - Chain: Controller → HX Effects → Amp → Pedals
+ *
+ * For complete MIDI specification, see:
+ * https://line6.com/support/manuals/hxeffects
+ * ============================================================================
+ */

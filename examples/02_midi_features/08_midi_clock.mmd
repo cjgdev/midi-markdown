@@ -1,0 +1,429 @@
+---
+title: "MIDI Clock and Sync Messages"
+author: "MML Examples"
+description: "Demonstrates MIDI clock sync, transport control, and tempo automation"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ============================================
+# MIDI Clock and Sync Messages
+# ============================================
+#
+# This example demonstrates MIDI clock synchronization messages used
+# to sync external devices, drum machines, sequencers, and DAWs.
+#
+# MIDI Clock Messages:
+#   - clock_start      - Start playback from beginning
+#   - clock_stop       - Stop playback
+#   - clock_continue   - Resume from current position
+#   - clock_tick       - Single timing pulse (24 ppq)
+#   - tempo            - Set tempo in BPM
+#
+# Use cases:
+#   - Sync hardware sequencers to software
+#   - Sync drum machines to MIDI timeline
+#   - Control external loopers and effects
+#   - Automated tempo changes during performance
+#
+# Note: MIDI clock sends 24 pulses per quarter note (ppqn)
+# independently of your project's PPQ setting.
+
+# ============================================
+# Section 1: Basic Transport Control
+# ============================================
+
+[00:00.000]
+- marker "Transport Control Demo"
+- text "MIDI clock start/stop/continue"
+
+# Start MIDI clock at song beginning
+# All synced devices will start playback
+[@]
+- clock_start
+
+# Set initial tempo
+[@]
+- tempo 120
+
+# Play a simple pattern while clock runs
+[00:00.000]
+- note_on 10.C2 100 0.5b   # Kick
+[00:00.480]
+- note_on 10.F#2 60 0.1b   # HiHat
+
+[00:01.000]
+- note_on 10.D2 90 0.5b    # Snare
+[00:01.480]
+- note_on 10.F#2 60 0.1b   # HiHat
+
+[00:02.000]
+- note_on 10.C2 100 0.5b   # Kick
+[00:02.480]
+- note_on 10.F#2 60 0.1b   # HiHat
+
+[00:03.000]
+- note_on 10.D2 90 0.5b    # Snare
+[00:03.480]
+- note_on 10.F#2 60 0.1b   # HiHat
+
+# Stop MIDI clock at 4-second mark
+# All synced devices will stop
+[00:04.000]
+- clock_stop
+- text "Clock stopped"
+
+# ============================================
+# Section 2: Clock Continue (Resume)
+# ============================================
+
+[00:05.000]
+- marker "Clock Continue"
+- text "Resume from current position"
+
+# Continue from where we stopped (not restart from beginning)
+# Synced devices resume from their current position
+[@]
+- clock_continue
+
+# Continue the pattern
+[00:05.000]
+- note_on 10.C2 100 0.5b
+[00:05.480]
+- note_on 10.F#2 60 0.1b
+
+[00:06.000]
+- note_on 10.D2 90 0.5b
+[00:06.480]
+- note_on 10.F#2 60 0.1b
+
+[00:07.000]
+- note_on 10.C2 100 0.5b
+[00:07.480]
+- note_on 10.F#2 60 0.1b
+
+[00:08.000]
+- note_on 10.D2 90 0.5b
+[00:08.480]
+- note_on 10.F#2 60 0.1b
+
+# Stop again
+[00:09.000]
+- clock_stop
+- text "Clock stopped again"
+
+# ============================================
+# Section 3: Tempo Automation with Clock
+# ============================================
+
+[00:10.000]
+- marker "Tempo Automation"
+- text "Gradual tempo changes with sync"
+
+# Restart clock for tempo automation demo
+[@]
+- clock_start
+
+# Start at 90 BPM (slower)
+[@]
+- tempo 90
+
+[00:10.000]
+- note_on 10.C2 100 0.5b
+[00:10.480]
+- note_on 10.F#2 60 0.1b
+
+[00:11.000]
+- note_on 10.D2 90 0.5b
+[00:11.480]
+- note_on 10.F#2 60 0.1b
+
+# Increase tempo to 100 BPM
+[00:12.000]
+- tempo 100
+- text "Tempo: 100 BPM"
+
+[00:12.000]
+- note_on 10.C2 100 0.5b
+[00:12.480]
+- note_on 10.F#2 60 0.1b
+
+[00:13.000]
+- note_on 10.D2 90 0.5b
+[00:13.480]
+- note_on 10.F#2 60 0.1b
+
+# Increase to 120 BPM
+[00:14.000]
+- tempo 120
+- text "Tempo: 120 BPM"
+
+[00:14.000]
+- note_on 10.C2 100 0.5b
+[00:14.480]
+- note_on 10.F#2 60 0.1b
+
+[00:15.000]
+- note_on 10.D2 90 0.5b
+[00:15.480]
+- note_on 10.F#2 60 0.1b
+
+# Increase to 140 BPM (faster)
+[00:16.000]
+- tempo 140
+- text "Tempo: 140 BPM"
+
+[00:16.000]
+- note_on 10.C2 100 0.5b
+[00:16.480]
+- note_on 10.F#2 60 0.1b
+
+[00:17.000]
+- note_on 10.D2 90 0.5b
+[00:17.480]
+- note_on 10.F#2 60 0.1b
+
+# ============================================
+# Section 4: Tempo Ramp (Build-Up)
+# ============================================
+
+[00:18.000]
+- marker "Tempo Ramp"
+- text "Gradual tempo increase (build-up)"
+
+# Create a build-up effect by gradually increasing tempo
+# Common in electronic music for transitions
+[00:18.000]
+- tempo 100
+
+[00:19.000]
+- tempo 105
+
+[00:20.000]
+- tempo 110
+
+[00:21.000]
+- tempo 115
+
+[00:22.000]
+- tempo 120
+
+[00:23.000]
+- tempo 125
+
+[00:24.000]
+- tempo 130
+
+[00:25.000]
+- tempo 135
+
+[00:26.000]
+- tempo 140
+- text "Peak tempo reached"
+
+# Continuous drum pattern during build-up
+@loop 16 times at [00:18.000] every 0.5b
+  - note_on 10.C2 random(95,110) 0.25b
+  [@]
+  - note_on 10.F#2 random(50,70) 0.1b
+@end
+
+# ============================================
+# Section 5: Tempo Slow-Down (Ritardando)
+# ============================================
+
+[00:27.000]
+- marker "Ritardando"
+- text "Gradual tempo decrease (slow down)"
+
+# Slow down effect for musical endings
+[00:27.000]
+- tempo 140
+
+[00:28.000]
+- tempo 130
+
+[00:29.000]
+- tempo 120
+
+[00:30.000]
+- tempo 110
+
+[00:31.000]
+- tempo 100
+
+[00:32.000]
+- tempo 90
+
+[00:33.000]
+- tempo 80
+
+[00:34.000]
+- tempo 70
+
+[00:35.000]
+- tempo 60
+- text "Slowest tempo"
+
+# Drum pattern slows with tempo
+@loop 8 times at [00:27.000] every 1b
+  - note_on 10.C2 100 0.5b
+  [+0.5b]
+  - note_on 10.D2 90 0.5b
+@end
+
+# ============================================
+# Section 6: Stop and Restart
+# ============================================
+
+[00:36.000]
+- marker "Final Section"
+- text "Stop and restart demonstration"
+
+# Stop the clock
+[@]
+- clock_stop
+
+[00:37.000]
+- text "Silence (clock stopped)"
+
+# Restart from beginning
+[00:38.000]
+- clock_start
+- tempo 120
+- text "Clock restarted at 120 BPM"
+
+# Final pattern
+[00:38.000]
+- note_on 10.C2 100 0.5b
+[00:38.480]
+- note_on 10.F#2 60 0.1b
+
+[00:39.000]
+- note_on 10.D2 90 0.5b
+[00:39.480]
+- note_on 10.F#2 60 0.1b
+
+[00:40.000]
+- note_on 10.C2 100 1b
+[@]
+- clock_stop
+- text "Demo complete"
+
+# ============================================
+# Section 7: Practical Use Cases
+# ============================================
+
+[00:42.000]
+- marker "Use Cases"
+- text "Real-world applications"
+
+# Example: Live performance with external drum machine
+# The drum machine is set to "External Sync" mode
+# MIDI clock controls its playback and tempo
+
+[00:42.000]
+- text "Verse: 95 BPM"
+- clock_start
+- tempo 95
+
+[00:50.000]
+- text "Pre-Chorus: Build to 110 BPM"
+- tempo 100
+
+[00:52.000]
+- tempo 105
+
+[00:54.000]
+- tempo 110
+
+[00:56.000]
+- text "Chorus: 110 BPM locked"
+- tempo 110
+
+[01:04.000]
+- text "Bridge: Slow to 85 BPM"
+- tempo 100
+
+[01:06.000]
+- tempo 90
+
+[01:08.000]
+- tempo 85
+
+[01:16.000]
+- text "Final Chorus: Return to 110 BPM"
+- tempo 110
+
+[01:24.000]
+- text "Outro: Slow fade"
+- tempo 100
+
+[01:26.000]
+- tempo 85
+
+[01:28.000]
+- tempo 70
+
+[01:30.000]
+- clock_stop
+- text "Song end"
+
+# ============================================
+# Notes and Best Practices
+# ============================================
+#
+# IMPORTANT TIMING NOTES:
+#
+# 1. MIDI CLOCK RATE:
+#    - MIDI clock sends 24 pulses per quarter note (PPQN)
+#    - This is independent of your project PPQ setting
+#    - At 120 BPM: 24 pulses × 2 beats/sec = 48 pulses/sec
+#
+# 2. TRANSPORT MESSAGES:
+#    - clock_start: Always starts from beginning (position 0)
+#    - clock_continue: Resumes from current position
+#    - clock_stop: Halts playback but maintains position
+#
+# 3. TEMPO CHANGES:
+#    - Tempo changes affect all synced devices immediately
+#    - Gradual changes create musical effects (builds, slowdowns)
+#    - Avoid rapid tempo jumps (can confuse some hardware)
+#
+# 4. DEVICE COMPATIBILITY:
+#    - Not all devices respond to all clock messages
+#    - Some drum machines only respond to start/stop
+#    - Test your specific hardware for compatibility
+#
+# 5. DAW INTEGRATION:
+#    - Most DAWs can generate MIDI clock automatically
+#    - Use MMD for automated tempo changes during performance
+#    - Combine with program changes for complete automation
+#
+# 6. HARDWARE SEQUENCERS:
+#    - Set sequencer to "External Sync" or "MIDI Sync" mode
+#    - clock_start triggers sequencer from beginning
+#    - clock_continue useful for live looping workflows
+#
+# 7. TIMING PRECISION:
+#    - MIDI clock provides +/- 1ms timing accuracy
+#    - Sufficient for most musical applications
+#    - Use audio sync for sub-millisecond requirements
+#
+# COMMON APPLICATIONS:
+#
+# - Live Performance: Sync backing tracks with hardware
+# - Recording: Lock drum machines to DAW timeline
+# - Live Looping: Control looper start/stop/continue
+# - Effects Sync: Sync delay/reverb to song tempo
+# - DJ Transitions: Smooth tempo changes between sections
+#
+# See also:
+# - 04_tempo_changes.mmd for tempo automation examples
+# - docs/user-guide/midi-clock.md for detailed reference
+# - MIDI specification for complete clock protocol
+
+[01:32.000]
+- marker "EOF"

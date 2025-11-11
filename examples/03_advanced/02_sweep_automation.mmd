@@ -23,10 +23,13 @@ ppq: 480
 #     - cc CHANNEL.CONTROLLER.ramp(START_VALUE, END_VALUE, TYPE)
 #   @end
 #
-# Ramp types (currently supported in grammar):
+# Ramp types (supported in grammar):
 # - linear: Constant rate (default if not specified)
-# - exponential: Accelerates
-# - logarithmic: Decelerates
+# - exponential: Accelerates (gets faster)
+# - logarithmic: Decelerates (gets slower)
+# - ease-in: Slow start, fast finish (acceleration curve)
+# - ease-out: Fast start, slow finish (deceleration curve)
+# - ease-in-out: S-curve (smooth acceleration and deceleration)
 #
 # ============================================================================
 
@@ -173,11 +176,131 @@ ppq: 480
   - cc 1.7.ramp(0, 127, logarithmic)
 @end
 
+# Ease-In (gradual acceleration)
+[00:32.500]
+- text "Ease-In (slow start, accelerating)"
+- note_on 1.65 100 1s
 
+@sweep from [00:32.500] to [00:33.500] every 50ms
+  - cc 1.7.ramp(0, 127, ease-in)
+@end
+
+# Ease-Out (gradual deceleration)
+[00:34.000]
+- text "Ease-Out (fast start, decelerating)"
+- note_on 1.67 100 1s
+
+@sweep from [00:34.000] to [00:35.000] every 50ms
+  - cc 1.7.ramp(0, 127, ease-out)
+@end
+
+# Ease-In-Out (S-curve)
+[00:35.500]
+- text "Ease-In-Out (smooth S-curve)"
+- note_on 1.69 100 1s
+
+@sweep from [00:35.500] to [00:36.500] every 50ms
+  - cc 1.7.ramp(0, 127, ease-in-out)
+@end
+
+
+# ============================================================================
+# Advanced: Bezier Curve Comparison
+# ============================================================================
+# Note: For even more control, use curve() instead of sweep with ramp()
+# curve() allows custom bezier curves in addition to presets
+
+[00:37.000]
+- marker "Curves vs Sweeps"
+- text "For custom curves, use curve() expressions"
+
+# Example: Filter sweep with custom bezier curve
+# (This would require curve() expression, not @sweep)
+# [00:37.000]
+# - cc 1.74.curve(0, 127, bezier(0, 40, 80, 127))
+
+
+# ============================================================================
+# Practical Applications
+# ============================================================================
+
+[00:38.000]
+- marker "Practical Applications"
+- text "Real-world use cases for different ramp types"
+
+# USE CASE 1: Smooth fade-in (ease-out for natural start)
+[00:38.000]
+- text "Natural volume fade-in (ease-out)"
+- note_on 1.60 100 4s
+
+@sweep from [00:38.000] to [00:42.000] every 100ms
+  - cc 1.7.ramp(0, 110, ease-out)
+@end
+
+# USE CASE 2: Build-up (ease-in for tension)
+[00:42.500]
+- text "Filter build-up (ease-in creates tension)"
+- note_on 1.48 100 4s
+
+@sweep from [00:42.500] to [00:46.500] every 80ms
+  - cc 1.74.ramp(20, 127, ease-in)
+@end
+
+# USE CASE 3: Professional cross-fade (ease-in-out)
+[00:47.000]
+- text "Cross-fade (ease-in-out for smooth transition)"
+- note_on 1.64 100 4s
+
+@sweep from [00:47.000] to [00:51.000] every 75ms
+  - cc 1.10.ramp(0, 127, ease-in-out)
+@end
+
+
+# ============================================================================
+# When to Use Which Ramp Type
+# ============================================================================
+#
+# LINEAR:
+#   ✓ Technical fades (video sync)
+#   ✓ Mathematical accuracy required
+#   ✓ Constant rate changes
+#   ✗ Can sound mechanical/unnatural
+#
+# EXPONENTIAL:
+#   ✓ Filter opens (more dramatic at end)
+#   ✓ Crescendos (volume builds)
+#   ✓ Excitement/energy builds
+#   ✗ Too aggressive for subtle changes
+#
+# LOGARITHMIC:
+#   ✓ Natural decays
+#   ✓ Reverb tails
+#   ✓ Filter closes (gentle finish)
+#   ✗ Too gentle for impactful changes
+#
+# EASE-IN:
+#   ✓ Tension builds (gradual acceleration)
+#   ✓ Filter sweeps that build intensity
+#   ✓ Leading into drops/hits
+#   ✗ Not ideal for natural fades
+#
+# EASE-OUT:
+#   ✓ Natural fade-ins (smooth entry)
+#   ✓ Volume swells
+#   ✓ Gentle arrivals
+#   ✓ Most natural-sounding for fades
+#
+# EASE-IN-OUT:
+#   ✓ Professional transitions
+#   ✓ Cross-fades
+#   ✓ Smooth automation
+#   ✓ Musical parameter changes
+#   ✓ Best for general-purpose automation
+#
 # ============================================================================
 # End
 # ============================================================================
 
-[00:33.000]
-- text "End of sweep automation demonstration"
+[00:52.000]
+- text "Sweep automation with all ramp types demonstrated"
 - end_of_track

@@ -1,0 +1,466 @@
+---
+title: "Multi-File Project with Custom Imports"
+author: "MML Examples"
+description: "Demonstrates @import for custom MMD libraries (not just device libraries)"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ============================================
+# Multi-File Project Example
+# ============================================
+#
+# This example demonstrates how to use @import to load custom MMD
+# libraries containing reusable alias definitions. This is the same
+# mechanism used for device libraries, but applied to musical content.
+#
+# Benefits of multi-file projects:
+#   - Reusable musical patterns across songs
+#   - Shared team libraries (chord progressions, drum patterns)
+#   - Modular composition (separate files for different sections)
+#   - Version control friendly (smaller focused files)
+#   - Collaborative workflow (different people work on different libraries)
+#
+# Project Structure:
+#   examples/
+#     shared/
+#       chord_progressions.mmd  <- Reusable chord aliases
+#       drum_patterns.mmd       <- Reusable drum aliases
+#     03_advanced/
+#       11_multi_file_project.mmd  <- This file (imports both)
+#
+# The @import statement loads all alias definitions from the target file.
+# You can then use those aliases as if they were defined locally.
+
+# ============================================
+# Import Custom Libraries
+# ============================================
+
+# Import chord progression library
+# Contains aliases like: c_major_triad, c_min7, prog_pop, etc.
+@import "../shared/chord_progressions.mmd"
+
+# Import drum pattern library
+# Contains aliases like: pattern_basic_rock, fill_simple_tom, etc.
+@import "../shared/drum_patterns.mmd"
+
+# Note: Paths are relative to this file's location
+# "../shared/" means go up one directory, then into shared/
+
+# ============================================
+# Global Definitions
+# ============================================
+
+@define INTRO_TEMPO 100
+@define MAIN_TEMPO 120
+@define OUTRO_TEMPO 90
+
+@define ROOT_NOTE 60  # C4 (middle C)
+@define CHORD_VEL 75
+@define DRUM_VEL 100
+
+# ============================================
+# Section 1: Intro (Using Imported Aliases)
+# ============================================
+
+[00:00.000]
+- marker "Intro"
+- text "Using imported chord and drum aliases"
+- tempo ${INTRO_TEMPO}
+
+# Count-in using imported drum pattern
+- intro_count_in 10 80
+
+# Simple chord progression using imported aliases
+# These aliases are defined in shared/chord_progressions.mmd
+[00:04.000]
+- text "Chord progression: I - vi - IV - V"
+
+# I chord (C major)
+- c_major_triad 1 ${ROOT_NOTE} ${CHORD_VEL} 2b
+
+# vi chord (A minor)
+[00:06.000]
+- c_minor_triad 1 69 ${CHORD_VEL} 2b  # 69 = A4
+
+# IV chord (F major)
+[00:08.000]
+- c_major_triad 1 65 ${CHORD_VEL} 2b  # 65 = F4
+
+# V chord (G major)
+[00:10.000]
+- c_major_triad 1 67 ${CHORD_VEL} 2b  # 67 = G4
+
+# ============================================
+# Section 2: Verse (Combining Imports)
+# ============================================
+
+[00:12.000]
+- marker "Verse 1"
+- text "Drums + chords from imported libraries"
+- tempo ${MAIN_TEMPO}
+
+# Start drums using imported pattern
+- pattern_basic_rock 10 ${DRUM_VEL}
+
+# Layer chords on top
+[@]
+- c_major_triad 1 ${ROOT_NOTE} ${CHORD_VEL} 4b
+
+[00:16.000]
+- pattern_basic_rock 10 ${DRUM_VEL}
+[@]
+- c_minor_triad 1 65 ${CHORD_VEL} 4b  # F minor
+
+[00:20.000]
+- pattern_basic_rock 10 ${DRUM_VEL}
+[@]
+- c_major_triad 1 67 ${CHORD_VEL} 4b  # G major
+
+[00:24.000]
+- pattern_basic_rock 10 ${DRUM_VEL}
+[@]
+- c_minor_triad 1 69 ${CHORD_VEL} 4b  # A minor
+
+# ============================================
+# Section 3: Pre-Chorus (Using Jazz Progression)
+# ============================================
+
+[00:28.000]
+- marker "Pre-Chorus"
+- text "Jazz progression: ii-V-I"
+
+# Use the imported jazz progression
+# This automatically plays three chords in sequence
+- prog_ii_v_i 1 ${ROOT_NOTE} ${CHORD_VEL} 2b
+
+# Add breakbeat pattern
+[@]
+- pattern_breakbeat 10 ${DRUM_VEL}
+
+[00:32.000]
+- pattern_breakbeat 10 ${DRUM_VEL}
+
+# Add tom fill leading to chorus
+[00:34.000]
+- fill_simple_tom 10 ${DRUM_VEL}
+
+# ============================================
+# Section 4: Chorus (Pop Progression)
+# ============================================
+
+[00:36.000]
+- marker "Chorus"
+- text "Pop progression: I-V-vi-IV"
+
+# Use the imported pop progression (I-V-vi-IV)
+# This is the "four chords" used in countless pop songs
+- prog_pop 1 ${ROOT_NOTE} ${CHORD_VEL} 2b
+
+# Four-on-the-floor dance beat
+[@]
+- pattern_four_floor 10 ${DRUM_VEL}
+
+[00:44.000]
+- pattern_four_floor 10 ${DRUM_VEL}
+
+# Repeat chorus
+[00:48.000]
+- text "Chorus repeat"
+- prog_pop 1 ${ROOT_NOTE} ${CHORD_VEL} 2b
+[@]
+- pattern_four_floor 10 ${DRUM_VEL}
+
+[00:56.000]
+- pattern_four_floor 10 ${DRUM_VEL}
+
+# ============================================
+# Section 5: Bridge (7th Chords)
+# ============================================
+
+[01:00.000]
+- marker "Bridge"
+- text "Using 7th chord voicings"
+
+# Demonstrate different 7th chord types from imported library
+[01:00.000]
+- c_maj7 1 ${ROOT_NOTE} ${CHORD_VEL} 2b  # Cmaj7
+[@]
+- pattern_shuffle 10 ${DRUM_VEL}
+
+[01:04.000]
+- c_min7 1 62 ${CHORD_VEL} 2b  # Dm7
+[@]
+- pattern_shuffle 10 ${DRUM_VEL}
+
+[01:08.000]
+- c_dom7 1 67 ${CHORD_VEL} 2b  # G7
+[@]
+- pattern_shuffle 10 ${DRUM_VEL}
+
+[01:12.000]
+- c_maj7 1 ${ROOT_NOTE} ${CHORD_VEL} 2b  # Cmaj7
+[@]
+- pattern_shuffle 10 ${DRUM_VEL}
+
+# ============================================
+# Section 6: Breakdown (Arpeggios)
+# ============================================
+
+[01:16.000]
+- marker "Breakdown"
+- text "Arpeggiated chords with minimal drums"
+
+# Use imported arpeggio patterns
+- arp_major 1 ${ROOT_NOTE} 80 0.5b  # C major arpeggio
+[@]
+- basic_kick 10 90
+
+[01:18.000]
+- arp_minor 1 69 80 0.5b  # A minor arpeggio
+[@]
+- basic_snare 10 85
+
+[01:20.000]
+- arp_major 1 65 80 0.5b  # F major arpeggio
+[@]
+- basic_kick 10 90
+
+[01:22.000]
+- arp_maj7 1 67 80 0.5b  # G major 7th arpeggio
+[@]
+- basic_snare 10 85
+
+# ============================================
+# Section 7: Build-Up (Using Fill)
+# ============================================
+
+[01:24.000]
+- marker "Build-Up"
+- text "Crash build-up to final chorus"
+
+# Use imported build-up fill
+- fill_crash_buildup 10 ${DRUM_VEL}
+
+# Add ascending chords for tension
+[01:24.000]
+- c_major_triad 1 ${ROOT_NOTE} ${CHORD_VEL} 1b
+
+[01:25.000]
+- c_major_triad 1 62 ${CHORD_VEL} 1b  # D major
+
+[01:26.000]
+- c_major_triad 1 64 ${CHORD_VEL} 1b  # E major
+
+[01:27.000]
+- c_major_triad 1 65 ${CHORD_VEL} 1b  # F major
+
+# ============================================
+# Section 8: Final Chorus (Full Energy)
+# ============================================
+
+[01:28.000]
+- marker "Final Chorus"
+- text "Full arrangement with all elements"
+
+# Use section_chorus pattern (4-bar composite)
+- section_chorus 10 110
+
+# Layer multiple chord voicings for fullness
+[@]
+- c_major_close 1 ${ROOT_NOTE} ${CHORD_VEL} 4b
+[@]
+- c_major_open 2 ${ROOT_NOTE-12} 65 4b  # Bass note octave lower
+
+[01:32.000]
+- c_minor_close 1 65 ${CHORD_VEL} 4b
+[@]
+- c_minor_open 2 53 65 4b  # F minor bass
+
+[01:36.000]
+- c_major_close 1 67 ${CHORD_VEL} 4b
+[@]
+- c_major_open 2 55 65 4b  # G major bass
+
+[01:40.000]
+- c_minor_close 1 69 ${CHORD_VEL} 4b
+[@]
+- c_minor_open 2 57 65 4b  # A minor bass
+
+# ============================================
+# Section 9: Outro (Slowdown)
+# ============================================
+
+[01:44.000]
+- marker "Outro"
+- text "Gradual slowdown to end"
+- tempo ${OUTRO_TEMPO}
+
+# Use imported outro pattern
+- outro_slowdown 10 90
+
+# Final chord progression
+[@]
+- c_major_triad 1 ${ROOT_NOTE} ${CHORD_VEL} 2b
+
+[01:46.000]
+- c_major_triad 1 65 ${CHORD_VEL} 2b  # F major
+
+[01:48.000]
+- c_major_triad 1 ${ROOT_NOTE} ${CHORD_VEL} 4b  # Final C major
+
+[01:52.000]
+- marker "End"
+- text "Multi-file project complete"
+
+# ============================================
+# Example: Creating Your Own Libraries
+# ============================================
+#
+# To create your own reusable library:
+#
+# 1. CREATE LIBRARY FILE:
+#    Create a new .mmd file in shared/ directory
+#    Example: shared/my_patterns.mmd
+#
+# 2. ADD FRONTMATTER:
+#    ---
+#    title: "My Custom Patterns"
+#    description: "Description of what this library contains"
+#    version: 1.0.0
+#    ---
+#
+# 3. DEFINE ALIASES:
+#    @alias my_pattern {param1}.{param2} "Description"
+#      - note_on {param1}.60 {param2} 1b
+#    @end
+#
+# 4. IMPORT IN OTHER FILES:
+#    @import "shared/my_patterns.mmd"
+#    - my_pattern 1 100
+#
+# 5. ORGANIZE BY CATEGORY:
+#    - shared/bass_lines.mmd
+#    - shared/synth_leads.mmd
+#    - shared/fx_automation.mmd
+#    - shared/transitions.mmd
+#
+
+# ============================================
+# Benefits of Multi-File Projects
+# ============================================
+#
+# REUSABILITY:
+# - Write chord progressions once, use in multiple songs
+# - Share drum patterns across band/team
+# - Build a personal library of musical ideas
+#
+# COLLABORATION:
+# - Different musicians work on different libraries
+# - Bass player maintains bass_lines.mmd
+# - Drummer maintains drum_patterns.mmd
+# - Keyboardist maintains chord_progressions.mmd
+#
+# MAINTAINABILITY:
+# - Update a pattern once, affects all songs using it
+# - Easier to review smaller focused files
+# - Better version control (git diff shows what changed)
+#
+# ORGANIZATION:
+# - Separate musical content from song structure
+# - Libraries are instruments, songs are compositions
+# - Easier to find and browse patterns
+#
+# TESTING:
+# - Test libraries independently
+# - Validate chord voicings once
+# - Ensure patterns work before using in songs
+#
+# PORTABILITY:
+# - Share libraries between projects
+# - Export libraries for community use
+# - Import community libraries
+#
+
+# ============================================
+# Advanced Import Techniques
+# ============================================
+#
+# MULTIPLE IMPORTS:
+# You can import multiple libraries in any order:
+#
+#   @import "shared/chords.mmd"
+#   @import "shared/drums.mmd"
+#   @import "shared/bass.mmd"
+#   @import "../other_project/shared/fx.mmd"
+#
+# DEVICE + CUSTOM IMPORTS:
+# Combine device libraries with custom musical libraries:
+#
+#   @import "../../devices/quad_cortex.mmd"
+#   @import "../shared/chord_progressions.mmd"
+#   - qc_load_preset 1 2 0 0
+#   - c_major_triad 1 60 80 2b
+#
+# RELATIVE PATHS:
+# - "../shared/" = go up one directory, then into shared/
+# - "../../devices/" = go up two directories, then into devices/
+# - "shared/" = look in shared/ subdirectory of current location
+#
+# IMPORT BEST PRACTICES:
+# - Put imports at top of file (before events)
+# - Use descriptive library names
+# - Document what each library contains
+# - Version your libraries (include version in frontmatter)
+# - Test library changes before committing
+#
+
+# ============================================
+# Library Naming Conventions
+# ============================================
+#
+# SUGGESTED STRUCTURE:
+#
+# shared/
+#   musical/
+#     chord_progressions.mmd
+#     bass_lines.mmd
+#     drum_patterns.mmd
+#     synth_leads.mmd
+#   fx/
+#     transitions.mmd
+#     builds.mmd
+#     automation.mmd
+#   templates/
+#     song_structure.mmd
+#     intro_outro.mmd
+#
+# NAMING ALIASES:
+# - Prefix by category: c_ for chords, d_ for drums, b_ for bass
+# - Use descriptive names: prog_jazz_251 not just prog1
+# - Include parameters in name: pattern_basic_rock_4_4
+# - Document in description string
+#
+# VERSION CONTROL:
+# - Include version number in frontmatter
+# - Breaking changes = major version bump
+# - New aliases = minor version bump
+# - Bug fixes = patch version bump
+#
+
+# ============================================
+# See Also
+# ============================================
+#
+# - ../shared/chord_progressions.mmd - Imported chord library
+# - ../shared/drum_patterns.mmd - Imported drum library
+# - 01_device_import.mmd - Device library imports
+# - 03_alias_showcase.mmd - Alias system details
+# - docs/user-guide/imports.md - Full import documentation
+# - docs/user-guide/creating-libraries.md - Library creation guide
+#
+
+[01:54.000]
+- marker "EOF"

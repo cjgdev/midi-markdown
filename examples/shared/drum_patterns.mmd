@@ -1,0 +1,436 @@
+---
+title: "Shared Drum Pattern Library"
+description: "Reusable drum pattern aliases for multi-file projects"
+author: "MML Examples"
+version: 1.0.0
+---
+
+# ============================================================================
+# SHARED DRUM PATTERN LIBRARY
+# ============================================================================
+#
+# This library provides reusable drum pattern aliases using General MIDI
+# drum map (Channel 10). Import into any project for instant drum patterns.
+#
+# Usage:
+#   @import "shared/drum_patterns.mmd"
+#   - basic_kick 10 100
+#   - basic_snare 10 90
+#
+# All patterns use channel 10 (GM drums) unless otherwise specified.
+#
+# General MIDI Drum Map (Common notes):
+#   C2  (36) - Bass Drum 1 (Kick)
+#   C#2 (37) - Side Stick
+#   D2  (38) - Acoustic Snare
+#   E2  (40) - Electric Snare
+#   F#2 (42) - Closed Hi-Hat
+#   G#2 (44) - Pedal Hi-Hat
+#   A#2 (46) - Open Hi-Hat
+#   B2  (47) - Low Tom
+#   D3  (50) - High Tom
+#   C#3 (49) - Crash Cymbal 1
+#   D#3 (51) - Ride Cymbal 1
+#
+
+# ============================================================================
+# BASIC DRUM HITS (Individual elements)
+# ============================================================================
+
+@alias basic_kick {ch}.{vel} "Single kick drum hit"
+  - note_on {ch}.C2 {vel} 0.1b
+@end
+
+@alias basic_snare {ch}.{vel} "Single snare hit"
+  - note_on {ch}.D2 {vel} 0.1b
+@end
+
+@alias basic_hihat_closed {ch}.{vel} "Single closed hi-hat"
+  - note_on {ch}.F#2 {vel} 0.1b
+@end
+
+@alias basic_hihat_open {ch}.{vel} "Single open hi-hat"
+  - note_on {ch}.A#2 {vel} 0.25b
+@end
+
+@alias basic_crash {ch}.{vel} "Crash cymbal hit"
+  - note_on {ch}.C#3 {vel} 2b
+@end
+
+@alias basic_ride {ch}.{vel} "Ride cymbal hit"
+  - note_on {ch}.D#3 {vel} 0.1b
+@end
+
+# ============================================================================
+# BASIC PATTERNS (1-bar loops)
+# ============================================================================
+
+@alias pattern_basic_rock {ch}.{vel} "Basic rock beat (4/4)"
+  # Beat 1 - Kick + Hi-hat
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-20} 0.1b
+
+  # Beat 2 - Snare + Hi-hat
+  [+1b]
+  - note_on {ch}.D2 {vel-10} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-20} 0.1b
+
+  # Beat 3 - Kick + Hi-hat
+  [+1b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-20} 0.1b
+
+  # Beat 4 - Snare + Hi-hat
+  [+1b]
+  - note_on {ch}.D2 {vel-10} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-20} 0.1b
+@end
+
+@alias pattern_four_floor {ch}.{vel} "Four-on-the-floor (house/dance)"
+  # Kick on every beat
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+  [@]
+  - note_on {ch}.D2 {vel-10} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+  [@]
+  - note_on {ch}.D2 {vel-10} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+@end
+
+@alias pattern_breakbeat {ch}.{vel} "Breakbeat pattern (hip-hop)"
+  # Beat 1
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  # Offbeat
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  # Beat 2
+  [+0.5b]
+  - note_on {ch}.D2 {vel-5} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  # Offbeat with ghost snare
+  [+0.25b]
+  - note_on {ch}.D2 {vel-40} 0.05b
+  [+0.25b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  # Beat 3
+  [+0.5b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  # Syncopated kick
+  [+0.33b]
+  - note_on {ch}.C2 {vel-15} 0.1b
+  [+0.17b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  # Beat 4
+  [+0.5b]
+  - note_on {ch}.D2 {vel-5} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  # Offbeat
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+@end
+
+@alias pattern_shuffle {ch}.{vel} "Shuffle/swing pattern (jazz)"
+  # Triplet feel (approximate with 0.33b divisions)
+
+  # Beat 1
+  - note_on {ch}.D#3 {vel-20} 0.1b  # Ride
+  [@]
+  - note_on {ch}.C2 {vel} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-35} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-25} 0.1b
+
+  # Beat 2
+  [+0.34b]
+  - note_on {ch}.D#3 {vel-20} 0.1b
+  [@]
+  - note_on {ch}.D2 {vel-10} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-35} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-25} 0.1b
+
+  # Beat 3
+  [+0.34b]
+  - note_on {ch}.D#3 {vel-20} 0.1b
+  [@]
+  - note_on {ch}.C2 {vel} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-35} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-25} 0.1b
+
+  # Beat 4
+  [+0.34b]
+  - note_on {ch}.D#3 {vel-20} 0.1b
+  [@]
+  - note_on {ch}.D2 {vel-10} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-35} 0.1b
+
+  [+0.33b]
+  - note_on {ch}.D#3 {vel-25} 0.1b
+@end
+
+@alias pattern_halftime {ch}.{vel} "Half-time feel (hip-hop/trap)"
+  # Extended 2-bar pattern with sparse kick/snare
+
+  # Bar 1, Beat 1
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  # Offbeats
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  # Bar 1, Beat 3 - Snare delayed
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+  [+0.25b]
+  - note_on {ch}.D2 {vel-5} 0.1b
+  [+0.25b]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  [+0.5b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+@end
+
+# ============================================================================
+# FILLS (Transitional patterns)
+# ============================================================================
+
+@alias fill_simple_tom {ch}.{vel} "Simple tom fill (1 beat)"
+  - note_on {ch}.B2 {vel-10} 0.25b   # Low tom
+  [+0.25b]
+  - note_on {ch}.B2 {vel-10} 0.25b
+  [+0.25b]
+  - note_on {ch}.D3 {vel-5} 0.25b    # High tom
+  [+0.25b]
+  - note_on {ch}.D3 {vel} 0.25b
+@end
+
+@alias fill_crash_buildup {ch}.{vel} "Build-up to crash (1 bar)"
+  # Increasing intensity leading to crash
+  - note_on {ch}.D2 {vel-30} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel-25} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel-20} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel-15} 0.25b
+
+  [+0.25b]
+  - note_on {ch}.D2 {vel-10} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel-5} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel} 0.25b
+  [+0.25b]
+  - note_on {ch}.D2 {vel} 0.25b
+
+  # Final crash
+  [+0.25b]
+  - note_on {ch}.C#3 {vel} 2b
+  [@]
+  - note_on {ch}.C2 {vel} 0.1b
+@end
+
+@alias fill_roll {ch}.{vel} "Snare roll (1 beat)"
+  # Fast snare hits
+  - note_on {ch}.D2 {vel-20} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel-15} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel-10} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel-5} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel} 0.125b
+  [+0.125b]
+  - note_on {ch}.D2 {vel} 0.125b
+@end
+
+# ============================================================================
+# INTROS/OUTROS
+# ============================================================================
+
+@alias intro_count_in {ch}.{vel} "4-beat count-in (hi-hat)"
+  - note_on {ch}.F#2 {vel} 0.1b
+  [+1b]
+  - note_on {ch}.F#2 {vel} 0.1b
+  [+1b]
+  - note_on {ch}.F#2 {vel} 0.1b
+  [+1b]
+  - note_on {ch}.F#2 {vel} 0.1b
+@end
+
+@alias intro_build {ch}.{vel} "Build-up intro (2 bars)"
+  # Bar 1 - Just hi-hats
+  @loop 8 times every 0.5b
+    - note_on {ch}.F#2 {vel-30} 0.1b
+  @end
+
+  # Bar 2 - Add kick, building to full pattern
+  [+4b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  [+1b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+
+  [+1b]
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.D2 {vel-10} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  [+1b]
+  - note_on {ch}.F#2 {vel-30} 0.1b
+@end
+
+@alias outro_slowdown {ch}.{vel} "Slowing outro (4 beats)"
+  # Gradually slower hits suggesting tempo slowdown
+  - note_on {ch}.C2 {vel} 0.1b
+  [@]
+  - note_on {ch}.F#2 {vel-25} 0.1b
+
+  [+1b]
+  - note_on {ch}.D2 {vel-10} 0.1b
+
+  [+1.2b]  # Slightly slower
+  - note_on {ch}.C2 {vel-10} 0.1b
+
+  [+1.4b]  # Even slower
+  - note_on {ch}.D2 {vel-15} 0.1b
+  [@]
+  - note_on {ch}.C#3 {vel-20} 2b  # Final crash
+@end
+
+# ============================================================================
+# COMPOSITE PATTERNS (Multi-bar sections)
+# ============================================================================
+
+@alias section_verse {ch}.{vel} "4-bar verse pattern"
+  # Bars 1-3: Basic groove
+  @loop 3 times every 4b
+    - pattern_basic_rock {ch} {vel}
+  @end
+
+  # Bar 4: Add fill leading to chorus
+  [+12b]
+  - fill_simple_tom {ch} {vel}
+  [+1b]
+  - fill_crash_buildup {ch} {vel}
+@end
+
+@alias section_chorus {ch}.{vel} "4-bar chorus pattern with energy"
+  # Bars 1-3: Energetic four-on-floor
+  @loop 3 times every 4b
+    - pattern_four_floor {ch} {vel}
+  @end
+
+  # Bar 4: Build to next section
+  [+12b]
+  - fill_crash_buildup {ch} {vel}
+@end
+
+# ============================================================================
+# Usage Notes
+# ============================================================================
+#
+# PARAMETER SUBSTITUTION:
+# - {ch} - MIDI channel (typically 10 for GM drums)
+# - {vel} - Base velocity (individual hits adjust from this)
+# - {vel-20} - Reduces velocity by 20 (for dynamics)
+#
+# TIMING:
+# - [@] - Play at same time as previous (layering)
+# - [+1b] - Wait 1 beat before next event
+# - [+0.5b] - Wait half beat (eighth note)
+#
+# LOOPS:
+# - @loop N times every Xb - Repeat pattern N times
+# - Creates consistent grooves without repetition
+#
+# EXAMPLE USAGE:
+#
+# @import "shared/drum_patterns.mmd"
+#
+# [00:00.000]
+# - intro_count_in 10 100
+#
+# [00:02.000]
+# - section_verse 10 100
+#
+# [00:10.000]
+# - section_chorus 10 110
+#
+# [00:18.000]
+# - pattern_breakbeat 10 95
+#
