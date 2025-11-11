@@ -86,3 +86,4 @@ dist/
 *.tmp
 .tmp/
 temp/
+.mmd_history
