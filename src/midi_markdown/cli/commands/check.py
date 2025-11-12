@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from midi_markdown.cli.encoding_utils import safe_emoji
 from midi_markdown.cli.error_handler import ErrorContext, cli_error_handler
 
 
@@ -97,7 +98,8 @@ def check(
         doc = parser.parse_file(input_file)
 
         # Success!
-        console.print("[green]✓[/green] Syntax is valid")
+        check_mark = safe_emoji("✓", "[OK]")
+        console.print(f"[green]{check_mark}[/green] Syntax is valid")
         if verbose:
             console.print(f"  [dim]Parsed: {len(doc.events)} event(s)[/dim]")
             console.print("  [dim]Note: Use 'validate' command for full validation[/dim]")

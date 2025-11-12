@@ -9,6 +9,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from midi_markdown.cli.encoding_utils import safe_emoji
 from midi_markdown.parser.parser import MMDParser
 
 
@@ -93,7 +94,8 @@ def library_info(
 
     if not lib_file.exists():
         console.print()
-        console.print(f"[red]✗ Library not found:[/red] [bold]{name}[/bold]")
+        cross = safe_emoji("✗", "[X]")
+        console.print(f"[red]{cross} Library not found:[/red] [bold]{name}[/bold]")
         console.print()
         console.print("[dim]Available libraries:[/dim]")
         libraries = sorted(
@@ -104,7 +106,7 @@ def library_info(
             ]
         )
         for lib in libraries:
-            console.print(f"  • [cyan]{lib}[/cyan]")
+            console.print(f"  - [cyan]{lib}[/cyan]")
         console.print()
         console.print(
             "[dim]Use[/dim] [cyan]midimarkup library list[/cyan] [dim]to see all libraries[/dim]"
@@ -117,7 +119,8 @@ def library_info(
         doc = parser.parse_file(lib_file)
     except Exception as e:
         console.print()
-        console.print(f"[red]✗ Failed to parse library:[/red] {e}")
+        cross = safe_emoji("✗", "[X]")
+        console.print(f"[red]{cross} Failed to parse library:[/red] {e}")
         console.print()
         raise typer.Exit(1)
 
@@ -202,14 +205,16 @@ def library_validate(
         parser = MMDParser()
         doc = parser.parse_file(library_file)
     except Exception as e:
-        console.print(f"[red]✗ Parse error:[/red] {e}")
+        cross = safe_emoji("✗", "[X]")
+        console.print(f"[red]{cross} Parse error:[/red] {e}")
         console.print()
         console.print("[dim]The library file has syntax errors and cannot be parsed.[/dim]")
         raise typer.Exit(1)
 
     # Check for aliases
     if not doc.aliases:
-        console.print("[yellow]⚠ Warning: No aliases defined in this library[/yellow]")
+        warning = safe_emoji("⚠", "[!]")
+        console.print(f"[yellow]{warning} Warning: No aliases defined in this library[/yellow]")
         console.print()
         console.print("[dim]Device libraries should define at least one alias.[/dim]")
         console.print()
@@ -229,23 +234,25 @@ def library_validate(
                 errors.append(f"Alias '{alias_name}' has parameter without 'name' field")
 
     if errors:
-        console.print(f"[red]✗ Validation failed with {len(errors)} error(s):[/red]")
+        cross = safe_emoji("✗", "[X]")
+        console.print(f"[red]{cross} Validation failed with {len(errors)} error(s):[/red]")
         console.print()
         for error in errors:
-            console.print(f"  [red]•[/red] {error}")
+            console.print(f"  [red]-[/red] {error}")
         console.print()
         raise typer.Exit(1)
 
     # Success!
     alias_count = len(doc.aliases)
-    console.print("[green]✓ Validation passed[/green]")
+    check = safe_emoji("✓", "[OK]")
+    console.print(f"[green]{check} Validation passed[/green]")
     console.print()
-    console.print(f"  • [green]{alias_count}[/green] alias(es) defined")
+    console.print(f"  - [green]{alias_count}[/green] alias(es) defined")
     if doc.frontmatter:
         if "title" in doc.frontmatter:
-            console.print(f"  • Title: {doc.frontmatter['title']}")
+            console.print(f"  - Title: {doc.frontmatter['title']}")
         if "version" in doc.frontmatter:
-            console.print(f"  • Version: {doc.frontmatter['version']}")
+            console.print(f"  - Version: {doc.frontmatter['version']}")
     console.print()
     console.print("[dim]The library is valid and ready to use.[/dim]")
     console.print()

@@ -12,6 +12,7 @@ import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
+from midi_markdown.cli.encoding_utils import safe_emoji
 from midi_markdown.core.compiler import compile_ast_to_ir
 from midi_markdown.parser.parser import MMDParser
 from midi_markdown.runtime.midi_io import MIDIOutputManager
@@ -136,7 +137,8 @@ def _play_simple(
         progress.update(task, description="[green]Playback complete")
 
     console.print()
-    console.print("[green]✓[/green] Done")
+    check_mark = safe_emoji("✓", "[OK]")
+    console.print(f"[green]{check_mark}[/green] Done")
 
 
 def _play_with_tui(

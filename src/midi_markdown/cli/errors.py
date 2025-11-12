@@ -378,7 +378,7 @@ def show_parse_error(
         header = f"{emoji}[red bold]error[{error_code}][/red bold]: {message}"
 
     # Format file location
-    location = f"  → {source_file}:{line}:{column + 1}"
+    location = f"  -> {source_file}:{line}:{column + 1}"
 
     # Format code context
     context = format_code_context(source_lines, line, column, no_color=no_color)
@@ -501,7 +501,7 @@ def show_validation_error(
     parts = [header]
     if source_file and hasattr(error, "line") and error.line:
         column = getattr(error, "column", 1)
-        parts.append(f"  → {source_file}:{error.line}:{column}")
+        parts.append(f"  -> {source_file}:{error.line}:{column}")
 
         # Add code context if we have source
         try:
@@ -633,7 +633,7 @@ def show_expansion_error(
     # Add file location
     parts = [header]
     if error.file and error.line:
-        parts.append(f"  → {error.file}:{error.line}:1")
+        parts.append(f"  -> {error.file}:{error.line}:1")
 
         # Add code context if source is readable
         try:
@@ -706,7 +706,7 @@ def show_success(
     if "input_size_bytes" in stats and "output_size_bytes" in stats:
         input_kb = stats["input_size_bytes"] / 1024
         output_kb = stats["output_size_bytes"] / 1024
-        stats_lines.append(f"Input: {input_kb:.1f} KB → Output: {output_kb:.1f} KB")
+        stats_lines.append(f"Input: {input_kb:.1f} KB -> Output: {output_kb:.1f} KB")
 
     # Expansion statistics (if any)
     expansion_stats = []
@@ -774,7 +774,7 @@ def _create_call_chain_table(
     style = "red bold" if not no_color else "bold"
     table.add_row(
         str(final_step),
-        f"[{style}]{final_alias} ← ERROR[/{style}]" if not no_color else f"{final_alias} ← ERROR",
+        f"[{style}]{final_alias} <- ERROR[/{style}]" if not no_color else f"{final_alias} <- ERROR",
         "",
     )
 

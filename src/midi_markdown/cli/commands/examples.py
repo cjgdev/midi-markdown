@@ -9,6 +9,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
 
+from midi_markdown.cli.encoding_utils import safe_emoji
+
 # Example MML snippets
 EXAMPLES = {
     "hello": {
@@ -156,18 +158,20 @@ def examples(
             console.print(f"               [dim]{example['description']}[/dim]")
             console.print()
 
-        console.print("[dim]💡 View full code:[/dim] [cyan]midimarkup examples <name>[/cyan]")
+        lightbulb = safe_emoji("💡", "[i]")
+        console.print(f"[dim]{lightbulb} View full code:[/dim] [cyan]midimarkup examples <name>[/cyan]")
         console.print()
         return
 
     # Show specific example
     if name not in EXAMPLES:
         console.print()
-        console.print(f"[red]✗ Unknown example:[/red] [bold]{name}[/bold]")
+        cross = safe_emoji("✗", "[X]")
+        console.print(f"[red]{cross} Unknown example:[/red] [bold]{name}[/bold]")
         console.print()
         console.print("[dim]Available examples:[/dim]")
         for key in sorted(EXAMPLES.keys()):
-            console.print(f"  • [green]{key}[/green]")
+            console.print(f"  - [green]{key}[/green]")
         console.print()
         console.print(
             "[dim]Run[/dim] [cyan]midimarkup examples[/cyan] [dim]to see all examples[/dim]"
