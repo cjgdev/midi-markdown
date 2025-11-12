@@ -48,14 +48,14 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           ./dist/mmdc/mmdc --version
-          ./dist/mmdc/mmdc compile ${{ github.workspace }}/examples/00_hello_world.mmd -o /tmp/test.mid
+          ./dist/mmdc/mmdc compile ${{ github.workspace }}/examples/00_basics/01_hello_world.mmd -o /tmp/test.mid
           ls -lh /tmp/test.mid
 
       - name: Test executable (Windows)
         if: runner.os == 'Windows'
         run: |
           .\dist\mmdc\mmdc.exe --version
-          .\dist\mmdc\mmdc.exe compile ${{ github.workspace }}\examples\00_hello_world.mmd -o test.mid
+          .\dist\mmdc\mmdc.exe compile ${{ github.workspace }}\examples\00_basics\01_hello_world.mmd -o test.mid
           dir test.mid
 
       - name: Create archive (Linux)
