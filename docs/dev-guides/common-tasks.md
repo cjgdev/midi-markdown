@@ -682,4 +682,4 @@ pytest -m unit
 - [timing-system.md](./timing-system.md) - Timing calculation deep-dive
 - [anti-patterns.md](./anti-patterns.md) - Common mistakes to avoid
 - [specification.md](../reference/specification.md) - Language specification
-- [examples/](../../examples/) - Working examples for all features
+- [examples/](https://github.com/cjgdev/midi-markdown/tree/main/examples) - 51 working examples for all features

@@ -1188,12 +1188,12 @@ ppq: 480
 - [Device Libraries Guide](device-libraries.md) - Using device libraries
 - [Timing System Guide](timing-system.md) - Understanding timing paradigms (coming soon)
 - [CLI Reference](../cli-reference/overview.md) - Command-line tools
-- [Examples Directory](../../examples/) - 16 runnable examples
+- [Examples Directory](https://github.com/cjgdev/midi-markdown/tree/main/examples) - 51 runnable examples across 7 categories
 
 ---
 
 **Next Steps:**
 1. Try the [quickstart guide](../getting-started/quickstart.md) to compile your first file
-2. Explore [example files](../../examples/) for real-world patterns
+2. Explore [example files](https://github.com/cjgdev/midi-markdown/tree/main/examples) for real-world patterns
 3. Learn about [device libraries](device-libraries.md) for your gear
 4. Read the [alias system guide](alias-system.md) for advanced automation

@@ -713,10 +713,10 @@ tempo: 120
 - [Device Libraries](device-libraries.md) - High-level device control
 
 ### Examples
-- [01_loops_and_patterns.mmd](../../examples/03_advanced/01_loops_and_patterns.mmd) - Loop demonstrations
-- [variables_basic.mmd](../../tests/fixtures/variables_basic.mmd) - Variable examples
-- [02_arpeggiator.mmd](../../examples/03_advanced/02_arpeggiator.mmd) - Variables + loops for arpeggios
-- [03_polyrhythm.mmd](../../examples/03_advanced/03_polyrhythm.mmd) - Multiple loops in polyrhythm
+- [01_loops_and_patterns.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/01_loops_and_patterns.mmd) - Loop demonstrations
+- [variables_basic.mmd](https://github.com/cjgdev/midi-markdown/blob/main/tests/fixtures/variables_basic.mmd) - Variable examples
+- [05_arpeggiator.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/05_arpeggiator.mmd) - Variables + loops for arpeggios
+- [06_polyrhythm.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/06_polyrhythm.mmd) - Multiple loops in polyrhythm
 
 ### Specification
 - [Complete MMD Specification](../../spec.md#variables-and-expressions) - Variables section

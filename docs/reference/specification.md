@@ -651,7 +651,7 @@ random(min, max)
 @end
 ```
 
-See [docs/user-guide/generative-music.md](docs/user-guide/generative-music.md) for comprehensive guide and [examples/04_generative/](examples/04_generative/) for working examples.
+See [Generative Music Guide](../user-guide/generative-music.md) for comprehensive guide and [examples/05_generative/](https://github.com/cjgdev/midi-markdown/tree/main/examples/05_generative) for working examples.
 
 ### Enhanced Modulation
 

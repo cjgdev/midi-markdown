@@ -922,7 +922,7 @@ Create your own convenience aliases in your MMD file:
 - [Device Library Creation Guide](../user-guide/device-libraries.md)
 - [Alias System Guide](../user-guide/alias-system.md)
 - [MML Specification](../../spec.md)
-- [Example: 13_device_import.mmd](../../examples/04_device_libraries/13_device_import.mmd)
+- [Example: 01_device_import.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/01_device_import.mmd)
 
 ## Summary
 

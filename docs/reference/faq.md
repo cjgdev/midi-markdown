@@ -277,7 +277,7 @@ spanning multiple lines
 - Supports variable substitution
 - Nest loops up to reasonable depth
 
-See: [Loops Example](../../examples/03_advanced/10_loops_and_patterns.mmd)
+See: [Loops Example](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/01_loops_and_patterns.mmd)
 
 ---
 

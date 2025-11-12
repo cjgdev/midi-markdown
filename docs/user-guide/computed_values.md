@@ -512,7 +512,7 @@ Computed values are evaluated in a **sandboxed environment** with these safety f
 - [Alias System Guide](alias-system.md)
 - [Expression Syntax Reference](../reference/expressions.md)
 - [Device Library Creation](device-libraries.md)
-- [Examples: computed_values.mmd](../../examples/03_advanced/computed_values.mmd)
+- [Examples: computed_values.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/04_computed_values.mmd)
 
 ---
 
