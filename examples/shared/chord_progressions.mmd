@@ -1,0 +1,305 @@
+---
+title: "Shared Chord Progression Library"
+description: "Reusable chord progression aliases for multi-file projects"
+author: "MML Examples"
+version: 1.0.0
+---
+
+# ============================================================================
+# SHARED CHORD PROGRESSION LIBRARY
+# ============================================================================
+#
+# This library provides reusable chord progression aliases that can be
+# imported into multiple MMD projects using @import.
+#
+# Usage:
+#   @import "shared/chord_progressions.mmd"
+#   - c_major_triad 1 60 80 1b
+#
+# All aliases use parameters:
+#   {ch} - MIDI channel (1-16)
+#   {root} - Root note (MIDI number or note name)
+#   {vel} - Velocity (0-127)
+#   {dur} - Duration in beats
+#
+
+# ============================================================================
+# TRIADS (3-note chords)
+# ============================================================================
+
+@alias c_major_triad {ch}.{root}.{vel}.{dur} "Major triad (root, major 3rd, perfect 5th)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+@end
+
+@alias c_minor_triad {ch}.{root}.{vel}.{dur} "Minor triad (root, minor 3rd, perfect 5th)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+@end
+
+@alias c_dim_triad {ch}.{root}.{vel}.{dur} "Diminished triad (root, minor 3rd, diminished 5th)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+6} {vel} {dur}
+@end
+
+@alias c_aug_triad {ch}.{root}.{vel}.{dur} "Augmented triad (root, major 3rd, augmented 5th)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+8} {vel} {dur}
+@end
+
+# ============================================================================
+# SEVENTH CHORDS (4-note chords)
+# ============================================================================
+
+@alias c_maj7 {ch}.{root}.{vel}.{dur} "Major 7th chord (root, M3, P5, M7)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+11} {vel} {dur}
+@end
+
+@alias c_min7 {ch}.{root}.{vel}.{dur} "Minor 7th chord (root, m3, P5, m7)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+10} {vel} {dur}
+@end
+
+@alias c_dom7 {ch}.{root}.{vel}.{dur} "Dominant 7th chord (root, M3, P5, m7)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+10} {vel} {dur}
+@end
+
+@alias c_min7b5 {ch}.{root}.{vel}.{dur} "Half-diminished 7th (root, m3, dim5, m7)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+6} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+10} {vel} {dur}
+@end
+
+@alias c_dim7 {ch}.{root}.{vel}.{dur} "Diminished 7th chord (root, m3, dim5, dim7)"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+6} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+9} {vel} {dur}
+@end
+
+# ============================================================================
+# COMMON PROGRESSIONS (Multi-chord sequences)
+# ============================================================================
+
+@alias prog_i_iv_v {ch}.{root}.{vel}.{dur} "I-IV-V progression in major"
+  # I chord (major)
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+
+  # Wait for next chord
+  [+{dur}]
+
+  # IV chord (major, up 5 semitones)
+  - note_on {ch}.{root+5} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+9} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+12} {vel} {dur}
+
+  # Wait for next chord
+  [+{dur}]
+
+  # V chord (major, up 7 semitones)
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+11} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+14} {vel} {dur}
+@end
+
+@alias prog_ii_v_i {ch}.{root}.{vel}.{dur} "ii-V-I jazz progression"
+  # ii chord (minor 7th, up 2 semitones)
+  - note_on {ch}.{root+2} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+5} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+9} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+12} {vel} {dur}
+
+  [+{dur}]
+
+  # V chord (dominant 7th, up 7 semitones)
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+11} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+14} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+17} {vel} {dur}
+
+  [+{dur}]
+
+  # I chord (major 7th)
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+11} {vel} {dur}
+@end
+
+@alias prog_pop {ch}.{root}.{vel}.{dur} "I-V-vi-IV (pop progression)"
+  # I (major)
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+
+  [+{dur}]
+
+  # V (major, up 7 semitones)
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+11} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+14} {vel} {dur}
+
+  [+{dur}]
+
+  # vi (minor, up 9 semitones)
+  - note_on {ch}.{root+9} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+12} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+16} {vel} {dur}
+
+  [+{dur}]
+
+  # IV (major, up 5 semitones)
+  - note_on {ch}.{root+5} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+9} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+12} {vel} {dur}
+@end
+
+# ============================================================================
+# ARPEGGIOS (Broken chords)
+# ============================================================================
+
+@alias arp_major {ch}.{root}.{vel}.{dur} "Major triad arpeggio (ascending)"
+  - note_on {ch}.{root} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+7} {vel} {dur}
+@end
+
+@alias arp_minor {ch}.{root}.{vel}.{dur} "Minor triad arpeggio (ascending)"
+  - note_on {ch}.{root} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+3} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+7} {vel} {dur}
+@end
+
+@alias arp_maj7 {ch}.{root}.{vel}.{dur} "Major 7th arpeggio (ascending)"
+  - note_on {ch}.{root} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [+{dur}]
+  - note_on {ch}.{root+11} {vel} {dur}
+@end
+
+# ============================================================================
+# VOICINGS (Different positions)
+# ============================================================================
+
+@alias c_major_close {ch}.{root}.{vel}.{dur} "Major triad close voicing"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+4} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+@end
+
+@alias c_major_open {ch}.{root}.{vel}.{dur} "Major triad open voicing"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+7} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+16} {vel} {dur}
+@end
+
+@alias c_major_spread {ch}.{root}.{vel}.{dur} "Major triad spread voicing"
+  - note_on {ch}.{root} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+12} {vel} {dur}
+  [@]
+  - note_on {ch}.{root+19} {vel} {dur}
+@end
+
+# ============================================================================
+# Usage Notes
+# ============================================================================
+#
+# PARAMETER ARITHMETIC:
+# - {root+4} adds 4 semitones to root note
+# - {root+7} adds 7 semitones (perfect fifth)
+# - {root+12} adds octave
+#
+# SIMULTANEOUS NOTES:
+# - [@] plays note at same time as previous
+# - Creates chord voicing
+#
+# TIMING:
+# - [+{dur}] waits for duration before next note
+# - Used for arpeggios and progressions
+#
+# EXAMPLE USAGE:
+#
+# @import "shared/chord_progressions.mmd"
+#
+# [00:00.000]
+# - c_major_triad 1 60 80 2b    # C major triad, 2 beats
+#
+# [00:02.000]
+# - c_min7 1 65 75 2b            # F minor 7th, 2 beats
+#
+# [00:04.000]
+# - prog_pop 1 60 80 1b          # I-V-vi-IV progression
+#

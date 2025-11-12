@@ -1,0 +1,587 @@
+---
+title: "Pitch Bend with Curves, Waves, and Envelopes"
+author: "MML Examples"
+description: "Demonstrates pitch bend modulation using curves, LFOs, and envelopes"
+midi_format: 1
+ppq: 480
+tempo: 120
+time_signature: [4, 4]
+---
+
+# ============================================
+# Pitch Bend Modulation Examples
+# ============================================
+#
+# This example demonstrates advanced pitch bend techniques using:
+#   - curve() - Smooth bezier-based pitch sweeps
+#   - wave() - Periodic LFO modulation (vibrato)
+#   - envelope() - Dynamic pitch shaping (ADSR, AR, AD)
+#
+# Pitch Bend Range:
+#   - Center: 0 or 8192 (no bend)
+#   - Down: -8192 to -1 (or 0 to 8191)
+#   - Up: 1 to 8191 (or 8193 to 16383)
+#   - Default pitch bend range: ±2 semitones (configurable on device)
+#
+# Applications:
+#   - Vibrato and pitch wobble
+#   - Guitar-style bends and slides
+#   - Portamento and glissando effects
+#   - Expressive synth leads
+#   - Sound design and FX
+#
+# Note: Pitch bend affects all notes on the channel simultaneously
+# (unlike polyphonic aftertouch which is per-note)
+
+# ============================================
+# Section 1: Curve-Based Pitch Sweeps
+# ============================================
+
+[00:00.000]
+- marker "Pitch Curves"
+- text "Bezier curves for smooth pitch bends"
+
+# Play a sustained note for curve demonstration
+[00:00.000]
+- note_on 1.C4 80 8b
+
+# Linear pitch sweep (constant rate)
+# Bends from -2 semitones to +2 semitones
+[@]
+- pb 1.curve(-4096, 4096, linear)
+
+[00:04.000]
+- text "Ease-in curve (slow start, fast finish)"
+- note_on 1.E4 80 4b
+[@]
+- pb 1.curve(-4096, 4096, ease-in)
+
+[00:08.000]
+- text "Ease-out curve (fast start, slow finish)"
+- note_on 1.G4 80 4b
+[@]
+- pb 1.curve(-4096, 4096, ease-out)
+
+[00:12.000]
+- text "Ease-in-out curve (S-curve motion)"
+- note_on 1.C5 80 4b
+[@]
+- pb 1.curve(-4096, 4096, ease-in-out)
+
+# Reset to center
+[00:16.000]
+- pb 1.0
+
+# ============================================
+# Section 2: Pitch Bend with Custom Bezier
+# ============================================
+
+[00:17.000]
+- marker "Custom Bezier Curves"
+- text "Precise control with bezier control points"
+
+# Custom curve with specific control points
+# bezier(p0, p1, p2, p3) - four control points
+[00:17.000]
+- note_on 1.A3 80 4b
+[@]
+- pb 1.curve(0, 8191, bezier(0, 1000, 6000, 8191))
+
+[00:21.000]
+- text "Reverse custom curve"
+- note_on 1.A3 80 4b
+[@]
+- pb 1.curve(8191, 0, bezier(8191, 6000, 1000, 0))
+
+[00:25.000]
+- pb 1.0
+
+# ============================================
+# Section 3: Wave Modulation (Vibrato)
+# ============================================
+
+[00:26.000]
+- marker "Vibrato with Wave LFO"
+- text "Periodic pitch modulation"
+
+# Classic vibrato - 5.5 Hz sine wave
+# Common vibrato rate for expressive playing
+[00:26.000]
+- note_on 1.C4 90 8b
+[@]
+- pb 1.wave(sine, 8192, freq=5.5, depth=5)
+
+[00:34.000]
+- text "Slow vibrato (3 Hz)"
+- note_on 1.E4 90 4b
+[@]
+- pb 1.wave(sine, 8192, freq=3.0, depth=8)
+
+[00:38.000]
+- text "Fast vibrato (8 Hz)"
+- note_on 1.G4 90 4b
+[@]
+- pb 1.wave(sine, 8192, freq=8.0, depth=6)
+
+[00:42.000]
+- text "Wide vibrato (high depth)"
+- note_on 1.C5 90 4b
+[@]
+- pb 1.wave(sine, 8192, freq=5.0, depth=15)
+
+[00:46.000]
+- pb 1.0
+
+# ============================================
+# Section 4: Triangle Wave Vibrato
+# ============================================
+
+[00:47.000]
+- marker "Triangle Wave Vibrato"
+- text "Linear vibrato for different character"
+
+# Triangle wave creates more angular vibrato
+# Less smooth than sine, more mechanical feel
+[00:47.000]
+- note_on 1.A3 85 4b
+[@]
+- pb 1.wave(triangle, 8192, freq=4.5, depth=7)
+
+[00:51.000]
+- text "Fast triangle vibrato"
+- note_on 1.C4 85 4b
+[@]
+- pb 1.wave(triangle, 8192, freq=7.0, depth=10)
+
+[00:55.000]
+- pb 1.0
+
+# ============================================
+# Section 5: Sawtooth and Square Waves
+# ============================================
+
+[00:56.000]
+- marker "Sawtooth/Square Waves"
+- text "Stepped and abrupt pitch modulation"
+
+# Sawtooth wave - ramp pattern
+# Creates rising pitch sweep that resets
+[00:56.000]
+- note_on 1.C4 80 4b
+[@]
+- pb 1.wave(sawtooth, 8192, freq=2.0, depth=12)
+
+[01:00.000]
+- text "Square wave - abrupt switching"
+- note_on 1.E4 80 4b
+[@]
+- pb 1.wave(square, 8192, freq=3.0, depth=10)
+
+[01:04.000]
+- pb 1.0
+
+# ============================================
+# Section 6: Phase-Offset Vibrato
+# ============================================
+
+[01:05.000]
+- marker "Phase-Offset Vibrato"
+- text "Vibrato starting at different phases"
+
+# Phase offset controls where in the LFO cycle to start
+# 0.0 = start at beginning (0°)
+# 0.25 = start at peak (90°)
+# 0.5 = start at midpoint (180°)
+# 0.75 = start at trough (270°)
+
+[01:05.000]
+- text "Phase 0.0 (start at center)"
+- note_on 1.C4 80 2b
+[@]
+- pb 1.wave(sine, 8192, freq=4.0, phase=0.0, depth=8)
+
+[01:07.000]
+- text "Phase 0.25 (start at peak)"
+- note_on 1.C4 80 2b
+[@]
+- pb 1.wave(sine, 8192, freq=4.0, phase=0.25, depth=8)
+
+[01:09.000]
+- text "Phase 0.5 (start at center, opposite)"
+- note_on 1.C4 80 2b
+[@]
+- pb 1.wave(sine, 8192, freq=4.0, phase=0.5, depth=8)
+
+[01:11.000]
+- text "Phase 0.75 (start at trough)"
+- note_on 1.C4 80 2b
+[@]
+- pb 1.wave(sine, 8192, freq=4.0, phase=0.75, depth=8)
+
+[01:13.000]
+- pb 1.0
+
+# ============================================
+# Section 7: Pitch Envelopes (Attack-Release)
+# ============================================
+
+[01:14.000]
+- marker "Pitch Envelopes - AR"
+- text "Attack-release pitch shaping"
+
+# AR envelope - pitch dive effect
+# Starts high, releases to center
+[01:14.000]
+- note_on 1.C4 100 3b
+[@]
+- pb 1.envelope(ar, attack=0.5, release=1.0)
+
+[01:17.000]
+- text "Fast attack, slow release"
+- note_on 1.E4 100 3b
+[@]
+- pb 1.envelope(ar, attack=0.1, release=2.0)
+
+[01:20.000]
+- text "Slow attack, fast release"
+- note_on 1.G4 100 3b
+[@]
+- pb 1.envelope(ar, attack=1.5, release=0.3)
+
+[01:23.000]
+- pb 1.0
+
+# ============================================
+# Section 8: Pitch Envelopes (Attack-Decay)
+# ============================================
+
+[01:24.000]
+- marker "Pitch Envelopes - AD"
+- text "Attack-decay pitch shaping"
+
+# AD envelope - pitch rise then fall
+# Common for plucked string simulation
+[01:24.000]
+- note_on 1.C4 90 3b
+[@]
+- pb 1.envelope(ad, attack=0.1, decay=1.5)
+
+[01:27.000]
+- text "Fast attack, slow decay"
+- note_on 1.E4 90 3b
+[@]
+- pb 1.envelope(ad, attack=0.05, decay=2.0)
+
+[01:30.000]
+- text "Slow attack, fast decay"
+- note_on 1.G4 90 3b
+[@]
+- pb 1.envelope(ad, attack=1.0, decay=0.5)
+
+[01:33.000]
+- pb 1.0
+
+# ============================================
+# Section 9: Full ADSR Pitch Envelope
+# ============================================
+
+[01:34.000]
+- marker "Pitch Envelopes - ADSR"
+- text "Full ADSR pitch modulation"
+
+# ADSR envelope provides complete control
+# attack → peak, decay → sustain level, release → zero
+[01:34.000]
+- note_on 1.C4 100 6b
+[@]
+- pb 1.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+
+[01:40.000]
+- text "Synth lead ADSR"
+- note_on 1.E4 100 6b
+[@]
+- pb 1.envelope(adsr, attack=0.2, decay=0.4, sustain=0.5, release=0.8)
+
+[01:46.000]
+- text "Pad ADSR"
+- note_on 1.G4 100 6b
+[@]
+- pb 1.envelope(adsr, attack=1.0, decay=0.5, sustain=0.8, release=2.0)
+
+[01:52.000]
+- pb 1.0
+
+# ============================================
+# Section 10: Exponential Envelopes
+# ============================================
+
+[01:53.000]
+- marker "Exponential Envelopes"
+- text "Natural exponential curves"
+
+# Exponential curve for more natural feel
+# Similar to acoustic instrument pitch behavior
+[01:53.000]
+- note_on 1.C4 90 4b
+[@]
+- pb 1.envelope(ar, attack=0.3, release=1.5, curve=exponential)
+
+[01:57.000]
+- text "Exponential ADSR"
+- note_on 1.E4 90 4b
+[@]
+- pb 1.envelope(adsr, attack=0.5, decay=0.3, sustain=0.6, release=1.0, curve=exponential)
+
+[02:01.000]
+- pb 1.0
+
+# ============================================
+# Section 11: Guitar-Style Bends
+# ============================================
+
+[02:02.000]
+- marker "Guitar Bends"
+- text "Simulating guitar string bends"
+
+# Quarter-tone bend (subtle)
+[02:02.000]
+- note_on 1.E4 95 2b
+[02:02.100]
+- pb 1.curve(0, 2048, ease-out)
+
+# Half-step bend
+[02:04.000]
+- note_on 1.G4 95 2b
+[02:04.100]
+- pb 1.curve(0, 4096, ease-out)
+
+# Whole-step bend
+[02:06.000]
+- note_on 1.A4 95 2b
+[02:06.100]
+- pb 1.curve(0, 8191, ease-out)
+
+# Bend and release
+[02:08.000]
+- note_on 1.C4 95 4b
+[02:08.100]
+- pb 1.curve(0, 4096, ease-out)
+[02:10.000]
+- pb 1.curve(4096, 0, ease-in)
+
+[02:12.000]
+- pb 1.0
+
+# ============================================
+# Section 12: Portamento/Glissando
+# ============================================
+
+[02:13.000]
+- marker "Portamento/Glissando"
+- text "Smooth pitch slides between notes"
+
+# Slide from C4 to G4 (perfect fifth)
+[02:13.000]
+- note_on 1.C4 80 4b
+[@]
+- pb 1.curve(0, 5461, linear)  # ~1.33 semitones × 4096
+
+# Reverse slide
+[02:17.000]
+- note_on 1.G4 80 4b
+[@]
+- pb 1.curve(0, -5461, linear)
+
+# S-curve slide for musical phrasing
+[02:21.000]
+- note_on 1.C4 80 4b
+[@]
+- pb 1.curve(0, 8191, ease-in-out)
+
+[02:25.000]
+- pb 1.0
+
+# ============================================
+# Section 13: Dive Bombs and Scoops
+# ============================================
+
+[02:26.000]
+- marker "Dive Bombs and Scoops"
+- text "Extreme pitch effects"
+
+# Dive bomb (drop pitch dramatically)
+[02:26.000]
+- note_on 1.E5 110 2b
+[@]
+- pb 1.curve(0, -8192, exponential)
+
+# Scoop (start low, rise to pitch)
+[02:28.000]
+- note_on 1.C4 100 2b
+[02:27.900]  # Start slightly before note
+- pb 1.-8192
+[02:28.000]
+- pb 1.curve(-8192, 0, ease-out)
+
+# Whammy bar flutter
+[02:30.000]
+- note_on 1.G4 100 4b
+[@]
+- pb 1.wave(sine, 8192, freq=10.0, depth=20)
+
+[02:34.000]
+- pb 1.0
+
+# ============================================
+# Section 14: Combining Techniques
+# ============================================
+
+[02:35.000]
+- marker "Combined Techniques"
+- text "Layering modulation types"
+
+# Pitch sweep with vibrato
+# Start with upward curve, add vibrato midway
+[02:35.000]
+- note_on 1.C4 90 8b
+[@]
+- pb 1.curve(0, 4096, ease-in-out)
+
+# Add vibrato after 2 seconds
+[02:37.000]
+- pb 1.wave(sine, 8192, freq=5.5, depth=8)
+
+# Envelope with vibrato
+[02:43.000]
+- note_on 1.E4 90 6b
+[@]
+- pb 1.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+[@]
+- pb 1.wave(sine, 8192, freq=4.5, depth=6)
+
+[02:49.000]
+- pb 1.0
+
+# ============================================
+# Section 15: Practical Applications
+# ============================================
+
+[02:50.000]
+- marker "Practical Examples"
+- text "Real-world pitch bend usage"
+
+# Synth lead with expressive vibrato
+[02:50.000]
+- text "Synth lead line"
+- note_on 1.C5 100 2b
+[@]
+- pb 1.wave(sine, 8192, freq=5.5, depth=7)
+
+[02:52.000]
+- note_on 1.D5 100 2b
+[@]
+- pb 1.wave(sine, 8192, freq=5.5, depth=7)
+
+[02:54.000]
+- note_on 1.E5 100 4b
+[@]
+- pb 1.wave(sine, 8192, freq=5.5, depth=7)
+
+# Pad with slow pitch drift
+[02:58.000]
+- text "Ambient pad with drift"
+- note_on 1.C3 70 8b
+[@]
+- pb 1.wave(sine, 8192, freq=0.2, depth=3)
+
+# Sound design - pitch sweep
+[03:06.000]
+- text "FX sweep"
+- note_on 1.C2 80 4b
+[@]
+- pb 1.curve(-8192, 8191, ease-in-out)
+
+[03:10.000]
+- pb 1.0
+- text "Demo complete"
+
+# ============================================
+# Notes and Best Practices
+# ============================================
+#
+# PITCH BEND FUNDAMENTALS:
+#
+# 1. CENTER POSITION:
+#    - 0 or 8192 means no pitch bend (centered)
+#    - Most devices use 8192 as default center
+#    - Always reset to 0 when done bending
+#
+# 2. BEND RANGE CONFIGURATION:
+#    - Default: ±2 semitones (most common)
+#    - Can be ±12 semitones on many synths
+#    - Check your device's pitch bend range setting
+#    - Range affects how "far" bend values translate
+#
+# 3. SMOOTHNESS:
+#    - Use curve() for smooth, controlled bends
+#    - Use wave() for periodic modulation (vibrato)
+#    - Use envelope() for dynamic pitch shaping
+#    - Avoid sudden jumps (sounds unnatural)
+#
+# 4. VIBRATO FREQUENCIES:
+#    - Classical vibrato: 5-6 Hz
+#    - Jazz/blues vibrato: 4-5 Hz
+#    - Rock guitar: 5-7 Hz
+#    - Violin: 5-8 Hz
+#    - Operatic voice: 5-7 Hz
+#
+# 5. VIBRATO DEPTH:
+#    - Subtle: depth=3-5 (natural)
+#    - Moderate: depth=6-10 (expressive)
+#    - Wide: depth=11-20 (dramatic)
+#    - Extreme: depth=20+ (effect)
+#
+# 6. CURVE TYPES:
+#    - linear: Constant rate (mechanical)
+#    - ease-in: Slow start, fast finish (builds tension)
+#    - ease-out: Fast start, slow finish (natural arrival)
+#    - ease-in-out: S-curve (most musical)
+#    - exponential: Natural decay (like acoustics)
+#
+# 7. ENVELOPE APPLICATIONS:
+#    - AR: Pitch dive, scoop effects
+#    - AD: Plucked string simulation
+#    - ADSR: Full pitch expression control
+#    - exponential: Natural acoustic behavior
+#
+# 8. PERFORMANCE TIPS:
+#    - Reset pitch bend to 0 between phrases
+#    - Use vibrato sparingly for impact
+#    - Match vibrato rate to musical style
+#    - Combine with aftertouch for expressiveness
+#    - Test with different synth patches
+#
+# DEVICE-SPECIFIC NOTES:
+#
+# - Most synthesizers: ±2 semitones default
+# - Some synths allow ±12 or ±24 semitones
+# - Guitar synths often use ±2 semitones
+# - Samplers may have variable bend ranges
+# - Always check MIDI implementation chart
+#
+# COMMON MISTAKES TO AVOID:
+#
+# - Forgetting to reset to center (leaves notes bent)
+# - Using too much depth (sounds unnatural)
+# - Wrong vibrato frequency for style
+# - Pitch bend on drum channel (usually ignored)
+# - Assuming all devices use same bend range
+#
+# See also:
+# - 03_pitch_bend_pressure.mmd for basic pitch bend
+# - 07_modulation_and_expression.mmd for combined expression
+# - docs/user-guide/modulation.md for full reference
+# - docs/reference/pitch-bend.md for technical details
+
+[03:12.000]
+- marker "EOF"

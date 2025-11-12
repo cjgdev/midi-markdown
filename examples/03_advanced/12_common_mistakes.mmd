@@ -1,0 +1,457 @@
+---
+title: "Common Mistakes and How to Avoid Them"
+description: "Educational examples showing anti-patterns and correct solutions"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Common Mistakes and Anti-Patterns
+# ============================================================================
+#
+# This file demonstrates ACTUAL mistakes that have been made in MMD code,
+# along with the correct solutions. Learn from these to avoid bugs!
+#
+# Based on docs/dev-guides/anti-patterns.md
+#
+# ============================================================================
+
+# ============================================================================
+# MISTAKE 1: Absolute Timing in Aliases
+# ============================================================================
+# ❌ WRONG: Hardcoded timing makes alias non-reusable
+
+# This is what NOT to do:
+# @alias bad_preset_load {ch}.{preset} "Load preset (BROKEN)"
+#   [00:05.000]  # DON'T DO THIS - hardcodes 5 seconds!
+#   - pc {ch}.{preset}
+# @end
+
+# Problem: Every time you call bad_preset_load, it loads at 5 seconds
+# [00:10.000]
+# - bad_preset_load 1 42  # Would load at 5 seconds, not 10!
+
+# ✓ CORRECT: Use relative timing or let caller control timing
+@alias good_preset_load {ch}.{preset} "Load preset (CORRECT)"
+  [+50ms]  # Relative timing is OK - adds delay to caller's time
+  - pc {ch}.{preset}
+@end
+
+# OR: No timing at all (inherits from caller)
+@alias simple_preset_load {ch}.{preset} "Load preset (SIMPLE)"
+  - pc {ch}.{preset}
+@end
+
+[00:00.000]
+- marker "Alias Timing"
+- text "Demonstrating correct alias timing"
+
+# Now these work as expected
+[00:10.000]
+- good_preset_load 1 42  # Loads at 10.05 seconds (10s + 50ms)
+
+[00:15.000]
+- simple_preset_load 1 43  # Loads at exactly 15 seconds
+
+# ============================================================================
+# MISTAKE 2: MIDI Value Out of Range
+# ============================================================================
+
+[00:20.000]
+- marker "Value Ranges"
+- text "MIDI value validation"
+
+# ❌ WRONG: Values must be 0-127 for most commands
+# - cc 1.7.255  # BROKEN - max is 127, will fail validation
+# - note_on 1.128 100 1s  # BROKEN - note 128 doesn't exist
+# - pc 1.200  # BROKEN - program 200 too high
+
+# ✓ CORRECT: Keep values in valid range
+[@]
+- cc 1.7.127  # Volume max (0-127)
+[@]
+- note_on 1.127 100 1s  # Highest MIDI note (G9)
+[@]
+- pc 1.127  # Highest program number
+
+# Channel must be 1-16
+# - pc 17.10  # BROKEN - channel 17 doesn't exist
+[@]
+- pc 16.10  # CORRECT - channel 16 is valid
+
+# ============================================================================
+# MISTAKE 3: Forgetting Timing Delays for Device Control
+# ============================================================================
+
+[00:25.000]
+- marker "Device Timing"
+- text "Always use proper delays for hardware"
+
+# ❌ WRONG: No delay between bank select, setlist, and program change
+# Quad Cortex (and similar devices) REQUIRE delays
+# - cc 1.0.0    # Bank select
+# - cc 1.32.1   # Setlist
+# - pc 1.5      # Program change
+# ^ These will likely fail - too fast!
+
+# ✓ CORRECT: Add 100ms delays between messages
+[@]
+- cc 1.0.0    # Bank select MSB
+[+100ms]
+- cc 1.32.1   # Setlist (Bank LSB)
+[+100ms]
+- pc 1.5      # Program change
+[+100ms]      # Wait for preset to load before scene change
+- cc 1.43.0   # Scene A
+
+# Even better: Use device library macros (includes delays)
+# @import "devices/quad_cortex.mmd"
+# - qc_load_preset_scene 1 1 5 0  # Handles all delays automatically
+
+# ============================================================================
+# MISTAKE 4: Confusing Musical Time Indexing
+# ============================================================================
+
+[00:30.000]
+- marker "Musical Time Indexing"
+- text "Bars and beats are 1-indexed"
+
+# ❌ WRONG: Using 0 for first bar/beat
+# [0.0.0]  # This might work but is confusing
+# - note_on 1.60 100 1b
+
+# ✓ CORRECT: Bars and beats start at 1
+[1.1.0]  # Bar 1, Beat 1, Tick 0 - first position
+- note_on 1.60 100 1b
+
+[1.2.0]  # Bar 1, Beat 2 - NOT [1.1.480]!
+- note_on 1.64 100 1b
+
+# Ticks ARE 0-indexed within beats
+[1.3.240]  # Bar 1, Beat 3, Tick 240 (halfway through beat)
+- note_on 1.67 100 1b
+
+# ============================================================================
+# MISTAKE 5: Overlapping Notes Without Note-Off
+# ============================================================================
+
+[00:35.000]
+- marker "Overlapping Notes"
+- text "Managing note durations"
+
+# ❌ WRONG: Starting new note before previous ends (on same pitch)
+# - note_on 1.C4 100 2s  # 2-second note
+# [+1s]
+# - note_on 1.C4 100 1s  # Starts before previous ends - may cut off or glitch
+
+# ✓ CORRECT: Either wait for note to finish, or send explicit note_off
+[@]
+- note_on 1.C4 100 2s  # 2-second note
+[+2s]  # Wait for it to finish
+- note_on 1.C4 100 1s  # Now safe
+
+# OR: Use manual note_off
+[+2s]
+- note_on 1.D4 100 10s  # Long note
+[+1s]
+- note_off 1.D4 64  # Turn off early
+[@]
+- note_on 1.E4 100 1s  # New note
+
+# ============================================================================
+# MISTAKE 6: Incorrect Time Signature Math
+# ============================================================================
+
+[00:44.000]
+- marker "Time Signatures"
+- text "Don't hardcode 4/4"
+
+# Internal note: When computing musical time, always use frontmatter time_signature
+# This example demonstrates correct behavior
+# ❌ WRONG: Assuming all music is 4/4
+# Musical time calculation must use actual time signature
+
+# ✓ CORRECT: Time signature from frontmatter (4/4 in this file)
+# Calculations respect the 4 beats per bar setting
+[2.1.0]  # Bar 2 starts after 4 beats of bar 1
+- note_on 1.C4 85 1b
+
+[2.2.0]  # Beat 2 of bar 2
+- note_on 1.D4 85 1b
+
+[2.3.0]  # Beat 3
+- note_on 1.E4 85 1b
+
+[2.4.0]  # Beat 4 (last beat in 4/4)
+- note_on 1.F4 85 1b
+
+# If you change time signature, musical timing adapts
+[3.1.0]
+- time_signature 3/4  # Now 3 beats per bar
+
+# Bar 4 starts after 3 beats (not 4)
+[4.1.0]
+- note_on 1.G4 85 1b
+[4.2.0]
+- note_on 1.A4 85 1b
+[4.3.0]  # Only 3 beats in 3/4
+- note_on 1.B4 85 1b
+# [4.4.0] would be invalid in 3/4!
+
+# ============================================================================
+# MISTAKE 7: Pitch Bend Range Confusion
+# ============================================================================
+
+[00:52.000]
+- marker "Pitch Bend"
+- text "Pitch bend value ranges"
+
+# ❌ WRONG: Treating pitch bend like other CC (0-127)
+# - pb 1.64  # This is NOT center!
+
+# ✓ CORRECT: Pitch bend range is -8192 to +8191 (or 0 to 16383)
+[@]
+- pb 1.0      # Center (no bend)
+[@]
+- pb 1.8192   # Also center (alternative notation)
+
+[+500ms]
+- pb 1.2000   # Bend up (positive)
+
+[+500ms]
+- pb 1.-2000  # Bend down (negative)
+
+[+500ms]
+- pb 1.8191   # Maximum up
+
+[+500ms]
+- pb 1.-8192  # Maximum down
+
+[+500ms]
+- pb 1.0      # Return to center
+
+# ============================================================================
+# MISTAKE 8: Missing Tempo/Time Signature Declaration
+# ============================================================================
+
+# ❌ WRONG: Not setting tempo at start
+# If tempo isn't set, default (120) is used, which may not be what you want
+# Also can cause confusion when reading the file
+
+# ✓ CORRECT: Always declare tempo at start (or in frontmatter)
+[00:58.000]
+- marker "Explicit Configuration"
+- text "Always declare tempo and time signature"
+[@]
+- tempo 120  # Make it explicit even if it's the default
+[@]
+- time_signature 4/4  # Declare even if default
+
+# ============================================================================
+# MISTAKE 9: Confusing Command Type Names
+# ============================================================================
+
+[01:00.000]
+- marker "Command Names"
+- text "Use correct command abbreviations"
+
+# ❌ WRONG: Using full names where abbrev required (in code/validation)
+# Internally, the system uses abbreviated types
+# When working with the AST or validation, use:
+# - "cc" NOT "control_change"
+# - "pc" NOT "program_change"
+# - "pb" NOT "pitch_bend"
+# - "note_on" (this one is not abbreviated)
+
+# ✓ CORRECT: In .mmd files, both work, but shorter is cleaner
+[@]
+- cc 1.7.100  # Preferred (short)
+[@]
+- control_change 1.10.64  # Also works but verbose
+
+[@]
+- pc 1.10  # Preferred
+[@]
+- program_change 1.11  # Also works
+
+[@]
+- pb 1.0  # Preferred
+# pitch_bend 1.0  # Would also work
+
+# ============================================================================
+# MISTAKE 10: Not Using @loop for Repetition
+# ============================================================================
+
+[01:05.000]
+- marker "Inefficient Patterns"
+- text "Use @loop instead of copy-paste"
+
+# ❌ WRONG: Manually repeating events (copy-paste)
+# [@]
+# - note_on 10.42 75 0.1s
+# [+0.5b]
+# - note_on 10.42 75 0.1s
+# [+0.5b]
+# - note_on 10.42 75 0.1s
+# [+0.5b]
+# - note_on 10.42 75 0.1s
+# ... repeat 12 more times
+
+# ✓ CORRECT: Use @loop for patterns
+@loop 16 times every 0.5b
+  - note_on 10.42 75 0.1s
+@end
+
+# ============================================================================
+# MISTAKE 11: Forward Reference Errors
+# ============================================================================
+
+[01:10.000]
+- marker "Variable Order"
+- text "Variables must be defined before use (in some contexts)"
+
+# ❌ WRONG: Using variable before @define
+# - note_on 1.${UNDEFINED_NOTE} 100 1s  # May fail if not defined yet
+# @define UNDEFINED_NOTE 60
+
+# ✓ CORRECT: Define before use
+@define MY_NOTE 60
+[@]
+- note_on 1.${MY_NOTE} 100 1s
+
+# Note: The system supports forward references in some contexts,
+# but it's safer to define variables before using them
+
+# ============================================================================
+# MISTAKE 12: Ignoring Validation Errors
+# ============================================================================
+
+[01:15.000]
+- marker "Validation"
+- text "Always validate your files"
+
+# ❌ WRONG: Not running validation before performance
+# Files with errors may compile but produce unexpected results
+
+# ✓ CORRECT: Always validate
+# Run: mmdc validate your_file.mmd
+
+# Common validation catches:
+# - MIDI values out of range
+# - Invalid note names
+# - Timing not monotonically increasing
+# - Missing required parameters
+# - Type mismatches
+
+# ============================================================================
+# MISTAKE 13: Simultaneous [@] Misuse
+# ============================================================================
+
+[01:20.000]
+- marker "Simultaneous Timing"
+- text "Correct use of [@] syntax"
+
+# ❌ WRONG: Using [@] without a previous time reference
+# [@]  # What time is this? No previous marker!
+# - note_on 1.60 100 1s
+
+# ✓ CORRECT: Always have a time reference first
+[01:20.000]  # Establish reference time
+[@]  # Now this means "at 01:20.000"
+- note_on 1.60 100 1s
+[@]  # Still 01:20.000
+- note_on 1.64 100 1s
+[@]  # Still 01:20.000
+- note_on 1.67 100 1s
+
+# ============================================================================
+# MISTAKE 14: PPQ Mismatch
+# ============================================================================
+
+[01:25.000]
+- marker "Resolution"
+- text "Using consistent PPQ"
+
+# ❌ WRONG: Assuming PPQ without checking
+# If file uses PPQ 480, but you calculate for 96:
+# - Tick values will be wrong
+# - Musical timing calculations off
+# - Duration calculations incorrect
+
+# ✓ CORRECT: Use PPQ from frontmatter (480 in this file)
+# 1 beat at PPQ 480 = 480 ticks
+# 0.5 beats = 240 ticks
+# 0.25 beats = 120 ticks
+
+[@]
+- note_on 1.C4 85 1b  # 480 ticks at PPQ 480
+
+# When using tick timing:
+[6.1.240]  # Half beat (240 ticks)
+- note_on 1.E4 85 0.5b
+
+[6.2.0]  # Full beat (480 ticks from previous)
+- note_on 1.G4 85 0.5b
+
+# ============================================================================
+# MISTAKE 15: Channel Confusion
+# ============================================================================
+
+[01:30.000]
+- marker "MIDI Channels"
+- text "Channel numbering and drums"
+
+# ❌ WRONG: Using channel 10 for non-drums, or forgetting channel 10 for drums
+# - note_on 10.60 100 1s  # Channel 10 is GM drums - note 60 is not a drum!
+# - note_on 1.36 100 1s   # Bass drum on channel 1 - won't sound right
+
+# ✓ CORRECT: Channel 10 for drums (GM standard), specific note numbers
+[@]
+- note_on 10.36 100 0.1s  # Bass drum (C2) on channel 10
+[@]
+- note_on 10.38 95 0.1s   # Snare (D2) on channel 10
+[@]
+- note_on 10.42 75 0.1s   # Hi-hat closed (F#2) on channel 10
+
+# Melodic instruments on other channels
+[+1s]
+- note_on 1.60 100 1s  # Middle C on channel 1 (melodic)
+
+# ============================================================================
+# Summary: Best Practices Checklist
+# ============================================================================
+#
+# ✓ Use relative timing in aliases (or no timing at all)
+# ✓ Keep MIDI values in valid range (0-127 for most)
+# ✓ Add 100ms delays between device control messages
+# ✓ Bars/beats are 1-indexed, ticks are 0-indexed
+# ✓ Avoid overlapping notes on same pitch
+# ✓ Don't hardcode 4/4 time signature
+# ✓ Pitch bend is -8192 to +8191 (not 0-127)
+# ✓ Always declare tempo and time signature
+# ✓ Use abbreviated command names (cc, pc, pb)
+# ✓ Use @loop instead of copy-paste
+# ✓ Define variables before use
+# ✓ Always run validation (mmdc validate)
+# ✓ Establish time reference before using [@]
+# ✓ Use correct PPQ from frontmatter
+# ✓ Channel 10 for drums, others for melodic
+#
+# ============================================================================
+# References
+# ============================================================================
+#
+# See also:
+# - docs/dev-guides/anti-patterns.md - Detailed anti-pattern documentation
+# - docs/dev-guides/parser-patterns.md - Correct implementation patterns
+# - docs/user-guide/mml-syntax.md - Complete syntax reference
+# - spec.md - Full language specification
+#
+# ============================================================================
+
+[01:35.000]
+- marker "End"
+- text "Common mistakes demonstration complete"
+- end_of_track

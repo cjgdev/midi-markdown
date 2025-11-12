@@ -1,0 +1,690 @@
+---
+title: "HX Stomp XL Live Performance Set"
+description: "Real-world live performance example demonstrating Line 6 HX Stomp XL MIDI control"
+author: "MML Device Library Examples"
+tempo: 130
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * HX STOMP XL LIVE PERFORMANCE SET
+ * ============================================================================
+ *
+ * This example demonstrates professional HX Stomp XL control for live
+ * performance. HX Stomp XL provides the middle ground between HX Stomp
+ * and full Helix: 4 snapshots, 8 footswitches, compact format.
+ *
+ * SETUP REQUIREMENTS:
+ * - HX Stomp XL on MIDI Channel 1
+ * - Firmware 3.80 recommended (latest stable)
+ * - USB-C MIDI (no 5-pin DIN on HX Stomp XL)
+ * - Expression pedals connected to EXP1/EXP2 jacks for best response
+ * - High-quality USB cable (avoid cheap cables for MIDI timing)
+ *
+ * HX STOMP XL PRESET ORGANIZATION (for this example):
+ * Preset 0:  "Electric Groove" - Funk/R&B (Clean, Comp, Envelope, Lead)
+ * Preset 1:  "Rock Solid" - Rock (Verse, Chorus, Bridge, Solo)
+ * Preset 2:  "Metal Madness" - Metal (Tight, Open, Lead, Breakdown)
+ * Preset 3:  "Ambient Space" - Post-Rock (Build1, Build2, Climax, Resolve)
+ *
+ * SNAPSHOT ORGANIZATION (4 snapshots per preset):
+ * - Snapshot 1 (0): Verse/foundation tone
+ * - Snapshot 2 (1): Chorus/driven tone
+ * - Snapshot 3 (2): Bridge/different texture
+ * - Snapshot 4 (3): Solo/lead tone
+ *
+ * CRITICAL TIMING NOTES:
+ * - HX Stomp XL uses direct PC addressing (no Bank Select)
+ * - PC 0-127 = Presets 1-128
+ * - 350ms delay required after preset load (firmware 3.5x)
+ * - Firmware 3.10+ buffers CC69 (snapshot) during preset load
+ * - USB MIDI only (no 5-pin DIN like full Helix or HX Effects)
+ *
+ * ADVANTAGES OVER HX STOMP:
+ * - 4 snapshots (vs 3 on HX Stomp)
+ * - 8 footswitches (vs 5 on HX Stomp)
+ * - Larger display
+ * - Same DSP as HX Stomp (single path)
+ *
+ * ADVANTAGES OVER FULL HELIX:
+ * - Smaller footprint (pedalboard-friendly)
+ * - Lower cost
+ * - Still includes amp/cab modeling
+ * - Good for most songs (4 snapshots sufficient)
+ */
+
+# Import HX Stomp XL device library
+@import "../../devices/hx_stomp_xl.mmd"
+
+/*
+ * ============================================================================
+ * SONG 1: "ELECTRIC GROOVE" (Funk/R&B)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Chorus → Bridge → Outro
+ * Duration: ~4:00
+ *
+ * Preset 0: "Electric Groove"
+ * Amp: Clean amp with edge-of-breakup
+ * Effects: Compression, envelope filter, chorus, delay
+ * Snapshots:
+ *   1 (0): Clean comp (intro/verse)
+ *   2 (1): Compressed with envelope filter (chorus)
+ *   3 (2): Clean with delay (bridge)
+ *   4 (3): Lead with boost (solo/fills)
+ */
+
+# Song Start - Load Preset 0, Snapshot 1
+[00:00.000]
+- hxstompxl_load_snapshot 1 0 0    # Load Preset 0, Snapshot 1
+# This includes 350ms delay after PC before CC69
+
+# Intro - Clean comp tone (8 bars)
+# Snapshot 1: Clean amp, compression, subtle chorus
+
+# Verse 1 - Same snapshot
+# Clean fingerstyle funk rhythm
+
+# Pre-chorus - Add envelope filter
+[00:30.000]
+- hxstompxl_snap_2 1               # Snapshot 2 (comp + envelope filter)
+
+# Chorus - Funky rhythm with filter
+# Footswitch control for dynamic filter
+[00:38.000]
+- hxstompxl_fs1 1                  # Toggle FS1 (extra compression)
+
+# Return to verse
+[00:54.000]
+- hxstompxl_snap_1 1               # Snapshot 1 (clean comp)
+[+100ms]
+- hxstompxl_fs1 1                  # FS1 off
+
+# Verse 2
+
+# Pre-chorus 2
+[01:10.000]
+- hxstompxl_snap_2 1               # Envelope filter on
+
+# Chorus 2 with lead fills
+[01:18.000]
+- hxstompxl_snap_4 1               # Snapshot 4 (lead with boost)
+
+# Guitar fills - Use expression for filter sweep
+[01:26.000]
+- hxstompxl_exp1 1 0               # Start at heel
+[01:28.000]
+- hxstompxl_exp1 1 64
+[01:30.000]
+- hxstompxl_exp1 1 127             # Full toe
+[01:32.000]
+- hxstompxl_exp1 1 64
+[01:34.000]
+- hxstompxl_exp1 1 0               # Back to heel
+
+# Bridge - Clean with delay
+[01:36.000]
+- hxstompxl_snap_3 1               # Snapshot 3 (clean + delay)
+
+# Add reverb for space
+[01:44.000]
+- hxstompxl_fs2 1                  # Toggle FS2 (reverb)
+
+# Build back to chorus
+[01:50.000]
+- hxstompxl_snap_2 1               # Envelope filter
+[+100ms]
+- hxstompxl_fs2 1                  # Reverb off
+
+# Final chorus with energy
+[01:52.000]
+- hxstompxl_snap_4 1               # Lead tone
+
+# Outro - Return to clean
+[02:08.000]
+- hxstompxl_snap_1 1               # Clean comp
+
+# End
+[02:24.000]
+
+/*
+ * ============================================================================
+ * SONG 2: "ROCK SOLID" (Classic Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Solo → Chorus → Outro
+ * Duration: ~4:30
+ *
+ * Preset 1: "Rock Solid"
+ * Amp: Vintage rock amp (Marshall-style)
+ * Effects: OD, delay, reverb, chorus
+ * Snapshots:
+ *   1 (0): Clean rhythm (verse)
+ *   2 (1): Crunchy rhythm (chorus)
+ *   3 (2): Driven rhythm (bridge)
+ *   4 (3): Lead with delay (solo)
+ */
+
+# Load Preset 1 for Song 2
+[02:40.000]
+- hxstompxl_preset 1 1             # Load Preset 1
+[+350ms]
+- hxstompxl_snap_1 1               # Snapshot 1 (clean rhythm)
+
+# Intro - Clean rhythm (4 bars)
+
+# Verse 1 - Same snapshot
+# Clean verse tone
+
+# Pre-chorus - Add crunch
+[03:08.000]
+- hxstompxl_snap_2 1               # Snapshot 2 (crunchy rhythm)
+
+# Chorus - Full rhythm tone
+# Already on Snapshot 2
+
+# Add chorus effect for width
+[03:24.000]
+- hxstompxl_fs3 1                  # Toggle FS3 (chorus)
+
+# Verse 2 - Back to clean
+[03:32.000]
+- hxstompxl_snap_1 1               # Clean rhythm
+[+100ms]
+- hxstompxl_fs3 1                  # Chorus off
+
+# Pre-chorus 2
+[03:48.000]
+- hxstompxl_snap_2 1               # Crunchy rhythm
+
+# Chorus 2
+[03:56.000]
+- hxstompxl_fs3 1                  # Chorus on
+
+# Solo - Lead tone with delay
+[04:04.000]
+- hxstompxl_snap_4 1               # Snapshot 4 (lead)
+[+100ms]
+- hxstompxl_fs3 1                  # Chorus off
+
+# Solo expression automation (volume/wah)
+[04:12.000]
+- hxstompxl_exp1 1 0
+[04:14.000]
+- hxstompxl_exp1 1 50
+[04:16.000]
+- hxstompxl_exp1 1 100
+[04:18.000]
+- hxstompxl_exp1 1 127
+[04:20.000]
+- hxstompxl_exp1 1 80
+[04:22.000]
+- hxstompxl_exp1 1 40
+[04:24.000]
+- hxstompxl_exp1 1 0
+
+# Final chorus - Crunchy rhythm
+[04:28.000]
+- hxstompxl_snap_2 1               # Crunchy rhythm
+- hxstompxl_fs3 1                  # Chorus on
+
+# Outro - Clean
+[04:44.000]
+- hxstompxl_snap_1 1               # Clean rhythm
+[+100ms]
+- hxstompxl_fs3 1                  # Chorus off
+
+# End
+[05:00.000]
+
+/*
+ * ============================================================================
+ * SONG 3: "METAL MADNESS" (Modern Metal)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Final Chorus → Outro
+ * Duration: ~4:45
+ *
+ * Preset 2: "Metal Madness"
+ * Amp: High gain modern metal amp
+ * Effects: Noise gate, OD, delay, reverb
+ * Snapshots:
+ *   1 (0): Tight rhythm (verse)
+ *   2 (1): Open rhythm (chorus)
+ *   3 (2): Lead with reverb (solo)
+ *   4 (3): Breakdown (ultra-heavy)
+ */
+
+# Load Preset 2 for Song 3
+[05:15.000]
+- hxstompxl_preset 1 2             # Load Preset 2
+[+350ms]
+- hxstompxl_snap_1 1               # Snapshot 1 (tight rhythm)
+
+# Intro - Tight rhythm with noise gate
+# Heavy palm-muted riff
+
+# Verse 1 - Same snapshot
+# Tight, percussive tone
+
+# Pre-chorus build
+[05:47.000]
+- hxstompxl_fs4 1                  # Toggle FS4 (delay trails)
+
+# Chorus - Open rhythm
+[05:55.000]
+- hxstompxl_snap_2 1               # Snapshot 2 (open rhythm)
+[+100ms]
+- hxstompxl_fs4 1                  # Delay off
+
+# Add width with chorus
+[06:03.000]
+- hxstompxl_fs5 1                  # Toggle FS5 (subtle chorus)
+
+# Back to verse
+[06:11.000]
+- hxstompxl_snap_1 1               # Tight rhythm
+[+100ms]
+- hxstompxl_fs5 1                  # Chorus off
+
+# Verse 2
+
+# Pre-chorus 2
+[06:27.000]
+- hxstompxl_fs4 1                  # Delay on
+
+# Chorus 2
+[06:35.000]
+- hxstompxl_snap_2 1               # Open rhythm
+[+100ms]
+- hxstompxl_fs4 1                  # Delay off
+
+# Breakdown - Ultra-heavy tone
+[06:51.000]
+- hxstompxl_snap_4 1               # Snapshot 4 (breakdown)
+
+# Breakdown is djent-heavy with tightened gate
+# Add octave for extra heaviness
+[07:03.000]
+- hxstompxl_fs6 1                  # Toggle FS6 (octave down)
+
+# Pre-solo - Switch to lead
+[07:15.000]
+- hxstompxl_snap_3 1               # Snapshot 3 (lead)
+[+100ms]
+- hxstompxl_fs6 1                  # Octave off
+
+# Guitar solo with expression (delay feedback or wah)
+[07:23.000]
+- hxstompxl_exp1 1 0
+[07:25.000]
+- hxstompxl_exp1 1 40
+[07:27.000]
+- hxstompxl_exp1 1 80
+[07:29.000]
+- hxstompxl_exp1 1 127
+[07:31.000]
+- hxstompxl_exp1 1 100
+[07:33.000]
+- hxstompxl_exp1 1 60
+[07:35.000]
+- hxstompxl_exp1 1 20
+[07:37.000]
+- hxstompxl_exp1 1 0
+
+# Final chorus - Open rhythm
+[07:43.000]
+- hxstompxl_snap_2 1               # Open rhythm
+
+# Outro breakdown
+[07:59.000]
+- hxstompxl_snap_4 1               # Breakdown
+- hxstompxl_fs6 1                  # Octave on
+
+# Final chord
+[08:15.000]
+
+/*
+ * ============================================================================
+ * SONG 4: "AMBIENT SPACE" (Post-Rock/Ambient)
+ * ============================================================================
+ * Structure: Build 1 → Build 2 → Climax → Resolve
+ * Duration: ~5:00
+ *
+ * Preset 3: "Ambient Space"
+ * Amp: Clean amp with shimmer reverb
+ * Effects: Multiple delays, reverbs, modulation
+ * Snapshots:
+ *   1 (0): Minimal (dry with light reverb)
+ *   2 (1): Moderate (delay + reverb)
+ *   3 (2): Wet (heavy delay + shimmer)
+ *   4 (3): Full ambient (all effects)
+ *
+ * Demonstrates progressive effect build using snapshots + footswitches
+ */
+
+# Load Preset 3 for Song 4
+[08:30.000]
+- hxstompxl_preset 1 3             # Load Preset 3
+[+350ms]
+- hxstompxl_snap_1 1               # Snapshot 1 (minimal)
+
+# Intro - Sparse clean tones
+# Very dry, minimal effects
+
+# Build 1 - Add delay
+[08:46.000]
+- hxstompxl_snap_2 1               # Snapshot 2 (delay + reverb)
+
+# Add shimmer reverb
+[08:54.000]
+- hxstompxl_fs7 1                  # Toggle FS7 (shimmer reverb)
+
+# Build 2 - More effects
+[09:02.000]
+- hxstompxl_snap_3 1               # Snapshot 3 (heavy delay + shimmer)
+
+# Add modulation
+[09:10.000]
+- hxstompxl_fs8 1                  # Toggle FS8 (chorus/phaser)
+
+# Climax - All effects
+[09:18.000]
+- hxstompxl_snap_4 1               # Snapshot 4 (full ambient)
+
+# Add tremolo for movement
+[09:26.000]
+- hxstompxl_fs1 1                  # Toggle FS1 (tremolo)
+
+# Peak with expression controlling delay mix
+[09:34.000]
+- hxstompxl_exp1 1 127             # Full wet
+[09:38.000]
+- hxstompxl_exp1 1 100
+[09:42.000]
+- hxstompxl_exp1 1 80
+
+# Begin resolving - Strip effects
+[09:50.000]
+- hxstompxl_fs1 1                  # Tremolo off
+[09:54.000]
+- hxstompxl_fs8 1                  # Modulation off
+
+# Return to moderate effects
+[09:58.000]
+- hxstompxl_snap_2 1               # Snapshot 2 (moderate)
+[+100ms]
+- hxstompxl_fs7 1                  # Shimmer off
+
+# Final resolution - Minimal
+[10:10.000]
+- hxstompxl_snap_1 1               # Snapshot 1 (minimal)
+
+# Expression fade to dry
+[10:18.000]
+- hxstompxl_exp1 1 60
+[10:22.000]
+- hxstompxl_exp1 1 30
+[10:26.000]
+- hxstompxl_exp1 1 0
+
+# End
+[10:30.000]
+
+/*
+ * ============================================================================
+ * ADVANCED TECHNIQUE: LOOPER CONTROL
+ * ============================================================================
+ *
+ * HX Stomp XL includes a looper for live looping.
+ * This section demonstrates looper control via MIDI.
+ */
+
+# Song 5: Live Looping Example
+[10:45.000]
+- hxstompxl_preset 1 4             # Load Preset 4 (looper preset)
+[+350ms]
+- hxstompxl_snap_1 1
+
+# Enable looper mode
+[11:00.000]
+- hxstompxl_looper_on 1
+
+# Start recording first layer
+[11:02.000]
+- hxstompxl_looper_record_rec 1
+
+# Stop recording, start playback (4 bars later)
+[11:10.000]
+- hxstompxl_looper_record_overdub 1
+- hxstompxl_looper_play 1
+
+# Add second layer (overdub)
+[11:18.000]
+- hxstompxl_looper_record_rec 1
+
+# Back to playback
+[11:26.000]
+- hxstompxl_looper_play 1
+
+# Reverse playback
+[11:34.000]
+- hxstompxl_looper_reverse 1
+
+# Forward playback
+[11:42.000]
+- hxstompxl_looper_forward 1
+
+# Half speed
+[11:50.000]
+- hxstompxl_looper_half_speed 1
+
+# Full speed
+[11:58.000]
+- hxstompxl_looper_full_speed 1
+
+# Undo last layer
+[12:06.000]
+- hxstompxl_looper_undo_redo 1
+
+# Stop looper and exit
+[12:14.000]
+- hxstompxl_looper_stop 1
+[+100ms]
+- hxstompxl_looper_off 1
+
+# End
+[12:20.000]
+
+/*
+ * ============================================================================
+ * FOOTSWITCH MODE SWITCHING
+ * ============================================================================
+ *
+ * HX Stomp XL supports multiple footswitch modes for different workflows.
+ * This section demonstrates mode switching.
+ */
+
+# Switch to Snapshot mode (all 8 switches control snapshots 1-4 + up/down)
+[12:30.000]
+- hxstompxl_mode_snapshot 1
+
+# Change to snapshot 3
+[12:32.000]
+- hxstompxl_snap_3 1
+
+# Switch back to Stomp mode (switches toggle effects)
+[12:36.000]
+- hxstompxl_mode_stomp 1
+
+# Toggle some stomps
+[12:40.000]
+- hxstompxl_fs1 1
+[12:42.000]
+- hxstompxl_fs2 1
+
+# Cycle to next mode
+[12:46.000]
+- hxstompxl_mode_next 1
+
+# Return to Snapshot mode
+[12:50.000]
+- hxstompxl_mode_snapshot 1
+
+/*
+ * ============================================================================
+ * ALL BYPASS (MUTE/TUNER)
+ * ============================================================================
+ */
+
+# Enable tuner (auto-bypasses all effects)
+[13:00.000]
+- hxstompxl_tuner_on 1
+
+# Disable tuner
+[13:10.000]
+- hxstompxl_tuner_off 1
+
+# Manual all bypass (mute for tuning or between songs)
+[13:15.000]
+- hxstompxl_all_bypass_on 1
+
+# Un-bypass all
+[13:20.000]
+- hxstompxl_all_bypass_off 1
+
+# Tap tempo example (120 BPM = 500ms per beat)
+[13:25.000]
+- hxstompxl_tap 1
+[+500ms]
+- hxstompxl_tap 1
+[+500ms]
+- hxstompxl_tap 1
+[+500ms]
+- hxstompxl_tap 1
+
+/*
+ * ============================================================================
+ * BEST PRACTICES DEMONSTRATED
+ * ============================================================================
+ *
+ * 1. SNAPSHOT ORGANIZATION (4 snapshots):
+ *    - Snapshot 1: Foundation/verse tone
+ *    - Snapshot 2: Chorus/driven tone
+ *    - Snapshot 3: Bridge/different texture
+ *    - Snapshot 4: Lead/solo tone
+ *    - 4 snapshots is enough for most songs
+ *
+ * 2. FOOTSWITCH STRATEGY (8 footswitches):
+ *    - FS1-2: Core effects (reverb, delay)
+ *    - FS3-4: Drives and modulation
+ *    - FS5-6: Special effects
+ *    - FS7-8: Ambient effects (shimmer, tremolo)
+ *    - 8 switches provides excellent live control
+ *
+ * 3. EXPRESSION PEDAL INTEGRATION:
+ *    - Physical expression pedals (EXP1/EXP2 jacks) for real-time control
+ *    - MIDI expression (CC#1/CC#2) for slow automation
+ *    - Add 50-100ms delays between MIDI expression updates
+ *
+ * 4. PRESET ORGANIZATION:
+ *    - Organize by song or style
+ *    - Direct PC addressing (0-127)
+ *    - Use snapshots for variations within a song
+ *    - Use preset changes for major tone shifts
+ *
+ * 5. TIMING CONSIDERATIONS:
+ *    - 350ms delay after preset changes (firmware 3.5x)
+ *    - Firmware 3.10+ buffers snapshot changes
+ *    - Use hxstompxl_load_snapshot for preset + snapshot combo
+ *
+ * 6. USB MIDI OPTIMIZATION:
+ *    - Use high-quality USB-C cable
+ *    - Avoid USB hubs for MIDI
+ *    - Consider USB MIDI isolator for ground loops
+ *    - Keep USB cable length reasonable (<3m)
+ *
+ * 7. MODE SWITCHING:
+ *    - Stomp mode: Footswitches toggle effects
+ *    - Snapshot mode: Footswitches select snapshots
+ *    - Preset mode: Footswitches select presets
+ *    - Use mode switching for different workflow needs
+ *
+ * 8. LIVE PERFORMANCE RELIABILITY:
+ *    - Test all MIDI mappings before performance
+ *    - Keep firmware updated but test thoroughly
+ *    - Backup presets before gigs
+ *    - Have backup USB cable
+ *
+ * ============================================================================
+ * HX STOMP XL COMPARISON
+ * ============================================================================
+ *
+ * HX STOMP XL VS HX STOMP:
+ * - 4 snapshots (vs 3) - Better for verse/chorus/bridge/solo
+ * - 8 footswitches (vs 5) - Much better live control
+ * - Larger display - Easier to read
+ * - Same DSP (single path) - Same tone quality
+ * - Larger footprint - Still pedalboard-friendly
+ *
+ * HX STOMP XL VS FULL HELIX:
+ * - 4 snapshots (vs 8) - Enough for most songs
+ * - 8 footswitches (vs 11) - Good live control
+ * - USB-only MIDI (vs 5-pin DIN) - Less hardware chaining options
+ * - Single DSP path (vs dual) - Simpler routing
+ * - Smaller footprint - Pedalboard-friendly
+ * - Lower cost - Great value
+ *
+ * WHEN TO CHOOSE HX STOMP XL:
+ * - 4 snapshots per preset is enough (most songs fit)
+ * - 8 footswitches provides adequate live control
+ * - USB-only MIDI is acceptable (computer/interface available)
+ * - Want amp/cab modeling in compact format
+ * - Pedalboard integration important
+ *
+ * ============================================================================
+ * HX STOMP XL MIDI IMPLEMENTATION NOTES
+ * ============================================================================
+ *
+ * PRESET ADDRESSING:
+ * - Direct Program Change: PC 0-127 (128 presets)
+ * - No Bank Select needed (unlike full Helix)
+ * - Simpler addressing than full Helix
+ *
+ * SNAPSHOT CONTROL:
+ * - CC#69 values 0-3 select snapshots 1-4
+ * - CC#69 value 8 = next snapshot (wraps 4→1)
+ * - CC#69 value 9 = previous snapshot (wraps 1→4)
+ * - Firmware 3.10+ buffers CC69 during preset load
+ *
+ * FOOTSWITCH CONTROL:
+ * - CC#49-56 control footswitches 1-8
+ * - Any value 64-127 toggles the footswitch
+ * - FS6 = CC#54 (not skipped like on full Helix)
+ *
+ * EXPRESSION PEDALS:
+ * - CC#1 = EXP1, CC#2 = EXP2
+ * - CC#59 = EXP toe switch (0-63=off, 64-127=on)
+ * - MIDI expression has latency vs physical pedals
+ *
+ * LOOPER CONTROL:
+ * - Same as other Helix models (CC#60-67)
+ * - 6-12 minutes recording time (varies by preset complexity)
+ *
+ * GLOBAL FUNCTIONS:
+ * - CC#64: Tap tempo
+ * - CC#68: Tuner (0-63=off, 64-127=on)
+ * - CC#70: All bypass (0=off, 127=on)
+ * - CC#71: Mode switch (0=stomp, 1=scroll, 2=preset, 3=snapshot)
+ * - CC#72: Preset navigation (0=prev, 127=next)
+ *
+ * USB-C MIDI:
+ * - Class-compliant USB MIDI device
+ * - No drivers needed (macOS/Windows/Linux)
+ * - Can act as USB MIDI interface
+ * - Lower latency than traditional MIDI DIN at high message rates
+ * - No MIDI Thru (use computer for MIDI routing)
+ *
+ * For complete MIDI specification, see:
+ * https://line6.com/support/manuals/hxstompxl
+ * ============================================================================
+ */

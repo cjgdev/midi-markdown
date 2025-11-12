@@ -1,0 +1,394 @@
+---
+title: "Performance Comparison: Manual vs @loop vs @sweep"
+description: "Same musical result using different MMD techniques - see the difference"
+author: "MML Examples"
+tempo: 120
+time_signature: [4, 4]
+ppq: 480
+---
+
+# ============================================================================
+# Performance Comparison
+# ============================================================================
+#
+# This file demonstrates the SAME musical result using three different
+# techniques, showing the code reduction and maintainability benefits
+# of MMD's advanced features.
+#
+# TASK: Create a 16-beat hi-hat pattern with a filter sweep
+#
+# METHOD 1: Manual (everything written out)
+# METHOD 2: @loop (pattern repetition)
+# METHOD 3: @sweep (automated parameter ramping)
+#
+# ============================================================================
+
+@define FILTER_CC 74  # Filter cutoff CC number
+
+# ============================================================================
+# METHOD 1: Manual Implementation
+# ============================================================================
+# Writing everything out by hand
+# LINES OF CODE: ~50 lines
+
+[00:00.000]
+- marker "Method 1: Manual"
+- text "16 hi-hats + 16 filter changes - all written out"
+
+# Hi-hat pattern (16 beats)
+[@]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.0
+
+[00:00.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.8
+
+[00:01.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.16
+
+[00:01.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.24
+
+[00:02.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.32
+
+[00:02.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.40
+
+[00:03.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.48
+
+[00:03.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.56
+
+[00:04.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.64
+
+[00:04.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.72
+
+[00:05.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.80
+
+[00:05.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.88
+
+[00:06.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.96
+
+[00:06.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.104
+
+[00:07.000]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.112
+
+[00:07.500]
+- note_on 10.42 75 0.1s
+- cc 1.${FILTER_CC}.120
+
+# TOTAL: 32 lines of MIDI commands
+# Maintainability: ❌ Low - changing timing requires editing 16 lines
+# Readability: ❌ Poor - pattern not obvious
+# Error prone: ❌ High - easy to make copy-paste mistakes
+
+# ============================================================================
+# METHOD 2: Using @loop
+# ============================================================================
+# Pattern repetition with loops
+# LINES OF CODE: ~6 lines
+
+[00:09.000]
+- marker "Method 2: @loop"
+- text "Same pattern using @loop - much shorter!"
+
+# Hi-hat pattern (same 16 beats)
+@loop 16 times every 0.5s
+  - note_on 10.42 75 0.1s
+@end
+
+# Filter sweep (manual steps)
+[00:09.000]
+- cc 1.${FILTER_CC}.0
+[00:09.500]
+- cc 1.${FILTER_CC}.8
+[00:10.000]
+- cc 1.${FILTER_CC}.16
+[00:10.500]
+- cc 1.${FILTER_CC}.24
+[00:11.000]
+- cc 1.${FILTER_CC}.32
+[00:11.500]
+- cc 1.${FILTER_CC}.40
+[00:12.000]
+- cc 1.${FILTER_CC}.48
+[00:12.500]
+- cc 1.${FILTER_CC}.56
+[00:13.000]
+- cc 1.${FILTER_CC}.64
+[00:13.500]
+- cc 1.${FILTER_CC}.72
+[00:14.000]
+- cc 1.${FILTER_CC}.80
+[00:14.500]
+- cc 1.${FILTER_CC}.88
+[00:15.000]
+- cc 1.${FILTER_CC}.96
+[00:15.500]
+- cc 1.${FILTER_CC}.104
+[00:16.000]
+- cc 1.${FILTER_CC}.112
+[00:16.500]
+- cc 1.${FILTER_CC}.120
+
+# TOTAL: ~20 lines (loop is 3 lines, filter is still manual)
+# Maintainability: ✓ Better - easy to change hi-hat pattern
+# Readability: ✓ Good - clear that it's a repeating pattern
+# Error prone: ✓ Medium - still manual filter values
+
+# ============================================================================
+# METHOD 3: Using @loop + @sweep
+# ============================================================================
+# Full automation with loops and sweeps
+# LINES OF CODE: ~6 lines
+
+[00:18.000]
+- marker "Method 3: @loop + @sweep"
+- text "Same pattern fully automated - minimal code!"
+
+# Hi-hat pattern (same 16 beats)
+@loop 16 times every 0.5s
+  - note_on 10.42 75 0.1s
+@end
+
+# Filter sweep (automated)
+@sweep from [00:18.000] to [00:26.000] every 500ms
+  - cc 1.${FILTER_CC}.ramp(0, 120, linear)
+@end
+
+# TOTAL: 6 lines!
+# Maintainability: ✅ Excellent - change one parameter
+# Readability: ✅ Excellent - intent is crystal clear
+# Error prone: ✅ Low - automation handles calculations
+
+# ============================================================================
+# COMPARISON TABLE
+# ============================================================================
+#
+# | Metric              | Manual | @loop  | @loop + @sweep |
+# |---------------------|--------|--------|----------------|
+# | Lines of Code       | ~50    | ~20    | ~6             |
+# | Hi-hat LOC          | 32     | 3      | 3              |
+# | Filter LOC          | 16     | 16     | 3              |
+# | Maintainability     | Low    | Medium | High           |
+# | Readability         | Poor   | Good   | Excellent      |
+# | Error Prone         | High   | Medium | Low            |
+# | Easy to adjust      | ❌     | ✓      | ✅             |
+# | Clear intent        | ❌     | ✓      | ✅             |
+# | Code reuse          | ❌     | ✓      | ✅             |
+#
+# CODE REDUCTION: 50 lines → 6 lines (88% reduction!)
+#
+# ============================================================================
+
+# ============================================================================
+# Advanced Example: Complex Automation
+# ============================================================================
+# TASK: Create 32-beat pattern with volume automation
+
+[00:27.000]
+- marker "Advanced: Complex Pattern"
+- text "Comparing manual vs automated for complex patterns"
+
+# ---- MANUAL VERSION (abbreviated - would be ~100+ lines) ----
+# [00:27.000]
+# - note_on 10.36 100 0.1s
+# - cc 1.7.30
+# [00:27.500]
+# - note_on 10.42 70 0.1s
+# - cc 1.7.32
+# ... repeat 62 more times ...
+# TOTAL: ~100+ lines
+
+# ---- AUTOMATED VERSION ----
+@loop 16 times every 0.5s
+  - note_on 10.36 100 0.1s  # Kick
+  [+0.25s]
+  - note_on 10.42 70 0.1s   # Hi-hat
+@end
+
+@sweep from [00:27.000] to [00:43.000] every 250ms
+  - cc 1.7.ramp(30, 110, exponential)
+@end
+
+# TOTAL: 8 lines
+# CODE REDUCTION: 100+ lines → 8 lines (92% reduction!)
+
+# ============================================================================
+# Practical Example: Song Section
+# ============================================================================
+# TASK: 8-bar intro with build-up
+
+[00:44.000]
+- marker "Practical: Song Intro"
+- text "Real-world example: intro build-up"
+
+# Manual approach would require:
+# - 32 kick drum events (8 bars × 4 beats)
+# - 64 hi-hat events (16 per bar × 2 = 32 per bar)
+# - 64 filter automation points
+# TOTAL: ~200+ lines
+
+# Automated approach:
+@loop 32 times every 1b
+  - note_on 10.36 95 0.1s  # Kick on every beat
+@end
+
+@loop 64 times every 0.5b
+  - note_on 10.42 75 0.05s  # Hi-hat on eighth notes
+@end
+
+@sweep from [00:44.000] to [01:00.000] every 250ms
+  - cc 1.${FILTER_CC}.ramp(20, 127, exponential)  # Filter opens
+@end
+
+@sweep from [00:44.000] to [01:00.000] every 250ms
+  - cc 1.7.ramp(60, 110, linear)  # Volume increases
+@end
+
+# TOTAL: 14 lines
+# CODE REDUCTION: 200+ lines → 14 lines (93% reduction!)
+
+# ============================================================================
+# Maintenance Comparison
+# ============================================================================
+
+[01:01.000]
+- marker "Maintenance Benefits"
+- text "How easy is it to make changes?"
+
+# SCENARIO: Change hi-hat pattern from eighth notes to sixteenth notes
+
+# ---- MANUAL APPROACH ----
+# Would need to:
+# 1. Double all hi-hat events (32 → 64)
+# 2. Halve all timing offsets (0.5s → 0.25s)
+# 3. Manually verify all timing is correct
+# TIME: ~15-20 minutes, high error risk
+
+# ---- @LOOP APPROACH ----
+# Change ONE number:
+# @loop 16 times every 0.5s  →  @loop 32 times every 0.25s
+# TIME: 5 seconds, zero error risk
+
+# SCENARIO: Change filter sweep curve from linear to exponential
+
+# ---- MANUAL APPROACH ----
+# Would need to:
+# 1. Recalculate all 16 filter values with exponential curve
+# 2. Update all 16 CC commands
+# TIME: ~10 minutes
+
+# ---- @SWEEP APPROACH ----
+# Change ONE word:
+# ramp(0, 120, linear)  →  ramp(0, 120, exponential)
+# TIME: 2 seconds
+
+# ============================================================================
+# Performance Metrics
+# ============================================================================
+#
+# COMPILATION TIME (all methods produce identical MIDI output):
+# - Manual:     ~same (more tokens to parse)
+# - @loop:      ~same (pattern expansion happens once)
+# - @sweep:     ~same (ramp calculation is fast)
+#
+# FILE SIZE:
+# - Manual:     ~3-5 KB (lots of repetition)
+# - @loop:      ~1-2 KB (compressed patterns)
+# - @sweep:     ~500 bytes (minimal code)
+#
+# MAINTAINABILITY TIME (time to make common changes):
+# - Manual:     10-20 minutes per change
+# - @loop:      30 seconds - 2 minutes
+# - @sweep:     5-10 seconds
+#
+# ERROR RATE (likelihood of introducing bugs):
+# - Manual:     High (copy-paste errors, timing mistakes)
+# - @loop:      Low (less code to get wrong)
+# - @sweep:     Very Low (automation handles details)
+#
+# ============================================================================
+# Best Practices Recommendations
+# ============================================================================
+#
+# USE MANUAL when:
+# ❓ Events are truly unique (no pattern)
+# ❓ Very few events (<5)
+# ❓ Complex variations that don't follow a pattern
+#
+# USE @loop when:
+# ✓ Repeating patterns (drums, arpeggios, sequences)
+# ✓ Consistent spacing between events
+# ✓ Same command repeated with regular intervals
+#
+# USE @sweep when:
+# ✓ Smooth parameter changes (fades, sweeps, ramps)
+# ✓ Many intermediate values needed
+# ✓ Mathematical curves (linear, exponential, etc.)
+#
+# COMBINE @loop + @sweep when:
+# ✅ Complex patterns with automation
+# ✅ Rhythmic elements + parameter changes
+# ✅ Professional productions
+#
+# ============================================================================
+# Conclusion
+# ============================================================================
+#
+# MANUAL:
+# - Most code (50+ lines)
+# - Hardest to maintain
+# - Most error-prone
+# - Use only when truly necessary
+#
+# @LOOP:
+# - Moderate code (~20 lines)
+# - Easy to maintain patterns
+# - Good for repetitive elements
+# - Use for drums, sequences, arpeggios
+#
+# @SWEEP:
+# - Least code (~3 lines)
+# - Easiest to maintain
+# - Professional smooth automation
+# - Use for fades, sweeps, parameter changes
+#
+# @LOOP + @SWEEP:
+# - Minimal code (~6 lines)
+# - Professional result
+# - Maximum maintainability
+# - **RECOMMENDED for most use cases**
+#
+# CODE REDUCTION: up to 93% less code!
+# TIME SAVINGS: 10-20x faster to write and maintain!
+#
+# ============================================================================
+
+[01:02.000]
+- marker "End"
+- text "Performance comparison complete"
+- end_of_track

@@ -1,6 +1,6 @@
 ---
 title: "Loops and Patterns"
-description: "Demonstrates @loop feature for repetitive patterns"
+description: "Demonstrates @loop feature for repetitive patterns including nested loops"
 author: "MML Examples"
 tempo: 120
 time_signature: [4, 4]
@@ -8,7 +8,7 @@ ppq: 480
 ---
 
 # ============================================================================
-# Example 10: Loops and Patterns
+# Example: Loops and Patterns
 # ============================================================================
 #
 # This example demonstrates the @loop feature which allows you to repeat
@@ -19,52 +19,310 @@ ppq: 480
 #     - commands to repeat
 #   @end
 #
+# Loops can be:
+# - Simple (single repeating pattern)
+# - Nested (loops inside loops)
+# - Multi-command (multiple events per iteration)
+# - Variable-driven (using @define for loop parameters)
+#
 # ============================================================================
+
+@define CLICK_COUNT 16
+@define HI_HAT_NOTE 42
 
 
 # ============================================================================
-# Simple Loop: Click Track
+# Section 1: Simple Loops
 # ============================================================================
 
 [00:00.000]
-- marker "Click Track"
-- text "16 beats using @loop"
+- marker "Simple Loops"
+- text "Basic loop patterns"
 
-@loop 16 times every 1b
-  - note_on 1.42 100 0.1s
+# Simple click track
+@loop ${CLICK_COUNT} times every 1b
+  - note_on 10.${HI_HAT_NOTE} 75 0.1s
 @end
 
 
 # ============================================================================
-# Polyrhythm Example
+# Section 2: Multi-Command Loops
 # ============================================================================
 
-[00:04.000]
-- marker "Polyrhythm"
-- text "Different loop intervals"
+[00:08.500]
+- marker "Multi-Command Loops"
+- text "Multiple events per loop iteration"
 
+# Kick and snare pattern (8 bars)
+@loop 32 times every 1b
+  - note_on 10.36 100 0.1s  # Kick on every beat
+  [+0.5b]
+  - note_on 10.42 70 0.05s  # Hi-hat on off-beats
+@end
+
+
+# ============================================================================
+# Section 3: Nested Loops
+# ============================================================================
+
+[00:25.000]
+- marker "Nested Loops"
+- text "Loops inside loops for complex patterns"
+
+# Outer loop: 4 bars
+@loop 4 times every 4b
+  # Inner loop: 4-beat pattern
+  @loop 4 times every 1b
+    - note_on 10.36 95 0.1s   # Kick
+    [@]
+    - note_on 10.42 75 0.05s  # Hi-hat
+    [+0.5b]
+    - note_on 10.42 70 0.05s  # Off-beat hi-hat
+  @end
+  # Add snare on beat 3 of each bar (outside inner loop)
+  [+2b]
+  - note_on 10.38 100 0.1s
+@end
+
+
+# ============================================================================
+# Section 4: Polyrhythmic Patterns
+# ============================================================================
+
+[00:41.500]
+- marker "Polyrhythm"
+- text "Different loop intervals creating polyrhythm"
+
+# 3 against 4 polyrhythm
+# Pattern 1: Triplets (3 per beat × 4 beats = 12 notes)
 @loop 12 times every 0.333b
   - note_on 1.60 80 0.2s
 @end
 
-
-# ============================================================================
-# Sustained Pattern
-# ============================================================================
-
-[00:08.000]
-- marker "Sustained Pattern"
-- text "8-bar bass line"
-
-@loop 32 times every 1b
-  - note_on 1.36 85 0.9b
+# Pattern 2: Sixteenths (4 per beat × 4 beats = 16 notes) - simultaneous
+[00:41.500]
+@loop 16 times every 0.25b
+  - note_on 2.64 70 0.15s
 @end
 
 
 # ============================================================================
+# Section 5: Practical Drum Patterns
+# ============================================================================
+
+[00:46.000]
+- marker "Practical Drum Patterns"
+- text "Real-world drum programming with loops"
+
+# Rock beat: Kick on 1 and 3, snare on 2 and 4
+@loop 8 times every 4b
+  # Kick on beat 1
+  - note_on 10.36 100 0.1s
+  [@]
+  - note_on 10.42 75 0.05s
+
+  # Hi-hats on off-beats
+  [+0.5b]
+  - note_on 10.42 70 0.05s
+
+  # Snare on beat 2
+  [+0.5b]
+  - note_on 10.38 95 0.1s
+  [@]
+  - note_on 10.42 75 0.05s
+
+  # Hi-hat
+  [+0.5b]
+  - note_on 10.42 70 0.05s
+
+  # Kick on beat 3
+  [+0.5b]
+  - note_on 10.36 100 0.1s
+  [@]
+  - note_on 10.42 75 0.05s
+
+  # Hi-hat
+  [+0.5b]
+  - note_on 10.42 70 0.05s
+
+  # Snare on beat 4
+  [+0.5b]
+  - note_on 10.38 95 0.1s
+  [@]
+  - note_on 10.42 75 0.05s
+
+  # Final hi-hat
+  [+0.5b]
+  - note_on 10.42 70 0.05s
+@end
+
+
+# ============================================================================
+# Section 6: Arpeggiator Pattern
+# ============================================================================
+
+[01:02.500]
+- marker "Arpeggiator"
+- text "Ascending arpeggio using loops"
+
+# C major arpeggio (C-E-G-C) × 8 times
+@loop 8 times every 1b
+  - note_on 1.C4 85 0.2b
+  [+0.25b]
+  - note_on 1.E4 85 0.2b
+  [+0.25b]
+  - note_on 1.G4 85 0.2b
+  [+0.25b]
+  - note_on 1.C5 85 0.2b
+@end
+
+
+# ============================================================================
+# Section 7: Bass Line Patterns
+# ============================================================================
+
+[01:07.000]
+- marker "Bass Lines"
+- text "Repeating bass patterns"
+
+# 4-bar bass line with variation
+@loop 4 times every 4b
+  # Bar pattern: Root - Fifth - Root - Octave
+  - note_on 1.C2 90 0.9b
+  [+1b]
+  - note_on 1.G2 85 0.9b
+  [+1b]
+  - note_on 1.C2 90 0.9b
+  [+1b]
+  - note_on 1.C3 85 0.9b
+@end
+
+
+# ============================================================================
+# Section 8: Nested Loops for Complex Structures
+# ============================================================================
+
+[01:23.500]
+- marker "Complex Nested Structure"
+- text "Two-level nested loops for verse-chorus structure"
+
+# Verse section (2 repetitions of 4-bar pattern)
+@loop 2 times every 16b
+  # 4-bar verse pattern
+  @loop 4 times every 4b
+    # Simple kick pattern
+    @loop 4 times every 1b
+      - note_on 10.36 90 0.1s
+    @end
+  @end
+@end
+
+
+# ============================================================================
+# Section 9: Combining Loops with Variables
+# ============================================================================
+
+[01:40.000]
+- marker "Loops with Variables"
+- text "Using @define to control loop parameters"
+
+@define PATTERN_REPEATS 4
+@define PATTERN_INTERVAL 2b
+@define BASE_NOTE 60
+
+@loop ${PATTERN_REPEATS} times every ${PATTERN_INTERVAL}
+  - note_on 1.${BASE_NOTE} 85 1b
+  [+0.5b]
+  - note_on 1.${ BASE_NOTE + 4 } 85 0.5b
+@end
+
+
+# ============================================================================
+# Section 10: Practical Use Case - Hi-Hat Pattern with Accents
+# ============================================================================
+
+[01:48.500]
+- marker "Hi-Hat Groove"
+- text "Realistic hi-hat pattern with accents and ghost notes"
+
+@loop 8 times every 4b
+  # Beat 1 - accented
+  - note_on 10.42 85 0.08s
+  [+0.25b]
+  # Off-beat - soft
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+  # Beat 1.5 - ghost note
+  - note_on 10.42 45 0.08s
+  [+0.25b]
+  # Off-beat
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+
+  # Beat 2 - accented
+  - note_on 10.42 85 0.08s
+  [+0.25b]
+  # Off-beat
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+  # Ghost
+  - note_on 10.42 45 0.08s
+  [+0.25b]
+  # Off-beat
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+
+  # Beat 3 - accented
+  - note_on 10.42 85 0.08s
+  [+0.25b]
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+  - note_on 10.42 45 0.08s
+  [+0.25b]
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+
+  # Beat 4 - accented with extra ghost before
+  - note_on 10.42 85 0.08s
+  [+0.125b]
+  - note_on 10.42 40 0.05s  # Quick ghost
+  [+0.125b]
+  - note_on 10.42 55 0.08s
+  [+0.25b]
+  - note_on 10.42 45 0.08s
+  [+0.25b]
+  - note_on 10.42 60 0.08s  # Slightly louder leading into next bar
+@end
+
+
+# ============================================================================
+# Best Practices for Loops
+# ============================================================================
+#
+# ✓ Use loops for ANY repeating pattern (saves code and time)
+# ✓ Nest loops for complex structures (verses, choruses, sections)
+# ✓ Combine with variables for flexibility (@define)
+# ✓ Use relative timing ([+duration]) inside loops for clarity
+# ✓ Keep loop body readable (add comments for complex patterns)
+#
+# Common loop use cases:
+# - Drum patterns (kicks, snares, hi-hats)
+# - Arpeggios and sequences
+# - Bass lines
+# - Click tracks and metronomes
+# - Repeated chord progressions
+# - Polyrhythmic patterns
+# - Song sections (verse/chorus repetitions)
+#
+# When NOT to use loops:
+# ❌ Events are truly unique (no pattern)
+# ❌ Very short patterns (<3 repetitions, manual might be clearer)
+# ❌ Pattern varies significantly each time
+#
+# ============================================================================
 # End
 # ============================================================================
 
-[00:24.000]
-- text "End of loops demonstration"
+[02:05.000]
+- text "Loops and patterns demonstration complete"
 - end_of_track

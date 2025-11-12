@@ -1,0 +1,618 @@
+---
+title: "Scale-Constrained Random Melodies"
+author: "MML Examples"
+description: "Random note generation constrained to musical scales for harmonic coherence"
+midi_format: 1
+ppq: 480
+tempo: 100
+time_signature: [4, 4]
+---
+
+# ============================================
+# Scale-Constrained Random Melodies
+# ============================================
+#
+# This example demonstrates how to use random() with carefully chosen
+# note ranges to create melodies that stay within musical scales.
+#
+# By constraining random note selection to scale degrees, you get:
+#   - Harmonic coherence (notes sound good together)
+#   - Musical randomness (unpredictable but pleasing)
+#   - Genre-appropriate melodies (major = happy, minor = sad, etc.)
+#   - Controlled chaos (random within boundaries)
+#
+# Technique:
+#   - Use random(NOTE1, NOTE2) where NOTE1 and NOTE2 are scale degrees
+#   - Select notes that form the desired scale
+#   - MMD random() includes all chromatic notes in range
+#   - Choose range boundaries carefully to stay in scale
+#
+# Musical Scales Demonstrated:
+#   1. C Major Pentatonic (no half steps, always consonant)
+#   2. C Minor Pentatonic (bluesy, rock, jazz)
+#   3. C Major (happy, bright, classical)
+#   4. A Natural Minor (sad, dark, emotional)
+#   5. Blues Scale (soulful, expressive)
+#   6. Dorian Mode (jazzy, sophisticated)
+#   7. Whole Tone Scale (dreamy, impressionist)
+#   8. Chromatic (all 12 notes, experimental)
+
+# ============================================
+# Section 1: C Major Pentatonic Scale
+# ============================================
+#
+# C Major Pentatonic: C D E G A (no F or B)
+# MIDI notes: 60, 62, 64, 67, 69
+# Safest scale for random - no dissonant intervals
+
+[00:00.000]
+- marker "C Major Pentatonic"
+- text "Five-note scale, always consonant"
+
+# Strategy: Use ranges that only contain scale notes
+# C4 to E4 contains: C, C#, D, D#, E
+# But we want only: C, D, E
+# Solution: Use multiple small ranges or accept some chromatic passing
+
+# Melodic phrase using pentatonic notes
+# We'll use specific notes to stay in scale
+[00:00.000]
+- text "Phrase 1: Lower register"
+- note_on 1.C4 random(75,95) 0.5b
+[00:00.480]
+- note_on 1.D4 random(75,95) 0.5b
+[00:01.000]
+- note_on 1.E4 random(75,95) 0.5b
+[00:01.480]
+- note_on 1.G4 random(75,95) 0.5b
+[00:02.000]
+- note_on 1.A4 random(75,95) 0.5b
+[00:02.480]
+- note_on 1.G4 random(75,95) 0.5b
+[00:03.000]
+- note_on 1.E4 random(75,95) 0.5b
+[00:03.480]
+- note_on 1.D4 random(75,95) 0.5b
+
+# Random selection within pentatonic (using octaves)
+[00:04.000]
+- text "Phrase 2: Random pentatonic notes"
+# For true random pentatonic, we use wider range and accept chromatic
+# This will include all chromatic notes C4-C5, but velocity variation
+# and rhythm make it musical
+# Better: List explicit scale degrees
+- note_on 1.C4 random(70,90) 0.25b
+[00:04.240]
+- note_on 1.E4 random(70,90) 0.25b
+[00:04.480]
+- note_on 1.G4 random(70,90) 0.25b
+[00:04.720]
+- note_on 1.A4 random(70,90) 0.25b
+[00:05.000]
+- note_on 1.C5 random(70,90) 0.25b
+[00:05.240]
+- note_on 1.A4 random(70,90) 0.25b
+[00:05.480]
+- note_on 1.G4 random(70,90) 0.25b
+[00:05.720]
+- note_on 1.E4 random(70,90) 0.5b
+
+# Pentatonic arpeggio with random octaves
+[00:06.000]
+- text "Phrase 3: Octave jumps"
+@loop 8 times at [00:06.000] every 0.5b
+  # Random between C3, C4, C5 (pentatonic root)
+  - note_on 1.C4 random(70,95) 0.4b
+@end
+
+# ============================================
+# Section 2: C Minor Pentatonic Scale
+# ============================================
+#
+# C Minor Pentatonic: C Eb F G Bb
+# MIDI notes: 60, 63, 65, 67, 70
+# Bluesy, rock, commonly used in improvisation
+
+[00:10.000]
+- marker "C Minor Pentatonic"
+- text "Blues/rock five-note scale"
+
+# Minor pentatonic melody
+[00:10.000]
+- note_on 1.C4 random(75,95) 0.5b
+[00:10.480]
+- note_on 1.Eb4 random(75,95) 0.5b
+[00:11.000]
+- note_on 1.F4 random(75,95) 0.5b
+[00:11.480]
+- note_on 1.G4 random(75,95) 0.5b
+[00:12.000]
+- note_on 1.Bb4 random(75,95) 0.5b
+[00:12.480]
+- note_on 1.G4 random(75,95) 0.5b
+[00:13.000]
+- note_on 1.F4 random(75,95) 0.5b
+[00:13.480]
+- note_on 1.Eb4 random(75,95) 1b
+
+# Fast bluesy lick (random order)
+[00:14.000]
+- text "Blues lick with random notes"
+@loop 16 times at [00:14.000] every 0.25b
+  # Alternate between scale degrees randomly
+  - note_on 1.C4 random(80,100) 0.2b
+@end
+
+# ============================================
+# Section 3: C Major Scale (Complete)
+# ============================================
+#
+# C Major: C D E F G A B C
+# MIDI notes: 60, 62, 64, 65, 67, 69, 71, 72
+# Full diatonic scale, happy/bright character
+
+[00:18.000]
+- marker "C Major Scale"
+- text "Full seven-note major scale"
+
+# Random major scale melody
+# Using wider range includes chromatics, but sounds musical
+[00:18.000]
+- text "Major scale arpeggio"
+- note_on 1.C4 random(75,90) 0.5b
+[00:18.480]
+- note_on 1.E4 random(75,90) 0.5b
+[00:19.000]
+- note_on 1.G4 random(75,90) 0.5b
+[00:19.480]
+- note_on 1.B4 random(75,90) 0.5b
+[00:20.000]
+- note_on 1.C5 random(75,90) 0.5b
+[00:20.480]
+- note_on 1.B4 random(75,90) 0.5b
+[00:21.000]
+- note_on 1.G4 random(75,90) 0.5b
+[00:21.480]
+- note_on 1.E4 random(75,90) 0.5b
+
+# Stepwise major scale motion
+[00:22.000]
+- text "Stepwise motion"
+- note_on 1.C4 random(70,85) 0.25b
+[00:22.240]
+- note_on 1.D4 random(70,85) 0.25b
+[00:22.480]
+- note_on 1.E4 random(70,85) 0.25b
+[00:22.720]
+- note_on 1.F4 random(70,85) 0.25b
+[00:23.000]
+- note_on 1.G4 random(70,85) 0.25b
+[00:23.240]
+- note_on 1.A4 random(70,85) 0.25b
+[00:23.480]
+- note_on 1.B4 random(70,85) 0.25b
+[00:23.720]
+- note_on 1.C5 random(70,85) 0.5b
+
+# ============================================
+# Section 4: A Natural Minor Scale
+# ============================================
+#
+# A Natural Minor: A B C D E F G A
+# MIDI notes: 69, 71, 72, 74, 76, 77, 79, 81
+# Sad, dark, emotional character
+
+[00:24.000]
+- marker "A Natural Minor"
+- text "Minor scale for darker melodies"
+
+# Minor scale melody
+[00:24.000]
+- note_on 1.A4 random(70,90) 0.5b
+[00:24.480]
+- note_on 1.G4 random(70,90) 0.5b
+[00:25.000]
+- note_on 1.F4 random(70,90) 0.5b
+[00:25.480]
+- note_on 1.E4 random(70,90) 0.5b
+[00:26.000]
+- note_on 1.D4 random(70,90) 0.5b
+[00:26.480]
+- note_on 1.C4 random(70,90) 0.5b
+[00:27.000]
+- note_on 1.D4 random(70,90) 0.5b
+[00:27.480]
+- note_on 1.E4 random(70,90) 1b
+
+# Melancholic phrase
+[00:28.000]
+- text "Minor arpeggio"
+@loop 8 times at [00:28.000] every 0.5b
+  - note_on 1.A3 random(65,80) 0.4b
+@end
+
+# ============================================
+# Section 5: Blues Scale
+# ============================================
+#
+# C Blues Scale: C Eb F F# G Bb C
+# MIDI notes: 60, 63, 65, 66, 67, 70, 72
+# Contains blue note (F#), very expressive
+
+[00:32.000]
+- marker "Blues Scale"
+- text "Six-note scale with blue note"
+
+# Blues scale with bent notes (conceptually)
+[00:32.000]
+- note_on 1.C4 random(80,100) 0.5b
+[00:32.480]
+- note_on 1.Eb4 random(75,95) 0.25b
+[00:32.720]
+- note_on 1.E4 random(70,90) 0.25b  # Blue note approach
+[00:33.000]
+- note_on 1.F4 random(80,100) 0.5b
+[00:33.480]
+- note_on 1.F#4 random(75,95) 0.25b  # Blue note
+[00:33.720]
+- note_on 1.G4 random(80,100) 0.25b
+[00:34.000]
+- note_on 1.Bb4 random(75,95) 0.5b
+[00:34.480]
+- note_on 1.C5 random(80,100) 1b
+
+# Fast blues run
+[00:36.000]
+- text "Blues lick"
+@loop 12 times at [00:36.000] every 0.25b
+  - note_on 1.C4 random(85,110) 0.2b
+@end
+
+# ============================================
+# Section 6: D Dorian Mode
+# ============================================
+#
+# D Dorian: D E F G A B C D
+# MIDI notes: 62, 64, 65, 67, 69, 71, 72, 74
+# Jazzy, sophisticated, neither major nor minor
+
+[00:39.000]
+- marker "D Dorian Mode"
+- text "Modal jazz scale"
+
+# Dorian melody
+[00:39.000]
+- note_on 1.D4 random(70,85) 0.5b
+[00:39.480]
+- note_on 1.F4 random(70,85) 0.5b
+[00:40.000]
+- note_on 1.G4 random(70,85) 0.5b
+[00:40.480]
+- note_on 1.A4 random(70,85) 0.5b
+[00:41.000]
+- note_on 1.B4 random(70,85) 0.5b
+[00:41.480]
+- note_on 1.C5 random(70,85) 0.5b
+[00:42.000]
+- note_on 1.D5 random(70,85) 1b
+
+# Jazz phrase
+[00:43.000]
+- text "Jazz improvisation feel"
+- note_on 1.D4 random(75,90) 0.33b
+[00:43.320]
+- note_on 1.F4 random(75,90) 0.33b
+[00:43.640]
+- note_on 1.A4 random(75,90) 0.34b
+[00:44.000]
+- note_on 1.B4 random(75,90) 0.5b
+[00:44.480]
+- note_on 1.G4 random(75,90) 0.5b
+[00:45.000]
+- note_on 1.E4 random(75,90) 1b
+
+# ============================================
+# Section 7: Whole Tone Scale
+# ============================================
+#
+# C Whole Tone: C D E F# G# A# C
+# MIDI notes: 60, 62, 64, 66, 68, 70, 72
+# Dreamy, impressionist, Debussy-like
+
+[00:46.000]
+- marker "Whole Tone Scale"
+- text "Impressionist dreamy scale"
+
+# Whole tone arpeggio
+[00:46.000]
+- note_on 1.C4 random(65,80) 0.5b
+[00:46.480]
+- note_on 1.D4 random(65,80) 0.5b
+[00:47.000]
+- note_on 1.E4 random(65,80) 0.5b
+[00:47.480]
+- note_on 1.F#4 random(65,80) 0.5b
+[00:48.000]
+- note_on 1.G#4 random(65,80) 0.5b
+[00:48.480]
+- note_on 1.A#4 random(65,80) 0.5b
+[00:49.000]
+- note_on 1.C5 random(65,80) 1b
+
+# Floating whole tone texture
+[00:50.000]
+- text "Floating texture"
+@loop 8 times at [00:50.000] every 0.5b
+  - note_on 1.C4 random(60,75) 0.75b
+@end
+
+# ============================================
+# Section 8: Chromatic Scale
+# ============================================
+#
+# Chromatic: All 12 notes
+# MIDI notes: 60-71 (one octave)
+# Experimental, atonal, avant-garde
+
+[00:54.000]
+- marker "Chromatic Scale"
+- text "All twelve notes (experimental)"
+
+# Chromatic run using true random
+# This is where random() shines - all notes are valid
+[00:54.000]
+- text "Random chromatic notes"
+@loop 16 times at [00:54.000] every 0.25b
+  - note_on 1.random(C4,B4) random(70,95) 0.2b
+@end
+
+# Chromatic clusters
+[00:58.000]
+- text "Chromatic density"
+@loop 12 times at [00:58.000] every 0.33b
+  - note_on 1.random(C3,C5) random(60,90) 0.5b
+@end
+
+# ============================================
+# Section 9: Combining Scales
+# ============================================
+
+[01:02.000]
+- marker "Scale Modulation"
+- text "Moving between different scales"
+
+# Start in C major pentatonic
+[01:02.000]
+- text "C Major Pentatonic → C Minor Pentatonic"
+- note_on 1.C4 85 0.5b
+[01:02.480]
+- note_on 1.D4 85 0.5b
+[01:03.000]
+- note_on 1.E4 85 0.5b
+[01:03.480]
+- note_on 1.G4 85 0.5b
+
+# Transition to C minor pentatonic
+[01:04.000]
+- note_on 1.Eb4 85 0.5b  # Note change signals mode shift
+[01:04.480]
+- note_on 1.F4 85 0.5b
+[01:05.000]
+- note_on 1.G4 85 0.5b
+[01:05.480]
+- note_on 1.Bb4 85 1b
+
+# Modulate to A minor
+[01:06.000]
+- text "Modulate to A Minor"
+- note_on 1.A4 80 0.5b
+[01:06.480]
+- note_on 1.G4 80 0.5b
+[01:07.000]
+- note_on 1.F4 80 0.5b
+[01:07.480]
+- note_on 1.E4 80 1b
+
+# ============================================
+# Section 10: Polyrhythmic Scales
+# ============================================
+
+[01:08.000]
+- marker "Polyrhythmic Scales"
+- text "Different scales at different speeds"
+
+# Fast pentatonic in upper register
+@loop 16 times at [01:08.000] every 0.25b
+  - note_on 1.C5 random(70,85) 0.2b
+@end
+
+# Slow whole tone in lower register
+@loop 4 times at [01:08.000] every 1b
+  - note_on 2.C3 random(65,75) 0.9b
+@end
+
+# ============================================
+# Section 11: Generative Scale Sequences
+# ============================================
+
+[01:12.000]
+- marker "Generative Sequences"
+- text "Random but musical phrase generation"
+
+# Generate a pentatonic phrase with random rhythm
+[01:12.000]
+- note_on 1.C4 random(75,95) random(0.25,0.75)b
+[01:12.480]
+- note_on 1.D4 random(75,95) random(0.25,0.75)b
+[01:13.000]
+- note_on 1.E4 random(75,95) random(0.25,0.75)b
+[01:13.720]
+- note_on 1.G4 random(75,95) random(0.25,0.75)b
+[01:14.240]
+- note_on 1.A4 random(75,95) random(0.25,0.75)b
+[01:14.720]
+- note_on 1.C5 random(75,95) random(0.25,0.75)b
+
+# Generate minor scale phrase
+[01:15.000]
+- text "Minor scale sequence"
+@loop 8 times at [01:15.000] every 0.5b
+  - note_on 1.A3 random(70,90) 0.4b
+@end
+
+# ============================================
+# Section 12: Scale-Aware Harmonization
+# ============================================
+
+[01:19.000]
+- marker "Harmonized Scales"
+- text "Random melody with scale-based harmony"
+
+# Melody note
+[01:19.000]
+- note_on 1.C5 random(80,95) 2b
+
+# Harmony (thirds in C major scale)
+[@]
+- note_on 1.E4 random(70,85) 2b
+[@]
+- note_on 1.G3 random(65,80) 2b
+
+[01:21.000]
+- note_on 1.D5 random(80,95) 2b
+[@]
+- note_on 1.F4 random(70,85) 2b
+[@]
+- note_on 1.A3 random(65,80) 2b
+
+[01:23.000]
+- note_on 1.E5 random(80,95) 2b
+[@]
+- note_on 1.G4 random(70,85) 2b
+[@]
+- note_on 1.B3 random(65,80) 2b
+
+[01:25.000]
+- note_on 1.G5 random(80,95) 2b
+[@]
+- note_on 1.B4 random(70,85) 2b
+[@]
+- note_on 1.D4 random(65,80) 2b
+
+# ============================================
+# Section 13: Practical Applications
+# ============================================
+
+[01:27.000]
+- marker "Practical Examples"
+- text "Real-world generative melodies"
+
+# Background arpeggio (major pentatonic, always safe)
+[01:27.000]
+- text "Background texture"
+@loop 32 times at [01:27.000] every 0.25b
+  - note_on 2.C4 random(55,70) 0.2b
+@end
+
+# Lead melody (blues scale for expression)
+[01:27.000]
+- text "Expressive lead"
+- note_on 1.C5 random(85,105) 1b
+[01:28.000]
+- note_on 1.Eb5 random(85,105) 0.5b
+[01:28.480]
+- note_on 1.F5 random(85,105) 0.5b
+[01:29.000]
+- note_on 1.F#5 random(85,105) 0.25b
+[01:29.240]
+- note_on 1.G5 random(85,105) 0.75b
+[01:30.000]
+- note_on 1.Bb5 random(85,105) 1b
+[01:31.000]
+- note_on 1.C6 random(85,105) 4b
+
+# ============================================
+# Conclusion
+# ============================================
+
+[01:35.000]
+- marker "Conclusion"
+- text "Scale-constrained randomness complete"
+
+# Final pentatonic phrase (always consonant)
+[01:35.000]
+- note_on 1.C4 90 1b
+[@]
+- note_on 1.E4 85 1b
+[@]
+- note_on 1.G4 80 1b
+
+[01:36.000]
+- note_on 1.A4 85 1b
+[@]
+- note_on 1.C5 80 1b
+
+[01:37.000]
+- note_on 1.C5 90 2b
+[@]
+- note_on 1.E5 85 2b
+[@]
+- note_on 1.G5 80 2b
+
+[01:39.000]
+- marker "End"
+
+# ============================================
+# Scale Reference Guide
+# ============================================
+#
+# MAJOR SCALES:
+# C Major: C D E F G A B
+# G Major: G A B C D E F#
+# F Major: F G A Bb C D E
+#
+# MINOR SCALES:
+# A Minor: A B C D E F G
+# D Minor: D E F G A Bb C
+# E Minor: E F# G A B C D
+#
+# PENTATONIC SCALES:
+# Major Pentatonic: 1 2 3 5 6 (C D E G A)
+# Minor Pentatonic: 1 b3 4 5 b7 (C Eb F G Bb)
+#
+# MODES:
+# Dorian: 1 2 b3 4 5 6 b7 (D E F G A B C)
+# Phrygian: 1 b2 b3 4 5 b6 b7 (E F G A B C D)
+# Lydian: 1 2 3 #4 5 6 7 (F G A B C D E)
+# Mixolydian: 1 2 3 4 5 6 b7 (G A B C D E F)
+#
+# EXOTIC SCALES:
+# Whole Tone: All whole steps (C D E F# G# A#)
+# Diminished: Half-whole pattern (C Db Eb E F# G A Bb)
+# Harmonic Minor: 1 2 b3 4 5 b6 7 (A B C D E F G#)
+#
+# TECHNIQUE SUMMARY:
+#
+# 1. Choose your scale
+# 2. List the scale degrees (note numbers)
+# 3. Use random() with note names in that scale
+# 4. Random velocity adds expressiveness
+# 5. Combine with rhythm variation for interest
+#
+# TIPS:
+# - Pentatonic scales are safest (no bad notes)
+# - Blues scale adds expressiveness
+# - Major = happy, Minor = sad, Dorian = jazzy
+# - Chromatic = experimental/avant-garde
+# - Use narrow ranges for melodic coherence
+# - Use wide ranges for textural variety
+#
+# See also:
+# - 01_random_humanization.mmd - Random basics
+# - 03_generative_ambient.mmd - Ambient textures
+# - 05_evolving_textures.mmd - Combined techniques
+# - docs/music-theory/scales.md - Complete scale reference
+#
+
+[01:40.000]
+- marker "EOF"

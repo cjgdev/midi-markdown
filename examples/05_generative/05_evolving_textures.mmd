@@ -1,0 +1,641 @@
+---
+title: "Evolving Textures - Combined Modulation"
+author: "MML Examples"
+description: "Demonstrates combining random(), wave(), and envelope() for rich generative music"
+midi_format: 1
+ppq: 480
+tempo: 60
+time_signature: [4, 4]
+---
+
+# ============================================
+# Evolving Textures - Combined Modulation
+# ============================================
+#
+# This example demonstrates the most advanced generative techniques
+# by combining all three modulation types:
+#
+#   1. random() - Unpredictable note and parameter selection
+#   2. wave() - Periodic LFO modulation (vibrato, tremolo, filters)
+#   3. envelope() - Dynamic parameter shaping (ADSR, AR, AD)
+#
+# By layering these techniques, you can create:
+#   - Organic, evolving pad textures that never repeat exactly
+#   - Natural-sounding automation that feels alive
+#   - Complex soundscapes from simple building blocks
+#   - Generative ambient music that evolves over time
+#
+# Key Concepts:
+#   - Random provides variety and unpredictability
+#   - Wave provides cyclical motion and rhythm
+#   - Envelope provides dynamic shape and arc
+#   - Combining all three creates rich, complex textures
+#
+# This builds on:
+#   - 01_random_humanization.mmd (random basics)
+#   - 03_generative_ambient.mmd (wave modulation)
+#   - Advanced modulation examples (envelopes)
+
+# ============================================
+# Section 1: Random + Wave (Vibrato)
+# ============================================
+
+[00:00.000]
+- marker "Random Notes + Wave Vibrato"
+- text "Unpredictable notes with consistent vibrato"
+
+# Random note selection creates harmonic variety
+# Wave modulation adds consistent vibrato to each note
+# Result: Evolving melody with expressive vibrato
+
+[00:00.000]
+- note_on 1.random(C4,G4) 80 4b
+[@]
+- cc 1.1.wave(sine, 64, freq=5.5, depth=8)  # Vibrato via mod wheel
+
+[00:04.000]
+- note_on 1.random(C4,G4) 80 4b
+[@]
+- cc 1.1.wave(sine, 64, freq=5.5, depth=8)
+
+[00:08.000]
+- note_on 1.random(C4,G4) 80 4b
+[@]
+- cc 1.1.wave(sine, 64, freq=5.5, depth=8)
+
+[00:12.000]
+- note_on 1.random(C4,G4) 80 4b
+[@]
+- cc 1.1.wave(sine, 64, freq=5.5, depth=8)
+
+# ============================================
+# Section 2: Random + Envelope (Dynamic Shape)
+# ============================================
+
+[00:16.000]
+- marker "Random Notes + Filter Envelope"
+- text "Unpredictable notes with consistent envelope shape"
+
+# Random note selection with envelope-shaped filter
+# Each note is different but follows same dynamic curve
+# Creates cohesive texture with variety
+
+[00:16.000]
+- note_on 1.random(C3,C5) random(70,90) 6b
+[@]
+- cc 1.74.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+
+[00:22.000]
+- note_on 1.random(C3,C5) random(70,90) 6b
+[@]
+- cc 1.74.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+
+[00:28.000]
+- note_on 1.random(C3,C5) random(70,90) 6b
+[@]
+- cc 1.74.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+
+# ============================================
+# Section 3: Wave + Envelope (Modulated LFO)
+# ============================================
+
+[00:34.000]
+- marker "Wave LFO + Envelope Shape"
+- text "LFO vibrato shaped by envelope"
+
+# Envelope controls overall filter movement
+# Wave adds detail/shimmer on top
+# Creates evolving texture with multiple time scales
+
+[00:34.000]
+- note_on 1.C4 85 8b
+
+# Envelope provides slow arc (8 seconds)
+[@]
+- cc 1.74.envelope(adsr, attack=1.0, decay=1.0, sustain=0.6, release=2.0)
+
+# Wave adds fast LFO (0.5 Hz = 2 second cycle)
+# Creates ripple on top of envelope
+[@]
+- cc 1.71.wave(sine, 50, freq=0.5, depth=25)
+
+# ============================================
+# Section 4: All Three Combined
+# ============================================
+
+[00:42.000]
+- marker "Random + Wave + Envelope"
+- text "Full combination for maximum complexity"
+
+# Layer 1: Random notes with random velocity
+[00:42.000]
+- note_on 1.random(C3,E4) random(60,85) 8b
+
+# Layer 2: Envelope shapes overall filter movement
+[@]
+- cc 1.74.envelope(adsr, attack=1.5, decay=0.5, sustain=0.8, release=2.0)
+
+# Layer 3: Wave adds vibrato detail
+[@]
+- cc 1.71.wave(sine, 45, freq=0.8, depth=20)
+
+# Layer 4: Random CC values add organic variation
+@loop 16 times at [00:42.000] every 0.5s
+  - cc 1.7.random(65,85)  # Volume variation
+@end
+
+# ============================================
+# Section 5: Polyrhythmic Modulation
+# ============================================
+
+[00:50.000]
+- marker "Multiple LFOs at Different Rates"
+- text "Creating complexity through layered modulation"
+
+# Multiple waves at different frequencies create complex motion
+# Random notes provide harmonic evolution
+# Result: Never-repeating organic texture
+
+[00:50.000]
+- note_on 1.random(G2,B3) random(65,80) 8b
+[@]
+- note_on 1.random(D4,F#4) random(60,75) 8b
+
+# Fast filter LFO (3 Hz)
+[@]
+- cc 1.74.wave(sine, 70, freq=3.0, depth=20)
+
+# Medium resonance LFO (1.2 Hz)
+[@]
+- cc 1.71.wave(triangle, 50, freq=1.2, depth=30)
+
+# Slow volume LFO (0.3 Hz)
+[@]
+- cc 1.7.wave(sine, 75, freq=0.3, depth=15)
+
+# Random CC spikes add variation
+@loop 8 times at [00:50.000] every 1s
+  - cc 1.74.random(50,90)
+@end
+
+# ============================================
+# Section 6: Layered Random Notes
+# ============================================
+
+[00:58.000]
+- marker "Multiple Random Layers"
+- text "Dense polyphonic random textures"
+
+# Four simultaneous random notes create thick pad
+# Each has own envelope and modulation
+# Creates orchestral-like evolving texture
+
+# Low bass note
+[00:58.000]
+- note_on 1.random(C2,E2) 65 8b
+[@]
+- cc 1.74.envelope(ar, attack=2.0, release=3.0)
+
+# Mid-range harmony
+[@]
+- note_on 1.random(G3,B3) 70 8b
+
+# Upper harmony
+[@]
+- note_on 1.random(D4,F#4) 68 8b
+
+# High shimmer
+[@]
+- note_on 1.random(A4,C5) 60 8b
+
+# Slow filter wave across all
+[@]
+- cc 1.74.wave(sine, 65, freq=0.2, depth=35)
+
+# Resonance envelope for movement
+[@]
+- cc 1.71.envelope(adsr, attack=1.0, decay=1.0, sustain=0.5, release=2.0)
+
+# ============================================
+# Section 7: Staggered Random Entries
+# ============================================
+
+[01:06.000]
+- marker "Staggered Random Notes"
+- text "Notes enter at different times"
+
+# Notes start at different times with random selection
+# Creates flowing, organic texture
+# Each note has independent modulation
+
+[01:06.000]
+- note_on 1.random(C3,E3) random(60,75) 6b
+[@]
+- cc 1.74.wave(sine, 60, freq=0.4, depth=25)
+
+[01:08.000]
+- note_on 1.random(G3,B3) random(65,80) 5b
+[@]
+- cc 1.74.wave(sine, 65, freq=0.5, depth=25)
+
+[01:10.000]
+- note_on 1.random(D4,F#4) random(60,75) 4b
+[@]
+- cc 1.74.wave(sine, 70, freq=0.6, depth=25)
+
+[01:11.000]
+- note_on 1.random(A4,C5) random(55,70) 3b
+[@]
+- cc 1.74.wave(sine, 75, freq=0.7, depth=25)
+
+# ============================================
+# Section 8: Generative Sequence
+# ============================================
+
+[01:14.000]
+- marker "Generative Sequence"
+- text "Continuous random note sequence with modulation"
+
+# Fast random note sequence (every 0.75s)
+# Each note has random velocity and pitch
+# Wave modulation adds cohesion
+# Creates algorithmic melodic line
+
+@loop 16 times at [01:14.000] every 0.75s
+  - note_on 1.random(C4,B4) random(70,100) 0.6b
+@end
+
+# Sustained filter LFO throughout
+[01:14.000]
+- cc 1.74.wave(triangle, 70, freq=2.0, depth=30)
+
+# Envelope for overall arc
+[@]
+- cc 1.7.envelope(ar, attack=4.0, release=8.0)
+
+# ============================================
+# Section 9: Random with Envelope Swell
+# ============================================
+
+[01:26.000]
+- marker "Random Pad with Swell"
+- text "Building intensity with envelope"
+
+# Random sustained notes
+[01:26.000]
+- note_on 1.random(C3,G3) 70 8b
+[@]
+- note_on 1.random(E4,B4) 65 8b
+[@]
+- note_on 1.random(C5,G5) 60 8b
+
+# Volume swell envelope (builds intensity)
+[@]
+- cc 1.7.envelope(ar, attack=3.0, release=4.0, curve=exponential)
+
+# Filter opens with envelope
+[@]
+- cc 1.74.envelope(ar, attack=2.5, release=4.5, curve=exponential)
+
+# Vibrato LFO adds life
+[@]
+- cc 1.1.wave(sine, 64, freq=4.5, depth=10)
+
+# Random CC variation for organic feel
+@loop 12 times at [01:26.000] every 0.667s
+  - cc 1.71.random(40,70)  # Resonance variation
+@end
+
+# ============================================
+# Section 10: Extreme Modulation Depth
+# ============================================
+
+[01:34.000]
+- marker "Extreme Modulation"
+- text "Maximum depth for dramatic effects"
+
+# Random notes with extreme modulation depths
+# Creates wild, evolving soundscape
+# Good for sound design and experimental music
+
+[01:34.000]
+- note_on 1.random(C2,C6) random(50,100) 8b
+
+# Extreme filter sweep
+[@]
+- cc 1.74.wave(sine, 64, freq=0.8, depth=60)
+
+# Extreme resonance modulation
+[@]
+- cc 1.71.wave(triangle, 64, freq=1.3, depth=55)
+
+# Volume tremolo
+[@]
+- cc 1.7.wave(square, 85, freq=2.5, depth=40)
+
+# Random CC bursts
+@loop 16 times at [01:34.000] every 0.5s
+  - cc 1.74.random(20,110)
+@end
+
+# ============================================
+# Section 11: Subtle Organic Texture
+# ============================================
+
+[01:42.000]
+- marker "Subtle Organic Texture"
+- text "Natural evolution with small variations"
+
+# Opposite approach: subtle depths for natural sound
+# Small random variations feel organic
+# Perfect for background pads and beds
+
+# Four-note random chord
+[01:42.000]
+- note_on 1.random(C3,E3) random(65,75) 8b
+[@]
+- note_on 1.random(G3,B3) random(60,70) 8b
+[@]
+- note_on 1.random(D4,F#4) random(58,68) 8b
+[@]
+- note_on 1.random(A4,C5) random(55,65) 8b
+
+# Subtle filter LFO (slow, shallow)
+[@]
+- cc 1.74.wave(sine, 60, freq=0.15, depth=12)
+
+# Subtle resonance variation
+[@]
+- cc 1.71.wave(sine, 40, freq=0.22, depth=10)
+
+# Gentle volume breathing
+[@]
+- cc 1.7.wave(sine, 70, freq=0.08, depth=8)
+
+# Very subtle random variations
+@loop 16 times at [01:42.000] every 0.5s
+  - cc 1.74.random(58,62)  # Tight range = subtle
+@end
+
+# ============================================
+# Section 12: Phase-Shifted LFOs
+# ============================================
+
+[01:50.000]
+- marker "Phase-Shifted LFOs"
+- text "Multiple waves out of phase create complexity"
+
+# Multiple LFOs at same frequency but different phase
+# Creates rich interference patterns
+# More complex than simple addition
+
+[01:50.000]
+- note_on 1.random(G2,D3) 70 8b
+[@]
+- note_on 1.random(B3,F#4) 68 8b
+
+# Filter LFO at 1 Hz, phase 0
+[@]
+- cc 1.74.wave(sine, 65, freq=1.0, phase=0.0, depth=30)
+
+# Resonance LFO at 1 Hz, phase 0.33 (120° offset)
+[@]
+- cc 1.71.wave(sine, 50, freq=1.0, phase=0.33, depth=25)
+
+# Volume LFO at 1 Hz, phase 0.67 (240° offset)
+[@]
+- cc 1.7.wave(sine, 75, freq=1.0, phase=0.67, depth=20)
+
+# Random notes add to the complexity
+@loop 8 times at [01:50.000] every 1s
+  - note_on 1.random(C4,G4) random(60,80) 0.8b
+@end
+
+# ============================================
+# Section 13: Complete Ambient Texture
+# ============================================
+
+[01:58.000]
+- marker "Complete Ambient Texture"
+- text "All techniques for professional sound"
+
+# This section combines everything for a professional
+# ambient pad texture that evolves naturally
+
+# Foundation: Multiple random note layers
+[01:58.000]
+- note_on 1.random(C2,G2) 60 12b   # Bass
+[@]
+- note_on 1.random(E3,B3) 68 12b   # Mid
+[@]
+- note_on 1.random(G4,D5) 65 12b   # Upper
+[@]
+- note_on 1.random(C5,E5) 58 12b   # Shimmer
+
+# Primary filter envelope (overall arc)
+[@]
+- cc 1.74.envelope(adsr, attack=2.0, decay=1.5, sustain=0.7, release=4.0, curve=exponential)
+
+# Secondary filter LFO (adds motion)
+[@]
+- cc 1.74.wave(sine, 65, freq=0.3, depth=20)
+
+# Resonance envelope (different timing)
+[@]
+- cc 1.71.envelope(adsr, attack=1.0, decay=2.0, sustain=0.5, release=3.0)
+
+# Resonance LFO (different frequency)
+[@]
+- cc 1.71.wave(triangle, 45, freq=0.7, depth=25)
+
+# Volume swell
+[@]
+- cc 1.7.envelope(ar, attack=3.0, release=5.0)
+
+# Random filter variations (organic feel)
+@loop 20 times at [01:58.000] every 0.6s
+  - cc 1.74.random(55,75)
+@end
+
+# Occasional new random notes (evolving harmony)
+@loop 4 times at [01:59.000] every 3s
+  - note_on 1.random(G3,D4) random(60,75) 2.5b
+@end
+
+# ============================================
+# Section 14: Conclusion and Fade
+# ============================================
+
+[02:10.000]
+- marker "Conclusion"
+- text "Gentle fade with minimal modulation"
+
+# Final sustained chord with gentle fade
+[02:10.000]
+- note_on 1.random(C3,G3) 65 8b
+[@]
+- note_on 1.random(E4,G4) 60 8b
+
+# Slow filter close
+[@]
+- cc 1.74.envelope(ar, attack=0.5, release=6.0, curve=exponential)
+
+# Gentle vibrato
+[@]
+- cc 1.1.wave(sine, 64, freq=4.0, depth=5)
+
+# Volume fade
+[@]
+- cc 1.7.envelope(ar, attack=0.5, release=7.0, curve=exponential)
+
+[02:18.000]
+- marker "End"
+- text "Evolving textures demonstration complete"
+
+# ============================================
+# Technique Summary and Best Practices
+# ============================================
+#
+# COMBINING TECHNIQUES:
+#
+# 1. RANDOM provides:
+#    - Harmonic variety (different notes each time)
+#    - Velocity variation (natural dynamics)
+#    - Parameter unpredictability (organic feel)
+#
+# 2. WAVE provides:
+#    - Periodic motion (vibrato, tremolo, filters)
+#    - Multiple time scales (fast shimmer, slow drift)
+#    - Phase relationships (complexity from simplicity)
+#
+# 3. ENVELOPE provides:
+#    - Dynamic shape (attack, decay, sustain, release)
+#    - Overall arc (builds and releases)
+#    - Natural feel (exponential curves)
+#
+# LAYERING STRATEGIES:
+#
+# SPARSE LAYERS:
+# - Random notes (unpredictable)
+# - + One envelope (shape)
+# - = Simple evolving texture
+#
+# MODERATE LAYERS:
+# - Random notes + random velocity
+# - + One envelope (filter)
+# - + One wave (LFO on different parameter)
+# - = Interesting evolving texture
+#
+# DENSE LAYERS:
+# - Multiple random notes (polyphony)
+# - + Multiple envelopes (filter, volume)
+# - + Multiple waves (different frequencies/phases)
+# - + Random CC variations
+# - = Rich, complex, never-repeating texture
+#
+# FREQUENCY RELATIONSHIPS:
+#
+# Fast modulation (2-8 Hz):
+# - Audible LFO effect
+# - Vibrato, tremolo
+# - Rhythmic interest
+#
+# Medium modulation (0.5-2 Hz):
+# - Gentle movement
+# - Natural breathing
+# - Subtle evolution
+#
+# Slow modulation (0.1-0.5 Hz):
+# - Long-term drift
+# - Macro evolution
+# - Ambient textures
+#
+# DEPTH GUIDELINES:
+#
+# Subtle (depth 5-15):
+# - Natural, organic
+# - Background pads
+# - Professional polish
+#
+# Moderate (depth 20-40):
+# - Noticeable motion
+# - Expressive leads
+# - Active pads
+#
+# Extreme (depth 50+):
+# - Dramatic effects
+# - Sound design
+# - Experimental music
+#
+# PRACTICAL APPLICATIONS:
+#
+# AMBIENT PADS:
+# - Random notes (C3-G3 range)
+# - Slow filter envelope (attack 1-3s)
+# - Slow wave LFO (0.2-0.5 Hz)
+# - Subtle random CC (depth 10-20)
+#
+# GENERATIVE MELODIES:
+# - Fast random notes (every 0.5-1s)
+# - Medium filter wave (1-2 Hz)
+# - Velocity randomization (range 30-40)
+# - Envelope for phrase shape
+#
+# EVOLVING SOUNDSCAPES:
+# - Multiple random note layers
+# - Multiple envelopes (different timings)
+# - Multiple waves (different frequencies)
+# - Continuous random CC variations
+#
+# NATURAL HUMANIZATION:
+# - Tight random ranges (5-10 values)
+# - Subtle wave depths (5-10)
+# - Gentle envelopes (slow attack/release)
+# - Infrequent random changes
+#
+# COMMON MISTAKES TO AVOID:
+#
+# 1. Too much modulation (overwhelming)
+#    → Use subtle depths, build gradually
+#
+# 2. All same frequency (repetitive)
+#    → Use different LFO rates
+#
+# 3. Too many layers (muddy)
+#    → Start simple, add one layer at a time
+#
+# 4. No envelope shaping (static)
+#    → Add at least one envelope for arc
+#
+# 5. Too predictable (boring)
+#    → Add random elements for variety
+#
+# 6. Too random (chaotic)
+#    → Balance random with periodic elements
+#
+# 7. Ignoring phase (muddy)
+#    → Use phase offset for clarity
+#
+# RECOMMENDED COMBINATIONS:
+#
+# For pads:
+# - random(NOTE1, NOTE2) + wave(sine, freq=0.3) + envelope(ar)
+#
+# For leads:
+# - random(70,90) velocity + wave(sine, freq=5.5) + envelope(adsr)
+#
+# For ambient:
+# - random notes + multiple waves + multiple envelopes + random CC
+#
+# For humanization:
+# - random(VEL-5, VEL+5) + subtle wave(depth=5)
+#
+# See also:
+# - 01_random_humanization.mmd - Random basics
+# - 03_generative_ambient.mmd - Wave modulation
+# - docs/user-guide/modulation.md - Full reference
+# - docs/user-guide/generative-music.md - Generative techniques
+#
+
+[02:20.000]
+- marker "EOF"

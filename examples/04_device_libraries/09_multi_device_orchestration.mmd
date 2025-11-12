@@ -1,0 +1,731 @@
+---
+title: "Multi-Device Orchestration"
+description: "Complete rig control: Quad Cortex + Eventide H90 + Line 6 Helix working together"
+author: "MML Device Library Examples"
+tempo: 128
+time_signature: 4/4
+ppq: 480
+---
+
+/*
+ * ============================================================================
+ * MULTI-DEVICE RIG ORCHESTRATION
+ * ============================================================================
+ *
+ * This example demonstrates professional multi-device MIDI control for a
+ * complete live performance rig. Three flagship processors controlled in
+ * perfect synchronization from a single MIDI source.
+ *
+ * RIG CONFIGURATION:
+ *
+ * ┌─────────────┐
+ * │ MIDI Source │ ← DAW, MIDI foot controller, or sequencer
+ * │ (Computer)  │
+ * └──────┬──────┘
+ *        │ USB/5-pin DIN
+ *        │
+ *        ├──────────────────────────────────────────────────────────┐
+ *        │                                                           │
+ *        ▼                                                           │
+ * ┌──────────────┐                                                  │
+ * │   HELIX      │                                                  │
+ * │  CHANNEL 1   │ ← Amp modeling + global routing                 │
+ * │  (5-pin DIN) │                                                  │
+ * └──────┬───────┘                                                  │
+ *        │ MIDI Thru                                                │
+ *        ▼                                                           │
+ * ┌──────────────┐                                                  │
+ * │ QUAD CORTEX  │                                                  │
+ * │  CHANNEL 2   │ ← Main guitar processing                        │
+ * │  (5-pin DIN) │                                                  │
+ * └──────┬───────┘                                                  │
+ *        │ MIDI Out (Thru broken - use splitter)                    │
+ *        ▼                                                           │
+ * ┌──────────────┐                                                  │
+ * │ EVENTIDE H90 │ ◄─────────────────────────────────────────────────┘
+ * │  CHANNEL 3   │ ← Reverb/delay/modulation
+ * │  (5-pin DIN) │
+ * └──────────────┘
+ *
+ * CRITICAL NOTES:
+ * - Quad Cortex MIDI Thru is broken - use external MIDI splitter/merger
+ * - Use different MIDI channels for each device (1, 2, 3)
+ * - All devices on 5-pin DIN MIDI for lowest latency
+ * - Helix has working MIDI Thru - place first in chain
+ * - Each device requires different timing delays
+ *
+ * DEVICE CHANNELS:
+ * - Channel 1: Helix (amp modeling, global routing, utility)
+ * - Channel 2: Quad Cortex (main guitar processing, amp sims)
+ * - Channel 3: Eventide H90 (reverb, delay, modulation)
+ *
+ * TIMING REQUIREMENTS:
+ * - Helix:        350ms after PC (firmware 3.5x), 50ms for 3.10+
+ * - Quad Cortex:  100ms between Bank/Setlist/PC messages
+ * - H90:          100ms between PC and CC (firmware 1.9.4+ bug workaround)
+ *
+ * USE CASE:
+ * This rig provides maximum tonal flexibility:
+ * - Helix: Can model different amps OR act as utility processor
+ * - Quad Cortex: Main guitar processing with Neural DSP models
+ * - H90: World-class reverb/delay/modulation effects
+ *
+ * ALTERNATIVE SIGNAL FLOWS:
+ *
+ * Option A: Parallel Processing
+ * Guitar → Splitter → Helix (Amp A) ─┐
+ *                  └→ QC (Amp B) ─────┤→ Mixer → H90 → Output
+ *
+ * Option B: Serial Processing
+ * Guitar → QC (Amp/Preamp) → H90 (FX) → Helix (Post-FX/Routing) → Output
+ *
+ * Option C: Hybrid (demonstrated in this file)
+ * Guitar → QC (Main Amp) → H90 (Reverb/Delay) → Helix (Additional FX) → Output
+ */
+
+# Import all three device libraries
+@import "../../devices/helix.mmd"
+@import "../../devices/quad_cortex.mmd"
+@import "../../devices/eventide_h90.mmd"
+
+/*
+ * ============================================================================
+ * SONG 1: "ELECTRIC SUNRISE" (Indie Rock)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Verse → Chorus → Bridge → Outro
+ * Duration: ~4:00
+ *
+ * RIG ROLES FOR THIS SONG:
+ * - Helix: Clean amp modeling + utility effects
+ * - Quad Cortex: Main drive/distortion processing
+ * - H90: Ambient reverb and delay
+ *
+ * PRESET ASSIGNMENTS:
+ * - Helix:       Setlist 1, Preset 5 (Clean amp base)
+ * - Quad Cortex: Setlist 2, Preset 0 (Clean to drive progression)
+ * - H90:         Program 0 (Shimmer reverb)
+ */
+
+# Song Start - Initialize all three devices
+[00:00.000]
+# Helix: Load clean amp preset
+- helix_load 1 0 5                 # Ch1, Setlist 1, Preset 5
+[@]
+# Quad Cortex: Load clean preset with scenes
+- qc_load_preset_scene 2 1 0 0     # Ch2, Setlist 2, Preset 0, Scene A
+[@]
+# H90: Initialize with Shimmer reverb
+- h90_live_init 3 0                # Ch3, Program 0 (Shimmer)
+
+# All devices now initialized
+# Total delay: ~800ms (Helix 350ms + QC 300ms + H90 500ms running in parallel)
+
+# Intro - Clean arpeggios with ambient reverb (8 bars)
+# Helix: Clean amp, Snapshot 1
+# QC: Scene A (clean)
+# H90: Shimmer reverb at 25% mix
+
+[00:08.000]
+# Gradually increase H90 reverb mix
+- h90_mix 3 32                     # 25% wet
+[00:12.000]
+- h90_mix 3 64                     # 50% wet
+[00:16.000]
+- h90_mix 3 96                     # 75% wet
+
+# Verse 1 - Reduce reverb, add clarity
+[00:20.000]
+# Helix: Switch to verse snapshot (adds compression)
+- helix_snap_2 1                   # Snapshot 2 (verse)
+[@]
+# QC: Stay on Scene A (clean)
+[@]
+# H90: Reduce reverb mix
+- h90_mix 3 32                     # 25% wet
+
+# Pre-chorus - Build energy with drive
+[00:36.000]
+# Helix: Switch to pre-chorus snapshot (add OD)
+- helix_snap_3 1                   # Snapshot 3 (pre-chorus)
+[@]
+# QC: Switch to Scene B (edge of breakup)
+- qc_scene_b 2                     # Scene B
+[@]
+# H90: Increase reverb again
+- h90_mix 3 64                     # 50% wet
+
+# Chorus - Full band energy
+[00:44.000]
+# Helix: Chorus snapshot (more reverb/delay)
+- helix_snap_4 1                   # Snapshot 4 (chorus)
+[@]
+# QC: Scene B stays active
+[@]
+# H90: Add HotSwitch for Freeze function
+- h90_hotswitch1 3                 # HS1 = Freeze/Infinite
+
+# Remove freeze before verse 2
+[00:58.000]
+- h90_hotswitch1 3                 # HS1 off
+
+# Verse 2 - Return to verse tones
+[01:00.000]
+- helix_snap_2 1                   # Verse
+[@]
+- qc_scene_a 2                     # Scene A (clean)
+[@]
+- h90_mix 3 32                     # 25% wet
+
+# Pre-chorus 2
+[01:16.000]
+- helix_snap_3 1
+[@]
+- qc_scene_b 2
+[@]
+- h90_mix 3 64
+
+# Chorus 2
+[01:24.000]
+- helix_snap_4 1
+[@]
+# QC: Stay on Scene B
+
+# Bridge - Ambient texture using all three devices
+[01:40.000]
+# Helix: Switch to ambient snapshot
+- helix_snap_5 1                   # Snapshot 5 (ambient)
+[@]
+# QC: Scene D (ambient/pad)
+- qc_scene_d 2                     # Scene D
+[@]
+# H90: Switch to Wormhole program for texture
+- h90_program 3 3                  # Program 3 (Wormhole)
+[+100ms]
+# H90: Engage PERFORM functions for Warp
+- h90_perform1 3 127               # Warp active
+
+# Build back to final chorus
+[01:56.000]
+- h90_perform1 3 0                 # Warp off
+[+100ms]
+- h90_program 3 0                  # Back to Shimmer
+[@]
+- helix_snap_4 1                   # Chorus
+[@]
+- qc_scene_b 2                     # Scene B
+
+# Final chorus - Extended
+
+# Outro - Return to clean
+[02:20.000]
+- helix_snap_1 1                   # Clean
+[@]
+- qc_scene_a 2                     # Scene A
+[@]
+- h90_mix 3 0                      # Dry for ending
+
+# End
+[02:36.000]
+
+/*
+ * ============================================================================
+ * SONG 2: "METAL COLOSSUS" (Progressive Metal)
+ * ============================================================================
+ * Structure: Intro → Verse → Chorus → Breakdown → Solo → Final Chorus → Outro
+ * Duration: ~5:00
+ *
+ * RIG ROLES FOR THIS SONG:
+ * - Helix: Tight noise gate + pre-amp EQ
+ * - Quad Cortex: High gain amp modeling
+ * - H90: Delay and modulation (subtle for metal)
+ *
+ * PRESET ASSIGNMENTS:
+ * - Helix:       Setlist 2, Preset 10 (Noise gate + utility)
+ * - Quad Cortex: Setlist 2, Preset 2 (High gain)
+ * - H90:         Program 5 (Mod Machine - phaser/flanger)
+ */
+
+# Load presets for Song 2
+[02:50.000]
+# Helix: Utility preset with gate
+- helix_load 1 1 10                # Ch1, Setlist 2, Preset 10
+[@]
+# Quad Cortex: High gain preset
+- qc_load_preset_scene 2 1 2 0     # Ch2, Setlist 2, Preset 2, Scene A
+[@]
+# H90: Modulation preset
+- h90_program 3 5                  # Ch3, Program 5 (Mod Machine)
+[+100ms]
+# H90: Bypass preset B (only want phaser, not flanger yet)
+- h90_preset_b_bypass_force 3      # Bypass Preset B
+
+# Heavy intro - Tight rhythm (8 bars)
+# All devices on tight settings
+
+# Verse 1 - Tight palm-muted riffing
+[03:18.000]
+# QC: Scene A (tight rhythm with tightened gate)
+# Already active
+
+# Pre-chorus build
+[03:34.000]
+# Helix: Add pre-chorus snapshot
+- helix_snap_2 1                   # Adds slight delay
+[@]
+# QC: Scene B (open rhythm)
+- qc_scene_b 2
+
+# Chorus - Full open rhythm
+[03:42.000]
+# Helix: Chorus snapshot (more space)
+- helix_snap_3 1
+[@]
+# H90: Add flanger (Preset B)
+- h90_preset_b_active 3            # Activate Preset B
+
+# Return to verse
+[03:58.000]
+- helix_snap_1 1                   # Tight
+[@]
+- qc_scene_a 2                     # Scene A
+[@]
+- h90_preset_b_bypass_force 3      # Flanger off
+
+# Verse 2
+
+# Pre-chorus 2
+[04:14.000]
+- helix_snap_2 1
+[@]
+- qc_scene_b 2
+
+# Chorus 2
+[04:22.000]
+- helix_snap_3 1
+[@]
+- h90_preset_b_active 3
+
+# Breakdown - Ultra-heavy djent section
+[04:38.000]
+# Helix: Breakdown snapshot (tightened gate + octave)
+- helix_snap_5 1                   # Snapshot 5 (breakdown)
+[@]
+# QC: Scene D (breakdown - ultra-tight gate)
+- qc_scene_d 2                     # Scene D
+[@]
+# H90: Bypass all effects for pure heaviness
+- h90_program_bypass_force 3       # Full bypass
+
+# Pre-solo - Switch to lead tones
+[04:54.000]
+# Helix: Lead snapshot
+- helix_snap_6 1                   # Snapshot 6 (lead)
+[@]
+# QC: Scene C (lead with delay/reverb)
+- qc_scene_c 2                     # Scene C
+[@]
+# H90: Re-activate with Space Echo program
+- h90_program 3 6                  # Program 6 (Space Echo)
+[+100ms]
+# H90: Ensure it's active
+- h90_program_active 3
+
+# Guitar solo with coordinated expression across devices
+[05:02.000]
+# Helix: Expression controls delay feedback
+- helix_exp1 1 0
+[@]
+# QC: Expression controls wah or filter
+- qc_exp1 2 0
+[@]
+# H90: Expression controls delay mix
+- h90_expression 3 0
+
+[05:06.000]
+- helix_exp1 1 64
+[@]
+- qc_exp1 2 64
+[@]
+- h90_expression 3 64
+
+[05:10.000]
+- helix_exp1 1 127
+[@]
+- qc_exp1 2 127
+[@]
+- h90_expression 3 127
+
+[05:14.000]
+- helix_exp1 1 80
+[@]
+- qc_exp1 2 80
+[@]
+- h90_expression 3 80
+
+[05:18.000]
+- helix_exp1 1 40
+[@]
+- qc_exp1 2 40
+[@]
+- h90_expression 3 40
+
+[05:22.000]
+- helix_exp1 1 0
+[@]
+- qc_exp1 2 0
+[@]
+- h90_expression 3 0
+
+# Final chorus - Maximum energy
+[05:26.000]
+- helix_snap_3 1                   # Chorus
+[@]
+- qc_scene_b 2                     # Scene B (open rhythm)
+[@]
+- h90_program 3 5                  # Back to Mod Machine
+[+100ms]
+- h90_preset_b_active 3            # Flanger on
+
+# Outro breakdown
+[05:50.000]
+- helix_snap_5 1                   # Breakdown
+[@]
+- qc_scene_d 2                     # Scene D
+[@]
+- h90_program_bypass_force 3       # Bypass
+
+# Final chord
+[06:06.000]
+
+/*
+ * ============================================================================
+ * SONG 3: "AMBIENT DREAMSCAPE" (Post-Rock/Ambient)
+ * ============================================================================
+ * Structure: Build 1 → Build 2 → Climax → Resolve
+ * Duration: ~5:30
+ *
+ * RIG ROLES FOR THIS SONG:
+ * - Helix: Shimmer reverb + delay
+ * - Quad Cortex: Clean amp with ambient effects
+ * - H90: Dual reverb (Blackhole + Room)
+ *
+ * This song demonstrates how all three devices contribute to massive ambient
+ * textures through layered effect combinations.
+ *
+ * PRESET ASSIGNMENTS:
+ * - Helix:       Setlist 3, Preset 0 (Ambient base)
+ * - Quad Cortex: Setlist 2, Preset 3 (Ambient/pad)
+ * - H90:         Program 11 (Dual reverb: Blackhole A + Room B)
+ */
+
+# Load ambient presets
+[06:20.000]
+# Helix: Ambient preset
+- helix_load 1 2 0                 # Ch1, Setlist 3, Preset 0
+[@]
+# QC: Ambient preset
+- qc_load_preset_scene 2 1 3 0     # Ch2, Setlist 2, Preset 3, Scene A
+[@]
+# H90: Dual reverb setup
+- h90_dual_reverb_setup 3 11       # Ch3, Program 11, 50/50 mix
+
+# Intro - Minimal (8 bars)
+# All devices start with minimal effects
+
+# Build 1 - Add H90 reverb
+[06:52.000]
+# H90: A-only (Blackhole only)
+- h90_a_only 3                     # Only Blackhole reverb
+
+# Add Helix reverb
+[07:00.000]
+# Helix: Snapshot 2 (add shimmer)
+- helix_snap_2 1
+
+# Add QC effects via footswitches
+[07:08.000]
+# QC: Toggle stomp C (chorus)
+- qc_stomp_c_on 2
+[07:12.000]
+# QC: Toggle stomp D (delay)
+- qc_stomp_d_on 2
+
+# Build 2 - Layer more effects
+[07:16.000]
+# Helix: Snapshot 3 (more reverb/delay)
+- helix_snap_3 1
+[@]
+# QC: Scene B (more ambient)
+- qc_scene_b 2
+[@]
+# H90: Add Room reverb (both algorithms)
+- h90_both_active 3                # Both A and B active
+
+# Add H90 shimmer
+[07:24.000]
+- qc_stomp_e_on 2                  # Toggle QC stomp E (shimmer)
+
+# Add more modulation
+[07:32.000]
+# Helix: Add footswitch effect
+- helix_fs3 1                      # Toggle FS3 (phaser/chorus)
+[@]
+# QC: Add footswitch F
+- qc_stomp_f_on 2                  # Toggle stomp F (tremolo)
+
+# Climax - All devices at maximum ambience
+[07:40.000]
+# Helix: Snapshot 4 (full wet ambient)
+- helix_snap_4 1
+[@]
+# QC: Scene C (full ambient)
+- qc_scene_c 2
+[@]
+# H90: Use PERFORM functions for Freeze
+- h90_perform1 3 127               # PERFORM 1 = Freeze A
+[+100ms]
+- h90_perform2 3 127               # PERFORM 2 = Freeze B
+
+# Peak with all expression at max
+[07:48.000]
+- helix_exp1 1 127
+[@]
+- qc_exp1 2 127
+[@]
+- h90_expression 3 127
+
+# Hold climax
+
+# Begin resolving - Strip effects gradually
+[08:04.000]
+# Helix: Remove footswitch effect
+- helix_fs3 1                      # Toggle FS3 off
+[@]
+# QC: Remove tremolo
+- qc_stomp_f_off 2
+
+# Continue resolving
+[08:12.000]
+# H90: Disengage freezes
+- h90_perform1 3 0
+[+100ms]
+- h90_perform2 3 0
+
+# Remove more effects
+[08:20.000]
+- qc_stomp_e_off 2                 # Shimmer off
+[@]
+- qc_stomp_d_off 2                 # Delay off
+[@]
+- qc_stomp_c_off 2                 # Chorus off
+
+# Return to minimal
+[08:28.000]
+# Helix: Snapshot 1 (minimal)
+- helix_snap_1 1
+[@]
+# QC: Scene A (minimal)
+- qc_scene_a 2
+[@]
+# H90: B-only (just Room reverb)
+- h90_b_only 3
+
+# Expression fade to dry
+[08:36.000]
+- helix_exp1 1 80
+[@]
+- qc_exp1 2 80
+[@]
+- h90_expression 3 80
+
+[08:40.000]
+- helix_exp1 1 40
+[@]
+- qc_exp1 2 40
+[@]
+- h90_expression 3 40
+
+[08:44.000]
+- helix_exp1 1 0
+[@]
+- qc_exp1 2 0
+[@]
+- h90_expression 3 0
+
+# Final dry note
+[08:50.000]
+- h90_program_bypass_force 3       # H90 fully bypassed
+
+# End
+[08:58.000]
+
+/*
+ * ============================================================================
+ * UTILITY FUNCTIONS: TUNER AND TAP TEMPO SYNC
+ * ============================================================================
+ *
+ * When using multiple devices, it's important to keep them in sync
+ * for tuning and tempo.
+ */
+
+# Enable tuner on all devices simultaneously
+[09:10.000]
+- helix_tuner_on 1
+[@]
+- qc_tuner_on 2
+[@]
+- h90_tuner 3                      # H90 tuner toggles (send 127 twice)
+
+# Disable tuner on all devices
+[09:20.000]
+- helix_tuner_off 1
+[@]
+- qc_tuner_off 2
+[@]
+- h90_tuner 3                      # Toggle off
+
+# Tap tempo sync across all devices
+# Send tap tempo to all three devices simultaneously
+# Example: 120 BPM = 500ms per beat
+
+[09:30.000]
+- helix_tap 1
+[@]
+- h90_tap_tempo 3
+# Note: QC tap tempo is CC#80 (not in standard library - uses tempo CC#44)
+
+[+500ms]
+- helix_tap 1
+[@]
+- h90_tap_tempo 3
+
+[+500ms]
+- helix_tap 1
+[@]
+- h90_tap_tempo 3
+
+[+500ms]
+- helix_tap 1
+[@]
+- h90_tap_tempo 3
+
+/*
+ * ============================================================================
+ * BEST PRACTICES DEMONSTRATED
+ * ============================================================================
+ *
+ * 1. MIDI CHANNEL ASSIGNMENT:
+ *    - Use different MIDI channels for each device (1, 2, 3)
+ *    - Consistent channel assignment across all songs
+ *    - Channel 1: Helix (utility/routing)
+ *    - Channel 2: Quad Cortex (main processing)
+ *    - Channel 3: H90 (reverb/delay/modulation)
+ *
+ * 2. MIDI HARDWARE CHAIN:
+ *    - Helix first (working MIDI Thru)
+ *    - Quad Cortex second (MIDI Thru broken - use splitter)
+ *    - H90 last (end of chain)
+ *    - Use 5-pin DIN MIDI for all connections
+ *    - External MIDI splitter/merger for QC Thru issue
+ *
+ * 3. TIMING COORDINATION:
+ *    - Use [@] for simultaneous device changes
+ *    - Respect each device's timing requirements:
+ *      - Helix: 350ms after PC (firmware 3.5x)
+ *      - QC: 100ms between Bank/Setlist/PC
+ *      - H90: 100ms between PC and CC (firmware 1.9.4+)
+ *    - Use device library macros for proper timing
+ *
+ * 4. SNAPSHOT/SCENE COORDINATION:
+ *    - Coordinate snapshot/scene changes across devices
+ *    - Use [@] to change all devices at same musical moment
+ *    - Example: Verse → Chorus changes all three devices together
+ *
+ * 5. EXPRESSION PEDAL COORDINATION:
+ *    - Can control all three devices with single expression input
+ *    - Send same CC value to all devices simultaneously
+ *    - Each device interprets expression differently per preset
+ *    - Add 50-100ms delays between expression updates
+ *
+ * 6. EFFECT LAYERING STRATEGY:
+ *    - Helix: Amp modeling OR utility effects (gate, EQ, routing)
+ *    - QC: Main guitar processing (drives, amps, core effects)
+ *    - H90: Premium reverb/delay/modulation
+ *    - Avoid duplicating effects across devices unnecessarily
+ *
+ * 7. PRESET ORGANIZATION:
+ *    - Organize presets by song on all three devices
+ *    - Keep preset numbers consistent across devices when possible
+ *    - Example: Song 1 uses Preset 0 on all devices
+ *    - Document preset assignments in song notes
+ *
+ * 8. TUNER AND TEMPO SYNC:
+ *    - Enable/disable tuner on all devices simultaneously
+ *    - Send tap tempo to all devices for synchronization
+ *    - Use MIDI Clock for precise tempo sync (not shown here)
+ *
+ * 9. SIGNAL FLOW CONSIDERATIONS:
+ *    - Serial: Guitar → QC → H90 → Helix → Output
+ *    - Parallel: Guitar → Splitter → (QC + Helix) → Mixer → H90 → Output
+ *    - Hybrid: Adapt signal flow to song requirements
+ *    - Use Helix routing capabilities for complex signal paths
+ *
+ * 10. TROUBLESHOOTING:
+ *     - If QC doesn't respond: Check MIDI channel and Thru settings
+ *     - If H90 ignores CCs: Verify Global MIDI Control mappings
+ *     - If Helix skips commands: Add 350ms delay after PC
+ *     - Use MIDI monitor to verify message flow
+ *     - Test each device individually before full rig integration
+ *
+ * ============================================================================
+ * MULTI-DEVICE INTEGRATION NOTES
+ * ============================================================================
+ *
+ * ADVANTAGES OF MULTI-DEVICE RIG:
+ * - Best-in-class processing from each manufacturer
+ * - Neural DSP amps (QC) + Eventide reverbs (H90) + Line 6 routing (Helix)
+ * - Redundancy: If one device fails, others continue working
+ * - Specialized roles: Each device excels at different tasks
+ * - Massive preset capacity: Helix 1024 + QC 256 + H90 99 = 1379 presets
+ *
+ * CHALLENGES:
+ * - Complexity: 3× the presets to manage
+ * - Timing: Must respect each device's MIDI timing requirements
+ * - MIDI routing: QC MIDI Thru broken, requires external splitter
+ * - Cost: Premium devices require premium investment
+ * - Backup: Must backup all three devices independently
+ *
+ * WHEN TO USE MULTI-DEVICE RIG:
+ * - Professional live performance or studio work
+ * - Need specific tones from each manufacturer
+ * - Budget allows for premium gear
+ * - Have time to program and manage complexity
+ * - Require redundancy for critical performances
+ *
+ * SIMPLER ALTERNATIVES:
+ * - Single Helix Floor (1024 presets, 8 snapshots, dual DSP)
+ * - Single Quad Cortex (256 presets, 8 scenes, quad-core DSP)
+ * - QC + H90 (main processing + premium reverb/delay)
+ * - Helix + H90 (amp modeling + premium effects)
+ *
+ * MIDI IMPLEMENTATION TIPS:
+ * - Use MIDI monitor software to verify message flow
+ * - Create initialization sequence at song start (as demonstrated)
+ * - Test all preset changes before live performance
+ * - Use device library aliases for correct timing
+ * - Document all MIDI channel assignments
+ * - Keep firmware updated on all devices (test thoroughly first)
+ *
+ * RECOMMENDED MIDI CONTROLLERS:
+ * - Morningstar MC6/MC8: Excellent multi-device support
+ * - RJM Mastermind GT/PBC: Professional-grade control
+ * - Disaster Area DMC.micro: Compact multi-device controller
+ * - MIDI Solutions Footswitch Controller: Hardware MIDI generator
+ * - DAW (Ableton, Logic, Reaper): Computer-based backing tracks
+ *
+ * For device-specific MIDI specs, see:
+ * - Helix: https://line6.com/support/manuals/helix
+ * - Quad Cortex: https://support.neuraldsp.com/hc/en-us/articles/360014480320
+ * - H90: https://www.eventideaudio.com/h90
+ * ============================================================================
+ */

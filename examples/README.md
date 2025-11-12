@@ -33,10 +33,12 @@ Perfect for first-time users. Learn fundamental MMD concepts.
 
 ### ⏱️ [01_timing/](01_timing/) - Timing Paradigms
 
-Master MMD's four timing systems.
+Master MML's four timing systems.
 
 - **01_tempo_changes.mmd** - Dynamic tempo automation
 - **02_musical_timing.mmd** - Bars.beats.ticks timing with time signatures
+- **03_timing_paradigms.mmd** - All four timing modes demonstrated
+- **04_relative_timing.mmd** - Relative delta timing patterns
 
 **Learn about**: Absolute time, musical time, relative deltas, simultaneous events
 
@@ -51,8 +53,10 @@ Complete MIDI 1.0 command coverage.
 - **05_bass_line.mmd** - Bass patterns and rhythms
 - **06_chord_progressions.mmd** - Simultaneous notes for chords
 - **07_drums_and_percussion.mmd** - GM drum map (channel 10)
+- **08_midi_clock.mmd** - MIDI clock and transport control
+- **09_pitch_bend_modulation.mmd** - Advanced pitch bend techniques with curves and envelopes
 
-**Covers**: Note on/off, CC, PC, pitch bend, aftertouch, SysEx, drums, chords
+**Covers**: Note on/off, CC, PC, pitch bend, aftertouch, SysEx, MIDI clock, drums, chords, modulation
 
 ### 🚀 [03_advanced/](03_advanced/) - Advanced Features
 
@@ -68,8 +72,11 @@ Power features for complex compositions.
 - **08_modulation_showcase.mmd** - Advanced modulation (curves, waves, envelopes)
 - **09_generative_pattern.mmd** - Variables and computed values
 - **10_comprehensive_song.mmd** - All features combined
+- **11_multi_file_project.mmd** - Organizing large projects with imports and modules
+- **12_common_mistakes.mmd** - Debugging guide with intentional errors and fixes
+- **13_performance_comparison.mmd** - Optimized vs naive implementations
 
-**Master**: Loops, sweeps, aliases, variables, expressions, automation, modulation
+**Master**: Loops, sweeps, aliases, variables, expressions, automation, project organization, optimization, modulation
 
 ### 🎲 [05_generative/](05_generative/) - Generative & Random Techniques
 
@@ -79,8 +86,10 @@ Create evolving, non-repetitive music using random() expressions and wave modula
 - **02_algorithmic_drums.mmd** - Professional drum patterns using random velocity, ghost notes, and polyrhythms
 - **03_generative_ambient.mmd** - Evolving pad textures with random notes and LFO modulation
 - **04_random_cc_automation.mmd** - Generative parameter automation for filters, resonance, pan, and expression
+- **05_evolving_textures.mmd** - Complex layered textures with multiple randomization sources
+- **06_scale_constrained_melody.mmd** - Generative melodies constrained to musical scales
 
-**Techniques**: Random velocity, random note ranges, random CC values, wave modulation, layered randomization, humanization
+**Techniques**: Random velocity, random note ranges, random CC values, wave modulation, layered randomization, humanization, scale constraints
 
 ### 🎸 [04_device_libraries/](04_device_libraries/) - Hardware Control
 
@@ -92,6 +101,9 @@ Real-world device control examples.
 - **04_helix_song_switching.mmd** - Line 6 Helix snapshots
 - **05_hx_stomp_pedalboard.mmd** - HX Stomp setlist
 - **06_live_performance_aliases.mmd** - Multi-device live performance
+- **07_hx_effects_live.mmd** - HX Effects live performance automation
+- **08_hx_stomp_xl_set.mmd** - HX Stomp XL complete setlist
+- **09_multi_device_orchestration.mmd** - Coordinating multiple devices in a single performance
 
 **Devices**: Quad Cortex, H90, Helix, HX Stomp, HX Effects, HX Stomp XL
 
@@ -111,13 +123,13 @@ Progressive 4-part tutorial series.
 | Category | Count | Difficulty |
 |----------|-------|------------|
 | Basics | 4 | Beginner |
-| Timing | 2 | Beginner |
-| MIDI Features | 7 | Beginner-Intermediate |
-| Advanced | 10 | Intermediate-Advanced |
-| Generative | 4 | Intermediate-Advanced |
-| Device Libraries | 6 | Intermediate |
+| Timing | 4 | Beginner |
+| MIDI Features | 9 | Beginner-Intermediate |
+| Advanced | 13 | Intermediate-Advanced |
+| Generative | 6 | Intermediate-Advanced |
+| Device Libraries | 9 | Intermediate |
 | Tutorials | 4 | Beginner → Advanced |
-| **TOTAL** | **37** | All levels |
+| **TOTAL** | **49** | All levels |
 
 ## Running Examples
 
@@ -153,24 +165,28 @@ mmdc play examples/06_tutorials/04_full_song.mmd
 8. **Loops**: [03_advanced/01_loops_and_patterns.mmd](03_advanced/01_loops_and_patterns.mmd) - Eliminate repetitive code with @loop
 9. **Automation**: [03_advanced/02_sweep_automation.mmd](03_advanced/02_sweep_automation.mmd) - Smooth parameter changes with @sweep
 10. **Musical Time**: [01_timing/02_musical_timing.mmd](01_timing/02_musical_timing.mmd) - Work in bars/beats/ticks
-11. **Random Humanization**: [05_generative/01_random_humanization.mmd](05_generative/01_random_humanization.mmd) - Natural variations with random() expressions
-12. **Generative Ambient**: [05_generative/03_generative_ambient.mmd](05_generative/03_generative_ambient.mmd) - Evolving pads with random notes and LFO
-13. **Device Control**: [04_device_libraries/01_device_import.mmd](04_device_libraries/01_device_import.mmd) - High-level device commands with @import
+11. **Timing Paradigms**: [01_timing/03_timing_paradigms.mmd](01_timing/03_timing_paradigms.mmd) - Master all timing modes
+12. **Random Humanization**: [05_generative/01_random_humanization.mmd](05_generative/01_random_humanization.mmd) - Natural variations with random() expressions
+13. **Generative Ambient**: [05_generative/03_generative_ambient.mmd](05_generative/03_generative_ambient.mmd) - Evolving pads with random notes and LFO
+14. **Device Control**: [04_device_libraries/01_device_import.mmd](04_device_libraries/01_device_import.mmd) - High-level device commands with @import
+15. **Multi-File Projects**: [03_advanced/11_multi_file_project.mmd](03_advanced/11_multi_file_project.mmd) - Organize large projects
 
 ### 🎸 Alias System (Advanced Abstraction)
 
-14. **Alias Basics**: [03_advanced/03_alias_showcase.mmd](03_advanced/03_alias_showcase.mmd) - Complete alias system tour
-15. **Real-World**: [04_device_libraries/06_live_performance_aliases.mmd](04_device_libraries/06_live_performance_aliases.mmd) - Production-ready performance automation
+16. **Alias Basics**: [03_advanced/03_alias_showcase.mmd](03_advanced/03_alias_showcase.mmd) - Complete alias system tour
+17. **Real-World**: [04_device_libraries/06_live_performance_aliases.mmd](04_device_libraries/06_live_performance_aliases.mmd) - Production-ready performance automation
 
 ### 🎼 Musical Examples (Inspiration)
 
-16. **Drums**: [02_midi_features/07_drums_and_percussion.mmd](02_midi_features/07_drums_and_percussion.mmd) - GM drum patterns
-17. **Algorithmic Drums**: [05_generative/02_algorithmic_drums.mmd](05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
-18. **Bass**: [02_midi_features/05_bass_line.mmd](02_midi_features/05_bass_line.mmd) - Groove patterns
-19. **Chords**: [02_midi_features/06_chord_progressions.mmd](02_midi_features/06_chord_progressions.mmd) - Harmonic ideas
-20. **Arpeggios**: [03_advanced/05_arpeggiator.mmd](03_advanced/05_arpeggiator.mmd) - Arpeggiator patterns
-21. **Polyrhythm**: [03_advanced/06_polyrhythm.mmd](03_advanced/06_polyrhythm.mmd) - Complex rhythms
-22. **CC Automation**: [05_generative/04_random_cc_automation.mmd](05_generative/04_random_cc_automation.mmd) - Generative parameter modulation
+18. **Drums**: [02_midi_features/07_drums_and_percussion.mmd](02_midi_features/07_drums_and_percussion.mmd) - GM drum patterns
+19. **Algorithmic Drums**: [05_generative/02_algorithmic_drums.mmd](05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
+20. **Bass**: [02_midi_features/05_bass_line.mmd](02_midi_features/05_bass_line.mmd) - Groove patterns
+21. **Chords**: [02_midi_features/06_chord_progressions.mmd](02_midi_features/06_chord_progressions.mmd) - Harmonic ideas
+22. **Arpeggios**: [03_advanced/05_arpeggiator.mmd](03_advanced/05_arpeggiator.mmd) - Arpeggiator patterns
+23. **Polyrhythm**: [03_advanced/06_polyrhythm.mmd](03_advanced/06_polyrhythm.mmd) - Complex rhythms
+24. **CC Automation**: [05_generative/04_random_cc_automation.mmd](05_generative/04_random_cc_automation.mmd) - Generative parameter modulation
+25. **Evolving Textures**: [05_generative/05_evolving_textures.mmd](05_generative/05_evolving_textures.mmd) - Complex layered soundscapes
+26. **Scale Melodies**: [05_generative/06_scale_constrained_melody.mmd](05_generative/06_scale_constrained_melody.mmd) - Musical scale constraints
 
 ## Feature Highlights
 
@@ -272,26 +288,34 @@ See: [04_device_libraries/01_device_import.mmd](04_device_libraries/01_device_im
 | Feature | Examples | Status |
 |---------|----------|--------|
 | **Timing (Absolute)** | All examples | ✅ Complete |
-| **Timing (Musical)** | 02_musical_timing | ✅ Complete |
-| **Timing (Relative)** | Most examples | ✅ Complete |
-| **Note Commands** | 00-03, 05, 09-11, bass, chords, drums | ✅ Complete |
-| **Control Change** | 05-06, 09, 11, modulation | ✅ Complete |
-| **Program Change** | 05, 13, device examples | ✅ Complete |
-| **Pitch Bend** | 07, 09, 11 | ✅ Complete |
-| **Pressure/Aftertouch** | 07 | ✅ Complete |
-| **Meta Events** | 01, 03-04, 09 | ✅ Complete |
-| **Tempo Changes** | 04, 09, 12 | ✅ Complete |
-| **Markers** | 03, 09, 10-13 | ✅ Complete |
-| **Variables (@define)** | 04-05, 09-10, generative | ✅ Complete |
-| **Loops (@loop)** | 10, arpeggiator, polyrhythm | ✅ Complete |
-| **Sweeps (@sweep)** | 11, modulation | ✅ Complete |
-| **Imports (@import)** | 13, all device examples | ✅ Complete |
+| **Timing (Musical)** | 02_musical_timing, 03_timing_paradigms | ✅ Complete |
+| **Timing (Relative)** | Most examples, 04_relative_timing | ✅ Complete |
+| **Timing (All Modes)** | 03_timing_paradigms | ✅ Complete |
+| **Note Commands** | 01-04, bass, chords, drums | ✅ Complete |
+| **Control Change** | 02_cc_automation, modulation | ✅ Complete |
+| **Program Change** | 01_multi_channel_basic, device examples | ✅ Complete |
+| **Pitch Bend** | 03_pitch_bend_pressure, 09_pitch_bend_modulation | ✅ Complete |
+| **Pitch Bend Modulation** | 09_pitch_bend_modulation | ✅ Complete |
+| **Pressure/Aftertouch** | 03_pitch_bend_pressure | ✅ Complete |
+| **MIDI Clock** | 08_midi_clock | ✅ Complete |
+| **Meta Events** | 01-04 | ✅ Complete |
+| **Tempo Changes** | 01_tempo_changes | ✅ Complete |
+| **Markers** | 04_song_structure_markers | ✅ Complete |
+| **Variables (@define)** | generative examples | ✅ Complete |
+| **Loops (@loop)** | 01_loops_and_patterns, arpeggiator, polyrhythm | ✅ Complete |
+| **Sweeps (@sweep)** | 02_sweep_automation, modulation | ✅ Complete |
+| **Imports (@import)** | 01_device_import, 11_multi_file_project, all device examples | ✅ Complete |
 | **Aliases** | alias_showcase, device examples | ✅ Complete |
-| **Multi-Channel** | 05, 09, tutorials | ✅ Complete |
-| **SysEx** | 08 | ✅ Complete |
+| **Multi-Channel** | 01_multi_channel_basic, tutorials | ✅ Complete |
+| **SysEx** | 04_system_messages | ✅ Complete |
 | **Comments** | All examples | ✅ Complete |
-| **Random Expressions** | random_humanization, algorithmic_drums, generative_ambient, random_cc_automation | ✅ Complete |
-| **Wave Modulation** | generative_ambient | ✅ Complete |
+| **Random Expressions** | 01_random_humanization, 02_algorithmic_drums, 03_generative_ambient, 04_random_cc_automation | ✅ Complete |
+| **Wave Modulation** | 03_generative_ambient, 05_evolving_textures | ✅ Complete |
+| **Scale Constraints** | 06_scale_constrained_melody | ✅ Complete |
+| **Project Organization** | 11_multi_file_project | ✅ Complete |
+| **Debugging** | 12_common_mistakes | ✅ Complete |
+| **Performance** | 13_performance_comparison | ✅ Complete |
+| **Multi-Device** | 09_multi_device_orchestration | ✅ Complete |
 
 ## Creating Your Own
 
@@ -324,30 +348,40 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 |-------------|-------------|
 | Basic syntax | 00_basics/01-02 |
 | Timing (absolute) | 00_basics/01-04 |
-| Timing (musical) | 01_timing/02 |
-| Notes and durations | 00_basics/03, 02_midi_features/01 |
-| CC automation | 02_midi_features/02 |
-| Tempo changes | 01_timing/01 |
-| Multi-channel | 02_midi_features/01 |
-| Loops | 03_advanced/01 |
-| Smooth automation | 03_advanced/02 |
-| Humanization (random) | 05_generative/01 |
-| Algorithmic drums | 05_generative/02 |
-| Generative ambient | 05_generative/03 |
-| CC automation | 05_generative/04 |
-| Device control | 04_device_libraries/01 |
-| Aliases | 03_advanced/03 |
-| Live performance | 04_device_libraries/06 |
-| Complete song | 03_advanced/10 |
-| Drums | 02_midi_features/07 |
-| Bass | 02_midi_features/05 |
-| Chords | 02_midi_features/06 |
+| Timing (musical) | 01_timing/02_musical_timing |
+| Timing (all modes) | 01_timing/03_timing_paradigms |
+| Timing (relative) | 01_timing/04_relative_timing |
+| Notes and durations | 00_basics/03_simple_click_track |
+| CC automation | 02_midi_features/02_cc_automation |
+| Tempo changes | 01_timing/01_tempo_changes |
+| Multi-channel | 02_midi_features/01_multi_channel_basic |
+| MIDI clock | 02_midi_features/08_midi_clock |
+| Pitch bend modulation | 02_midi_features/09_pitch_bend_modulation |
+| Loops | 03_advanced/01_loops_and_patterns |
+| Smooth automation | 03_advanced/02_sweep_automation |
+| Multi-file projects | 03_advanced/11_multi_file_project |
+| Debugging | 03_advanced/12_common_mistakes |
+| Performance | 03_advanced/13_performance_comparison |
+| Humanization (random) | 05_generative/01_random_humanization |
+| Algorithmic drums | 05_generative/02_algorithmic_drums |
+| Generative ambient | 05_generative/03_generative_ambient |
+| Random CC automation | 05_generative/04_random_cc_automation |
+| Evolving textures | 05_generative/05_evolving_textures |
+| Scale melodies | 05_generative/06_scale_constrained_melody |
+| Device control | 04_device_libraries/01_device_import |
+| Aliases | 03_advanced/03_alias_showcase |
+| Live performance | 04_device_libraries/06_live_performance_aliases |
+| Multi-device | 04_device_libraries/09_multi_device_orchestration |
+| Complete song | 03_advanced/10_comprehensive_song |
+| Drums | 02_midi_features/07_drums_and_percussion |
+| Bass | 02_midi_features/05_bass_line |
+| Chords | 02_midi_features/06_chord_progressions |
 | Tutorial series | 06_tutorials/01-04 |
 
 ## See Also
 
-- **[Quickstart Guide](../docs/getting-started/quickstart.md)** - Get started with MMD
-- **[MMD Syntax Reference](../docs/user-guide/mmd-syntax.md)** - Complete syntax documentation
+- **[Quickstart Guide](../docs/getting-started/quickstart.md)** - Get started with MML
+- **[MML Syntax Reference](../docs/user-guide/mml-syntax.md)** - Complete syntax documentation
 - **[Tutorial: Your First Song](../docs/getting-started/first-song.md)** - Step-by-step guide
 - **[Device Library Guide](../docs/user-guide/device-libraries.md)** - Using device libraries
 - **[Specification](../spec.md)** - Complete MMD language specification
@@ -362,6 +396,6 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 
 ---
 
-**Total Examples**: 37 files across 7 categories
+**Total Examples**: 49 files across 7 categories
 **Skill Levels**: Beginner → Advanced
 **Coverage**: All MMD features demonstrated
