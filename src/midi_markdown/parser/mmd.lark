@@ -127,9 +127,9 @@ channel_reset: "-" CHAN_ALL_NOTES_OFF param
 
 // System Exclusive
 sysex_command: "-" "sysex_file" STRING                         // From file
-             | "-" "sysex" HEX_BYTE+                            // Single-line
+             | "-" "sysex" sysex_bytes                          // Inline bytes (single or multi-line)
 
-hex_bytes: HEX_BYTE+
+sysex_bytes: (HEX_BYTE _NL*)+
 
 // System Common Messages
 system_common: "-" SYS_MTC_QUARTER_FRAME INT
@@ -436,8 +436,8 @@ NOTE_NAME: /[A-G][#b]?-?[0-9]/
 
 KEY_NAME: /[A-G][#b]?/
 
-// Hex for SysEx
-HEX_BYTE: /[0-9A-Fa-f]{2}/
+// Hex for SysEx (priority .4 to match before IDENTIFIER)
+HEX_BYTE.4: /[0-9A-Fa-f]{2}/
 
 // String
 STRING: /"[^"]*"/
