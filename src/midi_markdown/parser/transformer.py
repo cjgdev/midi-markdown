@@ -58,6 +58,9 @@ class MMDTransformer(Transformer):
             doc.frontmatter = first_arg
             statements_start = 1
 
+        # Track the current track context for multi-track files
+        current_track: Track | None = None
+
         # Process statements
         for stmt in args[statements_start:]:
             if stmt is None:
@@ -70,10 +73,15 @@ class MMDTransformer(Transformer):
             elif isinstance(stmt, AliasDefinition):
                 doc.aliases[stmt.name] = stmt
             elif isinstance(stmt, Track):
+                # Switch to this track - subsequent events go to this track
                 doc.tracks.append(stmt)
+                current_track = stmt
             else:
-                # Everything else goes to events
-                doc.events.append(stmt)
+                # Add events to current track if in track context, else to top-level
+                if current_track is not None:
+                    current_track.events.append(stmt)
+                else:
+                    doc.events.append(stmt)
 
         return doc
 
