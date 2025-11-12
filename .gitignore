@@ -87,3 +87,7 @@ dist/
 .tmp/
 temp/
 .mmd_history
+
+# Project-specific directories
+output/
+.archive/
