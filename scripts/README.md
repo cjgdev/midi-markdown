@@ -4,6 +4,42 @@ Utility scripts for MIDI Markdown development and release management.
 
 ## Available Scripts
 
+### package_claude_skills.py
+
+Package Claude Code skills for distribution.
+
+**Purpose**: Creates distributable archives of Claude skills for release.
+
+**Usage**:
+```bash
+# Package skills for release
+python scripts/package_claude_skills.py --version 0.1.0
+
+# Custom source and output directories
+python scripts/package_claude_skills.py \
+  --source /path/to/project \
+  --output /path/to/output \
+  --version 1.2.3
+```
+
+**What it creates**:
+1. `claude-skills-mmd-{version}.tar.gz` - Linux/macOS archive
+2. `claude-skills-mmd-{version}.zip` - Windows archive
+3. `claude-skills-mmd-{version}.manifest.json` - Metadata file
+4. Installation scripts (`install.sh`, `install.bat`)
+5. README with installation instructions
+
+**What it includes**:
+- All skill files from `.claude/skills/`
+- Installation scripts for all platforms
+- Comprehensive README with usage instructions
+
+**Used by**: GitHub Actions release workflow (automatically runs on version tags)
+
+**Requirements**: Python 3.12+
+
+---
+
 ### bump_version.py
 
 Automated version bumping script for releases.

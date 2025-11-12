@@ -107,6 +107,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -124,6 +129,14 @@ jobs:
       - name: Extract version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Package Claude Skills
+        run: |
+          python scripts/package_claude_skills.py \
+            --source . \
+            --output release \
+            --version ${{ steps.get_version.outputs.VERSION }}
+          ls -lh release/claude-skills-mmd-*
 
       - name: Extract changelog for this version
         id: changelog
@@ -153,6 +166,8 @@ jobs:
 
             ### Installation
 
+            #### MMDC Compiler
+
             **Download standalone executables** (no Python required):
 
             - **Linux**: `mmdc-linux-x86_64.tar.gz`
@@ -162,6 +177,18 @@ jobs:
             Extract the archive and run the `mmdc` executable.
 
             **Verify checksums** using the `.sha256` files to ensure download integrity.
+
+            #### Claude Code Skills (Optional)
+
+            **For Claude Code users**, download the skills package for enhanced MMD development:
+
+            - **All platforms**: `claude-skills-mmd-${{ steps.get_version.outputs.VERSION }}.tar.gz` or `.zip`
+
+            The skills package includes:
+            - **mmd-writing** - Help writing MMD files with correct syntax
+            - **mmdc-cli-usage** - Help using the mmdc CLI effectively
+
+            See [Claude Skills documentation](https://cjgdev.github.io/midi-markdown/getting-started/claude-skills/) for installation instructions.
 
             ### Installation via pip/pipx (Python users)
 
