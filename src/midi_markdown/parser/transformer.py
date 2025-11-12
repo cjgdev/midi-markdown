@@ -1571,7 +1571,7 @@ class MMDTransformer(Transformer):
             "floordiv",
             "neg",
             "pos",  # Unary operators
-            "variable_ref",  # Variable references might be in expressions
+            "var_ref",  # Variable references might be in expressions (aliased from variable_ref in grammar)
         }
 
         # Check if this tree or any child contains expression operators

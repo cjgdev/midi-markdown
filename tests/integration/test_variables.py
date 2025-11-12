@@ -370,9 +370,6 @@ class TestPhase2ExpressionEvaluation:
         with pytest.raises((ValueError, ZeroDivisionError)):
             parser.parse_string(mml)
 
-    @pytest.mark.xfail(
-        reason="Undefined variables are currently preserved as tuples for forward references"
-    )
     def test_undefined_variable_in_expression(self, parser):
         """Test that undefined variable raises error."""
         mml = """
