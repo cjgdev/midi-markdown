@@ -154,6 +154,42 @@ class TestBasicMIDICommands:
         cmd = doc.events[0]["commands"][0]
         assert cmd.type == "sysex"
 
+    def test_multiline_sysex(self, parser):
+        """Test multi-line SysEx message"""
+        mml = """
+[00:00.000]
+- sysex F0 00 01 06
+        02 03 04 05
+        F7
+"""
+        doc = parser.parse_string(mml)
+        cmd = doc.events[0]["commands"][0]
+        assert cmd.type == "sysex"
+        # Verify all hex bytes are captured
+        assert len(cmd.params["bytes"]) == 9
+        expected_bytes = ["F0", "00", "01", "06", "02", "03", "04", "05", "F7"]
+        assert cmd.params["bytes"] == expected_bytes
+
+    def test_multiline_sysex_long(self, parser):
+        """Test multi-line SysEx with many lines"""
+        mml = """
+[00:00.000]
+- sysex F0 41 10 00 11
+        12 40 00 7F
+        00 41 01 02
+        03 04 05 06
+        F7
+"""
+        doc = parser.parse_string(mml)
+        cmd = doc.events[0]["commands"][0]
+        assert cmd.type == "sysex"
+        # Verify all 18 hex bytes are captured
+        assert len(cmd.params["bytes"]) == 18
+        # F0 + 16 data bytes + F7
+        expected = ["F0", "41", "10", "00", "11", "12", "40", "00", "7F",
+                    "00", "41", "01", "02", "03", "04", "05", "06", "F7"]
+        assert cmd.params["bytes"] == expected
+
 
 class TestMIDICommandEdgeCases:
     """Test MIDI command edge cases and boundary values"""

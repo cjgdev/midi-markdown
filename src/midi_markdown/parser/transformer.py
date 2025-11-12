@@ -473,15 +473,41 @@ class MMDTransformer(Transformer):
         # Unknown meta event type
         return MIDICommand(type="meta_event", params={"args": args})
 
-    def sysex_command(self, *hex_bytes):
+    def sysex_bytes(self, *items):
+        """Extract hex bytes from sysex_bytes tree, filtering out newlines.
+
+        Args:
+            *items: Mix of hex byte tokens and potentially newline separators
+
+        Returns:
+            List of hex byte tokens (strings)
+        """
+        # Filter out any non-hex-byte items (like newlines if they leaked through)
+        # In practice, items should be HEX_BYTE tokens due to grammar structure
+        hex_bytes = []
+        for item in items:
+            # HEX_BYTE tokens are Token objects with .value attribute
+            if hasattr(item, 'value'):
+                hex_bytes.append(item)
+            elif isinstance(item, str):
+                hex_bytes.append(item)
+        return hex_bytes
+
+    def sysex_command(self, *args):
         """Transform SysEx (System Exclusive) MIDI command.
 
         Args:
-            *hex_bytes: Variable number of hexadecimal byte values
+            *args: Either a list of hex bytes (from sysex_bytes) or a string (from sysex_file)
 
         Returns:
             MIDICommand object with type="sysex" and bytes in params
         """
+        # If we get a list (from sysex_bytes), it's already been processed
+        # If we get individual tokens, collect them
+        if len(args) == 1 and isinstance(args[0], list):
+            hex_bytes = args[0]
+        else:
+            hex_bytes = args
         return MIDICommand(type="sysex", params={"bytes": [str(b) for b in hex_bytes]})
 
     def channel_reset(self, *args):
