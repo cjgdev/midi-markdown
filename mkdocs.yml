@@ -1,10 +1,10 @@
 site_name: MIDI Markup Language Documentation
 site_description: Human-readable MIDI markup language compiler and tools
 site_author: MIDI Markup Language Contributors
-site_url: https://github.com/yourusername/midi-markdown
+site_url: https://cjgdev.github.io/midi-markdown/
 
-repo_name: midi-markdown
-repo_url: https://github.com/yourusername/midi-markdown
+repo_name: cjgdev/midi-markdown
+repo_url: https://github.com/cjgdev/midi-markdown
 edit_uri: edit/main/docs/
 
 theme:
@@ -128,7 +128,7 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/yourusername/midi-markdown
+      link: https://github.com/cjgdev/midi-markdown
   analytics:
     feedback:
       title: Was this page helpful?
@@ -158,7 +158,7 @@ nav:
 
   - User Guide:
     - Syntax & Basics:
-      - user-guide/mml-syntax.md
+      - user-guide/mmd-syntax.md
       - user-guide/timing-system.md
       - user-guide/midi-commands.md
       - user-guide/variables-loops.md
