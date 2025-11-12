@@ -21,6 +21,8 @@ class KeyboardInputHandler:
     - Space: Play/Pause toggle
     - Q: Quit
     - R: Restart (future)
+    - Left Arrow: Seek backward
+    - Right Arrow: Seek forward
     """
 
     def __init__(
@@ -28,6 +30,8 @@ class KeyboardInputHandler:
         on_play_pause: Callable[[], None] | None = None,
         on_quit: Callable[[], None] | None = None,
         on_restart: Callable[[], None] | None = None,
+        on_seek_forward: Callable[[], None] | None = None,
+        on_seek_backward: Callable[[], None] | None = None,
     ):
         """Initialize keyboard input handler.
 
@@ -35,10 +39,14 @@ class KeyboardInputHandler:
             on_play_pause: Callback for Space key (play/pause toggle)
             on_quit: Callback for Q key (quit)
             on_restart: Callback for R key (restart, future)
+            on_seek_forward: Callback for Right Arrow key (seek forward)
+            on_seek_backward: Callback for Left Arrow key (seek backward)
         """
         self.on_play_pause = on_play_pause
         self.on_quit = on_quit
         self.on_restart = on_restart
+        self.on_seek_forward = on_seek_forward
+        self.on_seek_backward = on_seek_backward
 
         self._listener_thread: threading.Thread | None = None
         self._stop_flag = threading.Event()
@@ -115,17 +123,41 @@ class KeyboardInputHandler:
         """
         key_lower = key.lower() if len(key) == 1 else key
 
+        # Handle standard keys
         if key == " " or key_lower == "space":
-            # Space bar - play/pause toggle
             if self.on_play_pause:
                 self.on_play_pause()
+        elif key_lower == "q" and self.on_quit:
+            self.on_quit()
+        elif key_lower == "r" and self.on_restart:
+            self.on_restart()
+        else:
+            # Handle arrow keys
+            self._handle_arrow_key(key, key_lower)
 
-        elif key_lower == "q":
-            # Q - quit
-            if self.on_quit:
-                self.on_quit()
+    def _handle_arrow_key(self, key: str, key_lower: str) -> None:
+        """Handle arrow key presses for seeking.
 
-        elif key_lower == "r":
-            # R - restart (future feature)
-            if self.on_restart:
-                self.on_restart()
+        Args:
+            key: Original key character
+            key_lower: Lowercased key character
+        """
+        # Check for readchar key constants
+        try:
+            import readchar  # type: ignore
+
+            if hasattr(readchar, "key"):
+                if key == readchar.key.LEFT and self.on_seek_backward:
+                    self.on_seek_backward()
+                    return
+                if key == readchar.key.RIGHT and self.on_seek_forward:
+                    self.on_seek_forward()
+                    return
+        except (ImportError, AttributeError):
+            pass
+
+        # Fallback: check for ANSI escape sequences
+        if (key == "\x1b[D" or key_lower == "left") and self.on_seek_backward:
+            self.on_seek_backward()
+        elif (key == "\x1b[C" or key_lower == "right") and self.on_seek_forward:
+            self.on_seek_forward()

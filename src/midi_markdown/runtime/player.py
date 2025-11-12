@@ -53,8 +53,9 @@ class RealtimePlayer:
         )
         self._build_tempo_map()
 
-        # Create scheduler
+        # Create scheduler and store all scheduled events for seeking
         self.scheduler = EventScheduler(self.midi_output)
+        self._all_scheduled_events: list[ScheduledEvent] = []
         self._load_events()
 
         # Open MIDI port
@@ -90,6 +91,24 @@ class RealtimePlayer:
         """
         self.scheduler.stop()
         self._all_notes_off()
+
+    def seek(self, target_time_ms: float) -> None:
+        """Seek to a specific time position.
+
+        Stops current playback, sends All Notes Off to prevent stuck notes,
+        and resumes playback from the target time.
+
+        Args:
+            target_time_ms: Target time in milliseconds from start
+
+        Example:
+            >>> player.seek(5000.0)  # Seek to 5 seconds
+        """
+        # Send All Notes Off before seeking to prevent stuck notes
+        self._all_notes_off()
+
+        # Delegate to scheduler
+        self.scheduler.seek(target_time_ms, self._all_scheduled_events)
 
     def get_duration_ms(self) -> float:
         """Get total duration in milliseconds.
@@ -156,6 +175,8 @@ class RealtimePlayer:
                     )
                 )
 
+        # Store all events for seeking
+        self._all_scheduled_events = scheduled_events
         self.scheduler.load_events(scheduled_events)
 
     def _event_to_midi_message(self, event: MIDIEvent) -> list[int] | None:

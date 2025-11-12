@@ -195,6 +195,45 @@ class EventScheduler:
         self.pause_time = None
         self.time_offset = 0.0
 
+    def seek(self, target_time_ms: float, all_events: list[ScheduledEvent]) -> None:
+        """Seek to a specific time position.
+
+        Stops current playback, reloads events from target time onward, and
+        adjusts timing state to resume from the new position.
+
+        Args:
+            target_time_ms: Target time in milliseconds from start
+            all_events: Complete list of all events (needed to reload from target time)
+
+        Example:
+            >>> scheduler.seek(5000.0, all_events)  # Seek to 5 seconds
+        """
+        # Store current state
+        was_playing = self.state == "playing"
+
+        # Stop current playback
+        self._stop_flag.set()
+        if self.scheduler_thread and self.scheduler_thread.is_alive():
+            self.scheduler_thread.join(timeout=0.5)
+
+        # Clamp target time to valid range
+        if target_time_ms < 0:
+            target_time_ms = 0.0
+
+        # Reload only events at or after target time
+        future_events = [e for e in all_events if e.time_ms >= target_time_ms]
+        self.load_events(future_events)
+
+        # Adjust timing offset to account for seek
+        # We want elapsed time to match target_time_ms when playback resumes
+        self.time_offset = target_time_ms / 1000  # Convert to seconds
+
+        # Resume if was playing, otherwise stay paused/stopped
+        if was_playing:
+            self.start()
+        else:
+            self.state = "stopped"
+
     def _scheduler_loop(self) -> None:
         """Main scheduler loop (runs in separate thread).
 

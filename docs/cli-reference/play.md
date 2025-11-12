@@ -23,7 +23,8 @@ The `play` command provides **real-time MIDI playback** of compiled MMD files di
 **Key Features**:
 - Interactive Terminal UI (TUI) with 30 FPS refresh
 - Real-time event visualization and progress tracking
-- Keyboard controls (Space/Q/R) for playback control
+- Keyboard controls (Space/Arrow keys/Q/R) for playback control
+- Seeking forward and backward with arrow keys (5-second intervals)
 - Support for virtual MIDI ports (IAC, loopMIDI, ALSA)
 - Tempo tracking and dynamic tempo changes
 - Event scheduling with microsecond precision
@@ -154,7 +155,7 @@ Recent Events:
 
 **Footer**:
 ```
-Controls: [Space] Pause/Resume | [Q] Quit | [R] Restart
+Controls: [Space] Pause/Resume | [← →] Seek ±5s | [Q] Quit | [R] Restart
 Status: ▶ Playing
 ```
 
@@ -163,8 +164,10 @@ Status: ▶ Playing
 | Key | Action | Description |
 |-----|--------|-------------|
 | **Space** | Play/Pause | Toggle playback (preserves position) |
+| **←** | Seek Backward | Jump backward 5 seconds |
+| **→** | Seek Forward | Jump forward 5 seconds |
 | **Q** | Quit | Stop playback and exit |
-| **R** | Restart | Jump back to beginning |
+| **R** | Restart | Jump back to beginning (future) |
 | **Ctrl+C** | Cancel | Same as Q (graceful exit) |
 | **Ctrl+D** | Exit | Immediate exit |
 
@@ -575,7 +578,7 @@ mml-play song.mmd
 
 ---
 
-### Pause and Resume
+### Pause, Resume, and Seek
 
 ```bash
 # Start playback
@@ -583,10 +586,18 @@ mmdc play setlist.mmd --port 0
 
 # During playback:
 # - Press Space to pause at current position
+# - Press ← (left arrow) to seek backward 5 seconds
+# - Press → (right arrow) to seek forward 5 seconds
 # - Make notes of issues
 # - Press Space to resume from same position
 # - Press Q to quit
 ```
+
+**Use cases for seeking**:
+- Jump to specific section for testing
+- Skip past problematic sections
+- Replay critical timing moments
+- Navigate long performances quickly
 
 ---
 

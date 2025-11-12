@@ -194,6 +194,9 @@ def _play_with_tui(
     # Create keyboard handler with callbacks
     quit_flag = threading.Event()
 
+    # Seek interval in milliseconds (5 seconds)
+    SEEK_INTERVAL_MS = 5000.0
+
     def on_play_pause() -> None:
         """Toggle play/pause."""
         if player.scheduler.state == "playing":
@@ -212,9 +215,44 @@ def _play_with_tui(
         tui_state.set_state("stopped")
         quit_flag.set()
 
+    def on_seek_forward() -> None:
+        """Seek forward by SEEK_INTERVAL_MS."""
+        # Get current position from state
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+        total_duration_ms = snapshot["total_duration_ms"]
+
+        # Calculate new position (clamped to duration)
+        new_pos_ms = min(current_pos_ms + SEEK_INTERVAL_MS, total_duration_ms)
+
+        # Seek player
+        player.seek(new_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
+    def on_seek_backward() -> None:
+        """Seek backward by SEEK_INTERVAL_MS."""
+        # Get current position from state
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+
+        # Calculate new position (clamped to 0)
+        new_pos_ms = max(current_pos_ms - SEEK_INTERVAL_MS, 0.0)
+
+        # Seek player
+        player.seek(new_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
     keyboard_handler = KeyboardInputHandler(
         on_play_pause=on_play_pause,
         on_quit=on_quit,
+        on_seek_forward=on_seek_forward,
+        on_seek_backward=on_seek_backward,
     )
 
     # Start display and keyboard listener
