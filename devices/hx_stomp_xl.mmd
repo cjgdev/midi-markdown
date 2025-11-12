@@ -12,25 +12,36 @@ firmware_notes: |
   - NO 5-PIN DIN MIDI - USB MIDI ONLY
   - Enhanced Command Center vs HX Stomp
   - Single DSP path (same as HX Stomp)
-  
+
   TIMING REQUIREMENTS:
   - Firmware 3.5x: 350ms delay required after PC
   - Firmware 3.10+: CC69 buffered during preset load
-  
+
   PRESET CAPACITY: Direct PC 0-127 addressing (128 presets)
   NO BANK SELECT NEEDED
 ---
 
+# Import common Line 6 Helix family aliases
+@import "devices/line6_common.mmd"
+
 # ============================================
-# PRESET MANAGEMENT
+# HX STOMP XL-SPECIFIC FEATURES
+# ============================================
+#
+# This library extends line6_common.mmd with HX Stomp XL-specific features:
+# - Direct PC addressing (like HX Stomp)
+# - 4 snapshots (0-3) - better than HX Stomp
+# - 8 footswitches (double HX Stomp)
+# - USB MIDI only
+# - All Bypass and Mode switching
+#
+
+# ============================================
+# PRESET MANAGEMENT (HX STOMP XL-SPECIFIC)
 # ============================================
 
 # Direct Program Change addressing - no Bank Select needed
 @alias hxstompxl_preset pc.{ch}.{preset:0-127} "Load preset (0-127)"
-
-# Preset Navigation
-@alias hxstompxl_next_preset cc.{ch}.72.127 "Next preset"
-@alias hxstompxl_prev_preset cc.{ch}.72.0 "Previous preset"
 
 # Combined preset + snapshot load
 @alias hxstompxl_load_snapshot {ch} {preset:0-127} {snapshot:0-3} "Load preset and switch to snapshot"
@@ -40,7 +51,7 @@ firmware_notes: |
 @end
 
 # ============================================
-# SNAPSHOT CONTROL
+# SNAPSHOT CONTROL (HX STOMP XL: 4 SNAPSHOTS)
 # ============================================
 
 # HX Stomp XL has 4 SNAPSHOTS (0-3)
@@ -54,42 +65,6 @@ firmware_notes: |
 @alias hxstompxl_snap_2 cc.{ch}.69.1 "Snapshot 2"
 @alias hxstompxl_snap_3 cc.{ch}.69.2 "Snapshot 3"
 @alias hxstompxl_snap_4 cc.{ch}.69.3 "Snapshot 4"
-
-# Snapshot Navigation
-@alias hxstompxl_snap_next cc.{ch}.69.8 "Next snapshot (wraps: 4→1)"
-@alias hxstompxl_snap_prev cc.{ch}.69.9 "Previous snapshot (wraps: 1→4)"
-
-# ============================================
-# EXPRESSION PEDAL EMULATION
-# ============================================
-
-@alias hxstompxl_exp1 cc.{ch}.1.{value:0-127} "Emulate EXP 1 pedal position"
-@alias hxstompxl_exp2 cc.{ch}.2.{value:0-127} "Emulate EXP 2 pedal position"
-
-# Expression toe switch
-@alias hxstompxl_exp_toe cc.{ch}.59.{state:0-127} "EXP toe switch (0-63=off, 64-127=on)"
-@alias hxstompxl_exp_toe_on cc.{ch}.59.127 "EXP toe switch on"
-@alias hxstompxl_exp_toe_off cc.{ch}.59.0 "EXP toe switch off"
-
-# ============================================
-# FOOTSWITCH EMULATION
-# ============================================
-
-# HX Stomp XL has 8 FOOTSWITCHES (FS1-8)
-# Double the HX Stomp's 5 switches
-# Provides much better live control options
-
-@alias hxstompxl_fs1 cc.{ch}.49.127 "Toggle Footswitch 1"
-@alias hxstompxl_fs2 cc.{ch}.50.127 "Toggle Footswitch 2"
-@alias hxstompxl_fs3 cc.{ch}.51.127 "Toggle Footswitch 3"
-@alias hxstompxl_fs4 cc.{ch}.52.127 "Toggle Footswitch 4"
-@alias hxstompxl_fs5 cc.{ch}.53.127 "Toggle Footswitch 5"
-@alias hxstompxl_fs6 cc.{ch}.54.127 "Toggle Footswitch 6"
-@alias hxstompxl_fs7 cc.{ch}.55.127 "Toggle Footswitch 7"
-@alias hxstompxl_fs8 cc.{ch}.56.127 "Toggle Footswitch 8"
-
-# Generic footswitch control
-@alias hxstompxl_footswitch cc.{ch}.{fs_cc:49-56}.{value:0-127} "Control any footswitch (FS1=49...FS8=56)"
 
 # ============================================
 # HX STOMP XL UNIQUE FEATURES
@@ -110,50 +85,10 @@ firmware_notes: |
 @alias hxstompxl_mode_prev cc.{ch}.71.5 "Cycle to previous footswitch mode"
 
 # ============================================
-# LOOPER CONTROL
-# ============================================
-
-# Looper functionality identical to other Helix models
-@alias hxstompxl_looper_record cc.{ch}.60.{mode=overdub:0,record:127} "Record/Overdub mode"
-@alias hxstompxl_looper_record_overdub cc.{ch}.60.0 "Set looper to overdub mode"
-@alias hxstompxl_looper_record_rec cc.{ch}.60.127 "Set looper to record mode"
-
-@alias hxstompxl_looper_play_stop cc.{ch}.61.{state=stop:0,play:127} "Play/Stop control"
-@alias hxstompxl_looper_play cc.{ch}.61.127 "Play looper"
-@alias hxstompxl_looper_stop cc.{ch}.61.0 "Stop looper"
-
-@alias hxstompxl_looper_play_once cc.{ch}.62.127 "Play once (one-shot playback)"
-
-@alias hxstompxl_looper_undo_redo cc.{ch}.63.127 "Undo/Redo last action"
-
-@alias hxstompxl_looper_direction cc.{ch}.65.{dir=forward:0,reverse:127} "Playback direction"
-@alias hxstompxl_looper_forward cc.{ch}.65.0 "Forward playback"
-@alias hxstompxl_looper_reverse cc.{ch}.65.127 "Reverse playback"
-
-@alias hxstompxl_looper_speed cc.{ch}.66.{speed=full:0,half:127} "Playback speed"
-@alias hxstompxl_looper_full_speed cc.{ch}.66.0 "Full speed playback"
-@alias hxstompxl_looper_half_speed cc.{ch}.66.127 "Half speed playback"
-
-@alias hxstompxl_looper_onoff cc.{ch}.67.{state=off:0,on:127} "Looper on/off"
-@alias hxstompxl_looper_on cc.{ch}.67.127 "Enable looper mode"
-@alias hxstompxl_looper_off cc.{ch}.67.0 "Exit looper mode"
-
-# ============================================
-# GLOBAL FUNCTIONS
-# ============================================
-
-@alias hxstompxl_tap cc.{ch}.64.127 "Tap tempo"
-
-@alias hxstompxl_tuner cc.{ch}.68.{state=off:0,on:127} "Tuner on/off"
-@alias hxstompxl_tuner_on cc.{ch}.68.127 "Enable tuner"
-@alias hxstompxl_tuner_off cc.{ch}.68.0 "Disable tuner"
-
-# ============================================
 # 4-SNAPSHOT SONG ARRANGEMENT STRATEGIES
 # ============================================
 
 # 4 snapshots provides good flexibility for most songs
-# Common arrangements:
 
 # Pattern 1: Verse/Chorus/Bridge/Solo
 @alias hxstompxl_song_standard {ch} {preset} "Standard 4-part song structure"
@@ -173,93 +108,6 @@ firmware_notes: |
   # Snapshot 4: High gain lead
 @end
 
-# Pattern 3: Intro/Verse/Chorus/Outro (song sections)
-# [00:00.000]
-# - hxstompxl_preset 1 10
-# - hxstompxl_snap_1              # Intro
-# [00:08.000]
-# - hxstompxl_snap_2              # Verse
-# [00:24.000]
-# - hxstompxl_snap_3              # Chorus
-# [01:32.000]
-# - hxstompxl_snap_4              # Outro
-
-# ============================================
-# ADVANCED SNAPSHOT WORKFLOWS
-# ============================================
-
-# Complete song with 4-snapshot preset
-@alias hxstompxl_complete_song {ch} {preset} "Full song using 4 snapshots efficiently"
-  # INTRO - Snapshot 1 (clean with reverb)
-  # [00:00.000]
-  - pc {ch}.{preset}
-  [+350ms]
-  - cc {ch}.69.0
-  
-  # VERSE 1 - Snapshot 2 (mild OD)
-  # [00:16.000]
-  - cc {ch}.69.1
-  
-  # CHORUS 1 - Snapshot 3 (high gain + delay)
-  # [00:32.000]
-  - cc {ch}.69.2
-  
-  # VERSE 2 - Back to snapshot 2
-  # [00:48.000]
-  - cc {ch}.69.1
-  
-  # BRIDGE - Snapshot 4 (ambient/different)
-  # [01:04.000]
-  - cc {ch}.69.3
-  
-  # CHORUS 2 - Snapshot 3
-  # [01:20.000]
-  - cc {ch}.69.2
-  
-  # SOLO - Snapshot 4 (lead tone)
-  # [01:36.000]
-  - cc {ch}.69.3
-  
-  # FINAL CHORUS - Snapshot 3
-  # [01:52.000]
-  - cc {ch}.69.2
-  
-  # OUTRO - Snapshot 1 (clean)
-  # [02:08.000]
-  - cc {ch}.69.0
-@end
-
-# Hybrid approach: multiple presets + 4 snapshots each
-@alias hxstompxl_multi_preset_song {ch} {verse_preset} {chorus_preset} {bridge_preset} "Multi-preset song with snapshot variations"
-  # VERSE PRESET - 4 variations
-  # [00:00.000]
-  - pc {ch}.{verse_preset}
-  [+350ms]
-  - cc {ch}.69.0              # Verse dry
-  # [00:16.000]
-  - cc {ch}.69.1              # Verse with delay
-  
-  # CHORUS PRESET - 4 variations
-  # [00:32.000]
-  - pc {ch}.{chorus_preset}
-  [+350ms]
-  - cc {ch}.69.0              # Chorus rhythm
-  # [00:40.000]
-  - cc {ch}.69.1              # Chorus lead
-  # [00:48.000]
-  - cc {ch}.69.2              # Chorus with more reverb
-  
-  # BRIDGE PRESET - 4 variations
-  # [01:04.000]
-  - pc {ch}.{bridge_preset}
-  [+350ms]
-  - cc {ch}.69.0              # Bridge clean
-  # [01:12.000]
-  - cc {ch}.69.1              # Bridge build
-  # [01:20.000]
-  - cc {ch}.69.2              # Bridge peak
-@end
-
 # ============================================
 # ENHANCED FOOTSWITCH CONTROL
 # ============================================
@@ -272,47 +120,23 @@ firmware_notes: |
   # Start with basic tone
   # [00:00.000]
   - cc {ch}.70.0              # Un-bypass all
-  
+
   # Add compression
   # [00:04.000]
-  - hxstompxl_fs1 {ch}        # Toggle FS1 (compressor)
-  
+  - line6_fs1 {ch}            # Toggle FS1 (compressor)
+
   # Add delay
   # [00:08.000]
-  - hxstompxl_fs2 {ch}        # Toggle FS2 (delay)
-  
+  - line6_fs2 {ch}            # Toggle FS2 (delay)
+
   # Add reverb
   # [00:12.000]
-  - hxstompxl_fs3 {ch}        # Toggle FS3 (reverb)
-  
+  - line6_fs3 {ch}            # Toggle FS3 (reverb)
+
   # Add modulation
   # [00:16.000]
-  - hxstompxl_fs4 {ch}        # Toggle FS4 (chorus/phaser)
+  - line6_fs4 {ch}            # Toggle FS4 (chorus/phaser)
 @end
-
-# ============================================
-# PEDAL EDIT MODE AUTOMATION
-# ============================================
-
-# HX Stomp XL has Pedal Edit mode (exclusive feature)
-# Allows hands-free parameter editing via footswitches
-# Can be triggered via MIDI for automated parameter changes
-
-# Note: While Pedal Edit mode exists on the hardware,
-# direct MIDI control of Pedal Edit parameters requires
-# assigning those parameters to standard CCs via MIDI Learn
-
-# Example: Automate delay feedback parameter
-# (Assuming delay feedback assigned to CC80 via MIDI Learn)
-#
-# NOTE: This alias is commented out because @sweep with ramp() syntax is not yet fully implemented
-# Uncomment when sweep/ramp functionality is complete
-#
-# @alias hxstompxl_delay_feedback_sweep {ch} "Sweep delay feedback from low to high"
-#   @sweep from [00:00.000] to [00:08.000] every 32t
-#     - cc {ch}.80 ramp(30, 110)
-#   @end
-# @end
 
 # ============================================
 # COMMAND CENTER EXAMPLES
@@ -331,7 +155,7 @@ firmware_notes: |
 @alias hxstompxl_snapshot_with_external {ch} {snapshot:0-3} {ext_cc} {ext_value} "Snapshot + external gear control"
   - cc {ch}.69.{snapshot}
   [+50ms]
-  - cc {ch}.{ext_cc} {ext_value}
+  - cc {ch}.{ext_cc}.{ext_value}
 @end
 
 # ============================================
@@ -357,13 +181,6 @@ firmware_notes: |
 #   - Full-size pedalboard footprint
 #   - 5-pin DIN MIDI (hardware chaining)
 
-# DECISION GUIDE:
-# Choose HX Stomp XL if:
-# - 4 snapshots per preset is enough (most songs)
-# - 8 footswitches provides adequate live control
-# - USB-only MIDI is acceptable
-# - Size between HX Stomp and full Helix desired
-
 # ============================================
 # USAGE EXAMPLES
 # ============================================
@@ -376,79 +193,31 @@ firmware_notes: |
 # - hxstompxl_snap_2              # Verse
 # [00:32.000]
 # - hxstompxl_snap_3              # Chorus
-# [00:48.000]
-# - hxstompxl_snap_4              # Bridge
 
-# Example 2: Expression automation
-# @sweep from [00:00.000] to [00:04.000] every 16t
-#   - hxstompxl_exp1 1 ramp(0, 127)
-# @end
+# Example 2: Expression automation with modulation
+# [00:00.000]
+# - line6_exp_swell 1 1 0 127     // Smooth swell
+# [00:04.000]
+# - line6_exp_envelope 1 1        // ADSR envelope
 
 # Example 3: Footswitch effect build
 # [01:00.000]
-# - hxstompxl_fs1 1               # Add delay
+# - line6_fs1 1                   # Add delay
 # [01:04.000]
-# - hxstompxl_fs2 1               # Add reverb
-# [01:08.000]
-# - hxstompxl_fs3 1               # Add modulation
+# - line6_fs2 1                   # Add reverb
 
 # Example 4: Mode switching
 # [01:30.000]
 # - hxstompxl_mode_snapshot 1     # Switch to Snapshot mode
 # [01:30.050]
 # - hxstompxl_snap_4 1            # Change to snapshot 4
-# [01:30.100]
-# - hxstompxl_mode_stomp 1        # Back to Stomp mode
 
 # Example 5: All bypass (mute)
 # [02:00.000]
 # - hxstompxl_all_bypass_on 1     # Mute for tuning
+
+# Example 6: Looper workflow (using common library)
 # [02:10.000]
-# - hxstompxl_all_bypass_off 1    # Un-mute
-
-# ============================================
-# RESERVED CC NUMBERS
-# ============================================
-
-# DO NOT use these for custom parameter control:
-# CC1   - Expression Pedal 1
-# CC2   - Expression Pedal 2
-# CC49-56 - Footswitches 1-8
-# CC59  - EXP Toe Switch
-# CC60-67 - Looper controls
-# CC64  - Tap Tempo
-# CC68  - Tuner
-# CC69  - Snapshot Select
-# CC70  - All Bypass
-# CC71  - Mode Switch
-# CC72  - Preset Navigation
-# CC73-76 - Reserved
-
-# ============================================
-# TROUBLESHOOTING
-# ============================================
-
-# Issue: "4 snapshots not enough"
-# Solution: Use preset changes for major sections
-#          Or upgrade to full Helix (8 snapshots)
-#          Organize presets cleverly (see examples above)
-
-# Issue: "Need more footswitches"
-# Solution: 8 switches should be adequate for most uses
-#          Use mode switching for temporary access to more
-#          Or upgrade to Helix Floor (12 switches)
-
-# Issue: "No 5-pin DIN MIDI"
-# Solution: HX Stomp XL uses USB-C MIDI only
-#          Use USB MIDI Host adapter for hardware gear
-#          Or use external MIDI interface
-
-# Issue: "USB MIDI timing issues"
-# Solution: Use high-quality USB cable
-#          Avoid USB hubs
-#          Consider USB MIDI isolator for ground loops
-
-# Issue: "Preset changes have gaps"
-# Solution: Use All Bypass (CC70) to mute during changes
-#          Use snapshots instead of presets when possible
-#          Ensure presets use similar DSP allocation
+# - line6_looper_start_recording 1
+# [02:18.000]
+# - line6_looper_playback 1
