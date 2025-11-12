@@ -8,6 +8,7 @@ Welcome to the MIDI Markdown (MMD) documentation. MMD is a human-readable, text-
 
 - **[Getting Started](getting-started/quickstart.md)** - Create your first MIDI file in 5 minutes
 - **[Installation Guide](getting-started/installation.md)** - Detailed setup instructions for all platforms
+- **[Claude Code Skills](getting-started/claude-skills.md)** - Optional AI assistant skills for enhanced development (Claude Code users)
 
 ---
 

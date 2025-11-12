@@ -235,6 +235,21 @@ from midi_markdown import compile_mml
 compile_mml("song.mmd", "output.mid", ppq=480)
 ```
 
+## Claude Code Skills
+
+**For Claude Code users**: MIDI Markdown provides official Claude Code skills to enhance your development experience:
+
+- **mmd-writing** - Help writing MMD files with correct syntax, timing, and commands
+- **mmdc-cli-usage** - Help using the mmdc CLI effectively
+
+**Installation**: Download the skills package from the [latest release](https://github.com/cjgdev/midi-markdown/releases) and run the included installation script. See the [Claude Skills documentation](https://cjgdev.github.io/midi-markdown/getting-started/claude-skills/) for detailed instructions.
+
+**Benefits**:
+- ✅ Automatic syntax help when editing `.mmd` files
+- ✅ CLI command suggestions and best practices
+- ✅ Error troubleshooting and debugging assistance
+- ✅ Example code and common patterns
+
 ## Device Libraries
 
 Device libraries enable semantic commands that replace raw MIDI sequences. Instead of manual CC/PC sequences, write `cortex_load 1.2.0.5` for "Load Setlist 2, Group A, Preset 5"—much clearer and easier to maintain. MIDI Markdown includes 300+ pre-built aliases across 6 device libraries:
