@@ -93,6 +93,9 @@ EMOJIS = {
     'rocket': ('🚀', '>>'),
     'musical_note': ('🎵', '♪'),
     'gear': ('⚙️', '[*]'),
+    'bullet': ('•', '-'),
+    'arrow_right': ('→', '->'),
+    'arrow_left': ('←', '<-'),
 }
 
 

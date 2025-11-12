@@ -155,7 +155,7 @@ def validate(
                     f"\n[red]{cross} Validation failed with {len(all_errors)} error(s):[/red]\n"
                 )
                 for error in all_errors:
-                    console.print(f"  [red]•[/red] {error}")
+                    console.print(f"  [red]-[/red] {error}")
                 console.print()
                 raise typer.Exit(code=1)
 

@@ -62,7 +62,7 @@ def ports() -> None:
         console.print("  [bold]Windows:[/bold]")
         console.print("    Install a virtual MIDI driver:")
         console.print(
-            "    • [cyan]loopMIDI[/cyan] - https://www.tobias-erichsen.de/software/loopmidi.html"
+            "    - [cyan]loopMIDI[/cyan] - https://www.tobias-erichsen.de/software/loopmidi.html"
         )
-        console.print("    • [cyan]VirtualMIDI[/cyan] - Included with some DAWs")
+        console.print("    - [cyan]VirtualMIDI[/cyan] - Included with some DAWs")
         console.print()

@@ -171,7 +171,7 @@ def examples(
         console.print()
         console.print("[dim]Available examples:[/dim]")
         for key in sorted(EXAMPLES.keys()):
-            console.print(f"  • [green]{key}[/green]")
+            console.print(f"  - [green]{key}[/green]")
         console.print()
         console.print(
             "[dim]Run[/dim] [cyan]midimarkup examples[/cyan] [dim]to see all examples[/dim]"

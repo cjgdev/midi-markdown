@@ -106,7 +106,7 @@ def library_info(
             ]
         )
         for lib in libraries:
-            console.print(f"  • [cyan]{lib}[/cyan]")
+            console.print(f"  - [cyan]{lib}[/cyan]")
         console.print()
         console.print(
             "[dim]Use[/dim] [cyan]midimarkup library list[/cyan] [dim]to see all libraries[/dim]"
@@ -238,7 +238,7 @@ def library_validate(
         console.print(f"[red]{cross} Validation failed with {len(errors)} error(s):[/red]")
         console.print()
         for error in errors:
-            console.print(f"  [red]•[/red] {error}")
+            console.print(f"  [red]-[/red] {error}")
         console.print()
         raise typer.Exit(1)
 
@@ -247,12 +247,12 @@ def library_validate(
     check = safe_emoji("✓", "[OK]")
     console.print(f"[green]{check} Validation passed[/green]")
     console.print()
-    console.print(f"  • [green]{alias_count}[/green] alias(es) defined")
+    console.print(f"  - [green]{alias_count}[/green] alias(es) defined")
     if doc.frontmatter:
         if "title" in doc.frontmatter:
-            console.print(f"  • Title: {doc.frontmatter['title']}")
+            console.print(f"  - Title: {doc.frontmatter['title']}")
         if "version" in doc.frontmatter:
-            console.print(f"  • Version: {doc.frontmatter['version']}")
+            console.print(f"  - Version: {doc.frontmatter['version']}")
     console.print()
     console.print("[dim]The library is valid and ready to use.[/dim]")
     console.print()
