@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from midi_markdown.cli.encoding_utils import safe_emoji
 from midi_markdown.cli.error_handler import ErrorContext, cli_error_handler
 from midi_markdown.cli.progress import (
     ValidationProgress,
@@ -149,8 +150,9 @@ def validate(
             all_errors = value_errors + timing_errors
 
             if all_errors:
+                cross = safe_emoji("✗", "[X]")
                 console.print(
-                    f"\n[red]✗ Validation failed with {len(all_errors)} error(s):[/red]\n"
+                    f"\n[red]{cross} Validation failed with {len(all_errors)} error(s):[/red]\n"
                 )
                 for error in all_errors:
                     console.print(f"  [red]•[/red] {error}")
@@ -158,5 +160,6 @@ def validate(
                 raise typer.Exit(code=1)
 
         # Success!
-        console.print("[green]✓[/green] Validation passed")
+        check = safe_emoji("✓", "[OK]")
+        console.print(f"[green]{check}[/green] Validation passed")
         console.print("  [dim]File is valid and ready for compilation[/dim]")
