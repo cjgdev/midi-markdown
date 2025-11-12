@@ -9,18 +9,34 @@ firmware_notes: |
   - Firmware 3.5x: 350ms delay required after PC messages before sending CC
   - Firmware 3.10+: CC69 (snapshot) messages are buffered during preset load
   - Firmware 3.80 (current): Stable but MIDI Clock Rx has known issues with preset changes
-  
+
   SNAPSHOT COUNT: 8 snapshots per preset (values 0-7)
   PRESET CAPACITY: 1024 presets (8 setlists × 128 presets)
   FOOTSWITCHES: 11 (FS1-5, FS7-11) - FS6 reserved for internal use
   EXPRESSION PEDALS: 3 (EXP1, EXP2, EXP3)
-  
+
   For HX Edit communication and detailed specifications, see:
   https://line6.com/software/reaper-extension
 ---
 
+# Import common Line 6 Helix family aliases
+@import "devices/line6_common.mmd"
+
 # ============================================
-# PRESET MANAGEMENT
+# HELIX-SPECIFIC FEATURES
+# ============================================
+#
+# This library extends line6_common.mmd with Helix-specific features:
+# - Bank Select (CC0/CC32) preset addressing
+# - 8 snapshots (full range 0-7)
+# - 3 expression pedals (EXP3 unique to Helix)
+# - 11 footswitches
+# - 5-pin DIN MIDI support
+# - Command Center macros
+#
+
+# ============================================
+# PRESET MANAGEMENT (HELIX-SPECIFIC)
 # ============================================
 
 # Setlist and Preset Selection
@@ -35,7 +51,6 @@ firmware_notes: |
 @alias helix_load {ch} {setlist} {preset} "Complete preset load: setlist + preset"
   # CRITICAL: This macro includes required timing for firmware 3.5x
   # For firmware 3.10+, the delays are conservative but safe
-  # Adjust timing_delay parameter if needed for your firmware version
   # Bank MSB (for compatibility)
   - cc {ch}.0.{setlist}
   # Bank LSB - actual setlist selector
@@ -57,12 +72,8 @@ firmware_notes: |
   - cc {ch}.69.{snapshot}
 @end
 
-# Preset Navigation (no Bank Select needed)
-@alias helix_next_preset cc.{ch}.72.127 "Next preset in current setlist"
-@alias helix_prev_preset cc.{ch}.72.0 "Previous preset in current setlist"
-
 # ============================================
-# SNAPSHOT CONTROL
+# SNAPSHOT CONTROL (HELIX: 8 SNAPSHOTS)
 # ============================================
 
 # Direct Snapshot Selection (0-7 for snapshots 1-8)
@@ -78,102 +89,17 @@ firmware_notes: |
 @alias helix_snap_7 cc.{ch}.69.6 "Snapshot 7"
 @alias helix_snap_8 cc.{ch}.69.7 "Snapshot 8"
 
-# Snapshot Navigation
-@alias helix_snap_next cc.{ch}.69.8 "Next snapshot"
-@alias helix_snap_prev cc.{ch}.69.9 "Previous snapshot"
-
 # ============================================
-# EXPRESSION PEDAL EMULATION
+# EXPRESSION PEDAL 3 (HELIX-SPECIFIC)
 # ============================================
 
-# External MIDI controllers send these CCs to emulate physical expression pedals
-# Any parameter assigned to EXP1/2/3 responds to these CCs
-@alias helix_exp1 cc.{ch}.1.{value:0-127} "Emulate EXP 1 pedal position"
-@alias helix_exp2 cc.{ch}.2.{value:0-127} "Emulate EXP 2 pedal position"
+# Full Helix Floor/Rack models have 3 expression pedals (EXP3 is unique)
 @alias helix_exp3 cc.{ch}.3.{value:0-127} "Emulate EXP 3 pedal position (Floor/Rack only)"
 
-# Expression toe switch (typically used for wah engage)
-@alias helix_exp_toe cc.{ch}.59.{state:0-127} "EXP toe switch (0-63=off, 64-127=on)"
-@alias helix_exp_toe_on cc.{ch}.59.127 "EXP toe switch on"
-@alias helix_exp_toe_off cc.{ch}.59.0 "EXP toe switch off"
-
-# ============================================
-# FOOTSWITCH EMULATION
-# ============================================
-
-# Emulate physical footswitch presses
-# NOTE: These act as TOGGLE regardless of value sent (Helix limitation)
-# Send any value 64-127 to toggle the footswitch state
-
-@alias helix_fs1 cc.{ch}.49.127 "Toggle Footswitch 1 (Stomp mode)"
-@alias helix_fs2 cc.{ch}.50.127 "Toggle Footswitch 2"
-@alias helix_fs3 cc.{ch}.51.127 "Toggle Footswitch 3"
-@alias helix_fs4 cc.{ch}.52.127 "Toggle Footswitch 4"
-@alias helix_fs5 cc.{ch}.53.127 "Toggle Footswitch 5"
-@alias helix_fs7 cc.{ch}.54.127 "Toggle Footswitch 7"
-@alias helix_fs8 cc.{ch}.55.127 "Toggle Footswitch 8"
-@alias helix_fs9 cc.{ch}.56.127 "Toggle Footswitch 9"
-@alias helix_fs10 cc.{ch}.57.127 "Toggle Footswitch 10"
-@alias helix_fs11 cc.{ch}.58.127 "Toggle Footswitch 11"
-
-# Generic footswitch control with variable CC value
-@alias helix_footswitch cc.{ch}.{fs_cc:49-58}.{value:0-127} "Control any footswitch (FS1=49...FS11=58)"
-
-# ============================================
-# LOOPER CONTROL
-# ============================================
-
-# The Helix looper provides 6-12 minutes of recording time
-# All looper CCs use threshold-based control (0-63 vs 64-127)
-
-@alias helix_looper_record cc.{ch}.60.{mode=overdub:0,record:127} "Record/Overdub mode"
-@alias helix_looper_record_overdub cc.{ch}.60.0 "Set looper to overdub mode"
-@alias helix_looper_record_rec cc.{ch}.60.127 "Set looper to record mode"
-
-@alias helix_looper_play_stop cc.{ch}.61.{state=stop:0,play:127} "Play/Stop control"
-@alias helix_looper_play cc.{ch}.61.127 "Play looper"
-@alias helix_looper_stop cc.{ch}.61.0 "Stop looper"
-
-@alias helix_looper_play_once cc.{ch}.62.127 "Play once (one-shot playback)"
-
-@alias helix_looper_undo_redo cc.{ch}.63.127 "Undo/Redo last action"
-
-@alias helix_looper_direction cc.{ch}.65.{dir=forward:0,reverse:127} "Playback direction"
-@alias helix_looper_forward cc.{ch}.65.0 "Forward playback"
-@alias helix_looper_reverse cc.{ch}.65.127 "Reverse playback"
-
-@alias helix_looper_speed cc.{ch}.66.{speed=full:0,half:127} "Playback speed"
-@alias helix_looper_full_speed cc.{ch}.66.0 "Full speed playback"
-@alias helix_looper_half_speed cc.{ch}.66.127 "Half speed playback"
-
-@alias helix_looper_onoff cc.{ch}.67.{state=off:0,on:127} "Looper on/off"
-@alias helix_looper_on cc.{ch}.67.127 "Enable looper mode"
-@alias helix_looper_off cc.{ch}.67.0 "Exit looper mode"
-
-# ============================================
-# GLOBAL FUNCTIONS
-# ============================================
-
-# Tap Tempo - values 0-63 are ignored, 64-127 register as tap
-@alias helix_tap cc.{ch}.64.127 "Tap tempo (send multiple times with rhythm)"
-
-# Tuner Control - threshold-based (0-63=off, 64-127=on)
-@alias helix_tuner cc.{ch}.68.{state=off:0,on:127} "Tuner on/off"
-@alias helix_tuner_on cc.{ch}.68.127 "Enable tuner"
-@alias helix_tuner_off cc.{ch}.68.0 "Disable tuner"
-
-# ============================================
-# TEMPO AND SYNCHRONIZATION
-# ============================================
-
-# MIDI Clock
-# Helix can send/receive MIDI clock for tempo synchronization
-# Configure in Global Settings > MIDI/Tempo > MIDI Clock Send/Receive
-
-# Tempo can be set globally or per-preset depending on Global Settings
-# Time-based effects with note value divisions (1/4, 1/8, etc.) follow tempo
-
-# Manual tempo control via CC is not supported - use Tap Tempo (CC64) or MIDI Clock
+# Expression automation with modulation (EXP3)
+@alias helix_exp3_swell {ch} {start_val:0-127} {end_val:0-127} "Smooth EXP3 swell with curve"
+  - cc {ch}.3.curve({start_val}, {end_val}, ease-in-out)
+@end
 
 # ============================================
 # COMMAND CENTER MACROS
@@ -189,18 +115,18 @@ firmware_notes: |
   - cc {ch}.32.{setlist}
   [@]
   - pc {ch}.{preset}
-  
+
   # Wait for preset load (conservative timing for firmware 3.5x)
   [+350ms]
-  
+
   # Switch external amp channel (example: Marshall JVM via MIDI)
   # Amp on channel {ch}+1 to avoid conflicts
   - pc {ch}.{amp_channel}
-  
+
   # Engage external delay pedal (example: Strymon Timeline)
   # Timeline on channel {ch}+2
   - cc {ch}.71.127
-  
+
   # Load delay preset
   - pc {ch}.{delay_preset}
 @end
@@ -208,7 +134,7 @@ firmware_notes: |
 # Example: Snapshot change with external reverb mix adjustment
 @alias helix_snapshot_with_reverb {ch} {snapshot:0-7} {reverb_mix:0-127} "Change snapshot and adjust external reverb"
   - cc {ch}.69.{snapshot}
-  
+
   # External reverb (example: H90) on different channel
   # Adjust mix parameter
   [+50ms]
@@ -224,13 +150,13 @@ firmware_notes: |
 @alias helix_song_section {ch} {section_preset} {snapshot:0-7} {tempo_bpm:40-300} "Complete song section: preset + snapshot + tempo"
   # Load the preset for this song section
   - pc {ch}.{section_preset}
-  
+
   # Wait for preset load (firmware 3.10+ buffers CC69, but we wait anyway)
   [+350ms]
-  
+
   # Switch to the appropriate snapshot (verse, chorus, bridge, etc.)
   - cc {ch}.69.{snapshot}
-  
+
   # Set tempo via tap (requires conversion - send 4 taps at correct interval)
   # This is a simplified version - real implementation would calculate intervals
   [+100ms]
@@ -265,26 +191,27 @@ firmware_notes: |
 # [00:48.000]
 # - helix_snap_1              // Back to verse
 
-# Example 4: Expression pedal automation (volume swell)
-# @sweep from [00:00.000] to [00:04.000] every 16t
-#   - helix_exp1 1 ramp(0, 127)    // Gradual swell
-# @end
+# Example 4: Expression pedal automation (volume swell) - using modulation
+# [00:00.000]
+# - line6_exp_swell 1 1 0 127         // Smooth EXP1 swell with curve
 
-# Example 5: Toggle effects during performance
+# Example 5: Expression vibrato effect using wave modulation
+# [00:04.000]
+# - line6_exp_vibrato 1 1 64 2.5 20   // EXP1 vibrato: center=64, freq=2.5Hz, depth=20%
+
+# Example 6: Toggle effects during performance
 # [01:00.000]
-# - helix_fs3 1               // Toggle FS3 (maybe a delay)
+# - line6_fs3 1               // Toggle FS3 (maybe a delay)
 # [01:04.000]
-# - helix_fs7 1               // Toggle FS7 (maybe a reverb)
+# - line6_fs7 1               // Toggle FS7 (maybe a reverb)
 
-# Example 6: Looper control sequence
+# Example 7: Looper control sequence (using common library)
 # [02:00.000]
-# - helix_looper_on 1         // Enter looper mode
-# [02:00.100]
-# - helix_looper_record_rec 1 // Start recording
+# - line6_looper_start_recording 1    // Enter looper and start recording
 # [02:08.000]
-# - helix_looper_record_overdub 1  // Switch to overdub
+# - line6_looper_playback 1           // Switch to playback
 # [02:16.000]
-# - helix_looper_play 1       // Play loop
+# - line6_looper_stop_exit 1          // Stop and exit
 
 # ============================================
 # FIRMWARE-SPECIFIC RECOMMENDATIONS
@@ -306,38 +233,14 @@ firmware_notes: |
 #   - Workaround: Use Tap Tempo (CC64) after preset changes if tempo sync critical
 
 # ============================================
-# RESERVED CC NUMBERS (CANNOT BE REASSIGNED)
+# RESERVED CC NUMBERS (HELIX-SPECIFIC)
 # ============================================
 
-# DO NOT use these CC numbers for custom parameter control:
+# In addition to common reserved CCs (see line6_common.mmd):
 # CC0   - Bank Select MSB
-# CC1   - Expression Pedal 1
-# CC2   - Expression Pedal 2
-# CC3   - Expression Pedal 3
+# CC3   - Expression Pedal 3 (Helix Floor/Rack only)
 # CC32  - Bank Select LSB (Setlist selector)
-# CC49  - Footswitch 1
-# CC50  - Footswitch 2
-# CC51  - Footswitch 3
-# CC52  - Footswitch 4
-# CC53  - Footswitch 5
-# CC54  - Footswitch 7
-# CC55  - Footswitch 8
-# CC56  - Footswitch 9
-# CC57  - Footswitch 10
-# CC58  - Footswitch 11
-# CC59  - EXP Toe Switch
-# CC60  - Looper Record/Overdub
-# CC61  - Looper Play/Stop
-# CC62  - Looper Play Once
-# CC63  - Looper Undo/Redo
-# CC64  - Tap Tempo
-# CC65  - Looper Forward/Reverse
-# CC66  - Looper Speed
-# CC67  - Looper On/Off
-# CC68  - Tuner
-# CC69  - Snapshot Select
 # CC70-76 - Reserved for future use
-# CC72  - Preset Navigation
 
 # All other CC numbers (4-31, 33-48, 77-127) are available for:
 # - Block bypass control (via MIDI Learn)

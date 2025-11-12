@@ -12,20 +12,37 @@ firmware_notes: |
   - NO 5-PIN DIN MIDI - USB MIDI ONLY
   - Limited Command Center (requires firmware 3.00+)
   - Single DSP path (vs dual on full Helix)
-  
+
   TIMING REQUIREMENTS:
   - Firmware 3.5x: 350ms delay required after PC messages
   - Firmware 3.10+: CC69 buffered during preset load
-  
+
   PRESET CAPACITY: Direct PC 0-127 addressing (128 presets total)
   NO BANK SELECT NEEDED - simpler than full Helix
-  
+
   MANDATORY: Firmware 3.00+ required for Command Center functionality
   Pre-3.00 firmware lacks Command Center entirely
 ---
 
+# Import common Line 6 Helix family aliases
+@import "devices/line6_common.mmd"
+
 # ============================================
-# PRESET MANAGEMENT
+# HX STOMP-SPECIFIC FEATURES
+# ============================================
+#
+# This library extends line6_common.mmd with HX Stomp-specific features:
+# - Direct PC addressing (no Bank Select)
+# - Only 3 snapshots (0-2) - MAJOR LIMITATION
+# - 5 footswitches only
+# - USB MIDI only
+# - All Bypass feature (CC#70)
+# - Mode switching (CC#71)
+# - Workarounds for 3-snapshot limitation
+#
+
+# ============================================
+# PRESET MANAGEMENT (HX STOMP-SPECIFIC)
 # ============================================
 
 # HX Stomp uses direct Program Change addressing
@@ -33,10 +50,6 @@ firmware_notes: |
 # This is MUCH simpler than full Helix
 
 @alias hxstomp_preset pc.{ch}.{preset:0-127} "Load preset (0-127, no bank select needed)"
-
-# Preset Navigation
-@alias hxstomp_next_preset cc.{ch}.72.127 "Next preset"
-@alias hxstomp_prev_preset cc.{ch}.72.0 "Previous preset"
 
 # Combined preset + snapshot load
 @alias hxstomp_load_snapshot {ch} {preset:0-127} {snapshot:0-2} "Load preset and switch to snapshot"
@@ -47,7 +60,7 @@ firmware_notes: |
 @end
 
 # ============================================
-# SNAPSHOT CONTROL
+# SNAPSHOT CONTROL (HX STOMP: 3 SNAPSHOTS ONLY)
 # ============================================
 
 # *** CRITICAL LIMITATION: ONLY 3 SNAPSHOTS (0-2) ***
@@ -60,39 +73,6 @@ firmware_notes: |
 @alias hxstomp_snap_1 cc.{ch}.69.0 "Snapshot 1"
 @alias hxstomp_snap_2 cc.{ch}.69.1 "Snapshot 2"
 @alias hxstomp_snap_3 cc.{ch}.69.2 "Snapshot 3"
-
-# Snapshot Navigation (works with 3-snapshot limit)
-@alias hxstomp_snap_next cc.{ch}.69.8 "Next snapshot (wraps: 3→1)"
-@alias hxstomp_snap_prev cc.{ch}.69.9 "Previous snapshot (wraps: 1→3)"
-
-# ============================================
-# EXPRESSION PEDAL EMULATION
-# ============================================
-
-# HX Stomp has only 2 expression pedal inputs (vs 3 on full Helix)
-@alias hxstomp_exp1 cc.{ch}.1.{value:0-127} "Emulate EXP 1 pedal position"
-@alias hxstomp_exp2 cc.{ch}.2.{value:0-127} "Emulate EXP 2 pedal position"
-
-# Expression toe switch
-@alias hxstomp_exp_toe cc.{ch}.59.{state:0-127} "EXP toe switch (0-63=off, 64-127=on)"
-@alias hxstomp_exp_toe_on cc.{ch}.59.127 "EXP toe switch on"
-@alias hxstomp_exp_toe_off cc.{ch}.59.0 "EXP toe switch off"
-
-# ============================================
-# FOOTSWITCH EMULATION
-# ============================================
-
-# HX Stomp has only 5 footswitches (FS1-5) available for MIDI control
-# NOTE: These act as TOGGLE regardless of value sent (Helix limitation)
-
-@alias hxstomp_fs1 cc.{ch}.49.127 "Toggle Footswitch 1"
-@alias hxstomp_fs2 cc.{ch}.50.127 "Toggle Footswitch 2"
-@alias hxstomp_fs3 cc.{ch}.51.127 "Toggle Footswitch 3"
-@alias hxstomp_fs4 cc.{ch}.52.127 "Toggle Footswitch 4"
-@alias hxstomp_fs5 cc.{ch}.53.127 "Toggle Footswitch 5"
-
-# Generic footswitch control
-@alias hxstomp_footswitch cc.{ch}.{fs_cc:49-53}.{value:0-127} "Control any footswitch (FS1=49...FS5=53)"
 
 # ============================================
 # HX STOMP UNIQUE FEATURES
@@ -112,49 +92,6 @@ firmware_notes: |
 @alias hxstomp_mode_snapshot cc.{ch}.71.3 "Switch to Snapshot mode"
 @alias hxstomp_mode_next cc.{ch}.71.4 "Cycle to next footswitch mode"
 @alias hxstomp_mode_prev cc.{ch}.71.5 "Cycle to previous footswitch mode"
-
-# ============================================
-# LOOPER CONTROL
-# ============================================
-
-# Looper functionality identical to full Helix
-# All CCs use threshold-based control (0-63 vs 64-127)
-
-@alias hxstomp_looper_record cc.{ch}.60.{mode=overdub:0,record:127} "Record/Overdub mode"
-@alias hxstomp_looper_record_overdub cc.{ch}.60.0 "Set looper to overdub mode"
-@alias hxstomp_looper_record_rec cc.{ch}.60.127 "Set looper to record mode"
-
-@alias hxstomp_looper_play_stop cc.{ch}.61.{state=stop:0,play:127} "Play/Stop control"
-@alias hxstomp_looper_play cc.{ch}.61.127 "Play looper"
-@alias hxstomp_looper_stop cc.{ch}.61.0 "Stop looper"
-
-@alias hxstomp_looper_play_once cc.{ch}.62.127 "Play once (one-shot playback)"
-
-@alias hxstomp_looper_undo_redo cc.{ch}.63.127 "Undo/Redo last action"
-
-@alias hxstomp_looper_direction cc.{ch}.65.{dir=forward:0,reverse:127} "Playback direction"
-@alias hxstomp_looper_forward cc.{ch}.65.0 "Forward playback"
-@alias hxstomp_looper_reverse cc.{ch}.65.127 "Reverse playback"
-
-@alias hxstomp_looper_speed cc.{ch}.66.{speed=full:0,half:127} "Playback speed"
-@alias hxstomp_looper_full_speed cc.{ch}.66.0 "Full speed playback"
-@alias hxstomp_looper_half_speed cc.{ch}.66.127 "Half speed playback"
-
-@alias hxstomp_looper_onoff cc.{ch}.67.{state=off:0,on:127} "Looper on/off"
-@alias hxstomp_looper_on cc.{ch}.67.127 "Enable looper mode"
-@alias hxstomp_looper_off cc.{ch}.67.0 "Exit looper mode"
-
-# ============================================
-# GLOBAL FUNCTIONS
-# ============================================
-
-# Tap Tempo - values 0-63 are ignored, 64-127 register as tap
-@alias hxstomp_tap cc.{ch}.64.127 "Tap tempo (send multiple times with rhythm)"
-
-# Tuner Control - threshold-based (0-63=off, 64-127=on)
-@alias hxstomp_tuner cc.{ch}.68.{state=off:0,on:127} "Tuner on/off"
-@alias hxstomp_tuner_on cc.{ch}.68.127 "Enable tuner"
-@alias hxstomp_tuner_off cc.{ch}.68.0 "Disable tuner"
 
 # ============================================
 # WORKAROUNDS FOR 3-SNAPSHOT LIMITATION
@@ -219,7 +156,7 @@ firmware_notes: |
   - cc {ch}.69.{snapshot}
   [+50ms]
   # Control external pedal parameter
-  - cc {ch}.{pedal_cc} {pedal_value}
+  - cc {ch}.{pedal_cc}.{pedal_value}
 @end
 
 # ============================================
@@ -235,53 +172,53 @@ firmware_notes: |
   # [00:00.000]
   - pc {ch}.{intro_preset}
   - cc {ch}.69.0              # Snapshot 1: Dry
-  
+
   # Add reverb for intro build
   # [00:08.000]
   - cc {ch}.69.1              # Snapshot 2: With reverb
-  
+
   # VERSE - Mild overdrive preset
   # [00:16.000]
   - pc {ch}.{verse_preset}
   [+350ms]
   - cc {ch}.69.0              # Snapshot 1: Rhythm OD
-  
+
   # Pre-chorus build
   # [00:28.000]
   - cc {ch}.69.1              # Snapshot 2: OD + delay
-  
+
   # CHORUS - High gain preset
   # [00:32.000]
   - pc {ch}.{chorus_preset}
   [+350ms]
   - cc {ch}.69.0              # Snapshot 1: Rhythm gain
-  
+
   # Lead break
   # [00:44.000]
   - cc {ch}.69.1              # Snapshot 2: Lead gain + delay
-  
+
   # VERSE 2 - Back to verse preset
   # [00:56.000]
   - pc {ch}.{verse_preset}
   [+350ms]
   - cc {ch}.69.0
-  
+
   # BRIDGE - Ambient preset
   # [01:16.000]
   - pc {ch}.{bridge_preset}
   [+350ms]
   - cc {ch}.69.0              # Snapshot 1: Clean + reverb
-  
+
   # Bridge swell
   # [01:24.000]
   - cc {ch}.69.1              # Snapshot 2: Heavy reverb + delay
-  
+
   # FINAL CHORUS - Back to high gain
   # [01:32.000]
   - pc {ch}.{chorus_preset}
   [+350ms]
   - cc {ch}.69.2              # Snapshot 3: Epic lead tone
-  
+
   # OUTRO - Return to clean
   # [01:56.000]
   - pc {ch}.{intro_preset}
@@ -321,48 +258,35 @@ firmware_notes: |
 # [00:48.000]
 # - hxstomp_snap_1              // Back to verse
 
-# Example 2: Expression pedal volume swell
-# @sweep from [00:00.000] to [00:04.000] every 16t
-#   - hxstomp_exp1 1 ramp(0, 127)
-# @end
+# Example 2: Expression pedal volume swell with modulation
+# [00:00.000]
+# - line6_exp_swell 1 1 0 127   // Smooth EXP1 swell with ease-in-out curve
 
-# Example 3: Mode switching for temporary snapshot access
+# Example 3: Expression envelope for dynamic volume control
+# [00:04.000]
+# - line6_exp_envelope 1 1      // ADSR envelope on EXP1
+
+# Example 4: Mode switching for temporary snapshot access
 # [01:00.000]
 # - hxstomp_quick_snapshot 1 2  // Quickly change to snapshot 3 and return to Stomp mode
 
-# Example 4: Muted preset change (no gap/pop)
+# Example 5: Muted preset change (no gap/pop)
 # [01:30.000]
 # - hxstomp_section_change_with_mute 1 10
 
-# Example 5: Looper workflow
+# Example 6: Looper workflow (using common library)
 # [02:00.000]
-# - hxstomp_looper_on 1
-# [02:00.100]
-# - hxstomp_looper_record_rec 1
+# - line6_looper_start_recording 1
 # [02:08.000]
-# - hxstomp_looper_play 1
+# - line6_looper_playback 1
 
 # ============================================
 # RESERVED CC NUMBERS
 # ============================================
 
-# DO NOT use these for custom parameter control:
-# CC1   - Expression Pedal 1
-# CC2   - Expression Pedal 2
-# CC49  - Footswitch 1
-# CC50  - Footswitch 2
-# CC51  - Footswitch 3
-# CC52  - Footswitch 4
-# CC53  - Footswitch 5
-# CC59  - EXP Toe Switch
-# CC60-67 - Looper controls
-# CC64  - Tap Tempo
-# CC68  - Tuner
-# CC69  - Snapshot Select
+# In addition to common reserved CCs (see line6_common.mmd):
 # CC70  - All Bypass (HX Stomp specific)
 # CC71  - Mode Switch (HX Stomp specific)
-# CC72  - Preset Navigation
-# CC73-76 - Reserved
 
 # All other CCs available for MIDI Learn parameter/block control
 

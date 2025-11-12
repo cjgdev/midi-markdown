@@ -12,52 +12,49 @@ firmware_notes: |
   - 5-PIN DIN MIDI (full MIDI In/Out/Thru) - ADVANTAGE over HX Stomp/XL
   - Full Command Center (no CV/Ext Amp - effects only)
   - Effects processing only (no amp/cab modeling)
-  
+
   UNIQUE PRESET ADDRESSING:
   - 128 presets organized as 32 Banks × 4 Presets (A-D)
   - PC 0-3   = Bank 1 Presets A-D
   - PC 4-7   = Bank 2 Presets A-D
   - PC 124-127 = Bank 32 Presets A-D
   - Sequential addressing (no Bank Select needed)
-  
+
   TIMING REQUIREMENTS:
   - Same as other Helix: 350ms after PC (firmware 3.5x), 50ms for 3.10+
 ---
 
+# Import common Line 6 Helix family aliases
+@import "devices/line6_common.mmd"
+
 # ============================================
-# PRESET MANAGEMENT - UNIQUE ADDRESSING
+# HX EFFECTS-SPECIFIC FEATURES
+# ============================================
+#
+# This library extends line6_common.mmd with HX Effects-specific features:
+# - Sequential preset addressing (32 banks × 4 presets)
+# - 4 snapshots (0-3)
+# - 6 footswitches
+# - 5-pin DIN MIDI with Thru
+# - Effects-only focus (amp integration macros)
+#
+
+# ============================================
+# PRESET MANAGEMENT (HX EFFECTS SEQUENTIAL ADDRESSING)
 # ============================================
 
 # HX Effects uses SEQUENTIAL PRESET ADDRESSING
-# Different from both full Helix (CC32+PC) and HX Stomp (direct PC)
-# 
-# Preset Organization:
-# Bank 1:  PC 0=A, PC 1=B, PC 2=C, PC 3=D
-# Bank 2:  PC 4=A, PC 5=B, PC 6=C, PC 7=D
-# Bank 3:  PC 8=A, PC 9=B, PC 10=C, PC 11=D
-# ...
-# Bank 32: PC 124=A, PC 125=B, PC 126=C, PC 127=D
+# Formula: PC = ((Bank - 1) × 4) + Preset_Offset
+# Where Preset_Offset: A=0, B=1, C=2, D=3
 
 # Direct preset addressing
 @alias hxfx_preset pc.{ch}.{preset:0-127} "Load preset (0-127)"
-
-# Bank-based addressing helper (converts bank + preset letter to PC number)
-@alias hxfx_bank_preset {ch} {bank:1-32} {preset=a:0,b:1,c:2,d:3} "Load preset by bank and letter"
-  # Calculate PC number: ((bank - 1) * 4) + preset_offset
-  # This is a conceptual alias - actual implementation would need expression evaluation
-  # For now, users should calculate: Bank N Preset A = PC (N-1)*4
-  - pc {ch}.{preset}
-@end
 
 # Named preset shortcuts for first bank (commonly used)
 @alias hxfx_bank1_a pc.{ch}.0 "Bank 1 Preset A"
 @alias hxfx_bank1_b pc.{ch}.1 "Bank 1 Preset B"
 @alias hxfx_bank1_c pc.{ch}.2 "Bank 1 Preset C"
 @alias hxfx_bank1_d pc.{ch}.3 "Bank 1 Preset D"
-
-# Preset Navigation (moves by 1 preset)
-@alias hxfx_next_preset cc.{ch}.72.127 "Next preset (A→B→C→D→next bank A→...)"
-@alias hxfx_prev_preset cc.{ch}.72.0 "Previous preset"
 
 # Combined preset + snapshot load
 @alias hxfx_load_snapshot {ch} {preset:0-127} {snapshot:0-3} "Load preset and switch to snapshot"
@@ -74,29 +71,19 @@ firmware_notes: |
 # Bank 1:  PC 0-3    (Presets A-D)
 # Bank 2:  PC 4-7
 # Bank 3:  PC 8-11
-# Bank 4:  PC 12-15
 # Bank 5:  PC 16-19
-# Bank 6:  PC 20-23
-# Bank 7:  PC 24-27
-# Bank 8:  PC 28-31
-# Bank 9:  PC 32-35
 # Bank 10: PC 36-39
-# ...
 # Bank 32: PC 124-127
 
 # Formula: PC = ((Bank - 1) × 4) + Preset_Offset
-# Where Preset_Offset: A=0, B=1, C=2, D=3
-
 # Examples:
 # Bank 5 Preset C  = ((5-1) × 4) + 2 = 18
 # Bank 10 Preset A = ((10-1) × 4) + 0 = 36
-# Bank 15 Preset D = ((15-1) × 4) + 3 = 59
 
 # ============================================
-# SNAPSHOT CONTROL
+# SNAPSHOT CONTROL (HX EFFECTS: 4 SNAPSHOTS)
 # ============================================
 
-# HX Effects has 4 SNAPSHOTS (0-3) - same as HX Stomp XL
 @alias hxfx_snapshot cc.{ch}.69.{snap:0-3} "Switch to snapshot (0=Snap1...3=Snap4)"
 
 # Named snapshot shortcuts
@@ -104,100 +91,6 @@ firmware_notes: |
 @alias hxfx_snap_2 cc.{ch}.69.1 "Snapshot 2"
 @alias hxfx_snap_3 cc.{ch}.69.2 "Snapshot 3"
 @alias hxfx_snap_4 cc.{ch}.69.3 "Snapshot 4"
-
-# Snapshot Navigation
-@alias hxfx_snap_next cc.{ch}.69.8 "Next snapshot (wraps: 4→1)"
-@alias hxfx_snap_prev cc.{ch}.69.9 "Previous snapshot (wraps: 1→4)"
-
-# ============================================
-# EXPRESSION PEDAL EMULATION
-# ============================================
-
-@alias hxfx_exp1 cc.{ch}.1.{value:0-127} "Emulate EXP 1 pedal position"
-@alias hxfx_exp2 cc.{ch}.2.{value:0-127} "Emulate EXP 2 pedal position"
-
-# Expression toe switch
-@alias hxfx_exp_toe cc.{ch}.59.{state:0-127} "EXP toe switch (0-63=off, 64-127=on)"
-@alias hxfx_exp_toe_on cc.{ch}.59.127 "EXP toe switch on"
-@alias hxfx_exp_toe_off cc.{ch}.59.0 "EXP toe switch off"
-
-# ============================================
-# FOOTSWITCH EMULATION
-# ============================================
-
-# HX Effects has 6 FOOTSWITCHES (FS1-6)
-# NOTE: Looper documentation references different footswitch numbers (FS3, FS6)
-# These are the physical footswitch labels, not CC numbers
-
-@alias hxfx_fs1 cc.{ch}.49.127 "Toggle Footswitch 1"
-@alias hxfx_fs2 cc.{ch}.50.127 "Toggle Footswitch 2"
-@alias hxfx_fs3 cc.{ch}.51.127 "Toggle Footswitch 3"
-@alias hxfx_fs4 cc.{ch}.52.127 "Toggle Footswitch 4"
-@alias hxfx_fs5 cc.{ch}.53.127 "Toggle Footswitch 5"
-@alias hxfx_fs6 cc.{ch}.54.127 "Toggle Footswitch 6"
-
-# Generic footswitch control
-@alias hxfx_footswitch cc.{ch}.{fs_cc:49-54}.{value:0-127} "Control any footswitch (FS1=49...FS6=54)"
-
-# ============================================
-# LOOPER CONTROL
-# ============================================
-
-# HX Effects looper CCs are same as other models but with different
-# footswitch references in documentation (FS3, FS6 vs FS1, FS2)
-
-@alias hxfx_looper_record cc.{ch}.60.{mode=overdub:0,record:127} "Record/Overdub mode"
-@alias hxfx_looper_record_overdub cc.{ch}.60.0 "Set looper to overdub mode"
-@alias hxfx_looper_record_rec cc.{ch}.60.127 "Set looper to record mode"
-
-@alias hxfx_looper_play_stop cc.{ch}.61.{state=stop:0,play:127} "Play/Stop control"
-@alias hxfx_looper_play cc.{ch}.61.127 "Play looper"
-@alias hxfx_looper_stop cc.{ch}.61.0 "Stop looper"
-
-# Play Once corresponds to physical FS6 on HX Effects
-@alias hxfx_looper_play_once cc.{ch}.62.127 "Play once (one-shot playback, FS6)"
-
-# Undo/Redo corresponds to physical FS3 on HX Effects
-@alias hxfx_looper_undo_redo cc.{ch}.63.127 "Undo/Redo last action (FS3)"
-
-@alias hxfx_looper_direction cc.{ch}.65.{dir=forward:0,reverse:127} "Playback direction"
-@alias hxfx_looper_forward cc.{ch}.65.0 "Forward playback"
-@alias hxfx_looper_reverse cc.{ch}.65.127 "Reverse playback"
-
-@alias hxfx_looper_speed cc.{ch}.66.{speed=full:0,half:127} "Playback speed"
-@alias hxfx_looper_full_speed cc.{ch}.66.0 "Full speed playback"
-@alias hxfx_looper_half_speed cc.{ch}.66.127 "Half speed playback"
-
-@alias hxfx_looper_onoff cc.{ch}.67.{state=off:0,on:127} "Looper on/off"
-@alias hxfx_looper_on cc.{ch}.67.127 "Enable looper mode"
-@alias hxfx_looper_off cc.{ch}.67.0 "Exit looper mode"
-
-# ============================================
-# GLOBAL FUNCTIONS
-# ============================================
-
-@alias hxfx_tap cc.{ch}.64.127 "Tap tempo"
-
-@alias hxfx_tuner cc.{ch}.68.{state=off:0,on:127} "Tuner on/off"
-@alias hxfx_tuner_on cc.{ch}.68.127 "Enable tuner"
-@alias hxfx_tuner_off cc.{ch}.68.0 "Disable tuner"
-
-# ============================================
-# EFFECTS-ONLY WORKFLOW CONSIDERATIONS
-# ============================================
-
-# HX Effects is designed for integration with existing amp rigs
-# Key differences from full Helix:
-# - NO amp/cab modeling (effects processing only)
-# - NO External Amp switching (no Ext Amp Command Center option)
-# - NO CV Out (Command Center limitation)
-# - HAS 5-pin DIN MIDI (advantage over HX Stomp/XL)
-# - HAS full Command Center (PC, CC, CC Toggle, Note, MMC)
-
-# Typical use case: Place HX Effects in amp's effects loop
-# - Pre-amp effects (comp, drive, EQ) before amp input
-# - Post-amp effects (delay, reverb, mod) in amp's FX loop
-# - Control amp channel via Command Center MIDI
 
 # ============================================
 # COMMAND CENTER FOR AMP INTEGRATION
@@ -226,14 +119,12 @@ firmware_notes: |
 @alias hxfx_snapshot_with_pedal {ch} {snapshot:0-3} {pedal_cc} {pedal_state} "Snapshot + external pedal control"
   - cc {ch}.69.{snapshot}
   [+50ms]
-  - cc 2.{pedal_cc} {pedal_state}
+  - cc 2.{pedal_cc}.{pedal_state}
 @end
 
 # ============================================
 # 4-SNAPSHOT EFFECTS COMBINATIONS
 # ============================================
-
-# With 4 snapshots and effects-only focus, organize by effect layers
 
 # Pattern 1: Dry → Subtle → Wet → Ambient
 @alias hxfx_wetness_progression {ch} {preset} "Progressive wetness: dry to ambient"
@@ -244,84 +135,13 @@ firmware_notes: |
   # Snapshot 4: Ambient (heavy delay/reverb/mod)
 @end
 
-# Pattern 2: Clean → Compressed → Driven → Lead
-@alias hxfx_pre_amp_stages {ch} {preset} "Pre-amp effect staging"
-  - pc {ch}.{preset}
-  # Snapshot 1: Clean (comp + EQ only)
-  # Snapshot 2: Compressed (comp + light OD)
-  # Snapshot 3: Driven (comp + medium drive)
-  # Snapshot 4: Lead (comp + boost + drive)
-@end
-
-# Pattern 3: Verse → Chorus → Bridge → Solo (song sections)
+# Pattern 2: Song section presets
 @alias hxfx_song_sections {ch} {preset} "Song section presets"
   - pc {ch}.{preset}
   # Snapshot 1: Verse FX
   # Snapshot 2: Chorus FX
   # Snapshot 3: Bridge FX
   # Snapshot 4: Solo FX
-@end
-
-# ============================================
-# COMPLETE SONG WITH AMP INTEGRATION
-# ============================================
-
-# This macro demonstrates HX Effects controlling both its own effects
-# and an external MIDI-capable amp
-
-@alias hxfx_complete_song {ch} {song_preset} {amp_channel_verse} {amp_channel_chorus} {amp_channel_lead} "Full song: HX Effects + Amp control"
-  # INTRO - Clean amp, subtle effects
-  # [00:00.000]
-  - pc {ch}.{song_preset}
-  [+350ms]
-  - cc {ch}.69.0              # HX Effects Snapshot 1 (subtle)
-  [@]
-  - pc 2.{amp_channel_verse}  # Amp clean channel
-  
-  # VERSE - Same effects, maybe different amp voice
-  # [00:16.000]
-  - cc {ch}.69.1              # HX Effects Snapshot 2 (verse FX)
-  # Amp stays on clean/verse channel
-  
-  # PRE-CHORUS - Add effects, prepare for amp channel change
-  # [00:28.000]
-  - cc {ch}.69.2              # HX Effects Snapshot 3 (build FX)
-  
-  # CHORUS - Switch amp to gain channel, moderate effects
-  # [00:32.000]
-  - cc {ch}.69.2              # HX Effects Snapshot 3 (chorus FX)
-  [@]
-  - pc 2.{amp_channel_chorus} # Amp gain channel
-  
-  # VERSE 2 - Back to clean amp
-  # [00:48.000]
-  - cc {ch}.69.1              # HX Effects Snapshot 2
-  [@]
-  - pc 2.{amp_channel_verse}  # Amp clean channel
-  
-  # BRIDGE - Different effects, maybe different amp setting
-  # [01:04.000]
-  - cc {ch}.69.3              # HX Effects Snapshot 4 (ambient)
-  [@]
-  - pc 2.{amp_channel_verse}  # Keep amp clean for contrast
-  
-  # SOLO - Lead amp channel, lead effects
-  # [01:20.000]
-  - cc {ch}.69.4              # HX Effects Snapshot 4 (lead FX)
-  [@]
-  - pc 2.{amp_channel_lead}   # Amp lead channel
-  
-  # FINAL CHORUS - High energy
-  # [01:36.000]
-  - cc {ch}.69.2              # HX Effects Snapshot 3
-  [@]
-  - pc 2.{amp_channel_chorus} # Amp gain channel
-  
-  # OUTRO - Return to clean
-  # [01:52.000]
-  - cc {ch}.69.0              # HX Effects Snapshot 1
-  [@]
-  - pc 2.{amp_channel_verse}  # Amp clean channel
 @end
 
 # ============================================
@@ -343,59 +163,6 @@ firmware_notes: |
 # Configure MIDI Thru in Global Settings > MIDI/Tempo > MIDI Thru
 
 # ============================================
-# EXPRESSION PEDAL FOR AMP CHANNEL VOLUME
-# ============================================
-
-# HX Effects can control external gear via expression pedals
-# Example: Control amp's solo volume via expression pedal
-
-# NOTE: This alias is commented out because @sweep with ramp() syntax is not yet fully implemented
-# Uncomment when sweep/ramp functionality is complete
-#
-# @alias hxfx_exp_amp_solo {ch} {exp_cc} {min_vol} {max_vol} "Expression controls amp solo volume"
-#   # This requires the amp to respond to a specific CC for volume
-#   # Configure expression pedal to send that CC with appropriate range
-#
-#   # In HX Effects: assign EXP1 to send CC (via Command Center)
-#   # Then sweep the expression pedal:
-#   @sweep from [00:00.000] to [00:04.000] every 16t
-#     - cc 2.{exp_cc} ramp({min_vol}, {max_vol})
-#   @end
-# @end
-
-# ============================================
-# BANK ORGANIZATION STRATEGIES
-# ============================================
-
-# With 32 Banks × 4 Presets, organize logically:
-
-# Strategy 1: By Song (one bank per song)
-# Bank 1 (PC 0-3):   Song 1 - Intro, Verse, Chorus, Bridge
-# Bank 2 (PC 4-7):   Song 2 - Intro, Verse, Chorus, Bridge
-# Bank 3 (PC 8-11):  Song 3 - Intro, Verse, Chorus, Bridge
-# ...
-
-# Strategy 2: By Effect Type
-# Bank 1 (PC 0-3):   Delay-focused presets (A-D variations)
-# Bank 2 (PC 4-7):   Reverb-focused presets
-# Bank 3 (PC 8-11):  Modulation-focused presets
-# Bank 4 (PC 12-15): Drive-focused presets
-# ...
-
-# Strategy 3: By Setlist
-# Bank 1-4 (PC 0-15):    Set 1 songs (4 presets × 4 songs)
-# Bank 5-8 (PC 16-31):   Set 2 songs
-# Bank 9-12 (PC 32-47):  Set 3 songs
-# ...
-
-# Strategy 4: By Amp Channel Pairing
-# Bank 1 (PC 0-3):   Clean amp channel effects (A-D variations)
-# Bank 2 (PC 4-7):   Crunch amp channel effects
-# Bank 3 (PC 8-11):  Lead amp channel effects
-# Bank 4 (PC 12-15): Specialty sounds
-# ...
-
-# ============================================
 # USAGE EXAMPLES
 # ============================================
 
@@ -407,99 +174,22 @@ firmware_notes: |
 # [00:00.000]
 # - hxfx_preset 1 8               // Bank 3 Preset A
 # [00:16.000]
-# - hxfx_snap_2 1                 // Verse
+# - hxfx_snap_2                   // Verse
 # [00:32.000]
-# - hxfx_snap_3 1                 // Chorus
-# [00:48.000]
-# - hxfx_snap_4 1                 // Bridge
+# - hxfx_snap_3                   // Chorus
 
-# Example 3: Expression automation
-# @sweep from [00:00.000] to [00:08.000] every 16t
-#   - hxfx_exp1 1 ramp(0, 127)
-# @end
+# Example 3: Expression automation with modulation
+# [00:00.000]
+# - line6_exp_swell 1 1 0 127     // Smooth EXP1 swell
+# [00:04.000]
+# - line6_exp_vibrato 1 1 64 3.0 25   // EXP1 vibrato effect
 
 # Example 4: Preset with amp channel change
 # [01:00.000]
 # - hxfx_preset_with_amp 1 12 2  // Bank 4 Preset A, Amp Channel 2
 
-# Example 5: Footswitch toggles
-# [01:30.000]
-# - hxfx_fs1 1                    // Toggle delay
-# [01:32.000]
-# - hxfx_fs2 1                    // Toggle reverb
-# [01:34.000]
-# - hxfx_fs3 1                    // Toggle modulation
-
-# ============================================
-# COMPATIBLE AMPS AND CONTROLLERS
-# ============================================
-
-# MIDI-Capable Amps (can be controlled via HX Effects):
-# - Mesa Boogie Mark series (channel switching)
-# - Marshall JVM series (channel + FX loop)
-# - Peavey 6505+ (channel switching)
-# - Hughes & Kettner (comprehensive MIDI)
-# - Bogner (some models)
-# - Friedman (some models)
-# - Victory amps (MIDI jack)
-
-# Popular MIDI Controllers for HX Effects:
-# - Morningstar MC6/MC6 Pro/MC8 (excellent integration)
-# - Disaster Area Designs controllers (DMC series)
-# - RJM Music Mastermind series
-# - Voes controllers
-# - MIDI Solutions foot controllers
-
-# ============================================
-# RESERVED CC NUMBERS
-# ============================================
-
-# DO NOT use these for custom parameter control:
-# CC1   - Expression Pedal 1
-# CC2   - Expression Pedal 2
-# CC49-54 - Footswitches 1-6
-# CC59  - EXP Toe Switch
-# CC60-67 - Looper controls
-# CC64  - Tap Tempo
-# CC68  - Tuner
-# CC69  - Snapshot Select
-# CC72  - Preset Navigation
-# CC73-76 - Reserved
-
-# All other CCs available for MIDI Learn
-
-# ============================================
-# TROUBLESHOOTING
-# ============================================
-
-# Issue: "Confused by preset numbering"
-# Solution: Remember formula: PC = ((Bank-1) × 4) + Preset_Offset
-#          Bank 1 = PC 0-3, Bank 2 = PC 4-7, etc.
-#          Use calculator chart above
-
-# Issue: "Amp doesn't respond to MIDI"
-# Solution: Check amp's MIDI channel matches HX Effects
-#          Verify amp has MIDI enabled (check amp manual)
-#          Test with MIDI monitor to confirm messages sent
-#          Some amps require specific MIDI implementation
-
-# Issue: "MIDI Thru not working"
-# Solution: Enable in Global Settings > MIDI/Tempo > MIDI Thru
-#          Firmware 3.71+ required for proper Thru implementation
-#          Check MIDI cable connections
-
-# Issue: "4 snapshots not enough"
-# Solution: Use presets (32 banks × 4 = 128 total)
-#          Organize by song/section rather than tone variations
-#          Consider full Helix if need 8 snapshots
-
-# Issue: "Need CV output"
-# Solution: HX Effects lacks CV Out (effects-only design)
-#          Use full Helix Floor/Rack for CV capability
-#          Or use external MIDI-to-CV converter
-
-# Issue: "Expression pedal sluggish"
-# Solution: Calibrate in Global Settings
-#          Check expression pedal cable connection
-#          Verify pedal resistance (10K-25K required)
-#          Use expression pedal polarity setting if needed
+# Example 5: Looper workflow (using common library)
+# [02:00.000]
+# - line6_looper_start_recording 1
+# [02:08.000]
+# - line6_looper_playback 1

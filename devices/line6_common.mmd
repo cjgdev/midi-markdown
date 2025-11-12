@@ -1,0 +1,260 @@
+---
+device: Line 6 Common Library
+manufacturer: Line 6
+version: 1.0.0
+description: Shared aliases for Line 6 Helix family devices
+compatible_devices:
+  - Helix Floor/LT/Rack
+  - HX Stomp
+  - HX Stomp XL
+  - HX Effects
+---
+
+# ============================================
+# LINE 6 HELIX FAMILY - COMMON LIBRARY
+# ============================================
+#
+# This library contains aliases shared across all Line 6 Helix family devices.
+# Individual device libraries import this file and add device-specific features.
+#
+# COMMON FEATURES ACROSS ALL DEVICES:
+# - Expression pedal control (CC#1, CC#2)
+# - Looper control (CC#60-67)
+# - Tap tempo (CC#64)
+# - Tuner (CC#68)
+# - Snapshot selection (CC#69)
+# - Preset navigation (CC#72)
+#
+# DEVICE-SPECIFIC DIFFERENCES (handled in individual libraries):
+# - Preset addressing (Bank Select vs Direct PC)
+# - Snapshot count (3, 4, or 8)
+# - Footswitch count (5, 6, 8, or 11)
+# - Expression pedal count (2 or 3)
+# - MIDI connectivity (USB-only vs DIN+USB)
+# - Unique features (All Bypass, Mode switching, etc.)
+#
+
+# ============================================
+# EXPRESSION PEDAL EMULATION
+# ============================================
+
+# External MIDI controllers send these CCs to emulate physical expression pedals
+# Any parameter assigned to EXP1/2 responds to these CCs
+
+@alias line6_exp1 cc.{ch}.1.{value:0-127} "Emulate EXP 1 pedal position"
+
+@alias line6_exp2 cc.{ch}.2.{value:0-127} "Emulate EXP 2 pedal position"
+
+# Expression toe switch (typically used for wah engage)
+@alias line6_exp_toe cc.{ch}.59.{state:0-127} "EXP toe switch (0-63=off, 64-127=on)"
+@alias line6_exp_toe_on cc.{ch}.59.127 "EXP toe switch on"
+@alias line6_exp_toe_off cc.{ch}.59.0 "EXP toe switch off"
+
+# ============================================
+# LOOPER CONTROL (COMMON TO ALL DEVICES)
+# ============================================
+
+# All looper CCs use threshold-based control (0-63 vs 64-127)
+
+@alias line6_looper_record cc.{ch}.60.{mode=overdub:0,record:127} "Record/Overdub mode"
+@alias line6_looper_record_overdub cc.{ch}.60.0 "Set looper to overdub mode"
+@alias line6_looper_record_rec cc.{ch}.60.127 "Set looper to record mode"
+
+@alias line6_looper_play_stop cc.{ch}.61.{state=stop:0,play:127} "Play/Stop control"
+@alias line6_looper_play cc.{ch}.61.127 "Play looper"
+@alias line6_looper_stop cc.{ch}.61.0 "Stop looper"
+
+@alias line6_looper_play_once cc.{ch}.62.127 "Play once (one-shot playback)"
+
+@alias line6_looper_undo_redo cc.{ch}.63.127 "Undo/Redo last action"
+
+@alias line6_looper_direction cc.{ch}.65.{dir=forward:0,reverse:127} "Playback direction"
+@alias line6_looper_forward cc.{ch}.65.0 "Forward playback"
+@alias line6_looper_reverse cc.{ch}.65.127 "Reverse playback"
+
+@alias line6_looper_speed cc.{ch}.66.{speed=full:0,half:127} "Playback speed"
+@alias line6_looper_full_speed cc.{ch}.66.0 "Full speed playback"
+@alias line6_looper_half_speed cc.{ch}.66.127 "Half speed playback"
+
+@alias line6_looper_onoff cc.{ch}.67.{state=off:0,on:127} "Looper on/off"
+@alias line6_looper_on cc.{ch}.67.127 "Enable looper mode"
+@alias line6_looper_off cc.{ch}.67.0 "Exit looper mode"
+
+# ============================================
+# GLOBAL FUNCTIONS (COMMON)
+# ============================================
+
+# Tap Tempo - values 0-63 are ignored, 64-127 register as tap
+@alias line6_tap cc.{ch}.64.127 "Tap tempo (send multiple times with rhythm)"
+
+# Tuner Control - threshold-based (0-63=off, 64-127=on)
+@alias line6_tuner cc.{ch}.68.{state=off:0,on:127} "Tuner on/off"
+@alias line6_tuner_on cc.{ch}.68.127 "Enable tuner"
+@alias line6_tuner_off cc.{ch}.68.0 "Disable tuner"
+
+# ============================================
+# SNAPSHOT CONTROL (COMMON CC, DIFFERENT RANGES)
+# ============================================
+
+# Direct Snapshot Selection (CC#69)
+# Range varies by device: Helix (0-7), HX Stomp (0-2), HX Effects/Stomp XL (0-3)
+# Device-specific libraries provide constrained versions
+
+@alias line6_snapshot cc.{ch}.69.{snap:0-7} "Switch to snapshot (range depends on device)"
+
+# Snapshot Navigation (common across all devices)
+@alias line6_snap_next cc.{ch}.69.8 "Next snapshot"
+@alias line6_snap_prev cc.{ch}.69.9 "Previous snapshot"
+
+# ============================================
+# PRESET NAVIGATION (COMMON)
+# ============================================
+
+# Preset navigation works on all devices (moves by 1 preset)
+@alias line6_next_preset cc.{ch}.72.127 "Next preset"
+@alias line6_prev_preset cc.{ch}.72.0 "Previous preset"
+
+# ============================================
+# FOOTSWITCH EMULATION (COMMON CCs)
+# ============================================
+
+# NOTE: These act as TOGGLE regardless of value sent (Helix limitation)
+# Send any value 64-127 to toggle the footswitch state
+# Number of available footswitches varies by device
+
+@alias line6_fs1 cc.{ch}.49.127 "Toggle Footswitch 1"
+@alias line6_fs2 cc.{ch}.50.127 "Toggle Footswitch 2"
+@alias line6_fs3 cc.{ch}.51.127 "Toggle Footswitch 3"
+@alias line6_fs4 cc.{ch}.52.127 "Toggle Footswitch 4"
+@alias line6_fs5 cc.{ch}.53.127 "Toggle Footswitch 5"
+
+# Additional footswitches (not available on all devices)
+@alias line6_fs6 cc.{ch}.54.127 "Toggle Footswitch 6 (HX Effects, Helix)"
+@alias line6_fs7 cc.{ch}.55.127 "Toggle Footswitch 7 (HX Stomp XL, Helix)"
+@alias line6_fs8 cc.{ch}.56.127 "Toggle Footswitch 8 (HX Stomp XL, Helix)"
+
+# Full Helix only (FS9-11)
+@alias line6_fs9 cc.{ch}.57.127 "Toggle Footswitch 9 (Helix only)"
+@alias line6_fs10 cc.{ch}.58.127 "Toggle Footswitch 10 (Helix only)"
+@alias line6_fs11 cc.{ch}.59.127 "Toggle Footswitch 11 (Helix only)"
+
+# Generic footswitch control with variable CC value
+@alias line6_footswitch cc.{ch}.{fs_cc:49-59}.{value:0-127} "Control any footswitch"
+
+# ============================================
+# EXPRESSION AUTOMATION WITH MODULATION
+# ============================================
+
+# Using latest MMD modulation features for smooth expression control
+
+# Smooth expression swell with ease-in-out curve
+@alias line6_exp_swell {ch} {exp_num:1-2} {start_val:0-127} {end_val:0-127} "Smooth expression swell with curve"
+  - cc {ch}.{exp_num}.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+# Expression vibrato using wave modulation
+@alias line6_exp_vibrato {ch} {exp_num:1-2} {center:0-127} {freq:0.1-10.0} {depth:0-100} "Expression vibrato with LFO"
+  - cc {ch}.{exp_num}.wave(sine, {center}, freq={freq}, depth={depth})
+@end
+
+# Expression envelope for dynamic swells
+@alias line6_exp_envelope {ch} {exp_num:1-2} "Expression ADSR envelope"
+  - cc {ch}.{exp_num}.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+@end
+
+# ============================================
+# LOOPER WORKFLOW MACROS
+# ============================================
+
+# Complete looper recording workflow
+@alias line6_looper_start_recording {ch} "Start looper recording sequence"
+  - cc {ch}.67.127              # Enable looper mode
+  [+100ms]
+  - cc {ch}.60.127              # Start recording
+@end
+
+# Complete looper playback workflow
+@alias line6_looper_playback {ch} "Start looper playback"
+  - cc {ch}.60.0                # Switch to overdub mode
+  [+50ms]
+  - cc {ch}.61.127              # Play
+@end
+
+# Stop and exit looper
+@alias line6_looper_stop_exit {ch} "Stop looper and exit"
+  - cc {ch}.61.0                # Stop playback
+  [+50ms]
+  - cc {ch}.67.0                # Exit looper mode
+@end
+
+# ============================================
+# TAP TEMPO HELPERS
+# ============================================
+
+# Send tap tempo sequence at specific BPM (4 taps)
+@alias line6_set_tempo_tap {ch} {bpm:40-300} "Set tempo via tap sequence (4 taps)"
+  {interval_ms = int(60000 / ${bpm})}
+  - cc {ch}.64.127
+  [+{interval_ms}ms]
+  - cc {ch}.64.127
+  [+{interval_ms}ms]
+  - cc {ch}.64.127
+  [+{interval_ms}ms]
+  - cc {ch}.64.127
+@end
+
+# ============================================
+# RESERVED CC NUMBERS (COMMON)
+# ============================================
+
+# DO NOT use these CC numbers for custom parameter control:
+# CC1   - Expression Pedal 1
+# CC2   - Expression Pedal 2
+# CC49  - Footswitch 1
+# CC50  - Footswitch 2
+# CC51  - Footswitch 3
+# CC52  - Footswitch 4
+# CC53  - Footswitch 5
+# CC54  - Footswitch 6/7
+# CC55  - Footswitch 7/8
+# CC56  - Footswitch 8/9
+# CC57  - Footswitch 9/10
+# CC58  - Footswitch 10/11
+# CC59  - EXP Toe Switch
+# CC60  - Looper Record/Overdub
+# CC61  - Looper Play/Stop
+# CC62  - Looper Play Once
+# CC63  - Looper Undo/Redo
+# CC64  - Tap Tempo
+# CC65  - Looper Forward/Reverse
+# CC66  - Looper Speed
+# CC67  - Looper On/Off
+# CC68  - Tuner
+# CC69  - Snapshot Select
+# CC72  - Preset Navigation
+# CC73-76 - Reserved for future use
+
+# All other CC numbers are available for:
+# - Block bypass control (via MIDI Learn)
+# - Parameter control (via MIDI Learn)
+# - Custom assignments per preset
+
+# ============================================
+# USAGE NOTES
+# ============================================
+
+# This common library provides shared functionality across the Line 6 Helix family.
+# Import this library in device-specific files like this:
+#
+# @import "devices/line6_common.mmd"
+#
+# Then add device-specific aliases for:
+# - Preset addressing (varies by device)
+# - Snapshot count constraints (3, 4, or 8)
+# - Device-unique features (All Bypass, Mode switching, etc.)
+#
+# See individual device libraries for complete examples:
+# - helix.mmd - Full Helix Floor/LT/Rack
+# - hx_stomp.mmd - HX Stomp
+# - hx_stomp_xl.mmd - HX Stomp XL
+# - hx_effects.mmd - HX Effects
