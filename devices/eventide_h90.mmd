@@ -584,6 +584,91 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
   - cc {ch}.84.{midi_val}
 @end
 
+# ============================================================================
+# CONTINUOUS CONTROL MODULATION (ADVANCED)
+# ============================================================================
+
+/*
+ * Advanced parameter control using MMD's modulation features.
+ * These demonstrate smooth, musical parameter changes with curves, waves,
+ * and envelopes for expression pedals, HotKnobs, and Performance parameters.
+ *
+ * IMPORTANT: Due to firmware 1.9.4+ PC+CC bug, these work best when NOT
+ * combined with Program Change messages. Use within a single Program, or
+ * add 100ms delay after PC before using modulation.
+ */
+
+# Expression pedal swells with Bezier curves
+@alias h90_expression_swell {ch} {start_val:0-127} {end_val:0-127} "Smooth expression swell with ease-in-out"
+  - cc {ch}.11.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+@alias h90_expression_fade_in {ch} "Expression fade in from 0 to 127"
+  - cc {ch}.11.curve(0, 127, ease-out)
+@end
+
+@alias h90_expression_fade_out {ch} "Expression fade out from 127 to 0"
+  - cc {ch}.11.curve(127, 0, ease-in)
+@end
+
+# Expression vibrato using wave modulation
+@alias h90_expression_vibrato {ch} {center:0-127} {freq:0.5-8.0} {depth:10-50} "Expression vibrato with sine wave"
+  - cc {ch}.11.wave(sine, {center}, freq={freq}, depth={depth})
+@end
+
+# Expression envelope for dynamic swells
+@alias h90_expression_envelope {ch} "Expression ADSR envelope"
+  - cc {ch}.11.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
+@end
+
+@alias h90_expression_ar {ch} {attack:0.01-2.0} {release:0.1-3.0} "Expression AR envelope"
+  - cc {ch}.11.envelope(ar, attack={attack}, release={release})
+@end
+
+# HotKnob modulation (smooth parameter changes)
+@alias h90_hotknob_program_swell {ch} {start_val:0-127} {end_val:0-127} "Program HotKnob swell"
+  - cc {ch}.34.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+@alias h90_hotknob_a_swell {ch} {start_val:0-127} {end_val:0-127} "Preset A HotKnob swell"
+  - cc {ch}.35.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+@alias h90_hotknob_b_swell {ch} {start_val:0-127} {end_val:0-127} "Preset B HotKnob swell"
+  - cc {ch}.36.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+# Mix parameter modulation (smooth wet/dry transitions)
+@alias h90_mix_fade_in {ch} "Mix fade in from dry to wet"
+  - cc {ch}.84.curve(0, 127, ease-out)
+@end
+
+@alias h90_mix_fade_out {ch} "Mix fade out from wet to dry"
+  - cc {ch}.84.curve(127, 0, ease-in)
+@end
+
+@alias h90_mix_swell {ch} {start_val:0-127} {end_val:0-127} "Mix swell with smooth curve"
+  - cc {ch}.84.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+# Mix tremolo effect (rhythmic wet/dry modulation)
+@alias h90_mix_tremolo {ch} {center:64} {freq:1.0-8.0} {depth:30-80} "Mix tremolo with LFO"
+  - cc {ch}.84.wave(sine, {center}, freq={freq}, depth={depth})
+@end
+
+# Performance parameter modulation
+@alias h90_perform1_swell {ch} {start_val:0-127} {end_val:0-127} "Performance 1 smooth swell"
+  - cc {ch}.70.curve({start_val}, {end_val}, ease-in-out)
+@end
+
+@alias h90_perform1_vibrato {ch} {center:64} {freq:0.5-5.0} {depth:20-60} "Performance 1 vibrato"
+  - cc {ch}.70.wave(sine, {center}, freq={freq}, depth={depth})
+@end
+
+@alias h90_perform1_envelope {ch} "Performance 1 ADSR envelope"
+  - cc {ch}.70.envelope(adsr, attack=0.3, decay=0.2, sustain=0.8, release=0.5)
+@end
+
 /*
  * Gain controls for input/output levels.
  * RECOMMENDED GLOBAL CC MAPPINGS:
@@ -834,6 +919,78 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
   - cc {ch}.105.127
   [+50ms]
   - cc {ch}.107.127
+@end
+
+
+# ============================================================================
+# DELAY WARPING WORKAROUNDS
+# ============================================================================
+
+/*
+ * Program changes cause audible pitch/time warping on delay trails.
+ * These helpers minimize the warping effect using mix crossfades.
+ *
+ * ISSUE: Delay algorithms (Tape Echo, Head Space, Reverse) warp pitch/time
+ * when Programs change due to DSP reinitialization.
+ *
+ * SOLUTIONS:
+ * 1. Use HotSwitches to change delay parameters within a Program
+ * 2. Use crossfading algorithms (Digital Delay)
+ * 3. Crossfade to dry before Program change, then back to wet
+ * 4. Turn off spillover if warping is unacceptable
+ *
+ * These aliases implement solution #3 using MMD's curve modulation.
+ */
+
+@alias h90_program_change_crossfade {ch} {program} "Load Program with mix crossfade to hide delay warping"
+  # Fade to dry
+  - cc {ch}.84.curve(127, 0, ease-in)
+
+  # Wait for fade, then change Program
+  [+300ms]
+  - pc {ch}.{program}
+
+  # Wait for Program to load
+  [+1000ms]
+
+  # Fade back to wet
+  - cc {ch}.84.curve(0, 127, ease-out)
+@end
+
+@alias h90_program_change_fast_crossfade {ch} {program} "Fast Program change with minimal crossfade"
+  # Quick fade to dry
+  - cc {ch}.84.curve(127, 0, ease-in)
+
+  # Immediate Program change
+  [+150ms]
+  - pc {ch}.{program}
+
+  # Quick fade back
+  [+500ms]
+  - cc {ch}.84.curve(0, 127, ease-out)
+@end
+
+@alias h90_hotswitch_delay_transition {ch} {hotswitch_num} "Use HotSwitch for delay changes within Program (no warping)"
+  @if {hotswitch_num} == 1
+    - cc {ch}.110.127
+  @elif {hotswitch_num} == 2
+    - cc {ch}.112.127
+  @elif {hotswitch_num} == 3
+    - cc {ch}.114.127
+  @end
+@end
+
+/*
+ * Spillover-aware Program loading
+ * Accounts for spillover time to prevent slow switching
+ */
+@alias h90_load_after_spillover {ch} {program} "Load Program after spillover window (faster loading)"
+  # Wait for spillover to complete (adjust based on your spillover setting)
+  # Default assumes 5 second spillover
+  [+5500ms]
+
+  # Now load Program (will be faster outside spillover window)
+  - pc {ch}.{program}
 @end
 
 
