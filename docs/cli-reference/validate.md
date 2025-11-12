@@ -805,7 +805,7 @@ mmdc compile song.mmd --format table
 - [compile command](compile.md) - Full compilation with output
 - [inspect command](inspect.md) - Analyze compiled events
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Common validation errors
-- [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
+- [MML Syntax Reference](../user-guide/mmd-syntax.md) - Complete syntax guide
 - [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---

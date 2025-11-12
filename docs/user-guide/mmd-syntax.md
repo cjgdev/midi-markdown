@@ -3,7 +3,7 @@
 > **Audience**: Users
 > **Level**: Beginner to Intermediate
 
-Complete reference for MIDI Markdown (MML) syntax. This document covers all syntax elements, timing formats, MIDI commands, and directives.
+Complete reference for MIDI Markdown (MMD) syntax. This document covers all syntax elements, timing formats, MIDI commands, and directives.
 
 ## Table of Contents
 

@@ -49,4 +49,4 @@ mmdc compile song.mmd --format json -o events.json
 
 - [CLI Reference Overview](../cli-reference/overview.md) - Detailed command documentation
 - [Getting Started](../getting-started/quickstart.md) - Introduction to MMD
-- [User Guide](../user-guide/mml-syntax.md) - MMD syntax reference
+- [User Guide](../user-guide/mmd-syntax.md) - MMD syntax reference

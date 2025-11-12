@@ -1,6 +1,6 @@
 # Line 6 Helix Family - MMD Device Profiles
 
-This directory contains comprehensive MIDI Markdown (MML) device profiles for the complete Line 6 Helix family of guitar processors. Each profile provides extensive MIDI control capabilities with detailed documentation and usage examples.
+This directory contains comprehensive MIDI Markdown (MMD) device profiles for the complete Line 6 Helix family of guitar processors. Each profile provides extensive MIDI control capabilities with detailed documentation and usage examples.
 
 ## Quick Selection Guide
 

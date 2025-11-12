@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document describes the complete architecture of the MIDI Markdown (MML) compiler, including the compilation pipeline, core components, data structures, and runtime playback system.
+This document describes the complete architecture of the MIDI Markdown (MMD) compiler, including the compilation pipeline, core components, data structures, and runtime playback system.
 
 ---
 

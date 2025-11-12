@@ -19,7 +19,7 @@
 
 ## Introduction
 
-MIDI Markdown (MML) is a human-readable, text-based format for creating and automating MIDI sequences. The implementation follows a **multi-stage compilation pipeline** that transforms MMD source code into executable MIDI output or real-time playback.
+MIDI Markdown (MMD) is a human-readable, text-based format for creating and automating MIDI sequences. The implementation follows a **multi-stage compilation pipeline** that transforms MMD source code into executable MIDI output or real-time playback.
 
 This document provides a comprehensive overview of the architecture, intended for developers who want to understand, maintain, or extend the codebase.
 

@@ -714,7 +714,7 @@ Checking syntax: song.mmd
 - [validate command](validate.md) - Full validation with semantic checks
 - [compile command](compile.md) - Complete compilation with output
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Common parse errors
-- [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
+- [MML Syntax Reference](../user-guide/mmd-syntax.md) - Complete syntax guide
 - [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---

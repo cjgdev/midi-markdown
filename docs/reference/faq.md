@@ -9,7 +9,7 @@ Quick answers to common questions about MIDI Markdown.
 
 ## General Questions
 
-### What is MIDI Markdown (MML)?
+### What is MIDI Markdown (MMD)?
 
 MML is a human-readable, text-based format for creating MIDI sequences. It uses Markdown-inspired syntax to define MIDI events with precise timing, making it ideal for:
 
@@ -822,7 +822,7 @@ A Discord server may be created if there's sufficient community interest.
 - [First Song Tutorial](../getting-started/first-song.md) - Step-by-step song creation
 - [Troubleshooting Guide](troubleshooting.md) - Common issues and solutions
 - [CLI Reference](../cli-reference/overview.md) - All commands documented
-- [MML Syntax Guide](../user-guide/mml-syntax.md) - Complete syntax reference
+- [MML Syntax Guide](../user-guide/mmd-syntax.md) - Complete syntax reference
 
 ---
 

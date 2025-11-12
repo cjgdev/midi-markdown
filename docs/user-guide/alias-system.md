@@ -13,7 +13,7 @@
 
 ## Introduction
 
-The MIDI Markdown (MML) alias system allows you to create reusable, named shortcuts for common MIDI command sequences. Instead of writing repetitive MIDI commands, you can define an alias once and use it throughout your document with different parameters.
+The MIDI Markdown (MMD) alias system allows you to create reusable, named shortcuts for common MIDI command sequences. Instead of writing repetitive MIDI commands, you can define an alias once and use it throughout your document with different parameters.
 
 **Why use aliases?**
 

@@ -1,4 +1,4 @@
-# MIDI Markdown (MML) Specification
+# MIDI Markdown (MMD) Specification
 **Version 1.0.0**
 
 ## Table of Contents
@@ -19,7 +19,7 @@
 
 ## Introduction
 
-MIDI Markdown (MML) is a human-readable, text-based format for creating and automating MIDI sequences. It's designed specifically for live performance automation, particularly for devices like the Neural DSP Quad Cortex and Eventide H90, but supports all MIDI commands and devices.
+MIDI Markdown (MMD) is a human-readable, text-based format for creating and automating MIDI sequences. It's designed specifically for live performance automation, particularly for devices like the Neural DSP Quad Cortex and Eventide H90, but supports all MIDI commands and devices.
 
 ### Key Features
 - **Human-readable syntax** inspired by Markdown

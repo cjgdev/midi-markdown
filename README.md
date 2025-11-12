@@ -22,7 +22,7 @@
 ## Table of Contents
 
 - [What is MIDI Markdown?](#what-is-midi-markup-language)
-- [Why MML?](#why-mml)
+- [Why MMD?](#why-mml)
 - [Key Features](#key-features)
 - [Quick Example](#quick-example)
 - [Getting Started](#getting-started)
@@ -39,9 +39,9 @@
 
 **The Problem**: Musicians struggle with MIDI automation for live performances. A single preset change requires manually programming 3+ MIDI commands (Bank MSB, Bank LSB, Program Change). Traditional solutions—DAWs, raw MIDI files—are either not portable or completely unreadable.
 
-**The Solution**: MIDI Markdown (MML) provides human-readable, text-based MIDI automation designed specifically for live performance. Instead of cryptic hex values and binary files, you write semantic commands like `cortex_load 1.2.0.5` that compile to precise MIDI sequences.
+**The Solution**: MIDI Markdown (MMD) provides human-readable, text-based MIDI automation designed specifically for live performance. Instead of cryptic hex values and binary files, you write semantic commands like `cortex_load 1.2.0.5` that compile to precise MIDI sequences.
 
-**Why Choose MML?**
+**Why Choose MMD?**
 
 - **Device aliases**: Write `cortex_load 1.2.0.5` instead of 3 cryptic MIDI commands (Bank MSB, LSB, PC)
 - **Version control**: Commit your automation to Git alongside your setlists—see exactly what changed between gigs
@@ -53,16 +53,16 @@
 **Example: From Chaos to Clarity**
 
 ```markdown
-# Without MML: cryptic raw MIDI
+# Without MMD: cryptic raw MIDI
 - cc 1.32.2    # Bank MSB (what does this do?)
 - cc 1.0.0     # Bank LSB (no idea!)
 - pc 1.5       # Program Change (which preset?)
 
-# With MML: semantic, obvious
+# With MMD: semantic, obvious
 - cortex_load 1.2.0.5  # Load Setlist 2, Group A, Preset 5
 ```
 
-## Why MML?
+## Why MMD?
 
 If you're currently managing MIDI automation for live performance, you might be wondering why MMD is better than other approaches. Here's how it compares:
 
@@ -75,7 +75,7 @@ If you're currently managing MIDI automation for live performance, you might be 
 | **Reusability** | Copy-paste error-prone | Project-locked | No structure | Aliases & imports ✓ |
 | **Real-time Editing** | ❌ Not possible | Requires DAW running | ❌ Not possible | Interactive TUI ✓ |
 
-**Why musicians choose MML:**
+**Why musicians choose MMD:**
 
 - **Version control**: Commit your automation to Git alongside your setlists. See exactly what changed between gigs.
 - **Portable**: Same automation works across any MIDI device. Use Quad Cortex one night, Helix the next—no rewiring needed.
@@ -173,7 +173,7 @@ This is what makes MMD special: **device automation becomes readable, reusable, 
 
 ## Getting Started
 
-New to MML? Check out the [Getting Started Guide](docs/getting-started.md) for a 5-minute tutorial.
+New to MMD? Check out the [Getting Started Guide](docs/getting-started.md) for a 5-minute tutorial.
 
 ## Installation
 
