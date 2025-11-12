@@ -53,6 +53,10 @@ class RealtimePlayer:
         )
         self._build_tempo_map()
 
+        # Get time signature for musical navigation
+        self.time_signature = ir_program.metadata.get("time_signature", (4, 4))
+        self.ppq = ir_program.resolution
+
         # Create scheduler and store all scheduled events for seeking
         self.scheduler = EventScheduler(self.midi_output)
         self._all_scheduled_events: list[ScheduledEvent] = []
@@ -109,6 +113,71 @@ class RealtimePlayer:
 
         # Delegate to scheduler
         self.scheduler.seek(target_time_ms, self._all_scheduled_events)
+
+    def seek_bars(self, bar_offset: int, current_position_ms: float) -> float:
+        """Seek forward or backward by a number of bars.
+
+        Args:
+            bar_offset: Number of bars to seek (positive=forward, negative=backward)
+            current_position_ms: Current playback position in milliseconds
+
+        Returns:
+            New position in milliseconds after seeking
+
+        Example:
+            >>> new_pos = player.seek_bars(1, 5000.0)  # Seek forward 1 bar
+            >>> new_pos = player.seek_bars(-2, 10000.0)  # Seek backward 2 bars
+        """
+        # Calculate ticks per bar
+        beats_per_bar = self.time_signature[0]
+        ticks_per_bar = beats_per_bar * self.ppq
+
+        # Convert current position to ticks
+        current_ticks = self.tempo_tracker.ms_to_ticks(current_position_ms)
+
+        # Calculate new position in ticks
+        new_ticks = current_ticks + (bar_offset * ticks_per_bar)
+        new_ticks = max(0, new_ticks)  # Clamp to valid range
+
+        # Convert back to milliseconds
+        new_position_ms = self.tempo_tracker.ticks_to_ms(new_ticks)
+
+        # Perform the seek
+        self.seek(new_position_ms)
+
+        return new_position_ms
+
+    def seek_beats(self, beat_offset: int, current_position_ms: float) -> float:
+        """Seek forward or backward by a number of beats.
+
+        Args:
+            beat_offset: Number of beats to seek (positive=forward, negative=backward)
+            current_position_ms: Current playback position in milliseconds
+
+        Returns:
+            New position in milliseconds after seeking
+
+        Example:
+            >>> new_pos = player.seek_beats(4, 5000.0)  # Seek forward 4 beats
+            >>> new_pos = player.seek_beats(-1, 10000.0)  # Seek backward 1 beat
+        """
+        # Calculate ticks per beat
+        ticks_per_beat = self.ppq
+
+        # Convert current position to ticks
+        current_ticks = self.tempo_tracker.ms_to_ticks(current_position_ms)
+
+        # Calculate new position in ticks
+        new_ticks = current_ticks + (beat_offset * ticks_per_beat)
+        new_ticks = max(0, new_ticks)  # Clamp to valid range
+
+        # Convert back to milliseconds
+        new_position_ms = self.tempo_tracker.ticks_to_ms(new_ticks)
+
+        # Perform the seek
+        self.seek(new_position_ms)
+
+        return new_position_ms
 
     def get_duration_ms(self) -> float:
         """Get total duration in milliseconds.

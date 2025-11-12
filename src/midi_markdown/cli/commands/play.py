@@ -248,11 +248,63 @@ def _play_with_tui(
         new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
         tui_state.update_position(new_pos_ms, new_ticks)
 
+    def on_seek_beat_forward() -> None:
+        """Seek forward by 1 beat."""
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+
+        # Seek forward 1 beat
+        new_pos_ms = player.seek_beats(1, current_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
+    def on_seek_beat_backward() -> None:
+        """Seek backward by 1 beat."""
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+
+        # Seek backward 1 beat
+        new_pos_ms = player.seek_beats(-1, current_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
+    def on_seek_bar_forward() -> None:
+        """Seek forward by 1 bar."""
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+
+        # Seek forward 1 bar
+        new_pos_ms = player.seek_bars(1, current_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
+    def on_seek_bar_backward() -> None:
+        """Seek backward by 1 bar."""
+        snapshot = tui_state.get_state_snapshot()
+        current_pos_ms = snapshot["position_ms"]
+
+        # Seek backward 1 bar
+        new_pos_ms = player.seek_bars(-1, current_pos_ms)
+
+        # Update TUI state position
+        new_ticks = player.tempo_tracker.ms_to_ticks(new_pos_ms)
+        tui_state.update_position(new_pos_ms, new_ticks)
+
     keyboard_handler = KeyboardInputHandler(
         on_play_pause=on_play_pause,
         on_quit=on_quit,
         on_seek_forward=on_seek_forward,
         on_seek_backward=on_seek_backward,
+        on_seek_beat_forward=on_seek_beat_forward,
+        on_seek_beat_backward=on_seek_beat_backward,
+        on_seek_bar_forward=on_seek_bar_forward,
+        on_seek_bar_backward=on_seek_bar_backward,
     )
 
     # Start display and keyboard listener
