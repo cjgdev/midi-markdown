@@ -15,9 +15,12 @@ This directory contains Claude Code Agent Skills for working with MIDI Markdown 
 - Troubleshooting MMD validation errors
 
 **Files**:
-- `SKILL.md` - Main instructions and quick reference
+- `SKILL.md` (359 lines) - Main instructions and quick reference
 - `REFERENCE.md` - Complete syntax reference
 - `EXAMPLES.md` - Pattern library with working examples
+- `TROUBLESHOOTING.md` - Error diagnosis and solutions
+- `scripts/validate_syntax.py` - Quick syntax validation script
+- `scripts/generate_template.py` - MMD template generator
 
 ### 2. mmdc-cli-usage
 
@@ -31,7 +34,35 @@ This directory contains Claude Code Agent Skills for working with MIDI Markdown 
 - Troubleshooting compilation errors
 
 **Files**:
-- `SKILL.md` - Complete CLI reference and workflows
+- `SKILL.md` (460 lines) - Complete CLI reference and workflows
+
+### 3. mmd-debugging
+
+**Purpose**: Troubleshoot and debug MIDI Markdown files including validation errors, timing issues, and compilation failures.
+
+**Use when**:
+- Encountering MMD errors or validation failures
+- Timing or value range issues
+- Unexpected behavior in MMD files
+- Need systematic debugging approach
+- Creating minimal reproductions
+
+**Files**:
+- `SKILL.md` (425 lines) - Comprehensive debugging guide
+
+### 4. device-library-creation
+
+**Purpose**: Create custom MIDI device libraries with aliases, parameters, and documentation for hardware.
+
+**Use when**:
+- Creating device-specific aliases
+- Documenting MIDI implementations
+- Building reusable command libraries
+- Supporting new hardware devices
+- Organizing complex MIDI workflows
+
+**Files**:
+- `SKILL.md` (475 lines) - Complete library creation guide
 
 ## Skill Structure
 
@@ -153,5 +184,17 @@ For issues with skills:
 ---
 
 **Last Updated**: 2025-11-12
-**Skills Version**: 1.0.0 (compliant with Anthropic specification)
+**Skills Version**: 1.1.0 (4 skills with utilities and troubleshooting)
 **Status**: Production-ready
+
+## Skill Summary
+
+| Skill | Lines | Purpose |
+|-------|-------|---------|
+| mmd-writing | 359 | Write MMD files with correct syntax |
+| mmdc-cli-usage | 460 | Use mmdc CLI tools |
+| mmd-debugging | 425 | Troubleshoot and debug MMD |
+| device-library-creation | 475 | Create custom device libraries |
+
+**Total**: 4 skills, 1,719 lines of core instructions
+**Additional**: 2 utility scripts, 1 troubleshooting guide, 3 reference documents
