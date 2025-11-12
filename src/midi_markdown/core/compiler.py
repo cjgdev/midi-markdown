@@ -49,9 +49,21 @@ def compile_ast_to_ir(
     tempo = document.frontmatter.get("tempo", 120)
     time_signature = document.frontmatter.get("time_signature", (4, 4))
 
+    # Collect all events from both top-level and tracks
+    all_events = []
+
+    # Add top-level events (if any)
+    if document.events:
+        all_events.extend(document.events)
+
+    # Add events from all tracks
+    for track in document.tracks:
+        if track.events:
+            all_events.extend(track.events)
+
     # Expand AST to event dictionaries
     expander = CommandExpander(ppq=ppq, tempo=tempo, time_signature=time_signature)
-    expanded_dicts = expander.process_ast(document.events)
+    expanded_dicts = expander.process_ast(all_events)
 
     # Convert event dicts to MIDIEvent objects
     events = []
