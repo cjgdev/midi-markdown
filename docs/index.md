@@ -49,10 +49,12 @@ Progressive learning path with 16 examples:
 - **[Examples Guide](getting-started/examples-guide.md)** - Complete guide with learning path and feature matrix
 
 **Quick Links:**
-- [01_hello_world.mmd](../examples/00_basics/01_hello_world.mmd) - Simplest possible MMD file
-- [01_multi_channel_basic.mmd](../examples/02_midi_features/01_multi_channel_basic.mmd) - Multiple MIDI channels
-- [10_comprehensive_song.mmd](../examples/03_advanced/10_comprehensive_song.mmd) - All features combined
-- [01_device_import.mmd](../examples/04_device_libraries/01_device_import.mmd) - Device library imports
+- [01_hello_world.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/01_hello_world.mmd) - Simplest possible MMD file
+- [01_multi_channel_basic.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/01_multi_channel_basic.mmd) - Multiple MIDI channels
+- [10_comprehensive_song.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/10_comprehensive_song.mmd) - All features combined
+- [01_device_import.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/01_device_import.mmd) - Device library imports
+- [01_random_humanization.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/01_random_humanization.mmd) - Random values for humanization
+- [03_generative_ambient.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/03_generative_ambient.mmd) - Generative music techniques
 
 ---
 
@@ -72,12 +74,12 @@ Architecture and implementation details:
 
 Pre-built libraries for controlling MIDI hardware:
 
-- **[Neural DSP Quad Cortex](../devices/quad_cortex.mmd)** - 86 aliases for Quad Cortex control
-- **[Eventide H90](../devices/eventide_h90.mmd)** - 61 aliases for H90 harmonizer/effects
-- **[Line 6 Helix](../devices/helix.mmd)** - 49 aliases for Helix control
-- **[HX Stomp](../devices/hx_stomp.mmd)** - HX Stomp control
-- **[HX Effects](../devices/hx_effects.mmd)** - HX Effects control
-- **[HX Stomp XL](../devices/hx_stomp_xl.mmd)** - HX Stomp XL control
+- **[Neural DSP Quad Cortex](https://github.com/cjgdev/midi-markdown/blob/main/devices/quad_cortex.mmd)** - 86 aliases for Quad Cortex control
+- **[Eventide H90](https://github.com/cjgdev/midi-markdown/blob/main/devices/eventide_h90.mmd)** - 61 aliases for H90 harmonizer/effects
+- **[Line 6 Helix](https://github.com/cjgdev/midi-markdown/blob/main/devices/helix.mmd)** - 49 aliases for Helix control
+- **[HX Stomp](https://github.com/cjgdev/midi-markdown/blob/main/devices/hx_stomp.mmd)** - HX Stomp control
+- **[HX Effects](https://github.com/cjgdev/midi-markdown/blob/main/devices/hx_effects.mmd)** - HX Effects control
+- **[HX Stomp XL](https://github.com/cjgdev/midi-markdown/blob/main/devices/hx_stomp_xl.mmd)** - HX Stomp XL control
 
 See the [Device Library Guide](user-guide/device-libraries.md) to learn more.
 
@@ -86,9 +88,9 @@ See the [Device Library Guide](user-guide/device-libraries.md) to learn more.
 ## Additional Resources
 
 - **[specification.md](reference/specification.md)** - Authoritative language specification
-- **[CLAUDE.md](../CLAUDE.md)** - Developer context and architecture (for AI assistants)
-- **[README.md](../README.md)** - Project overview and quick start
-- **[Tests](../tests/)** - Test suite with 1090+ tests (840+ unit + 250+ integration)
+- **[CLAUDE.md](https://github.com/cjgdev/midi-markdown/blob/main/CLAUDE.md)** - Developer context and architecture (for AI assistants)
+- **[README.md](https://github.com/cjgdev/midi-markdown/blob/main/README.md)** - Project overview and quick start
+- **[Tests](https://github.com/cjgdev/midi-markdown/tree/main/tests)** - Test suite with 1264+ tests
 
 ---
 

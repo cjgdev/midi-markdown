@@ -174,7 +174,7 @@ uv run mmdc compile song.mmd --format 0
 ## Getting Help
 
 - **Documentation**: Browse the [docs/](../index.md) directory
-- **Examples**: Study the [examples/](../examples/) directory (16 examples)
+- **Examples**: Study the [examples/](https://github.com/cjgdev/midi-markdown/tree/main/examples) directory (51 examples across 7 categories)
 - **Issues**: Report bugs on [GitHub](https://github.com/cjgdev/midi-markdown/issues)
 - **CLI Help**: Run `uv run mmdc --help`
 

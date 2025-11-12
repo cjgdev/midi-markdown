@@ -646,5 +646,5 @@ title: Universal Song File
 
 For more help:
 - Check the [specification](../reference/specification.md) for complete syntax details
-- Review [example files](../examples/) for working code
+- Review [example files](https://github.com/cjgdev/midi-markdown/tree/main/examples) for working code
 - Report issues at the project repository

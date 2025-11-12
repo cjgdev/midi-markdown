@@ -686,4 +686,4 @@ The alias system follows semantic versioning:
 - [Alias System User Guide](alias-system.md) - Tutorials and examples
 - [Device Library Creation Guide](device-libraries.md) - Library authoring
 - [MML Specification](../reference/specification.md) - Complete language spec
-- [Examples](../examples/) - Working code samples
+- [Examples](https://github.com/cjgdev/midi-markdown/tree/main/examples) - Working code samples

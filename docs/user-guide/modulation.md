@@ -582,5 +582,5 @@ curve: linear | exponential
 
 - [MIDI Commands Reference](midi-commands.md) - Available CC numbers
 - [Timing System](timing-system.md) - Timing with modulation
-- [Examples](../../examples/03_advanced/modulation_showcase.mmd) - Complete modulation showcase
+- [Examples](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/08_modulation_showcase.mmd) - Complete modulation showcase
 - [Alias System](alias-system.md) - Creating modulation aliases

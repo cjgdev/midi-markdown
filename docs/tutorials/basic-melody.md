@@ -813,7 +813,7 @@ Listen to both compiled versions side-by-side. The humanized version should feel
 
 **See also:**
 - [Generative Techniques Tutorial](generative-techniques.md) - Deep dive into `random()` and algorithmic composition
-- [random_humanization.mmd Example](../../examples/04_generative/random_humanization.mmd) - Working example of velocity humanization
+- [random_humanization.mmd Example](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/01_random_humanization.mmd) - Working example of velocity humanization
 - [Generative Music Guide](../user-guide/generative-music.md) - Comprehensive reference on randomization techniques
 
 ## Troubleshooting
@@ -864,7 +864,7 @@ Now that you understand basic melody creation, try:
 - [MIDI Note Numbers Reference](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies)
 - [MIDI CC List](https://www.midi.org/specifications-old/item/table-3-control-change-messages-data-bytes-2)
 - [MML Specification](../../spec.md) - Complete language reference
-- [Example Files](../../examples/) - More working examples
+- [Example Files](https://github.com/cjgdev/midi-markdown/tree/main/examples) - 51 working examples
 - [Multi-Channel Tutorial](multi-channel.md) - Build multi-instrument songs
 
 ## Summary

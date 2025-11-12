@@ -567,7 +567,7 @@ The test suite in [tests/unit/test_lexer.py](../tests/unit/test_lexer.py) provid
 - [ ] Run all 55 tests and fix failures
 - [ ] Add type hints and docstrings
 - [ ] Run ruff and mypy for code quality
-- [ ] Test with real MMD examples from [examples/](../examples/)
+- [ ] Test with real MMD examples from [examples/](https://github.com/cjgdev/midi-markdown/tree/main/examples)
 
 ## Performance Considerations
 
@@ -589,4 +589,4 @@ The test suite in [tests/unit/test_lexer.py](../tests/unit/test_lexer.py) provid
 - **Specification**: [specification.md](../../reference/specification.md) lines 84-531
 - **Test Suite**: [tests/unit/test_lexer.py](../tests/unit/test_lexer.py)
 - **Implementation**: [src/midi_markdown/parser/lexer.py](../src/midi_markdown/parser/lexer.py)
-- **Examples**: [examples/00_basics/00_hello_world.mmd](../../../examples/00_basics/00_hello_world.mmd)
+- **Examples**: [examples/00_basics/01_hello_world.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/01_hello_world.mmd)

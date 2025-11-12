@@ -1251,5 +1251,5 @@ midi_format: 1
 
 - **[MML Syntax Reference](mmd-syntax.md)** - Complete language syntax
 - **[Compile Command](../cli-reference/compile.md)** - Compile MMD to MIDI
-- **[Example Files](../../examples/)** - Real-world MMD examples
+- **[Example Files](https://github.com/cjgdev/midi-markdown/tree/main/examples)** - 51 real-world MMD examples
 - **[Troubleshooting](../reference/troubleshooting.md)** - Common issues and solutions

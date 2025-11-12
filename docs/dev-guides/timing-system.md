@@ -401,4 +401,4 @@ time_signature: 4/4
 **See also:**
 - [specification.md](../reference/specification.md#timing-specification) - User-facing timing documentation
 - [parser-patterns.md](./parser-patterns.md) - Parsing timing markers
-- [examples/01_timing/](../../examples/01_timing/) - Working timing examples
+- [examples/01_timing/](https://github.com/cjgdev/midi-markdown/tree/main/examples/01_timing) - Working timing examples

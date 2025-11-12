@@ -654,12 +654,12 @@ tempo: 60
 
 Six comprehensive examples demonstrating all random() techniques:
 
-- [01_random_humanization.mmd](../../examples/05_generative/01_random_humanization.mmd) - Velocity, note, and CC humanization
-- [02_algorithmic_drums.mmd](../../examples/05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
-- [03_generative_ambient.mmd](../../examples/05_generative/03_generative_ambient.mmd) - Evolving pad textures with random notes and LFO
-- [04_random_cc_automation.mmd](../../examples/05_generative/04_random_cc_automation.mmd) - Generative parameter automation
-- [05_evolving_textures.mmd](../../examples/05_generative/05_evolving_textures.mmd) - Complex layered textures with multiple randomization sources
-- [06_scale_constrained_melody.mmd](../../examples/05_generative/06_scale_constrained_melody.mmd) - Generative melodies constrained to musical scales
+- [01_random_humanization.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/01_random_humanization.mmd) - Velocity, note, and CC humanization
+- [02_algorithmic_drums.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
+- [03_generative_ambient.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/03_generative_ambient.mmd) - Evolving pad textures with random notes and LFO
+- [04_random_cc_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/04_random_cc_automation.mmd) - Generative parameter automation
+- [05_evolving_textures.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/05_evolving_textures.mmd) - Complex layered textures with multiple randomization sources
+- [06_scale_constrained_melody.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/06_scale_constrained_melody.mmd) - Generative melodies constrained to musical scales
 
 See [Examples Guide](../getting-started/examples-guide.md#categories) for learning paths and feature matrix.
 
