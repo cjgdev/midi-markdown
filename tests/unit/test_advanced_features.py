@@ -102,24 +102,6 @@ class TestVariablesAndExpressions:
         assert doc.defines["DOUBLE"] == 200
         assert doc.defines["HALF"] == 50
 
-    @pytest.mark.skip(reason="Ramp expressions not yet implemented")
-    def test_ramp_expression(self, parser):
-        """Test ramp expression"""
-        mml = """
-@define VAL ramp(0, 127, linear)
-"""
-        doc = parser.parse_string(mml)
-        assert len(doc.defines) >= 1
-
-    @pytest.mark.skip(reason="Random expressions not yet implemented")
-    def test_random_expression(self, parser):
-        """Test random expression"""
-        mml = """
-@define VAL random(0, 127)
-"""
-        doc = parser.parse_string(mml)
-        assert len(doc.defines) >= 1
-
     def test_nested_expressions(self, parser):
         """Test nested expression evaluation"""
         mml = """

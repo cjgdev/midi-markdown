@@ -69,11 +69,6 @@ def test_keyboard_interrupt_exit_code():
     assert exc_info.value.code == 130
 
 
-@pytest.mark.skip(reason="Lark exception mocking is complex, covered by integration tests")
-def test_parse_error_exit_code():
-    """Test that parse errors exit with code 2."""
-
-
 def test_validation_error_exit_code():
     """Test that validation errors exit with code 3."""
     console = Console()
@@ -196,13 +191,3 @@ def test_play_mode_cleanup_handles_exception():
         raise KeyboardInterrupt
 
     assert exc_info.value.code == 130
-
-
-@pytest.mark.skip(reason="Lark exception mocking is complex, covered by integration tests")
-def test_no_source_file_fallback():
-    """Test that errors without source_file show simple message."""
-
-
-@pytest.mark.skip(reason="Lark exception mocking is complex, covered by integration tests")
-def test_accessibility_flags_passed():
-    """Test that no_color and no_emoji flags are passed to error formatters."""
