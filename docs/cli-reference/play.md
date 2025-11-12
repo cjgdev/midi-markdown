@@ -23,7 +23,9 @@ The `play` command provides **real-time MIDI playback** of compiled MMD files di
 **Key Features**:
 - Interactive Terminal UI (TUI) with 30 FPS refresh
 - Real-time event visualization and progress tracking
-- Keyboard controls (Space/Q/R) for playback control
+- Keyboard controls (Space/Arrow keys/Q/R) for playback control
+- Multiple seeking modes: time-based (5s), beat-based (1 beat), and bar-based (1 bar)
+- Musical navigation using Shift/Ctrl + arrow keys
 - Support for virtual MIDI ports (IAC, loopMIDI, ALSA)
 - Tempo tracking and dynamic tempo changes
 - Event scheduling with microsecond precision
@@ -154,7 +156,7 @@ Recent Events:
 
 **Footer**:
 ```
-Controls: [Space] Pause/Resume | [Q] Quit | [R] Restart
+Controls: [Space] Play/Pause | [← →] ±5s | [Shift+← →] ±1 beat | [Ctrl+← →] ±1 bar | [Q] Quit
 Status: ▶ Playing
 ```
 
@@ -163,8 +165,11 @@ Status: ▶ Playing
 | Key | Action | Description |
 |-----|--------|-------------|
 | **Space** | Play/Pause | Toggle playback (preserves position) |
+| **← →** | Seek Time | Jump backward/forward 5 seconds |
+| **Shift+← →** | Seek Beat | Jump backward/forward 1 beat |
+| **Ctrl+← →** | Seek Bar | Jump backward/forward 1 bar |
 | **Q** | Quit | Stop playback and exit |
-| **R** | Restart | Jump back to beginning |
+| **R** | Restart | Jump back to beginning (future) |
 | **Ctrl+C** | Cancel | Same as Q (graceful exit) |
 | **Ctrl+D** | Exit | Immediate exit |
 
@@ -575,7 +580,7 @@ mml-play song.mmd
 
 ---
 
-### Pause and Resume
+### Pause, Resume, and Seek
 
 ```bash
 # Start playback
@@ -583,9 +588,80 @@ mmdc play setlist.mmd --port 0
 
 # During playback:
 # - Press Space to pause at current position
+# - Press ← → to seek backward/forward 5 seconds (time-based)
+# - Press Shift+← → to seek backward/forward 1 beat (musical)
+# - Press Ctrl+← → to seek backward/forward 1 bar (musical)
 # - Make notes of issues
 # - Press Space to resume from same position
 # - Press Q to quit
+```
+
+**Seeking modes explained**:
+- **Time-based** (Arrow keys): Fixed 5-second intervals, independent of tempo/time signature
+- **Beat-based** (Shift+Arrow): Jump by 1 beat (respects tempo and PPQ)
+- **Bar-based** (Ctrl+Arrow): Jump by 1 bar (respects time signature, e.g., 4 beats in 4/4)
+
+**Use cases for seeking**:
+- **Time seeking**: Quick navigation through long performances
+- **Beat seeking**: Fine-tune position for precise musical timing
+- **Bar seeking**: Jump between song sections (verse, chorus, bridge)
+- **Combined**: Use bar seeking for large jumps, beat seeking for fine adjustments
+
+---
+
+### Musical Navigation (Beat and Bar Seeking)
+
+Musical seeking respects your song's time signature and tempo, making it perfect for navigating through structured compositions:
+
+```bash
+# Example: Song in 4/4 time at 120 BPM
+mmdc play song.mmd --port 0
+
+# During playback:
+# - Ctrl+→ jumps forward 4 beats (1 bar in 4/4)
+# - Shift+→ jumps forward 1 beat (0.5 seconds at 120 BPM)
+# - Ctrl+← jumps backward 1 bar
+# - Shift+← jumps backward 1 beat
+```
+
+**Why musical seeking matters**:
+- **Tempo-aware**: Beat/bar length adjusts with tempo changes
+- **Time signature aware**: Bar seeking respects 3/4, 4/4, 5/4, etc.
+- **Musically aligned**: Land on downbeats, not arbitrary time points
+- **Workflow**: Jump to bar 8 (chorus), then fine-tune with beat seeking
+
+**Examples by time signature**:
+```yaml
+# 4/4 time (common time)
+time_signature: "4/4"
+# 1 bar = 4 beats, 1 beat = quarter note
+
+# 3/4 time (waltz)
+time_signature: "3/4"
+# 1 bar = 3 beats, 1 beat = quarter note
+
+# 6/8 time (compound meter)
+time_signature: "6/8"
+# 1 bar = 6 beats, 1 beat = eighth note (compound feel: 2 dotted quarters)
+
+# 5/4 time (progressive rock)
+time_signature: "5/4"
+# 1 bar = 5 beats, 1 beat = quarter note
+```
+
+**Practical workflow**:
+```bash
+# 1. Start playback
+mmdc play setlist.mmd --port 0
+
+# 2. Jump to chorus (e.g., bar 16) using Ctrl+→ repeatedly
+#    (Or set up markers in your MMD file)
+
+# 3. Fine-tune position with Shift+← → to land exactly on the downbeat
+
+# 4. Test timing, adjust if needed
+
+# 5. Press Q to quit when done
 ```
 
 ---

@@ -137,12 +137,14 @@ def render_controls() -> Panel:
     Returns:
         Rich Panel with keyboard shortcut information
     """
-    table = Table(show_header=False, box=None, padding=(0, 2))
-    table.add_column("Key", style="bold cyan", width=10)
-    table.add_column("Action", style="white")
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Key", style="bold cyan", width=14)
+    table.add_column("Action", style="white", width=30)
 
     table.add_row("SPACE", "Play / Pause")
+    table.add_row("←  →", "Seek ±5 seconds")
+    table.add_row("Shift+←  →", "Seek ±1 beat")
+    table.add_row("Ctrl+←  →", "Seek ±1 bar")
     table.add_row("Q", "Quit")
-    table.add_row("R", "Restart (future)")
 
     return Panel(table, title="Controls", border_style="yellow")
