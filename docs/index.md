@@ -1,6 +1,6 @@
 # MIDI Markdown Documentation
 
-Welcome to the MIDI Markdown (MML) documentation. MMD is a human-readable, text-based format for creating MIDI sequences, designed for live performance automation and compositional workflows.
+Welcome to the MIDI Markdown (MMD) documentation. MMD is a human-readable, text-based format for creating MIDI sequences, designed for live performance automation and compositional workflows.
 
 ---
 
@@ -15,7 +15,7 @@ Welcome to the MIDI Markdown (MML) documentation. MMD is a human-readable, text-
 
 Learn how to use MMD effectively:
 
-- **[Basic Syntax](user-guide/mml-syntax.md)** - Fundamentals: frontmatter, timing, commands
+- **[Basic Syntax](user-guide/mmd-syntax.md)** - Fundamentals: frontmatter, timing, commands
 - **[Timing Systems](user-guide/timing-system.md)** - Absolute, musical, relative, and simultaneous timing
 - **[Alias System](user-guide/alias-system.md)** - Create reusable command shortcuts
 - **[Device Libraries](user-guide/device-libraries.md)** - Control MIDI hardware with high-level commands

@@ -802,7 +802,7 @@ Try these improvements:
 
 ### Continue Learning
 
-- **[MML Syntax Reference](../user-guide/mml-syntax.md)** - Complete command reference
+- **[MML Syntax Reference](../user-guide/mmd-syntax.md)** - Complete command reference
 - **[Timing System Guide](../user-guide/timing-system.md)** - All timing paradigms explained
 - **[Alias System](../user-guide/alias-system.md)** - Create reusable command blocks
 - **[Device Libraries](../user-guide/device-libraries.md)** - Control hardware devices

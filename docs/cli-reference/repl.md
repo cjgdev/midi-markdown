@@ -1070,7 +1070,7 @@ EOF
 - [inspect command](inspect.md) - Analyze compiled events
 - [validate command](validate.md) - Validate MMD syntax
 - [Alias System Guide](../user-guide/alias-system.md) - Complete alias documentation
-- [MML Syntax Reference](../user-guide/mml-syntax.md) - Complete syntax guide
+- [MML Syntax Reference](../user-guide/mmd-syntax.md) - Complete syntax guide
 - [First Song Tutorial](../getting-started/first-song.md) - Learn MMD basics
 
 ---

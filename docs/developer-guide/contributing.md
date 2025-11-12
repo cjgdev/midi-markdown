@@ -3,7 +3,7 @@
 **Date**: 2025-11-08
 **Version**: 0.1.0
 
-Thank you for your interest in contributing to MIDI Markdown (MML)! This document provides guidelines for developers who want to contribute to the codebase.
+Thank you for your interest in contributing to MIDI Markdown (MMD)! This document provides guidelines for developers who want to contribute to the codebase.
 
 ## Table of Contents
 

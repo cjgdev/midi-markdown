@@ -1,6 +1,6 @@
 # Random Expressions Technical Reference
 
-Complete API reference for `random()` expressions in MIDI Markdown (MML). This document covers syntax, contexts, parameters, and implementation details for generating random values in MIDI sequences.
+Complete API reference for `random()` expressions in MIDI Markdown (MMD). This document covers syntax, contexts, parameters, and implementation details for generating random values in MIDI sequences.
 
 ## Quick Reference / Cheat Sheet
 

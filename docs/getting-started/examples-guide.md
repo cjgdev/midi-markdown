@@ -345,7 +345,7 @@ See [CONTRIBUTING.md](../developer-guide/contributing.md) for details.
 ## See Also
 
 - **[Quickstart Guide](../getting-started/quickstart.md)** - Get started with MML
-- **[MML Syntax Reference](../user-guide/mml-syntax.md)** - Complete syntax documentation
+- **[MML Syntax Reference](../user-guide/mmd-syntax.md)** - Complete syntax documentation
 - **[Tutorial: Your First Song](../getting-started/first-song.md)** - Step-by-step guide
 - **[Device Library Guide](../user-guide/device-libraries.md)** - Using device libraries
 - **[Specification](../spec.md)** - Complete MMD language specification

@@ -1249,7 +1249,7 @@ midi_format: 1
 
 ## See Also
 
-- **[MML Syntax Reference](mml-syntax.md)** - Complete language syntax
+- **[MML Syntax Reference](mmd-syntax.md)** - Complete language syntax
 - **[Compile Command](../cli-reference/compile.md)** - Compile MMD to MIDI
 - **[Example Files](../../examples/)** - Real-world MMD examples
 - **[Troubleshooting](../reference/troubleshooting.md)** - Common issues and solutions
