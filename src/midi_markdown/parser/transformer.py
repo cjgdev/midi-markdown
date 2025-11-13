@@ -172,7 +172,9 @@ class MMDTransformer(Transformer):
         Args:
             items: List containing either:
                 - RELATIVE_MUSICAL_TIME token (like "[+2.1.0]")
-                - duration value from "[+" duration "]"
+                - duration tuple (number, unit)
+                - variable_ref tuple ('var', name)
+                - param_ref tuple ('param_ref', {...})
 
         Returns:
             Timing object with type="relative"
@@ -189,7 +191,7 @@ class MMDTransformer(Transformer):
 
         # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
         # Duration can be:
-        # - A string like "2b", "500ms", "1.5s"
+        # - A tuple (number, unit) from the duration transformer
         # - A variable_ref tuple like ('var', 'VAR_NAME')
         # - A param_ref tuple like ('param_ref', {...})
         if isinstance(value, tuple):
@@ -197,13 +199,18 @@ class MMDTransformer(Transformer):
                 # Variable reference - store as-is for later resolution
                 raw = f"[+${{{value[1]}}}]"
                 return Timing("relative", value, raw)
-            if value[0] == "param_ref":
+            elif value[0] == "param_ref":
                 # Parameter reference (in alias body) - store as-is
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
                 return Timing("relative", value, raw)
+            elif len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
+                # Duration tuple (number, unit) from duration transformer
+                num, unit = value
+                raw = f"[+{int(num) if num == int(num) else num}{unit}]"
+                return Timing("relative", value, raw)
         elif isinstance(value, str):
-            # String duration like "2b" - parse the value and unit
+            # String duration like "2b" - parse the value and unit (legacy path)
             import re
 
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
@@ -241,6 +248,10 @@ class MMDTransformer(Transformer):
     def INT(self, token):
         """Convert INT tokens to int"""
         return int(token)
+
+    def FLOAT(self, token):
+        """Convert FLOAT tokens to float"""
+        return float(token)
 
     def NUMBER(self, token):
         """Convert NUMBER tokens to float"""
@@ -319,24 +330,28 @@ class MMDTransformer(Transformer):
     def duration(self, children):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT | random_expr TIME_UNIT | variable_ref | param_ref
+        Grammar: duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | variable_ref
+                        | param_ref
 
         Note: This method uses @v_args(inline=False) to handle multiple alternatives
         with different numbers of children.
 
         Args:
             children: List of matched children, can be:
-                - [number, unit] for FLOAT/INT TIME_UNIT alternatives
-                - [expression, unit] for random_expr TIME_UNIT alternative
+                - [number, unit] for FLOAT/INT/random_expr with TIME_UNIT alternatives
                 - [ref] for variable_ref or param_ref alternatives
 
         Returns:
-            String duration like "1b", "500ms" or variable/param ref
+            - Tuple (number, unit) for duration values to avoid string unpacking
+            - Tuple ('var', name) or ('param_ref', {...}) for variables/params
 
         Examples:
-        - "1.25b" → [1.25, Token('TIME_UNIT', 'b')] → "1.25b"
-        - "500ms" → [500, Token('TIME_UNIT', 'ms')] → "500ms"
-        - "2b" → [2, Token('TIME_UNIT', 'b')] → "2b"
+        - "1.25b" → [1.25, Token('TIME_UNIT_B', 'b')] → (1.25, "b")
+        - "500ms" → [500, Token('TIME_UNIT_MS', 'ms')] → (500, "ms")
+        - "2b" → [2, Token('TIME_UNIT_B', 'b')] → (2, "b")
         - "${VAR}" → [('var', 'VAR')] → ('var', 'VAR')
         """
         if len(children) >= 2:
@@ -346,11 +361,12 @@ class MMDTransformer(Transformer):
                 number = int(number)
             # Extract unit from Token
             unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
-            return f"{number}{unit}"
+            # Return tuple to avoid string unpacking by @v_args(inline=True)
+            return (float(number) if isinstance(number, (int, float)) else number, unit)
         elif len(children) == 1:
             # variable_ref or param_ref - return as-is
             return children[0]
-        return "1b"  # Default
+        return (1.0, "b")  # Default
 
     @v_args(inline=False)
     def note_command(self, args):

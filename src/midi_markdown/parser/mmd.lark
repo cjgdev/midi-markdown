@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT TIME_UNIT
-        | INT TIME_UNIT
-        | random_expr TIME_UNIT
+duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
         | variable_ref
         | param_ref
 
@@ -381,9 +381,6 @@ ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
 RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.0]
 
-// Time unit for durations (ms must come before s to match correctly)
-TIME_UNIT: "ms" | "s" | "b" | "t"
-
 // Numbers
 // Terminal Priority System:
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
@@ -403,8 +400,19 @@ TIME_UNIT: "ms" | "s" | "b" | "t"
 //   "1.25" in "every 1.25b" → FLOAT (duration)
 //   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
+// INT pattern - matches whole numbers
+// Priority 2 ensures INT is chosen over NUMBER union for whole numbers
 INT.2: /[+-]?\d+/
-FLOAT.3: /[+-]?\d+\.\d+(?!\.\d)/  // Negative lookahead: don't match if followed by another .digit (for musical time 2.1.0)
+// FLOAT pattern - matches decimal numbers
+// Priority 3 (lower than INT) ensures INT matches first for whole numbers
+FLOAT.3: /[+-]?\d+\.\d+/
+
+// Time Unit Terminals (must be before IDENTIFIER to avoid conflicts)
+// Priority 1 ensures they are matched before IDENTIFIER in duration contexts
+TIME_UNIT_MS.1: "ms"
+TIME_UNIT_S.1: "s"
+TIME_UNIT_B.1: "b"
+TIME_UNIT_T.1: "t"
 
 // Identifiers and Names
 NOTE_ON: "note_on"
