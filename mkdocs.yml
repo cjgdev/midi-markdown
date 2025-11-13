@@ -203,15 +203,16 @@ nav:
 
   - Developer Guide:
     - Overview:
+      - architecture.md
       - developer-guide/architecture.md
       - developer-guide/contributing.md
+      - developer-guide/releasing.md
       - developer-guide/distribution-research.md
     - Architecture:
       - developer-guide/architecture/parser.md
       - developer-guide/architecture/parser-summary.md
       - Quick Reference:
         - developer-guide/architecture/quick-reference/parser-quick-ref.md
-        - developer-guide/architecture/quick-reference/lexer-quick-ref.md
     - Implementation Guides:
       - dev-guides/parser-patterns.md
       - dev-guides/timing-system.md

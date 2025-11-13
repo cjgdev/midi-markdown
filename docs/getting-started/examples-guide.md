@@ -152,41 +152,41 @@ mmdc play examples/06_tutorials/04_full_song.mmd
 
 ### 📚 Beginner Track (Core Features)
 
-1. **Start Here**: [00_basics/01_hello_world.mmd](00_basics/01_hello_world.mmd) - Understand basic structure
-2. **Learn Timing**: [00_basics/02_minimal_midi.mmd](00_basics/02_minimal_midi.mmd) - See how timing works
-3. **Add Commands**: [00_basics/03_simple_click_track.mmd](00_basics/03_simple_click_track.mmd) - Repeated patterns
-4. **Structure Songs**: [00_basics/04_song_structure_markers.mmd](00_basics/04_song_structure_markers.mmd) - Organize with markers
-5. **Automation**: [02_midi_features/02_cc_automation.mmd](02_midi_features/02_cc_automation.mmd) - Control parameters over time
-6. **Multiple Channels**: [02_midi_features/01_multi_channel_basic.mmd](02_midi_features/01_multi_channel_basic.mmd) - Multi-instrument songs
-7. **Full Example**: [03_advanced/10_comprehensive_song.mmd](03_advanced/10_comprehensive_song.mmd) - Everything together
+1. **Start Here**: [00_basics/01_hello_world.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/01_hello_world.mmd) - Understand basic structure
+2. **Learn Timing**: [00_basics/02_minimal_midi.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/02_minimal_midi.mmd) - See how timing works
+3. **Add Commands**: [00_basics/03_simple_click_track.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/03_simple_click_track.mmd) - Repeated patterns
+4. **Structure Songs**: [00_basics/04_song_structure_markers.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/00_basics/04_song_structure_markers.mmd) - Organize with markers
+5. **Automation**: [02_midi_features/02_cc_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/02_cc_automation.mmd) - Control parameters over time
+6. **Multiple Channels**: [02_midi_features/01_multi_channel_basic.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/01_multi_channel_basic.mmd) - Multi-instrument songs
+7. **Full Example**: [03_advanced/10_comprehensive_song.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/10_comprehensive_song.mmd) - Everything together
 
 ### 🚀 Advanced Track (Power Features)
 
-8. **Loops**: [03_advanced/01_loops_and_patterns.mmd](03_advanced/01_loops_and_patterns.mmd) - Eliminate repetitive code with @loop
-9. **Automation**: [03_advanced/02_sweep_automation.mmd](03_advanced/02_sweep_automation.mmd) - Smooth parameter changes with @sweep
-10. **Musical Time**: [01_timing/02_musical_timing.mmd](01_timing/02_musical_timing.mmd) - Work in bars/beats/ticks
-11. **Timing Paradigms**: [01_timing/03_timing_paradigms.mmd](01_timing/03_timing_paradigms.mmd) - Master all timing modes
-12. **Random Humanization**: [05_generative/01_random_humanization.mmd](05_generative/01_random_humanization.mmd) - Natural variations with random() expressions
-13. **Generative Ambient**: [05_generative/03_generative_ambient.mmd](05_generative/03_generative_ambient.mmd) - Evolving pads with random notes and LFO
-14. **Device Control**: [04_device_libraries/01_device_import.mmd](04_device_libraries/01_device_import.mmd) - High-level device commands with @import
-15. **Multi-File Projects**: [03_advanced/11_multi_file_project.mmd](03_advanced/11_multi_file_project.mmd) - Organize large projects
+8. **Loops**: [03_advanced/01_loops_and_patterns.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/01_loops_and_patterns.mmd) - Eliminate repetitive code with @loop
+9. **Automation**: [03_advanced/02_sweep_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/02_sweep_automation.mmd) - Smooth parameter changes with @sweep
+10. **Musical Time**: [01_timing/02_musical_timing.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/01_timing/02_musical_timing.mmd) - Work in bars/beats/ticks
+11. **Timing Paradigms**: [01_timing/03_timing_paradigms.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/01_timing/03_timing_paradigms.mmd) - Master all timing modes
+12. **Random Humanization**: [05_generative/01_random_humanization.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/01_random_humanization.mmd) - Natural variations with random() expressions
+13. **Generative Ambient**: [05_generative/03_generative_ambient.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/03_generative_ambient.mmd) - Evolving pads with random notes and LFO
+14. **Device Control**: [04_device_libraries/01_device_import.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/01_device_import.mmd) - High-level device commands with @import
+15. **Multi-File Projects**: [03_advanced/11_multi_file_project.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/11_multi_file_project.mmd) - Organize large projects
 
 ### 🎸 Alias System (Advanced Abstraction)
 
-16. **Alias Basics**: [03_advanced/03_alias_showcase.mmd](03_advanced/03_alias_showcase.mmd) - Complete alias system tour
-17. **Real-World**: [04_device_libraries/06_live_performance_aliases.mmd](04_device_libraries/06_live_performance_aliases.mmd) - Production-ready performance automation
+16. **Alias Basics**: [03_advanced/03_alias_showcase.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/03_alias_showcase.mmd) - Complete alias system tour
+17. **Real-World**: [04_device_libraries/06_live_performance_aliases.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/06_live_performance_aliases.mmd) - Production-ready performance automation
 
 ### 🎼 Musical Examples (Inspiration)
 
-18. **Drums**: [02_midi_features/07_drums_and_percussion.mmd](02_midi_features/07_drums_and_percussion.mmd) - GM drum patterns
-19. **Algorithmic Drums**: [05_generative/02_algorithmic_drums.mmd](05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
-20. **Bass**: [02_midi_features/05_bass_line.mmd](02_midi_features/05_bass_line.mmd) - Groove patterns
-21. **Chords**: [02_midi_features/06_chord_progressions.mmd](02_midi_features/06_chord_progressions.mmd) - Harmonic ideas
-22. **Arpeggios**: [03_advanced/05_arpeggiator.mmd](03_advanced/05_arpeggiator.mmd) - Arpeggiator patterns
-23. **Polyrhythm**: [03_advanced/06_polyrhythm.mmd](03_advanced/06_polyrhythm.mmd) - Complex rhythms
-24. **CC Automation**: [05_generative/04_random_cc_automation.mmd](05_generative/04_random_cc_automation.mmd) - Generative parameter modulation
-25. **Evolving Textures**: [05_generative/05_evolving_textures.mmd](05_generative/05_evolving_textures.mmd) - Complex layered soundscapes
-26. **Scale Melodies**: [05_generative/06_scale_constrained_melody.mmd](05_generative/06_scale_constrained_melody.mmd) - Musical scale constraints
+18. **Drums**: [02_midi_features/07_drums_and_percussion.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/07_drums_and_percussion.mmd) - GM drum patterns
+19. **Algorithmic Drums**: [05_generative/02_algorithmic_drums.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/02_algorithmic_drums.mmd) - Professional drum pattern generation
+20. **Bass**: [02_midi_features/05_bass_line.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/05_bass_line.mmd) - Groove patterns
+21. **Chords**: [02_midi_features/06_chord_progressions.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/06_chord_progressions.mmd) - Harmonic ideas
+22. **Arpeggios**: [03_advanced/05_arpeggiator.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/05_arpeggiator.mmd) - Arpeggiator patterns
+23. **Polyrhythm**: [03_advanced/06_polyrhythm.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/06_polyrhythm.mmd) - Complex rhythms
+24. **CC Automation**: [05_generative/04_random_cc_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/04_random_cc_automation.mmd) - Generative parameter modulation
+25. **Evolving Textures**: [05_generative/05_evolving_textures.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/05_evolving_textures.mmd) - Complex layered soundscapes
+26. **Scale Melodies**: [05_generative/06_scale_constrained_melody.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/06_scale_constrained_melody.mmd) - Musical scale constraints
 
 ## Feature Highlights
 
@@ -212,7 +212,7 @@ The @loop feature eliminates repetitive code:
 @end
 ```
 
-See: [03_advanced/01_loops_and_patterns.mmd](03_advanced/01_loops_and_patterns.mmd)
+See: [03_advanced/01_loops_and_patterns.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/01_loops_and_patterns.mmd)
 
 ### 📊 Sweeps (@sweep)
 
@@ -227,7 +227,7 @@ The @sweep feature creates smooth automation:
 
 Supports 6 ramp types: linear, exponential, logarithmic, ease-in, ease-out, ease-in-out
 
-See: [03_advanced/02_sweep_automation.mmd](03_advanced/02_sweep_automation.mmd)
+See: [03_advanced/02_sweep_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/02_sweep_automation.mmd)
 
 ### 🎲 Random & Generative (random())
 
@@ -251,7 +251,7 @@ The random() function adds natural variation to melodies, velocity, and paramete
 
 Perfect for humanization, generative music, evolving pad textures, and algorithmic patterns
 
-See: [05_generative/01_random_humanization.mmd](05_generative/01_random_humanization.mmd), [05_generative/03_generative_ambient.mmd](05_generative/03_generative_ambient.mmd), [05_generative/04_random_cc_automation.mmd](05_generative/04_random_cc_automation.mmd)
+See: [05_generative/01_random_humanization.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/01_random_humanization.mmd), [05_generative/03_generative_ambient.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/03_generative_ambient.mmd), [05_generative/04_random_cc_automation.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/05_generative/04_random_cc_automation.mmd)
 
 ### 🎵 Musical Timing
 
@@ -265,7 +265,7 @@ Musical time keeps events in musical position:
 
 Benefits: tempo-independent, time signature aware, DAW-compatible
 
-See: [01_timing/02_musical_timing.mmd](01_timing/02_musical_timing.mmd)
+See: [01_timing/02_musical_timing.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/01_timing/02_musical_timing.mmd)
 
 ### 📦 Device Imports (@import)
 
@@ -281,7 +281,7 @@ Device libraries provide high-level control:
 
 Available libraries: Neural DSP Quad Cortex, Eventide H90, Line 6 Helix, HX Stomp, HX Effects, HX Stomp XL
 
-See: [04_device_libraries/01_device_import.mmd](04_device_libraries/01_device_import.mmd)
+See: [04_device_libraries/01_device_import.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/01_device_import.mmd)
 
 ## Feature Coverage
 
@@ -340,7 +340,7 @@ Have a cool MMD example? We welcome contributions!
 5. Update this README with your example description
 6. Submit PR with description of what it demonstrates
 
-See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
+See [CONTRIBUTING.md](../developer-guide/contributing.md) for details.
 
 ## Quick Reference
 
@@ -380,19 +380,19 @@ See [CONTRIBUTING.md](../docs/developer-guide/contributing.md) for details.
 
 ## See Also
 
-- **[Quickstart Guide](../docs/getting-started/quickstart.md)** - Get started with MML
-- **[MML Syntax Reference](../docs/user-guide/mml-syntax.md)** - Complete syntax documentation
-- **[Tutorial: Your First Song](../docs/getting-started/first-song.md)** - Step-by-step guide
-- **[Device Library Guide](../docs/user-guide/device-libraries.md)** - Using device libraries
-- **[Specification](../spec.md)** - Complete MMD language specification
-- **[Alias System Guide](../docs/user-guide/alias-system.md)** - How to use and create aliases
-- **[Device Library Creation](../docs/user-guide/device-libraries.md)** - Create your own device libraries
+- **[Quickstart Guide](../getting-started/quickstart.md)** - Get started with MML
+- **[MMD Syntax Reference](../user-guide/mmd-syntax.md)** - Complete syntax documentation
+- **[Tutorial: Your First Song](../getting-started/first-song.md)** - Step-by-step guide
+- **[Device Library Guide](../user-guide/device-libraries.md)** - Using device libraries
+- **[Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md)** - Complete MMD language specification
+- **[Alias System Guide](../user-guide/alias-system.md)** - How to use and create aliases
+- **[Device Library Creation](../user-guide/device-libraries.md)** - Create your own device libraries
 
 ## Additional Resources
 
 - **[Device Libraries](../devices/)** - Available device alias libraries (6 devices)
 - **[Test Fixtures](../tests/fixtures/)** - More example files used in testing
-- **[Project README](../README.md)** - Project overview and installation
+- **[Project README](https://github.com/cjgdev/midi-markdown/blob/main/README.md)** - Project overview and installation
 
 ---
 

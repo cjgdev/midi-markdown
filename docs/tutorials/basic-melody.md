@@ -863,7 +863,7 @@ Now that you understand basic melody creation, try:
 
 - [MIDI Note Numbers Reference](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies)
 - [MIDI CC List](https://www.midi.org/specifications-old/item/table-3-control-change-messages-data-bytes-2)
-- [MML Specification](../../spec.md) - Complete language reference
+- [MML Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md) - Complete language reference
 - [Example Files](https://github.com/cjgdev/midi-markdown/tree/main/examples) - 51 working examples
 - [Multi-Channel Tutorial](multi-channel.md) - Build multi-instrument songs
 

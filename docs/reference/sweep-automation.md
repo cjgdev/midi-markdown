@@ -526,11 +526,11 @@ Recommended: < 100 messages/second (< 10ms interval)
 
 ## See Also
 
-- **[Loop Automation](loop-automation.md)** - Repetitive patterns with `@loop`
-- **[Timing Specification](../user-guide/timing.md)** - MMD timing formats
-- **[MIDI CC Reference](midi-cc-reference.md)** - Complete CC controller list
+- **[Loop Automation](loops-and-patterns.md)** - Repetitive patterns with `@loop`
+- **[Timing System](../user-guide/timing-system.md)** - MMD timing formats
+- **[MIDI Commands](../user-guide/midi-commands.md)** - MIDI CC and command reference
 - **[Examples: Sweep Automation](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/02_sweep_automation.mmd)** - Working examples
-- **[Specification](../../spec.md)** - Complete MMD language spec
+- **[Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md)** - Complete MMD language spec
 
 ## Quick Reference
 

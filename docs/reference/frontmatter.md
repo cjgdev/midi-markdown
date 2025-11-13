@@ -494,8 +494,8 @@ default_velocity: 80
 
 ## See Also
 
-- [MMD Specification](../../spec.md) - Complete language specification
-- [Timing Reference](../user-guide/timing-guide.md) - Timing paradigms and calculations
+- [MMD Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md) - Complete language specification
+- [Timing System](../user-guide/timing-system.md) - Timing paradigms and calculations
 - [Quick Start Guide](../getting-started/quickstart.md) - Getting started with MMD
 - [Examples](https://github.com/cjgdev/midi-markdown/blob/main/examples/README.md) - Example MMD files with frontmatter
 
