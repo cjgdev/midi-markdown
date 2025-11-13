@@ -1,6 +1,6 @@
-site_name: MIDI Markup Language Documentation
-site_description: Human-readable MIDI markup language compiler and tools
-site_author: MIDI Markup Language Contributors
+site_name: MIDI Markdown Language Documentation
+site_description: Human-readable MIDI markdown language compiler and tools
+site_author: MIDI Markdown Language Contributors
 site_url: https://cjgdev.github.io/midi-markdown/
 
 repo_name: cjgdev/midi-markdown
@@ -209,8 +209,6 @@ nav:
     - Architecture:
       - developer-guide/architecture/parser.md
       - developer-guide/architecture/parser-summary.md
-      - developer-guide/architecture/lexer.md
-      - developer-guide/architecture/lexer-summary.md
       - Quick Reference:
         - developer-guide/architecture/quick-reference/parser-quick-ref.md
         - developer-guide/architecture/quick-reference/lexer-quick-ref.md
@@ -224,4 +222,4 @@ nav:
       - developer-guide/cli-design.md
       - developer-guide/api-reference.md
 
-copyright: Copyright &copy; 2024 MIDI Markup Language Contributors
+copyright: Copyright &copy; 2025 MIDI Markdown Language Contributors
