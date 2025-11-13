@@ -589,11 +589,11 @@ Loop starts at 00:00.000 instead of 00:10.000.
 
 ## See Also
 
-- **[Timing Reference](timing-reference.md)** - Complete timing system documentation
-- **[Sweep Reference](sweep-reference.md)** - Automated parameter ramping with @sweep
+- **[Timing System](../user-guide/timing-system.md)** - Complete timing system documentation
+- **[Sweep Automation](sweep-automation.md)** - Automated parameter ramping with @sweep
 - **[Examples: Loops and Patterns](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/01_loops_and_patterns.mmd)** - Working loop examples
 - **[Examples: Arpeggiator](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/05_arpeggiator.mmd)** - Arpeggio patterns using loops
-- **[Specification](../../spec.md#loops-and-patterns)** - Official language specification
+- **[Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md#loops-and-patterns)** - Official language specification
 
 ---
 

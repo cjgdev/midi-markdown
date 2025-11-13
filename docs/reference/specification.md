@@ -384,7 +384,7 @@ Aliases can include computed values that transform parameters before use:
 - cortex_tempo 1 120            # 120 BPM → MIDI value 39
 ```
 
-Computed values support arithmetic operators (`+`, `-`, `*`, `/`, `%`), built-in functions (`int()`, `abs()`, `min()`, `max()`, `round()`), and MIDI helper functions (`clamp()`, `scale_range()`, `msb()`, `lsb()`). See [docs/user-guide/computed_values.md](docs/user-guide/computed_values.md) for details.
+Computed values support arithmetic operators (`+`, `-`, `*`, `/`, `%`), built-in functions (`int()`, `abs()`, `min()`, `max()`, `round()`), and MIDI helper functions (`clamp()`, `scale_range()`, `msb()`, `lsb()`). See [../user-guide/computed_values.md](../user-guide/computed_values.md) for details.
 
 ### Conditional Aliases
 

@@ -719,8 +719,8 @@ tempo: 120
 - [06_polyrhythm.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/06_polyrhythm.mmd) - Multiple loops in polyrhythm
 
 ### Specification
-- [Complete MMD Specification](../../spec.md#variables-and-expressions) - Variables section
-- [Complete MMD Specification](../../spec.md#loops-and-patterns) - Loops section
+- [Complete MMD Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md#variables-and-expressions) - Variables section
+- [Complete MMD Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md#loops-and-patterns) - Loops section
 
 ---
 

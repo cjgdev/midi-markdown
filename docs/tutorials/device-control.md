@@ -856,8 +856,8 @@ The built-in device aliases in `quad_cortex.mmd` and `eventide_h90.mmd` now supp
 **See also:**
 - [Device Library Creation Guide](../user-guide/device-libraries.md) - Writing computed value aliases
 - [Alias API Reference](../user-guide/alias-api.md) - Complete computed value syntax
-- [quad_cortex.mmd](../../devices/quad_cortex.mmd) - Examples of computed alias patterns
-- [eventide_h90.mmd](../../devices/eventide_h90.mmd) - H90-specific computed aliases
+- [quad_cortex.mmd](https://github.com/cjgdev/midi-markdown/blob/main/devices/quad_cortex.mmd) - Examples of computed alias patterns
+- [eventide_h90.mmd](https://github.com/cjgdev/midi-markdown/blob/main/devices/eventide_h90.mmd) - H90-specific computed aliases
 
 ## Advanced Techniques
 
@@ -921,7 +921,7 @@ Create your own convenience aliases in your MMD file:
 - [Helix MIDI Guide](https://line6.com/support/page/kb/effects-controllers/helix/helix-owners-manuals-r872/)
 - [Device Library Creation Guide](../user-guide/device-libraries.md)
 - [Alias System Guide](../user-guide/alias-system.md)
-- [MML Specification](../../spec.md)
+- [MML Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md)
 - [Example: 01_device_import.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/04_device_libraries/01_device_import.mmd)
 
 ## Summary

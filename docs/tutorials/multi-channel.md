@@ -855,7 +855,7 @@ Add independent melody on another channel:
 
 - [General MIDI Instrument List](https://www.midi.org/specifications-old/item/gm-level-1-sound-set)
 - [General MIDI Drum Map](https://www.midi.org/specifications-old/item/general-midi-2)
-- [MML Specification](../../spec.md) - Complete language reference
+- [MML Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md) - Complete language reference
 - [Example: 01_multi_channel_basic.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/02_midi_features/01_multi_channel_basic.mmd)
 - [Device Control Tutorial](device-control.md) - Control hardware devices
 - [Basic Melody Tutorial](basic-melody.md) - Single-channel foundations

@@ -1215,4 +1215,4 @@ title: "Quad Cortex Preset Changes"
 - [Frontmatter Reference](../reference/frontmatter.md) - Document metadata options
 - [Alias System Guide](alias-system.md) - Creating reusable command shortcuts
 - [CLI Reference](../cli-reference/overview.md) - Command-line options including `--ppq`
-- [Spec: Timing Specification](../../spec.md#timing-specification) - Formal timing rules
+- [Spec: Timing Specification](https://github.com/cjgdev/midi-markdown/blob/main/spec.md#timing-specification) - Formal timing rules
