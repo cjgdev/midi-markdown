@@ -485,11 +485,13 @@ class AliasResolver:
                 )
 
         # Convert to numeric value (int or float) for generic and other typed parameters
-        # Try int first, then float if that fails
+        # Try float if value is already float or string contains decimal point
         numeric_value: int | float
-        try:
-            numeric_value = int(value)
-        except (ValueError, TypeError):
+
+        # Check if value is already a float or looks like one
+        if isinstance(value, float):
+            numeric_value = value
+        elif isinstance(value, str) and "." in value:
             try:
                 numeric_value = float(value)
             except (ValueError, TypeError):
@@ -497,6 +499,18 @@ class AliasResolver:
                     f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
                     f"- expected numeric value at line {source_line}"
                 )
+        else:
+            # Try int first, then float
+            try:
+                numeric_value = int(value)
+            except (ValueError, TypeError):
+                try:
+                    numeric_value = float(value)
+                except (ValueError, TypeError):
+                    raise AliasError(
+                        f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
+                        f"- expected numeric value at line {source_line}"
+                    )
 
         # Validate range
         min_val = param_def.get("min", 0)
