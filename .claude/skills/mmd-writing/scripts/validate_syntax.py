@@ -10,10 +10,9 @@ Usage:
     python validate_syntax.py --stdin  # Read from stdin
 """
 
-import sys
 import re
+import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
 
 
 class SyntaxError:
@@ -29,7 +28,7 @@ class SyntaxError:
         return result
 
 
-def validate_frontmatter(lines: List[str]) -> Tuple[bool, List[SyntaxError], int]:
+def validate_frontmatter(lines: list[str]) -> tuple[bool, list[SyntaxError], int]:
     """Validate YAML frontmatter. Returns (valid, errors, end_line)."""
     errors = []
 
@@ -57,29 +56,31 @@ def validate_frontmatter(lines: List[str]) -> Tuple[bool, List[SyntaxError], int
     return len(errors) == 0, errors, end_line
 
 
-def validate_timing_marker(line: str, line_num: int) -> Optional[SyntaxError]:
+def validate_timing_marker(line: str, line_num: int) -> SyntaxError | None:
     """Validate timing marker syntax."""
     line = line.strip()
 
     # Absolute timing: [mm:ss.ms]
-    absolute_pattern = r'^\[\d+:\d{2}\.\d{3}\]$'
+    absolute_pattern = r"^\[\d+:\d{2}\.\d{3}\]$"
     # Musical timing: [bar.beat.tick]
-    musical_pattern = r'^\[\d+\.\d+\.\d+\]$'
+    musical_pattern = r"^\[\d+\.\d+\.\d+\]$"
     # Relative timing: [+value unit] or [+bar.beat.tick]
-    relative_pattern = r'^\[\+(\d+(\.\d+)?[smbt]|\d+\.\d+\.\d+)\]$'
+    relative_pattern = r"^\[\+(\d+(\.\d+)?[smbt]|\d+\.\d+\.\d+)\]$"
     # Simultaneous: [@]
-    simultaneous_pattern = r'^\[@\]$'
+    simultaneous_pattern = r"^\[@\]$"
 
-    if not (re.match(absolute_pattern, line) or
-            re.match(musical_pattern, line) or
-            re.match(relative_pattern, line) or
-            re.match(simultaneous_pattern, line)):
+    if not (
+        re.match(absolute_pattern, line)
+        or re.match(musical_pattern, line)
+        or re.match(relative_pattern, line)
+        or re.match(simultaneous_pattern, line)
+    ):
         return SyntaxError(line_num, "Invalid timing marker format", line)
 
     return None
 
 
-def validate_command(line: str, line_num: int) -> Optional[SyntaxError]:
+def validate_command(line: str, line_num: int) -> SyntaxError | None:
     """Validate MIDI command syntax."""
     line = line.strip()
 
@@ -97,22 +98,42 @@ def validate_command(line: str, line_num: int) -> Optional[SyntaxError]:
 
     # Valid command types
     valid_commands = [
-        "note_on", "note_off", "pc", "program_change", "cc", "control_change",
-        "pb", "pitch_bend", "cp", "channel_pressure", "pp", "poly_pressure",
-        "tempo", "time_signature", "key_signature", "marker", "text",
-        "track_name", "instrument_name", "lyric", "cue_point", "device_name",
-        "all_notes_off", "all_sound_off", "reset_controllers"
+        "note_on",
+        "note_off",
+        "pc",
+        "program_change",
+        "cc",
+        "control_change",
+        "pb",
+        "pitch_bend",
+        "cp",
+        "channel_pressure",
+        "pp",
+        "poly_pressure",
+        "tempo",
+        "time_signature",
+        "key_signature",
+        "marker",
+        "text",
+        "track_name",
+        "instrument_name",
+        "lyric",
+        "cue_point",
+        "device_name",
+        "all_notes_off",
+        "all_sound_off",
+        "reset_controllers",
     ]
 
     if cmd_type not in valid_commands and not cmd_type.replace("_", "").isalpha():
         # Might be an alias, check if it looks reasonable
-        if not re.match(r'^[a-z_][a-z0-9_]*$', cmd_type):
+        if not re.match(r"^[a-z_][a-z0-9_]*$", cmd_type):
             return SyntaxError(line_num, f"Invalid command type: {cmd_type}", line)
 
     return None
 
 
-def validate_variable(line: str, line_num: int) -> Optional[SyntaxError]:
+def validate_variable(line: str, line_num: int) -> SyntaxError | None:
     """Validate @define syntax."""
     line = line.strip()
 
@@ -124,19 +145,19 @@ def validate_variable(line: str, line_num: int) -> Optional[SyntaxError]:
         return SyntaxError(line_num, "@define requires NAME and value", line)
 
     var_name = parts[0]
-    if not re.match(r'^[A-Z_][A-Z0-9_]*$', var_name):
-        return SyntaxError(line_num,
-                          f"Variable name '{var_name}' should be UPPERCASE with underscores",
-                          line)
+    if not re.match(r"^[A-Z_][A-Z0-9_]*$", var_name):
+        return SyntaxError(
+            line_num, f"Variable name '{var_name}' should be UPPERCASE with underscores", line
+        )
 
     return None
 
 
-def validate_loop(line: str, line_num: int) -> Optional[SyntaxError]:
+def validate_loop(line: str, line_num: int) -> SyntaxError | None:
     """Validate @loop syntax."""
     line = line.strip()
 
-    if not re.match(r'^@loop\s+\d+\s+times', line):
+    if not re.match(r"^@loop\s+\d+\s+times", line):
         return SyntaxError(line_num, "@loop syntax: @loop N times [at [time]] every interval", line)
 
     if "every" not in line:
@@ -145,7 +166,7 @@ def validate_loop(line: str, line_num: int) -> Optional[SyntaxError]:
     return None
 
 
-def validate_file(content: str) -> Tuple[bool, List[SyntaxError]]:
+def validate_file(content: str) -> tuple[bool, list[SyntaxError]]:
     """Validate entire MMD file."""
     lines = content.split("\n")
     errors = []
@@ -160,7 +181,7 @@ def validate_file(content: str) -> Tuple[bool, List[SyntaxError]]:
     in_alias = False
     in_multiline_comment = False
 
-    for i, line in enumerate(lines[fm_end + 1:], start=fm_end + 2):
+    for i, line in enumerate(lines[fm_end + 1 :], start=fm_end + 2):
         stripped = line.strip()
 
         # Skip empty lines
@@ -211,7 +232,9 @@ def validate_file(content: str) -> Tuple[bool, List[SyntaxError]]:
         # Validate @import
         if stripped.startswith("@import"):
             if not re.match(r'^@import\s+"[^"]+"', stripped):
-                errors.append(SyntaxError(i, '@import requires quoted path: @import "path"', stripped))
+                errors.append(
+                    SyntaxError(i, '@import requires quoted path: @import "path"', stripped)
+                )
             continue
 
         # Validate timing markers

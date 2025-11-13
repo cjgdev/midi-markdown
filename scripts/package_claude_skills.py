@@ -62,7 +62,7 @@ This package contains Claude Code skills for working with MIDI Markdown (MMD) fi
         readme_content += f"- **{skill_name}**: "
 
         # Extract purpose from skill file
-        with open(skill_file, 'r') as f:
+        with open(skill_file) as f:
             lines = f.readlines()
             for i, line in enumerate(lines):
                 if line.strip().startswith("## Purpose"):
@@ -288,17 +288,14 @@ pause
             {
                 "name": skill_file.stem,
                 "filename": skill_file.name,
-                "size": skill_file.stat().st_size
+                "size": skill_file.stat().st_size,
             }
             for skill_file in skill_files
         ],
         "archives": {
-            format_name: {
-                "filename": archive_path.name,
-                "size": archive_path.stat().st_size
-            }
+            format_name: {"filename": archive_path.name, "size": archive_path.stat().st_size}
             for format_name, archive_path in archives.items()
-        }
+        },
     }
 
     manifest_path = output_dir / f"claude-skills-mmd-{version}.manifest.json"
@@ -310,25 +307,21 @@ pause
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Package Claude Code skills for MIDI Markdown"
-    )
+    parser = argparse.ArgumentParser(description="Package Claude Code skills for MIDI Markdown")
     parser.add_argument(
         "--source",
         type=Path,
         default=Path.cwd(),
-        help="Source directory containing .claude/skills/ (default: current directory)"
+        help="Source directory containing .claude/skills/ (default: current directory)",
     )
     parser.add_argument(
         "--output",
         type=Path,
         default=Path.cwd() / "dist" / "claude-skills",
-        help="Output directory for archives (default: dist/claude-skills)"
+        help="Output directory for archives (default: dist/claude-skills)",
     )
     parser.add_argument(
-        "--version",
-        required=True,
-        help="Version string for the skills package (e.g., 0.1.0)"
+        "--version", required=True, help="Version string for the skills package (e.g., 0.1.0)"
     )
 
     args = parser.parse_args()

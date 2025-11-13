@@ -20,17 +20,17 @@ def supports_unicode_emojis() -> bool:
     """
     try:
         # Get stdout encoding (default to utf-8 if unknown)
-        encoding = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
+        encoding = getattr(sys.stdout, "encoding", "utf-8") or "utf-8"
 
         # Known limited encodings that don't support emojis
         limited_encodings = {
-            'cp1252',        # Windows Western European
-            'windows-1252',  # Windows Western European (alt name)
-            'charmap',       # Windows default (legacy)
-            'mbcs',          # Windows Multi-Byte Character Set
-            'ascii',         # 7-bit ASCII
-            'latin-1',       # ISO-8859-1
-            'iso-8859-1',    # ISO-8859-1 (alt name)
+            "cp1252",  # Windows Western European
+            "windows-1252",  # Windows Western European (alt name)
+            "charmap",  # Windows default (legacy)
+            "mbcs",  # Windows Multi-Byte Character Set
+            "ascii",  # 7-bit ASCII
+            "latin-1",  # ISO-8859-1
+            "iso-8859-1",  # ISO-8859-1 (alt name)
         }
 
         # Check if current encoding is limited
@@ -39,7 +39,7 @@ def supports_unicode_emojis() -> bool:
 
         # Try to encode a test emoji
         try:
-            '✅'.encode(encoding)
+            "✅".encode(encoding)
             return True
         except (UnicodeEncodeError, UnicodeDecodeError):
             return False
@@ -83,19 +83,19 @@ def safe_emoji(emoji: str, fallback: str = "") -> str:
 
 # Common emoji mappings with ASCII fallbacks
 EMOJIS = {
-    'check': ('✅', '[OK]'),
-    'checkmark': ('✓', '[OK]'),
-    'cross': ('✗', '[X]'),
-    'error': ('❌', '[ERROR]'),
-    'warning': ('⚠️', '[!]'),
-    'info': ('ℹ️', '[i]'),
-    'lightbulb': ('💡', '[i]'),
-    'rocket': ('🚀', '>>'),
-    'musical_note': ('🎵', '♪'),
-    'gear': ('⚙️', '[*]'),
-    'bullet': ('•', '-'),
-    'arrow_right': ('→', '->'),
-    'arrow_left': ('←', '<-'),
+    "check": ("✅", "[OK]"),
+    "checkmark": ("✓", "[OK]"),
+    "cross": ("✗", "[X]"),
+    "error": ("❌", "[ERROR]"),
+    "warning": ("⚠️", "[!]"),
+    "info": ("ℹ️", "[i]"),
+    "lightbulb": ("💡", "[i]"),
+    "rocket": ("🚀", ">>"),
+    "musical_note": ("🎵", "♪"),
+    "gear": ("⚙️", "[*]"),
+    "bullet": ("•", "-"),
+    "arrow_right": ("→", "->"),
+    "arrow_left": ("←", "<-"),
 }
 
 

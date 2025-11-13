@@ -152,6 +152,7 @@ def compile(
     # Auto-detect limited console encodings (e.g., Windows charmap)
     # and disable emoji to prevent UnicodeEncodeError
     from ..encoding_utils import should_disable_emoji
+
     no_emoji = should_disable_emoji(no_emoji)
 
     # Create console with appropriate settings

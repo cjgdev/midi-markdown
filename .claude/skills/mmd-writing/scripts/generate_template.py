@@ -11,10 +11,9 @@ Usage:
     python generate_template.py --list
 """
 
-import sys
 import argparse
+import sys
 from datetime import datetime
-
 
 TEMPLATES = {
     "basic": """---
@@ -35,7 +34,6 @@ time_signature: [4, 4]
 [00:01.000]
 - note_on 1.C4 100 1b
 """,
-
     "song": """---
 title: "{title}"
 author: "{author}"
@@ -118,7 +116,6 @@ time_signature: [4, 4]
 
 # Add outro commands here
 """,
-
     "live-set": """---
 title: "{title}"
 author: "{author}"
@@ -164,7 +161,6 @@ devices:
 - marker "Outro"
 # Add final automation here
 """,
-
     "drums": """---
 title: "{title} - Drums"
 author: "{author}"
@@ -210,7 +206,6 @@ time_signature: [4, 4]
   - note_on 10.${{HIHAT_CLOSED}} 65 0.1b
 @end
 """,
-
     "automation": """---
 title: "{title} - Automation"
 author: "{author}"
@@ -264,7 +259,6 @@ tempo: {tempo}
 # LFO panning
 - cc 1.10.wave(sine, 64, freq=2.0, depth=80)
 """,
-
     "minimal": """---
 title: "{title}"
 ppq: 480
@@ -274,7 +268,7 @@ tempo: {tempo}
 [00:00.000]
 - tempo {tempo}
 - note_on 1.C4 100 1b
-"""
+""",
 }
 
 
@@ -313,7 +307,7 @@ def generate_template(template_type: str, **kwargs):
         "author": kwargs.get("author", "Your Name"),
         "date": kwargs.get("date", datetime.now().strftime("%Y-%m-%d")),
         "tempo": kwargs.get("tempo", 120),
-        "device": kwargs.get("device", "quad_cortex")
+        "device": kwargs.get("device", "quad_cortex"),
     }
 
     template = TEMPLATES[template_type]
@@ -333,25 +327,21 @@ Examples:
   %(prog)s --type song --title "My Song" --tempo 140
   %(prog)s --type live-set --device eventide_h90
   %(prog)s --type drums --title "Rock Beat"
-        """
+        """,
     )
 
-    parser.add_argument("--list", action="store_true",
-                       help="List available templates")
-    parser.add_argument("--type", choices=TEMPLATES.keys(),
-                       help="Template type")
-    parser.add_argument("--title", default="Untitled",
-                       help="Song/file title")
-    parser.add_argument("--author", default="Your Name",
-                       help="Author name")
-    parser.add_argument("--tempo", type=int, default=120,
-                       help="Default tempo (BPM)")
-    parser.add_argument("--device", default="quad_cortex",
-                       choices=["quad_cortex", "eventide_h90", "helix",
-                               "hx_stomp", "hx_effects", "hx_stomp_xl"],
-                       help="Device for live-set template")
-    parser.add_argument("-o", "--output",
-                       help="Output file (default: stdout)")
+    parser.add_argument("--list", action="store_true", help="List available templates")
+    parser.add_argument("--type", choices=TEMPLATES.keys(), help="Template type")
+    parser.add_argument("--title", default="Untitled", help="Song/file title")
+    parser.add_argument("--author", default="Your Name", help="Author name")
+    parser.add_argument("--tempo", type=int, default=120, help="Default tempo (BPM)")
+    parser.add_argument(
+        "--device",
+        default="quad_cortex",
+        choices=["quad_cortex", "eventide_h90", "helix", "hx_stomp", "hx_effects", "hx_stomp_xl"],
+        help="Device for live-set template",
+    )
+    parser.add_argument("-o", "--output", help="Output file (default: stdout)")
 
     args = parser.parse_args()
 
@@ -365,11 +355,7 @@ Examples:
 
     # Generate template
     output = generate_template(
-        args.type,
-        title=args.title,
-        author=args.author,
-        tempo=args.tempo,
-        device=args.device
+        args.type, title=args.title, author=args.author, tempo=args.tempo, device=args.device
     )
 
     # Write output

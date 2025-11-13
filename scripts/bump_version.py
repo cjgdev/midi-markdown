@@ -57,10 +57,10 @@ class VersionBumper:
 
         if bump_type == "major":
             return f"{major + 1}.0.0"
-        elif bump_type == "minor":
+        if bump_type == "minor":
             return f"{major}.{minor + 1}.0"
-        else:  # patch
-            return f"{major}.{minor}.{patch + 1}"
+        # patch
+        return f"{major}.{minor}.{patch + 1}"
 
     def update_pyproject(self, new_version: str) -> None:
         """Update version in pyproject.toml."""
@@ -191,8 +191,8 @@ class VersionBumper:
                 sys.exit(1)
 
         print(f"\n✅ Version {version} committed and tagged!")
-        print(f"\nTo push changes:")
-        print(f"  git push origin main")
+        print("\nTo push changes:")
+        print("  git push origin main")
         print(f"  git push origin v{version}")
 
 
@@ -276,8 +276,8 @@ Examples:
             bumper.git_commit_and_tag(new_version, dry_run=args.dry_run)
         else:
             print("\n⚠ Skipping git operations (--no-git)")
-            print(f"Don't forget to commit and tag manually:")
-            print(f"  git add pyproject.toml src/midi_markdown/__init__.py CHANGELOG.md")
+            print("Don't forget to commit and tag manually:")
+            print("  git add pyproject.toml src/midi_markdown/__init__.py CHANGELOG.md")
             print(f"  git commit -m 'Release version {new_version}'")
             print(f"  git tag -a v{new_version} -m 'Release {new_version}'")
 

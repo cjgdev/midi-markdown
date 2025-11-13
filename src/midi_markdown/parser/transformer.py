@@ -76,12 +76,11 @@ class MMDTransformer(Transformer):
                 # Switch to this track - subsequent events go to this track
                 doc.tracks.append(stmt)
                 current_track = stmt
+            # Add events to current track if in track context, else to top-level
+            elif current_track is not None:
+                current_track.events.append(stmt)
             else:
-                # Add events to current track if in track context, else to top-level
-                if current_track is not None:
-                    current_track.events.append(stmt)
-                else:
-                    doc.events.append(stmt)
+                doc.events.append(stmt)
 
         return doc
 
@@ -487,9 +486,7 @@ class MMDTransformer(Transformer):
         hex_bytes = []
         for item in items:
             # HEX_BYTE tokens are Token objects with .value attribute
-            if hasattr(item, 'value'):
-                hex_bytes.append(item)
-            elif isinstance(item, str):
+            if hasattr(item, "value") or isinstance(item, str):
                 hex_bytes.append(item)
         return hex_bytes
 

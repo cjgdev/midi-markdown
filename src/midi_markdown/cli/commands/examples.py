@@ -159,7 +159,9 @@ def examples(
             console.print()
 
         lightbulb = safe_emoji("💡", "[i]")
-        console.print(f"[dim]{lightbulb} View full code:[/dim] [cyan]midimarkup examples <name>[/cyan]")
+        console.print(
+            f"[dim]{lightbulb} View full code:[/dim] [cyan]midimarkup examples <name>[/cyan]"
+        )
         console.print()
         return
 

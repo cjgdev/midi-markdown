@@ -186,8 +186,26 @@ class TestBasicMIDICommands:
         # Verify all 18 hex bytes are captured
         assert len(cmd.params["bytes"]) == 18
         # F0 + 16 data bytes + F7
-        expected = ["F0", "41", "10", "00", "11", "12", "40", "00", "7F",
-                    "00", "41", "01", "02", "03", "04", "05", "06", "F7"]
+        expected = [
+            "F0",
+            "41",
+            "10",
+            "00",
+            "11",
+            "12",
+            "40",
+            "00",
+            "7F",
+            "00",
+            "41",
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "F7",
+        ]
         assert cmd.params["bytes"] == expected
 
 

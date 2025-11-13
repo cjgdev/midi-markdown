@@ -5,7 +5,6 @@ Tests for multi-track MMD file compilation, event generation, and timing validat
 This test suite exposes and validates fixes for multi-track timing bugs.
 """
 
-import pytest
 
 from midi_markdown.core.compiler import compile_ast_to_ir
 from midi_markdown.parser.parser import MMDParser
@@ -45,8 +44,9 @@ title: "Single Track Test"
         # Second note should be at 1 second (120 BPM default, 480 PPQ)
         # 1 second = 960 ticks at 120 BPM
         expected_time = 960
-        assert note_on_events[1].time == expected_time, \
+        assert note_on_events[1].time == expected_time, (
             f"Second note at {note_on_events[1].time}, expected {expected_time}"
+        )
 
     def test_two_tracks_compilation(self):
         """Test that two @track blocks compile with correct timing."""
@@ -102,8 +102,7 @@ title: "Staggered Tracks"
         ir = compile_ast_to_ir(doc, ppq=480)
 
         note_on_events = sorted(
-            [e for e in ir.events if e.type.name == "NOTE_ON"],
-            key=lambda e: e.time
+            [e for e in ir.events if e.type.name == "NOTE_ON"], key=lambda e: e.time
         )
 
         assert len(note_on_events) == 3, f"Expected 3 note_on events, got {len(note_on_events)}"
@@ -112,10 +111,14 @@ title: "Staggered Tracks"
         assert note_on_events[0].time == 0, f"First event at {note_on_events[0].time}, expected 0"
         assert note_on_events[0].channel == 10
 
-        assert note_on_events[1].time == 960, f"Second event at {note_on_events[1].time}, expected 960"
+        assert note_on_events[1].time == 960, (
+            f"Second event at {note_on_events[1].time}, expected 960"
+        )
         assert note_on_events[1].channel == 2
 
-        assert note_on_events[2].time == 1920, f"Third event at {note_on_events[2].time}, expected 1920"
+        assert note_on_events[2].time == 1920, (
+            f"Third event at {note_on_events[2].time}, expected 1920"
+        )
         assert note_on_events[2].channel == 1
 
 
@@ -146,7 +149,7 @@ title: "Overlapping Events"
 
         cc_events = sorted(
             [e for e in ir.events if e.type.name == "CONTROL_CHANGE"],
-            key=lambda e: (e.time, e.channel)
+            key=lambda e: (e.time, e.channel),
         )
 
         assert len(cc_events) == 4, f"Expected 4 CC events, got {len(cc_events)}"
@@ -191,8 +194,7 @@ time_signature: [4, 4]
         ir = compile_ast_to_ir(doc, ppq=480)
 
         note_on_events = sorted(
-            [e for e in ir.events if e.type.name == "NOTE_ON"],
-            key=lambda e: e.time
+            [e for e in ir.events if e.type.name == "NOTE_ON"], key=lambda e: e.time
         )
 
         assert len(note_on_events) == 4
@@ -239,7 +241,7 @@ title: "Relative Timing in Tracks"
 
         cc_events = sorted(
             [e for e in ir.events if e.type.name == "CONTROL_CHANGE"],
-            key=lambda e: (e.time, e.channel)
+            key=lambda e: (e.time, e.channel),
         )
 
         assert len(cc_events) == 5
@@ -336,8 +338,9 @@ title: "Track with Loop"
         # Verify spacing (1 beat = 480 ticks at 120 BPM)
         for i, event in enumerate(sorted(note_on_events, key=lambda e: e.time)):
             expected_time = i * 480
-            assert event.time == expected_time, \
+            assert event.time == expected_time, (
                 f"Event {i} at {event.time}, expected {expected_time}"
+            )
 
     def test_simultaneous_timing_in_tracks(self):
         """Test simultaneous [@] timing marker in tracks."""
@@ -363,7 +366,7 @@ title: "Simultaneous Events in Tracks"
 
         cc_events = sorted(
             [e for e in ir.events if e.type.name == "CONTROL_CHANGE"],
-            key=lambda e: (e.time, e.channel, e.data1)
+            key=lambda e: (e.time, e.channel, e.data1),
         )
 
         assert len(cc_events) == 4
