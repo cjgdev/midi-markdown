@@ -56,17 +56,17 @@ Comprehensive AST node hierarchy:
 - Comprehensive docstrings
 - Dataclass-based for clean serialization
 
-### 3. Parser & Transformer (`ast_builder.py`) - 720 lines
+### 3. Parser & Transformer (`parser.py` + `transformer.py`)
 
-Complete parser implementation with Lark transformer:
+Complete parser implementation with Lark:
 
-✅ **Parser class**: Main interface, loads grammar, provides `parse()` and `parse_file()` methods
-✅ **MMLTransformer class**: Converts Lark parse tree to AST
+✅ **MMDParser class** (`parser.py`): Main interface, loads grammar, provides `parse_string()` and `parse_file()` methods
+✅ **MMDTransformer class** (`transformer.py`): Converts Lark parse tree to AST
 ✅ **30+ transformer methods**: One for each grammar rule
 ✅ **Position tracking**: Extracts line/column from tokens and trees
 ✅ **YAML frontmatter parsing**: Uses PyYAML for metadata
 ✅ **Timing parsing**: Regex-based type detection and component extraction
-✅ **Error handling**: Converts Lark exceptions to `ParseError` with position info
+✅ **Error handling**: Lark exceptions (UnexpectedInput, UnexpectedToken, UnexpectedEOF) with position info
 ✅ **File parsing**: Convenience method for parsing from files
 
 **Key Features**:
@@ -192,9 +192,9 @@ docs/
 ### Basic Parsing
 
 ```python
-from midi_markdown.parser.ast_builder import Parser
+from midi_markdown.parser.parser import MMDParser
 
-parser = Parser()
+parser = MMDParser()
 
 source = """---
 title: "My Song"
@@ -205,8 +205,8 @@ title: "My Song"
 - pc 1.0
 """
 
-doc = parser.parse(source, source_file="song.mmd")
-print(doc.frontmatter.parsed_data["title"])  # "My Song"
+doc = parser.parse_string(source)
+print(doc.frontmatter["title"])  # "My Song"
 ```
 
 ### Parse from File
@@ -214,29 +214,28 @@ print(doc.frontmatter.parsed_data["title"])  # "My Song"
 ```python
 from pathlib import Path
 
-parser = Parser()
-doc = parser.parse_file(Path("examples/00_basics/00_hello_world.mmd"))
+parser = MMDParser()
+doc = parser.parse_file(Path("examples/00_basics/01_hello_world.mmd"))
 ```
 
 ### Walk AST
 
 ```python
-for stmt in doc.statements:
-    if isinstance(stmt, TimingBlock):
-        print(f"Time: {stmt.timing.value}")
-        for cmd in stmt.commands:
-            print(f"  {cmd.command_name}: {cmd.arguments}")
+for event in doc.events:
+    if event["type"] in ("note_on", "cc", "pc"):
+        print(f"Time: {event['timing']}")
+        print(f"  Command: {event['type']}, Channel: {event['channel']}")
 ```
 
 ### Error Handling
 
 ```python
-from midi_markdown.parser.ast_builder import ParseError
+from lark import UnexpectedInput
 
 try:
-    doc = parser.parse("@@@ invalid")
-except ParseError as e:
-    print(f"Error at {e.file}:{e.line}:{e.column}: {e.message}")
+    doc = parser.parse_string("@@@ invalid")
+except UnexpectedInput as e:
+    print(f"Parse error at line {e.line}, column {e.column}: {e}")
 ```
 
 ---
@@ -271,61 +270,64 @@ tests/unit/test_parser.py::TestDirectiveParsing PASSED [13%]
 
 ---
 
-## What's Next
+## Implementation Status
 
-The parser is **production-ready** and provides the foundation for the compiler pipeline. Next phases:
+The parser is **production-ready** and provides the foundation for the complete compiler pipeline. All phases are now **complete**:
 
-### Phase 1: Validation (Next)
-**File**: `src/midi_markdown/utils/validation.py`
+### ✅ Phase 0: Parser & AST (Complete)
+**Files**: `src/midi_markdown/parser/`
+- ✅ Lark-based LALR parser with full MMD syntax support
+- ✅ AST node definitions with position tracking
+- ✅ Transformer for parse tree → AST conversion
+- ✅ 598 passing unit tests
 
-Tasks:
-- Validate MIDI value ranges (0-127 for most, 1-16 for channels)
-- Check timing monotonicity (times must increase)
-- Validate frontmatter required fields
-- Check parameter types and ranges
-- Validate note names and octaves
-- Ensure valid time signatures, tempos
+### ✅ Phase 1: Validation (Complete)
+**Files**: `src/midi_markdown/utils/validation/`
+- ✅ MIDI value range validation (0-127, channels 1-16)
+- ✅ Timing monotonicity checks
+- ✅ Frontmatter validation
+- ✅ Parameter type and range validation
+- ✅ Note name and octave validation
 
-### Phase 2: Alias Resolution
-**File**: `src/midi_markdown/alias/resolver.py`
+### ✅ Phase 2: Alias Resolution (Complete)
+**Files**: `src/midi_markdown/alias/`
+- ✅ Alias expansion to MIDI commands
+- ✅ Parameter substitution with enums and defaults
+- ✅ Computed values and expressions
+- ✅ Conditional logic (@if/@elif/@else)
+- ✅ Device library loading (@import)
 
-Tasks:
-- Expand `AliasCall` nodes to `MIDICommand` nodes
-- Substitute parameter values
-- Handle enums and defaults
-- Validate parameter counts and ranges
-- Load device libraries (@import)
-- Detect circular imports
+### ✅ Phase 3: Real-time Playback (Complete)
+**Files**: `src/midi_markdown/runtime/`
+- ✅ Real-time MIDI output via python-rtmidi
+- ✅ Sub-5ms timing precision
+- ✅ Interactive TUI with playback controls
+- ✅ Tempo map support for dynamic tempo changes
 
-### Phase 3: MIDI Generation
-**File**: `src/midi_markdown/midi/generator.py`
+### ✅ Phase 4: Command Expansion (Complete)
+**Files**: `src/midi_markdown/expansion/`
+- ✅ @loop directive expansion
+- ✅ @sweep automation
+- ✅ Variable substitution (${VAR})
+- ✅ Expression evaluation
+- ✅ Musical/relative timing conversion
 
-Tasks:
-- Convert AST to MIDI events
-- Calculate absolute timing in ticks (from musical/relative time)
-- Generate note_off for note_on with duration
-- Handle meta events (tempo, markers, time signature)
-- Write MIDI file with mido library
-- Support multi-track files
+### ✅ Phase 5: MIDI Generation (Complete)
+**Files**: `src/midi_markdown/codegen/`
+- ✅ MIDI file generation (formats 0, 1, 2)
+- ✅ JSON/CSV export
+- ✅ Absolute timing calculation
+- ✅ Multi-track support
+- ✅ Meta event handling
 
-### Phase 4: Import Resolution
-**New module**: `src/midi_markdown/imports/resolver.py`
+### ✅ Phase 6: Generative & Modulation (Complete)
+**Files**: `src/midi_markdown/expansion/`
+- ✅ random() expressions for velocity, notes, CC values
+- ✅ curve() expressions (bezier, ease-in/out)
+- ✅ wave() expressions (LFO modulation)
+- ✅ envelope() expressions (ADSR, AR, AD)
 
-Tasks:
-- Load device library files
-- Merge alias definitions
-- Detect circular imports
-- Resolve relative paths
-
-### Phase 5: Advanced Features
-**Modules**: Loop expansion, conditionals, variables
-
-Tasks:
-- Expand @loop directives
-- Evaluate @if/@elif/@else conditionals
-- Substitute variables (${VAR})
-- Calculate expressions
-- Generate ramps and sweeps
+**Current Status**: MVP Complete - 1264 passing tests, 72.53% coverage
 
 ---
 

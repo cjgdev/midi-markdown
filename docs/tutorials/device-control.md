@@ -796,7 +796,7 @@ Device aliases can now include computed parameters that calculate values based o
 @alias qc_tempo_to_cc {ch}.{bpm} "Convert BPM to CC value for tempo-synced delay"
   # Example: Map BPM to delay feedback
   # Higher BPM = higher feedback CC value
-  {feedback = bpm / 120 * 127}  # Normalize 120 BPM to 127
+  {feedback = ${bpm} / 120 * 127}  # Normalize 120 BPM to 127
   [00:00.000]
   - cc {ch}.91.{feedback}        # Send as reverb parameter (CC#91)
 @end
@@ -813,8 +813,8 @@ Here's a practical example that scales expression pedal range based on song temp
 ```markdown
 @alias cortex_tempo_expression {ch}.{bpm}.{velocity} "Expression scaled to tempo"
   # Faster songs (high BPM) get more aggressive expression range
-  {expr_range = (bpm - 80) / 2}     # Range increases with BPM
-  {expr_value = velocity * expr_range / 100}
+  {expr_range = (${bpm} - 80) / 2}     # Range increases with BPM
+  {expr_value = ${velocity} * ${expr_range} / 100}
   [00:00.000]
   - qc_exp1 {ch}.{expr_value}
 @end
@@ -836,7 +836,7 @@ Computed values shine when automating preset selection based on musical paramete
 ```markdown
 @alias h90_preset_for_section {ch}.{section_num}.{tempo} "Auto-select H90 program based on section"
   # Map section number to H90 program (0-99)
-  {program = section_num * 10 + (tempo / 60)}  # Section determines base, tempo determines variant
+  {program = ${section_num} * 10 + (${tempo} / 60)}  # Section determines base, tempo determines variant
   [00:00.000]
   - h90_program {ch}.{program}
 @end

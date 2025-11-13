@@ -567,7 +567,7 @@ Here's how to take a rigid drum pattern and make it sound human:
 
 ### Example Files to Study
 
-The `examples/04_generative/` directory contains full working examples:
+The `examples/05_generative/` directory contains full working examples:
 
 - **random_humanization.mmd** - Foundational velocity and note randomization (start here!)
 - **algorithmic_drums.mmd** - Professional drum patterns with humanization
@@ -626,4 +626,4 @@ Happy creating! 🎵
 ---
 
 *Last updated: November 2025*
-*See the `examples/04_generative/` directory for runnable examples and more advanced techniques.*
+*See the `examples/05_generative/` directory for runnable examples and more advanced techniques.*

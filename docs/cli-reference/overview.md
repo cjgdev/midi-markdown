@@ -44,10 +44,10 @@ uv run mmdc compile INPUT_FILE [OPTIONS]
 **Examples:**
 ```bash
 # Basic compilation
-uv run mmdc compile examples/00_basics/00_hello_world.mmd
+uv run mmdc compile examples/00_basics/01_hello_world.mmd
 
 # Specify output file
-uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/hello.mid
+uv run mmdc compile examples/00_basics/01_hello_world.mmd -o output/hello.mid
 
 # Verbose output (shows compilation stages)
 uv run mmdc compile song.mmd -o output.mid -v
@@ -124,7 +124,7 @@ done
 **Success Output:**
 ```
 ✅ Validation passed
-File: examples/00_basics/00_hello_world.mmd
+File: examples/00_basics/01_hello_world.mmd
 Events: 3
 ```
 
@@ -185,7 +185,7 @@ Version: 0.1.0
 
 ### library
 
-Manage device libraries (commands are currently stubbed).
+Manage device libraries.
 
 **Usage:**
 ```bash
@@ -209,7 +209,89 @@ uv run mmdc library info quad_cortex
 uv run mmdc library validate devices/quad_cortex.mmd
 ```
 
-**Note:** Library commands are currently stubbed and will show a warning message.
+---
+
+### ports
+
+List available MIDI output ports for real-time playback.
+
+**Usage:**
+```bash
+uv run mmdc ports
+```
+
+**Output:**
+```
+Available MIDI Ports:
+  0: IAC Driver Bus 1
+  1: Network Session 1
+  2: Bluetooth MIDI
+```
+
+**Usage in playback:**
+```bash
+# Use port number with play command
+uv run mmdc play song.mmd --port 0
+```
+
+---
+
+### examples
+
+Show example MMD code snippets for quick reference.
+
+**Usage:**
+```bash
+uv run mmdc examples [CATEGORY]
+```
+
+**Categories:**
+- `basic` - Simple MIDI commands
+- `timing` - Different timing paradigms
+- `loops` - Loop patterns
+- `devices` - Device library usage
+- `all` - Show all examples (default)
+
+**Output:**
+```
+MMD Examples
+
+Basic Note On:
+[00:00.000]
+- note_on 1.60 100 1b
+
+CC Automation:
+[00:00.000]
+- cc 1.7.100
+```
+
+---
+
+### cheatsheet
+
+Display a quick reference guide for MMD syntax.
+
+**Usage:**
+```bash
+uv run mmdc cheatsheet
+```
+
+**Output:**
+```
+MMD Syntax Cheatsheet
+
+Timing:
+  [00:00.000]     Absolute (mm:ss.ms)
+  [1.1.0]         Musical (bar.beat.tick)
+  [+500ms]        Relative delta
+  [@]             Simultaneous
+
+Commands:
+  note_on 1.60 100 1b    Note on with duration
+  cc 1.7.127             Control change
+  pc 1.5                 Program change
+  tempo 120              Set tempo
+```
 
 ---
 
@@ -294,55 +376,55 @@ The compiler provides detailed error messages with context and suggestions:
 
 All numbered examples (00-13) should compile successfully:
 
-### Beginner (00-03)
+### Beginner (Basics)
 ```bash
-# 00: Simplest possible MMD file
-uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/00.mid
+# 01: Simplest possible MMD file
+uv run mmdc compile examples/00_basics/01_hello_world.mmd -o output/01_hello.mid
 
-# 01: Basic metadata and meta events
-uv run mmdc compile examples/00_basics/01_minimal_midi.mmd -o output/01.mid
+# 02: Basic metadata and meta events
+uv run mmdc compile examples/00_basics/02_minimal_midi.mmd -o output/02_minimal.mid
 
-# 02: Click track with repeated notes
-uv run mmdc compile examples/00_basics/02_simple_click_track.mmd -o output/02.mid
+# 03: Click track with repeated notes
+uv run mmdc compile examples/00_basics/03_simple_click_track.mmd -o output/03_click.mid
 
-# 03: Song sections with markers
-uv run mmdc compile examples/00_basics/03_song_structure_markers.mmd -o output/03.mid
+# 04: Song sections with markers
+uv run mmdc compile examples/00_basics/04_song_structure_markers.mmd -o output/04_structure.mid
 ```
 
-### Intermediate (04-07)
+### Intermediate (Timing & MIDI Features)
 ```bash
-# 04: Tempo changes throughout a song
-uv run mmdc compile examples/01_timing/04_tempo_changes.mmd -o output/04.mid
+# Tempo changes throughout a song
+uv run mmdc compile examples/01_timing/01_tempo_changes.mmd -o output/tempo_changes.mid
 
-# 05: Multiple MIDI channels (synth, bass, drums)
-uv run mmdc compile examples/02_midi_features/05_multi_channel_basic.mmd -o output/05.mid
+# Multiple MIDI channels (synth, bass, drums)
+uv run mmdc compile examples/02_midi_features/01_multi_channel_basic.mmd -o output/multi_channel.mid
 
-# 06: Control Change automation
-uv run mmdc compile examples/02_midi_features/06_cc_automation.mmd -o output/06.mid
+# Control Change automation
+uv run mmdc compile examples/02_midi_features/02_cc_automation.mmd -o output/cc_automation.mid
 
-# 07: Pitch bend and aftertouch
-uv run mmdc compile examples/02_midi_features/07_pitch_bend_pressure.mmd -o output/07.mid
+# Pitch bend and aftertouch
+uv run mmdc compile examples/02_midi_features/03_pitch_bend_pressure.mmd -o output/pitch_bend.mid
+
+# SysEx and system messages
+uv run mmdc compile examples/02_midi_features/04_system_messages.mmd -o output/system_messages.mid
 ```
 
-### Advanced (08-13)
+### Advanced (Patterns & Device Control)
 ```bash
-# 08: SysEx and system messages
-uv run mmdc compile examples/02_midi_features/08_system_messages.mmd -o output/08.mid
+# Loops and patterns
+uv run mmdc compile examples/03_advanced/01_loops_and_patterns.mmd -o output/loops.mid
 
-# 09: Comprehensive song with all features
-uv run mmdc compile examples/03_advanced/09_comprehensive_song.mmd -o output/09.mid
+# Sweep automation
+uv run mmdc compile examples/03_advanced/02_sweep_automation.mmd -o output/sweeps.mid
 
-# 10: Loops and patterns
-uv run mmdc compile examples/03_advanced/10_loops_and_patterns.mmd -o output/10.mid
+# Comprehensive song with all features
+uv run mmdc compile examples/03_advanced/10_comprehensive_song.mmd -o output/comprehensive.mid
 
-# 11: Sweep automation
-uv run mmdc compile examples/03_advanced/11_sweep_automation.mmd -o output/11.mid
+# Musical timing (bars.beats.ticks)
+uv run mmdc compile examples/01_timing/02_musical_timing.mmd -o output/musical_timing.mid
 
-# 12: Musical timing (bars.beats.ticks)
-uv run mmdc compile examples/01_timing/12_musical_timing.mmd -o output/12.mid
-
-# 13: Device library imports
-uv run mmdc compile examples/04_device_libraries/13_device_import.mmd -o output/13.mid
+# Device library imports
+uv run mmdc compile examples/04_device_libraries/01_device_import.mmd -o output/device_import.mid
 ```
 
 ---
