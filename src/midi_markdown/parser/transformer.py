@@ -162,30 +162,29 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
-    @v_args(inline=True)
-    def relative_time(self, value):
+    @v_args(inline=False)
+    def relative_time(self, items):
         """Handle relative_time parser rule.
 
         Grammar:
-            relative_time: "[+" duration "]"
-                         | "[+" MUSICAL_TIME_VALUE "]"
+            relative_time: RELATIVE_MUSICAL_TIME | "[+" duration "]"
 
         Args:
-            value: Can be either:
-                - duration (string like "2b", "500ms" or variable_ref)
-                - MUSICAL_TIME_VALUE (token like "2.1.0")
+            items: List containing either:
+                - RELATIVE_MUSICAL_TIME token (like "[+2.1.0]")
+                - duration value from "[+" duration "]"
 
         Returns:
             Timing object with type="relative"
-
-        Note: With @v_args(inline=True) at class level, we receive the value directly,
-              not as a list. Don't use value[0]!
         """
-        # Check if it's a musical time value (MUSICAL_TIME_VALUE terminal)
-        if isinstance(value, Token) and value.type == "MUSICAL_TIME_VALUE":
-            time_str = str(value)
+        value = items[0]
+
+        # Check if it's a RELATIVE_MUSICAL_TIME terminal (includes brackets)
+        if isinstance(value, Token) and value.type == "RELATIVE_MUSICAL_TIME":
+            # Extract the time value from the token (remove [+ and ])
+            time_str = str(value)[2:-1]  # Remove "[+" and "]"
             parts = time_str.split(".")
-            raw = f"[+{time_str}]"
+            raw = str(value)
             return Timing("relative", (int(parts[0]), int(parts[1]), int(parts[2])), raw)
 
         # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
@@ -209,9 +208,13 @@ class MMDTransformer(Transformer):
 
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
-                num, unit = match.groups()
+                num_str, unit = match.groups()
+                # Convert to float first, then to int if it's a whole number
+                num = float(num_str)
+                if num.is_integer():
+                    num = int(num)
                 raw = f"[+{value}]"
-                return Timing("relative", (float(num), unit), raw)
+                return Timing("relative", (num, unit), raw)
 
         # Fallback for unexpected format
         raw = f"[+{value}]"
@@ -331,7 +334,7 @@ class MMDTransformer(Transformer):
             String duration like "1b", "500ms" or variable/param ref
 
         Examples:
-        - "1.25b" → ["1.25", Token('TIME_UNIT', 'b')] → "1.25b"
+        - "1.25b" → [1.25, Token('TIME_UNIT', 'b')] → "1.25b"
         - "500ms" → [500, Token('TIME_UNIT', 'ms')] → "500ms"
         - "2b" → [2, Token('TIME_UNIT', 'b')] → "2b"
         - "${VAR}" → [('var', 'VAR')] → ('var', 'VAR')
@@ -342,7 +345,6 @@ class MMDTransformer(Transformer):
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
             # Extract unit from Token
-            from lark import Token
             unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             return f"{number}{unit}"
         elif len(children) == 1:

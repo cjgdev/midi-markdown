@@ -55,7 +55,7 @@ timing: ABSOLUTE_TIME
       | relative_time
       | simultaneous
 
-relative_time: "[+" MUSICAL_TIME_VALUE "]"
+relative_time: RELATIVE_MUSICAL_TIME  // Match [+2.1.0] as single token first
              | "[+" duration "]"
 
 simultaneous: "[@]"
@@ -379,10 +379,10 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-MUSICAL_TIME_VALUE.1: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks), highest priority to match before FLOAT
+RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.0]
 
-// Time Unit (ms must be before s to match correctly)
-TIME_UNIT.4: "ms" | "s" | "b" | "t"
+// Time unit for durations (ms must come before s to match correctly)
+TIME_UNIT: "ms" | "s" | "b" | "t"
 
 // Numbers
 // Terminal Priority System:
@@ -401,10 +401,10 @@ TIME_UNIT.4: "ms" | "s" | "b" | "t"
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
-//   "2.1.0" in "[+2.1.0]" → MUSICAL_TIME_VALUE (not FLOAT)
+//   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
-INT.2: /[+-]?\d+(?!\.\d+\.\d+\])/    // Negative lookahead: don't match if part of musical time pattern followed by ]
-FLOAT.3: /[+-]?\d+\.\d+(?!\.\d+\])/  // Negative lookahead: don't match if musical time pattern followed by ]
+INT.2: /[+-]?\d+/
+FLOAT.3: /[+-]?\d+\.\d+(?!\.\d)/  // Negative lookahead: don't match if followed by another .digit (for musical time 2.1.0)
 
 // Identifiers and Names
 NOTE_ON: "note_on"
