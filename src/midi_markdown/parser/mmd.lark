@@ -56,7 +56,6 @@ timing: ABSOLUTE_TIME
       | simultaneous
 
 relative_time: "[+" duration "]"
-             | "[+" MUSICAL_TIME_VALUE "]"
 
 simultaneous: "[@]"
 
@@ -92,9 +91,10 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT ("s" | "ms" | "b" | "t")
-        | INT ("s" | "ms" | "b" | "t")
-        | random_expr ("s" | "ms" | "b" | "t")
+duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | MUSICAL_TIME_VALUE
         | variable_ref
         | param_ref
 
@@ -379,7 +379,9 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+// Musical time value has priority 0 (highest) to match before FLOAT (priority 3)
+// This ensures [+2.1.0] is parsed as musical time, not [+2.1] + .0]
+MUSICAL_TIME_VALUE.0: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
 
 // Numbers
 // Terminal Priority System:
@@ -398,8 +400,19 @@ MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
 NUMBER: INT | FLOAT
-INT.2: /[+-]?\d+/
-FLOAT.3: /[+-]?\d+\.\d+/
+// INT pattern with negative lookahead to not match start of musical time (X.Y.Z)
+// This ensures 2.1.0 is not tokenized as INT "2" + ".1.0"
+INT.2: /[+-]?\d+(?!\.\d+\.\d+)/
+// FLOAT pattern with negative lookahead to not match musical time (X.Y.Z)
+// This ensures 2.1.0 is not tokenized as FLOAT "2.1" + ".0"
+FLOAT.3: /[+-]?\d+\.\d+(?!\.\d+)/
+
+// Time Unit Terminals (must be before IDENTIFIER to avoid conflicts)
+// Priority 1 ensures they are matched before IDENTIFIER in duration contexts
+TIME_UNIT_MS.1: "ms"
+TIME_UNIT_S.1: "s"
+TIME_UNIT_B.1: "b"
+TIME_UNIT_T.1: "t"
 
 // Identifiers and Names
 NOTE_ON: "note_on"

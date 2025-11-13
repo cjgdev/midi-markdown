@@ -162,6 +162,7 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
+    @v_args(inline=False)
     def relative_time(self, items):
         """Handle relative_time parser rule.
 
@@ -170,9 +171,11 @@ class MMDTransformer(Transformer):
                          | "[+" MUSICAL_TIME_VALUE "]"
 
         Args:
-            items: Can be either:
-                - duration (string like "2b" or variable_ref)
-                - MUSICAL_TIME_VALUE (token like "2.1.0")
+            items: List with one element - either:
+                - duration tuple (number, unit)
+                - variable_ref tuple ('var', name)
+                - param_ref tuple ('param_ref', {...})
+                - MUSICAL_TIME_VALUE token
 
         Returns:
             Timing object with type="relative"
@@ -188,7 +191,8 @@ class MMDTransformer(Transformer):
 
         # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
         # Duration can be:
-        # - A string like "2b", "500ms", "1.5s"
+        # - A tuple (number, unit) from the duration transformer
+        # - A 3-tuple (bars, beats, ticks) for musical time from duration transformer
         # - A variable_ref tuple like ('var', 'VAR_NAME')
         # - A param_ref tuple like ('param_ref', {...})
         if isinstance(value, tuple):
@@ -201,8 +205,18 @@ class MMDTransformer(Transformer):
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
                 return Timing("relative", value, raw)
+            elif len(value) == 3 and all(isinstance(v, int) for v in value):
+                # Musical time tuple (bars, beats, ticks) from duration transformer
+                bars, beats, ticks = value
+                raw = f"[+{bars}.{beats}.{ticks}]"
+                return Timing("relative", value, raw)
+            elif len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
+                # Duration tuple (number, unit) from duration transformer
+                num, unit = value
+                raw = f"[+{int(num) if num == int(num) else num}{unit}]"
+                return Timing("relative", value, raw)
         elif isinstance(value, str):
-            # String duration like "2b" - parse the value and unit
+            # String duration like "2b" - parse the value and unit (legacy path)
             import re
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
@@ -312,27 +326,56 @@ class MMDTransformer(Transformer):
     def duration(self, *args):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT ("s" | "ms" | "b" | "t") | INT ("s" | "ms" | "b" | "t")
+        Grammar: duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | MUSICAL_TIME_VALUE
+                        | variable_ref
+                        | param_ref
 
         With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
         For this rule, we receive:
-        - args[0]: The number (FLOAT or INT token value)
-        - args[1]: The unit string literal (if Lark passes it, version-dependent)
+        - args[0]: The number (FLOAT, INT, MUSICAL_TIME_VALUE token, or variable/param tuple)
+        - args[1]: The unit token (TIME_UNIT_S, TIME_UNIT_MS, TIME_UNIT_B, or TIME_UNIT_T), if present
+
+        Returns:
+            - Tuple (number, unit) for duration values
+            - Tuple (bars, beats, ticks) for musical time values
+            - Tuple ('var', name) or ('param_ref', {...}) for variables/params
 
         Examples:
-        - "1.25b" → args = [1.25, "b"] or args = [1.25]
-        - "500ms" → args = [500, "ms"] or args = [500]
-        - "2b" → args = [2, "b"] or args = [2]
+        - "1.25b" → returns (1.25, "b")
+        - "500ms" → returns (500, "ms")
+        - "2.1.0" → returns (2, 1, 0)  # Musical time
         """
         if len(args) >= 1:
-            number = args[0]
+            first_arg = args[0]
+
+            # Check if it's a MUSICAL_TIME_VALUE token
+            if isinstance(first_arg, Token) and first_arg.type == "MUSICAL_TIME_VALUE":
+                # Parse musical time value: bars.beats.ticks
+                time_str = str(first_arg)
+                parts = time_str.split(".")
+                return (int(parts[0]), int(parts[1]), int(parts[2]))
+
+            # Check if it's a variable or param reference tuple
+            if isinstance(first_arg, tuple):
+                return first_arg  # Return as-is for later resolution
+
+            # Otherwise it's a numeric duration
+            number = first_arg
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Unit is either explicitly passed or defaults to beats
-            unit = args[1] if len(args) > 1 else "b"
-            return f"{number}{unit}"
-        return "1b"  # Default
+            # Unit is either explicitly passed as a Token or defaults to beats
+            if len(args) > 1:
+                unit_token = args[1]
+                # Extract the string value from the Token
+                unit = str(unit_token) if hasattr(unit_token, 'value') else str(unit_token)
+            else:
+                unit = "b"
+            # Return tuple to avoid string unpacking
+            return (float(number), unit)
+        return (1.0, "b")  # Default
 
     @v_args(inline=False)
     def note_command(self, args):
