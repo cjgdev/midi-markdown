@@ -228,7 +228,7 @@ param_ref: "{" param_spec "}"
 
 param_spec: IDENTIFIER param_type? param_default? param_enum?
 
-param_type: ":" INT "-" INT
+param_type: ":" PARAM_RANGE
           | ":" PARAM_TYPE_NAME
 
 PARAM_TYPE_NAME: "note" | "channel" | "bool" | "percent" | "velocity"
@@ -460,6 +460,11 @@ KEY_NAME: /[A-G][#b]?/
 
 // Hex for SysEx (priority .4 to match before IDENTIFIER)
 HEX_BYTE.4: /[0-9A-Fa-f]{2}/
+
+// Parameter range terminal - matches "min-max" where min and max can be int or float
+// Priority .5 to ensure it matches before other patterns
+// Examples: "0-127", "0.5-8.0", "10-50"
+PARAM_RANGE.5: /\d+(?:\.\d+)?-\d+(?:\.\d+)?/
 
 // String
 STRING: /"[^"]*"/
