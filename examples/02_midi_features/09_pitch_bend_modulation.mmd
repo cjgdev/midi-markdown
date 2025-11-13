@@ -413,14 +413,14 @@ time_signature: [4, 4]
 [02:26.000]
 - note_on 1.E5 110 2b
 [@]
-- pb 1.curve(0, -8192, exponential)
+- pb 1.curve(0, -8192, ease-out)
 
 # Scoop (start low, rise to pitch)
-[02:28.000]
-- note_on 1.C4 100 2b
 [02:27.900]  # Start slightly before note
 - pb 1.-8192
 [02:28.000]
+- note_on 1.C4 100 2b
+[@]
 - pb 1.curve(-8192, 0, ease-out)
 
 # Whammy bar flutter

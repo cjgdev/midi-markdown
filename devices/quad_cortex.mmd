@@ -407,16 +407,16 @@ midi_pc_calculator: https://support.neuraldsp.com/help/quad-cortex-midi-pc-calcu
 @end
 
 # Expression vibrato using wave modulation (LFO)
-@alias qc_exp1_vibrato {ch} {center:0-127} {freq:0.1-10.0} {depth:0-100} "EXP1 vibrato with sine wave"
+@alias qc_exp1_vibrato {ch} {center:0-127} {freq} {depth:0-100} "EXP1 vibrato with sine wave (freq: 0.1-10.0 Hz)"
   - cc {ch}.1.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
-@alias qc_exp2_vibrato {ch} {center:0-127} {freq:0.1-10.0} {depth:0-100} "EXP2 vibrato with sine wave"
+@alias qc_exp2_vibrato {ch} {center:0-127} {freq} {depth:0-100} "EXP2 vibrato with sine wave (freq: 0.1-10.0 Hz)"
   - cc {ch}.2.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
 # Expression tremolo effect (volume modulation)
-@alias qc_exp1_tremolo {ch} {center:64} {freq:2.0-8.0} {depth:20-80} "EXP1 tremolo effect"
+@alias qc_exp1_tremolo {ch} {center=64} {freq} {depth:20-80} "EXP1 tremolo effect (freq: 2.0-8.0 Hz)"
   - cc {ch}.1.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
@@ -430,7 +430,7 @@ midi_pc_calculator: https://support.neuraldsp.com/help/quad-cortex-midi-pc-calcu
 @end
 
 # Expression attack-release envelope (AR) for percussive effects
-@alias qc_exp1_ar {ch} {attack:0.01-2.0} {release:0.1-3.0} "EXP1 AR envelope"
+@alias qc_exp1_ar {ch} {attack} {release} "EXP1 AR envelope (attack: 0.01-2.0s, release: 0.1-3.0s)"
   - cc {ch}.1.envelope(ar, attack={attack}, release={release})
 @end
 

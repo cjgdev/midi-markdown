@@ -14,15 +14,16 @@ description: "Demonstrates most implemented MML features in a realistic song con
 @define PAD_CHANNEL 3
 
 # ============================================
-# Song Structure
+# Track 1: Song Structure and Markers
 # ============================================
+
+@track structure
 
 [00:00.000]
 - tempo 128
 - time_signature 4/4
 - key_signature Dm
 - marker "Intro"
-- track_name "Master"
 
 [00:08.000]
 - marker "Verse 1"
@@ -48,8 +49,10 @@ description: "Demonstrates most implemented MML features in a realistic song con
 - marker "Outro"
 
 # ============================================
-# Lead Synth (Channel 1) - Melody
+# Track 2: Lead Synth (Channel 1) - Melody
 # ============================================
+
+@track lead channel=1
 
 # Intro - atmospheric entrance
 [00:00.000]
@@ -147,8 +150,10 @@ description: "Demonstrates most implemented MML features in a realistic song con
 - pb 1.0
 
 # ============================================
-# Bass (Channel 2) - Foundation
+# Track 3: Bass (Channel 2) - Foundation
 # ============================================
+
+@track bass channel=2
 
 # Verse 1 - simple bass line
 [00:08.000]
@@ -206,8 +211,10 @@ description: "Demonstrates most implemented MML features in a realistic song con
 - note_on 2.A2 100 450ms
 
 # ============================================
-# Pad (Channel 3) - Atmosphere
+# Track 4: Pad (Channel 3) - Atmosphere
 # ============================================
+
+@track pad channel=3
 
 # Intro - sustained chords
 [00:00.000]

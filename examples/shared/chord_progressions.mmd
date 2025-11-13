@@ -27,7 +27,7 @@ version: 1.0.0
 # TRIADS (3-note chords)
 # ============================================================================
 
-@alias c_major_triad {ch}.{root}.{vel}.{dur} "Major triad (root, major 3rd, perfect 5th)"
+@alias c_major_triad {ch} {root} {vel} {dur} "Major triad (root, major 3rd, perfect 5th)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -35,7 +35,7 @@ version: 1.0.0
   - note_on {ch}.{root+7} {vel} {dur}
 @end
 
-@alias c_minor_triad {ch}.{root}.{vel}.{dur} "Minor triad (root, minor 3rd, perfect 5th)"
+@alias c_minor_triad {ch} {root} {vel} {dur} "Minor triad (root, minor 3rd, perfect 5th)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -43,7 +43,7 @@ version: 1.0.0
   - note_on {ch}.{root+7} {vel} {dur}
 @end
 
-@alias c_dim_triad {ch}.{root}.{vel}.{dur} "Diminished triad (root, minor 3rd, diminished 5th)"
+@alias c_dim_triad {ch} {root} {vel} {dur} "Diminished triad (root, minor 3rd, diminished 5th)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -51,7 +51,7 @@ version: 1.0.0
   - note_on {ch}.{root+6} {vel} {dur}
 @end
 
-@alias c_aug_triad {ch}.{root}.{vel}.{dur} "Augmented triad (root, major 3rd, augmented 5th)"
+@alias c_aug_triad {ch} {root} {vel} {dur} "Augmented triad (root, major 3rd, augmented 5th)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -63,7 +63,7 @@ version: 1.0.0
 # SEVENTH CHORDS (4-note chords)
 # ============================================================================
 
-@alias c_maj7 {ch}.{root}.{vel}.{dur} "Major 7th chord (root, M3, P5, M7)"
+@alias c_maj7 {ch} {root} {vel} {dur} "Major 7th chord (root, M3, P5, M7)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -73,7 +73,7 @@ version: 1.0.0
   - note_on {ch}.{root+11} {vel} {dur}
 @end
 
-@alias c_min7 {ch}.{root}.{vel}.{dur} "Minor 7th chord (root, m3, P5, m7)"
+@alias c_min7 {ch} {root} {vel} {dur} "Minor 7th chord (root, m3, P5, m7)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -83,7 +83,7 @@ version: 1.0.0
   - note_on {ch}.{root+10} {vel} {dur}
 @end
 
-@alias c_dom7 {ch}.{root}.{vel}.{dur} "Dominant 7th chord (root, M3, P5, m7)"
+@alias c_dom7 {ch} {root} {vel} {dur} "Dominant 7th chord (root, M3, P5, m7)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -93,7 +93,7 @@ version: 1.0.0
   - note_on {ch}.{root+10} {vel} {dur}
 @end
 
-@alias c_min7b5 {ch}.{root}.{vel}.{dur} "Half-diminished 7th (root, m3, dim5, m7)"
+@alias c_min7b5 {ch} {root} {vel} {dur} "Half-diminished 7th (root, m3, dim5, m7)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -103,7 +103,7 @@ version: 1.0.0
   - note_on {ch}.{root+10} {vel} {dur}
 @end
 
-@alias c_dim7 {ch}.{root}.{vel}.{dur} "Diminished 7th chord (root, m3, dim5, dim7)"
+@alias c_dim7 {ch} {root} {vel} {dur} "Diminished 7th chord (root, m3, dim5, dim7)"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -117,7 +117,7 @@ version: 1.0.0
 # COMMON PROGRESSIONS (Multi-chord sequences)
 # ============================================================================
 
-@alias prog_i_iv_v {ch}.{root}.{vel}.{dur} "I-IV-V progression in major"
+@alias prog_i_iv_v {ch} {root} {vel} {dur} "I-IV-V progression in major"
   # I chord (major)
   - note_on {ch}.{root} {vel} {dur}
   [@]
@@ -146,7 +146,7 @@ version: 1.0.0
   - note_on {ch}.{root+14} {vel} {dur}
 @end
 
-@alias prog_ii_v_i {ch}.{root}.{vel}.{dur} "ii-V-I jazz progression"
+@alias prog_ii_v_i {ch} {root} {vel} {dur} "ii-V-I jazz progression"
   # ii chord (minor 7th, up 2 semitones)
   - note_on {ch}.{root+2} {vel} {dur}
   [@]
@@ -179,7 +179,7 @@ version: 1.0.0
   - note_on {ch}.{root+11} {vel} {dur}
 @end
 
-@alias prog_pop {ch}.{root}.{vel}.{dur} "I-V-vi-IV (pop progression)"
+@alias prog_pop {ch} {root} {vel} {dur} "I-V-vi-IV (pop progression)"
   # I (major)
   - note_on {ch}.{root} {vel} {dur}
   [@]
@@ -219,7 +219,7 @@ version: 1.0.0
 # ARPEGGIOS (Broken chords)
 # ============================================================================
 
-@alias arp_major {ch}.{root}.{vel}.{dur} "Major triad arpeggio (ascending)"
+@alias arp_major {ch} {root} {vel} {dur} "Major triad arpeggio (ascending)"
   - note_on {ch}.{root} {vel} {dur}
   [+{dur}]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -227,7 +227,7 @@ version: 1.0.0
   - note_on {ch}.{root+7} {vel} {dur}
 @end
 
-@alias arp_minor {ch}.{root}.{vel}.{dur} "Minor triad arpeggio (ascending)"
+@alias arp_minor {ch} {root} {vel} {dur} "Minor triad arpeggio (ascending)"
   - note_on {ch}.{root} {vel} {dur}
   [+{dur}]
   - note_on {ch}.{root+3} {vel} {dur}
@@ -235,7 +235,7 @@ version: 1.0.0
   - note_on {ch}.{root+7} {vel} {dur}
 @end
 
-@alias arp_maj7 {ch}.{root}.{vel}.{dur} "Major 7th arpeggio (ascending)"
+@alias arp_maj7 {ch} {root} {vel} {dur} "Major 7th arpeggio (ascending)"
   - note_on {ch}.{root} {vel} {dur}
   [+{dur}]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -249,7 +249,7 @@ version: 1.0.0
 # VOICINGS (Different positions)
 # ============================================================================
 
-@alias c_major_close {ch}.{root}.{vel}.{dur} "Major triad close voicing"
+@alias c_major_close {ch} {root} {vel} {dur} "Major triad close voicing"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+4} {vel} {dur}
@@ -257,7 +257,7 @@ version: 1.0.0
   - note_on {ch}.{root+7} {vel} {dur}
 @end
 
-@alias c_major_open {ch}.{root}.{vel}.{dur} "Major triad open voicing"
+@alias c_major_open {ch} {root} {vel} {dur} "Major triad open voicing"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+7} {vel} {dur}
@@ -265,7 +265,7 @@ version: 1.0.0
   - note_on {ch}.{root+16} {vel} {dur}
 @end
 
-@alias c_major_spread {ch}.{root}.{vel}.{dur} "Major triad spread voicing"
+@alias c_major_spread {ch} {root} {vel} {dur} "Major triad spread voicing"
   - note_on {ch}.{root} {vel} {dur}
   [@]
   - note_on {ch}.{root+12} {vel} {dur}

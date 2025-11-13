@@ -77,7 +77,6 @@ title: "Multi-Track"
         assert "devices/quad_cortex.mmd" in doc.imports
         assert "cortex_load" in doc.aliases
 
-    @pytest.mark.skip(reason="Multi-line SysEx not yet implemented")
     def test_multiline_sysex(self, parser):
         """Test multi-line SysEx message"""
         mml = """

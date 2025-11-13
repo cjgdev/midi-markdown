@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import yaml
-from lark import Transformer, v_args
+from lark import Transformer, v_args, Token
 
 from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
 from midi_markdown.expansion.variables import SymbolTable
@@ -161,6 +161,58 @@ class MMDTransformer(Transformer):
 
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
+
+    def relative_time(self, items):
+        """Handle relative_time parser rule.
+
+        Grammar:
+            relative_time: "[+" duration "]"
+                         | "[+" MUSICAL_TIME_VALUE "]"
+
+        Args:
+            items: Can be either:
+                - duration (string like "2b" or variable_ref)
+                - MUSICAL_TIME_VALUE (token like "2.1.0")
+
+        Returns:
+            Timing object with type="relative"
+        """
+        value = items[0]
+
+        # Check if it's a musical time value (MUSICAL_TIME_VALUE terminal)
+        if isinstance(value, Token) and value.type == "MUSICAL_TIME_VALUE":
+            time_str = str(value)
+            parts = time_str.split(".")
+            raw = f"[+{time_str}]"
+            return Timing("relative", (int(parts[0]), int(parts[1]), int(parts[2])), raw)
+
+        # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
+        # Duration can be:
+        # - A string like "2b", "500ms", "1.5s"
+        # - A variable_ref tuple like ('var', 'VAR_NAME')
+        # - A param_ref tuple like ('param_ref', {...})
+        if isinstance(value, tuple):
+            if value[0] == "var":
+                # Variable reference - store as-is for later resolution
+                raw = f"[+${{{value[1]}}}]"
+                return Timing("relative", value, raw)
+            elif value[0] == "param_ref":
+                # Parameter reference (in alias body) - store as-is
+                param_name = value[1].get("name", "unknown")
+                raw = f"[+{{{param_name}}}]"
+                return Timing("relative", value, raw)
+        elif isinstance(value, str):
+            # String duration like "2b" - parse the value and unit
+            import re
+            match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
+            if match:
+                num, unit = match.groups()
+                raw = f"[+{value}]"
+                return Timing("relative", (float(num), unit), raw)
+
+        # Fallback for unexpected format
+        raw = f"[+{value}]"
+        return Timing("relative", value, raw)
 
     def simultaneous(self):
         """Transform [@] simultaneous timing marker.

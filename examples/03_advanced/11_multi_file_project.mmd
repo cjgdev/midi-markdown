@@ -58,6 +58,7 @@ time_signature: [4, 4]
 @define OUTRO_TEMPO 90
 
 @define ROOT_NOTE 60  # C4 (middle C)
+@define ROOT_NOTE_LOW ${ROOT_NOTE} - 12  # C3 (octave lower)
 @define CHORD_VEL 75
 @define DRUM_VEL 100
 
@@ -272,7 +273,7 @@ time_signature: [4, 4]
 [@]
 - c_major_close 1 ${ROOT_NOTE} ${CHORD_VEL} 4b
 [@]
-- c_major_open 2 ${ROOT_NOTE-12} 65 4b  # Bass note octave lower
+- c_major_open 2 ${ROOT_NOTE_LOW} 65 4b  # Bass note octave lower
 
 [01:32.000]
 - c_minor_close 1 65 ${CHORD_VEL} 4b
