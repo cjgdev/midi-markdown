@@ -612,7 +612,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
 @end
 
 # Expression vibrato using wave modulation
-@alias h90_expression_vibrato {ch} {center:0-127} {freq:0.5-8.0} {depth:10-50} "Expression vibrato with sine wave"
+@alias h90_expression_vibrato {ch} {center:0-127} {freq} {depth:10-50} "Expression vibrato with sine wave (freq: 0.5-8.0 Hz)"
   - cc {ch}.11.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
@@ -621,7 +621,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
   - cc {ch}.11.envelope(adsr, attack=0.5, decay=0.3, sustain=0.7, release=1.0)
 @end
 
-@alias h90_expression_ar {ch} {attack:0.01-2.0} {release:0.1-3.0} "Expression AR envelope"
+@alias h90_expression_ar {ch} {attack} {release} "Expression AR envelope (attack: 0.01-2.0s, release: 0.1-3.0s)"
   - cc {ch}.11.envelope(ar, attack={attack}, release={release})
 @end
 
@@ -652,7 +652,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
 @end
 
 # Mix tremolo effect (rhythmic wet/dry modulation)
-@alias h90_mix_tremolo {ch} {center:64} {freq:1.0-8.0} {depth:30-80} "Mix tremolo with LFO"
+@alias h90_mix_tremolo {ch} {center=64} {freq:1-8} {depth:30-80} "Mix tremolo with LFO (freq: 1.0-8.0 Hz)"
   - cc {ch}.84.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
@@ -661,7 +661,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
   - cc {ch}.70.curve({start_val}, {end_val}, ease-in-out)
 @end
 
-@alias h90_perform1_vibrato {ch} {center:64} {freq:0.5-5.0} {depth:20-60} "Performance 1 vibrato"
+@alias h90_perform1_vibrato {ch} {center=64} {freq:1-5} {depth:20-60} "Performance 1 vibrato (freq: 0.5-5.0 Hz)"
   - cc {ch}.70.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
