@@ -64,7 +64,7 @@ Architecture and implementation details:
 
 - **[Architecture Overview](developer-guide/architecture.md)** - System architecture and compilation pipeline
 - **[Parser Design](developer-guide/architecture/parser.md)** - Parser architecture and Lark grammar
-- **[Lexer Design](developer-guide/architecture/lexer.md)** - Lexer implementation details
+- **[Parser Design](developer-guide/architecture/parser.md)** - Parser and lexer implementation details
 - **[IR Specification](developer-guide/ir-specification.md)** - Intermediate representation format
 - **[Contributing Guide](developer-guide/contributing.md)** - How to contribute to the project
 

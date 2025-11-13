@@ -482,7 +482,6 @@ Output (.mid, .json)    Live MIDI Output
 
 ## See Also
 
-- [Parser Design](architecture/parser.md) - Parser architecture details
-- [Lexer Design](architecture/lexer.md) - Lexer implementation
+- [Parser Design](architecture/parser.md) - Parser and lexer architecture details
 - [Language Specification](../reference/specification.md) - Complete MMD spec
-- [CLAUDE.md](../../CLAUDE.md) - Developer context
+- [CLAUDE.md](https://github.com/cjgdev/midi-markdown/blob/main/CLAUDE.md) - Developer context

@@ -618,7 +618,7 @@ Expressions execute in a **sandboxed environment** with strict safety controls:
 
 - [Computed Values User Guide](../user-guide/computed_values.md) - Detailed guide with real-world examples
 - [Alias System Guide](../user-guide/alias-system.md) - Alias definition syntax
-- [MIDI Value Ranges](midi-values.md) - Valid MIDI value specifications
+- [MIDI Commands](../user-guide/midi-commands.md) - Valid MIDI value specifications
 - [Examples: computed_values.mmd](https://github.com/cjgdev/midi-markdown/blob/main/examples/03_advanced/04_computed_values.mmd) - Working code examples
 
 ---

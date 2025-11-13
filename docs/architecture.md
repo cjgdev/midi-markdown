@@ -701,8 +701,8 @@ Variable resolution follows this order:
 
 ## References
 
-- **Full Specification**: See [spec.md](../spec.md) (1,300+ lines)
-- **CLI Design**: See [CLAUDE.md](../CLAUDE.md) (implementation patterns)
+- **Full Specification**: See [spec.md](https://github.com/cjgdev/midi-markdown/blob/main/spec.md) (1,300+ lines)
+- **CLI Design**: See [CLAUDE.md](https://github.com/cjgdev/midi-markdown/blob/main/CLAUDE.md) (implementation patterns)
 - **Parser Details**: See [developer-guide/architecture/parser-summary.md](developer-guide/architecture/parser-summary.md)
 - **Examples**: See [examples/](https://github.com/cjgdev/midi-markdown/tree/main/examples) (51 working examples)
 - **Device Libraries**: See [devices/](https://github.com/cjgdev/midi-markdown/tree/main/devices) (6 pre-built libraries)
