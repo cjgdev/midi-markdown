@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT ("s" | "ms" | "b" | "t")
-        | INT ("s" | "ms" | "b" | "t")
-        | random_expr ("s" | "ms" | "b" | "t")
+duration: FLOAT TIME_UNIT
+        | INT TIME_UNIT
+        | random_expr TIME_UNIT
         | variable_ref
         | param_ref
 
@@ -380,6 +380,9 @@ SECTION_HEADER: /##[^\n]+/
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
 MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+
+// Time Unit (ms must be before s to match correctly)
+TIME_UNIT.4: "ms" | "s" | "b" | "t"
 
 // Numbers
 // Terminal Priority System:
