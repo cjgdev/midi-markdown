@@ -389,6 +389,7 @@ TIME_UNIT: "ms" | "s" | "b" | "t"
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
 //   - INT.2: Matches whole numbers (e.g., "42", "127", "-8192")
 //   - FLOAT.3: Matches decimal numbers (e.g., "1.25", "0.5", "2.75")
+//           BUT NOT if followed by another dot (to allow MUSICAL_TIME_VALUE to match)
 //   - NUMBER: Union type accepting either INT or FLOAT
 //
 // Why priorities are needed:
@@ -400,7 +401,7 @@ TIME_UNIT: "ms" | "s" | "b" | "t"
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
-//   "2.1.0" should NOT match as FLOAT, but as MUSICAL_TIME_VALUE
+//   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
 INT.2: /[+-]?\d+/
 FLOAT.3: /[+-]?\d+\.\d+(?!\.\d)/  // Negative lookahead: don't match if followed by another .digit (for musical time 2.1.0)

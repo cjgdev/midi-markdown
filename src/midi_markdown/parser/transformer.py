@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import yaml
-from lark import Transformer, v_args, Token
+from lark import Token, Transformer, v_args
 
 from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
 from midi_markdown.expansion.variables import SymbolTable
@@ -197,7 +197,7 @@ class MMDTransformer(Transformer):
                 # Variable reference - store as-is for later resolution
                 raw = f"[+${{{value[1]}}}]"
                 return Timing("relative", value, raw)
-            elif value[0] == "param_ref":
+            if value[0] == "param_ref":
                 # Parameter reference (in alias body) - store as-is
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
@@ -205,6 +205,7 @@ class MMDTransformer(Transformer):
         elif isinstance(value, str):
             # String duration like "2b" - parse the value and unit
             import re
+
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
                 num_str, unit = match.groups()
@@ -314,33 +315,41 @@ class MMDTransformer(Transformer):
         """
         return value  # Preserve type for later handling
 
-    def duration(self, *args):
+    @v_args(inline=False)
+    def duration(self, children):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT
+        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT | random_expr TIME_UNIT | variable_ref | param_ref
 
-        With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
-        For this rule, we receive:
-        - args[0]: The number (FLOAT or INT value)
-        - args[1]: The TIME_UNIT token (Token object)
+        Note: This method uses @v_args(inline=False) to handle multiple alternatives
+        with different numbers of children.
+
+        Args:
+            children: List of matched children, can be:
+                - [number, unit] for FLOAT/INT TIME_UNIT alternatives
+                - [expression, unit] for random_expr TIME_UNIT alternative
+                - [ref] for variable_ref or param_ref alternatives
+
+        Returns:
+            String duration like "1b", "500ms" or variable/param ref
 
         Examples:
-        - "1.25b" → args = [1.25, Token('TIME_UNIT', 'b')]
-        - "500ms" → args = [500, Token('TIME_UNIT', 'ms')]
-        - "2b" → args = [2, Token('TIME_UNIT', 'b')]
+        - "1.25b" → [1.25, Token('TIME_UNIT', 'b')] → "1.25b"
+        - "500ms" → [500, Token('TIME_UNIT', 'ms')] → "500ms"
+        - "2b" → [2, Token('TIME_UNIT', 'b')] → "2b"
+        - "${VAR}" → [('var', 'VAR')] → ('var', 'VAR')
         """
-        if len(args) >= 1:
-            number = args[0]
+        if len(children) >= 2:
+            number = children[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Extract unit from TIME_UNIT token (or default to "b")
-            if len(args) > 1:
-                unit_token = args[1]
-                unit = str(unit_token) if isinstance(unit_token, Token) else str(unit_token)
-            else:
-                unit = "b"
+            # Extract unit from Token
+            unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             return f"{number}{unit}"
+        elif len(children) == 1:
+            # variable_ref or param_ref - return as-is
+            return children[0]
         return "1b"  # Default
 
     @v_args(inline=False)
@@ -969,6 +978,27 @@ class MMDTransformer(Transformer):
             return Track(name=str(args[0]), channel=int(args[1]))
         return Track(name=str(args[0]))
 
+    def loop_body(self, *items):
+        """Handle loop_body - returns list of loop items.
+
+        Grammar: loop_body: (loop_item _NL*)*
+
+        Returns:
+            List of loop items (commands, timings, or nested loops)
+        """
+        # Filter out None values (from optional items)
+        return [item for item in items if item is not None]
+
+    def loop_item(self, item):
+        """Handle loop_item - returns the single item.
+
+        Grammar: loop_item: timing | command | loop_stmt
+
+        Returns:
+            Single item (Timing, MIDICommand, or loop dict)
+        """
+        return item
+
     def loop_stmt(self, *args):
         """
         Handle all loop_stmt variants.
@@ -994,12 +1024,16 @@ class MMDTransformer(Transformer):
             i += 1
 
         # Check for interval (duration) - can be string or Duration object
-        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track)):
+        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track, list)):
             interval = args[i]
             i += 1
 
-        # Rest are statements
-        statements = list(args[i:])
+        # Rest are statements (now properly transformed via loop_body)
+        # If we have a list (from loop_body), use it; otherwise collect remaining args
+        if i < len(args) and isinstance(args[i], list):
+            statements = args[i]
+        else:
+            statements = list(args[i:])
 
         return {
             "type": "loop",
