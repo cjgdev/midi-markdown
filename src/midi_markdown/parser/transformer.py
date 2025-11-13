@@ -2008,12 +2008,15 @@ class MMDTransformer(Transformer):
             param["name"] = name.strip()
 
             # Check if type_spec is a range (INT-INT)
-            if "-" in type_spec and type_spec.replace("-", "").replace(" ", "").isdigit():
-                # Parse range: 0-127
-                min_val, max_val = type_spec.split("-", 1)
+            # Use regex to properly handle negative numbers
+            import re
+            range_match = re.match(r'^(-?\d+)\s*-\s*(-?\d+)$', type_spec.strip())
+            if range_match:
+                # Parse range: 0-127, -24-24, etc.
+                min_val, max_val = range_match.groups()
                 param["type"] = "range"
-                param["min"] = int(min_val.strip())
-                param["max"] = int(max_val.strip())
+                param["min"] = int(min_val)
+                param["max"] = int(max_val)
             else:
                 # Named type: note, channel, bool, percent, velocity
                 param["type"] = type_spec.strip()
@@ -2080,10 +2083,13 @@ class MMDTransformer(Transformer):
                 child_value = str(type_children[0])
 
                 # Check if it's a range (contains hyphen)
-                if "-" in child_value:
-                    # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0")
+                # Use regex to properly handle negative numbers
+                import re
+                range_match = re.match(r'^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$', child_value.strip())
+                if range_match:
+                    # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0", "-24-24")
                     param["type"] = "range"
-                    min_str, max_str = child_value.split("-", 1)
+                    min_str, max_str = range_match.groups()
 
                     # Try to parse as int first, then as float
                     try:
