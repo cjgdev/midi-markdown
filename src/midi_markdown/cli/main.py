@@ -19,8 +19,11 @@ from .commands import (
     create_repl_command,
     examples,
     inspect,
+    library_create,
     library_info,
+    library_install,
     library_list,
+    library_search,
     library_validate,
     play,
     ports,
@@ -89,6 +92,9 @@ app.add_typer(library_app, name="library")
 library_app.command("list")(library_list)
 library_app.command("info")(library_info)
 library_app.command("validate")(library_validate)
+library_app.command("search")(library_search)
+library_app.command("create")(library_create)
+library_app.command("install")(library_install)
 
 
 def cli() -> None:

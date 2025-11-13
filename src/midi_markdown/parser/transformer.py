@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import yaml
-from lark import Transformer, v_args, Token
+from lark import Token, Transformer, v_args
 
 from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
 from midi_markdown.expansion.variables import SymbolTable
@@ -197,7 +197,7 @@ class MMDTransformer(Transformer):
                 # Variable reference - store as-is for later resolution
                 raw = f"[+${{{value[1]}}}]"
                 return Timing("relative", value, raw)
-            elif value[0] == "param_ref":
+            if value[0] == "param_ref":
                 # Parameter reference (in alias body) - store as-is
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
@@ -205,6 +205,7 @@ class MMDTransformer(Transformer):
         elif isinstance(value, str):
             # String duration like "2b" - parse the value and unit
             import re
+
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
                 num, unit = match.groups()
@@ -963,12 +964,24 @@ class MMDTransformer(Transformer):
         return Track(name=str(args[0]))
 
     def loop_body(self, *items):
-        """Handle loop_body rule - unwrap and return the list of items."""
-        # Filter out None values (from empty lines)
+        """Handle loop_body - returns list of loop items.
+
+        Grammar: loop_body: (loop_item _NL*)*
+
+        Returns:
+            List of loop items (commands, timings, or nested loops)
+        """
+        # Filter out None values (from optional items)
         return [item for item in items if item is not None]
 
     def loop_item(self, item):
-        """Handle loop_item rule - pass through the item directly."""
+        """Handle loop_item - returns the single item.
+
+        Grammar: loop_item: timing | command | loop_stmt
+
+        Returns:
+            Single item (Timing, MIDICommand, or loop dict)
+        """
         return item
 
     def loop_stmt(self, *args):
@@ -996,18 +1009,16 @@ class MMDTransformer(Transformer):
             i += 1
 
         # Check for interval (duration) - can be string or Duration object
-        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track)):
+        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track, list)):
             interval = args[i]
             i += 1
 
-        # Rest are statements (should be a list from loop_body)
-        if i < len(args):
-            # args[i] should be the loop_body result (a list)
-            loop_body_result = args[i]
-            if isinstance(loop_body_result, list):
-                statements = loop_body_result
-            else:
-                statements = [loop_body_result]
+        # Rest are statements (now properly transformed via loop_body)
+        # If we have a list (from loop_body), use it; otherwise collect remaining args
+        if i < len(args) and isinstance(args[i], list):
+            statements = args[i]
+        else:
+            statements = list(args[i:])
 
         return {
             "type": "loop",
