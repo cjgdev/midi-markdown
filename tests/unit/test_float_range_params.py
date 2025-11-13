@@ -17,10 +17,7 @@ class TestFloatRangeParameters:
     @pytest.mark.unit
     def test_float_range_parameter_parsing(self):
         """Test that float ranges are correctly parsed from alias definitions."""
-        mml = """
----
----
-@alias vibrato {ch} {freq:0.5-8.0} "Apply vibrato with frequency"
+        mml = """@alias vibrato {ch} {freq:0.5-8.0} "Apply vibrato with frequency"
   - cc {ch}.1.wave(sine, 64, freq={freq}, depth=10)
 @end
 
@@ -32,7 +29,7 @@ class TestFloatRangeParameters:
 
         # Check that the alias was parsed with float min/max
         assert len(doc.aliases) == 1
-        alias_def = doc.aliases[0]
+        alias_def = doc.aliases["vibrato"]
         assert alias_def.name == "vibrato"
         assert len(alias_def.parameters) == 2
 
@@ -154,10 +151,7 @@ class TestFloatRangeParameters:
     @pytest.mark.unit
     def test_mixed_int_and_float_ranges(self):
         """Test alias with both int and float range parameters."""
-        mml = """
----
----
-@alias complex_effect {ch} {depth:10-50} {freq:0.5-8.0} "Complex effect"
+        mml = """@alias complex_effect {ch} {depth:10-50} {freq:0.5-8.0} "Complex effect"
   - cc {ch}.74.{depth}
   - cc {ch}.1.wave(sine, 64, freq={freq})
 @end
@@ -169,7 +163,7 @@ class TestFloatRangeParameters:
         doc = parser.parse_string(mml)
 
         # Verify both parameters are parsed correctly
-        alias_def = doc.aliases[0]
+        alias_def = doc.aliases["complex_effect"]
         assert len(alias_def.parameters) == 3
 
         depth_param = alias_def.parameters[1]
@@ -189,10 +183,7 @@ class TestFloatRangeParameters:
     @pytest.mark.unit
     def test_h90_expression_vibrato_example(self):
         """Test the real H90 expression vibrato alias from the device library."""
-        mml = """
----
----
-@alias h90_expression_vibrato {ch} {center:0-127} {freq:0.5-8.0} {depth:10-50} "Expression vibrato with sine wave"
+        mml = """@alias h90_expression_vibrato {ch} {center:0-127} {freq:0.5-8.0} {depth:10-50} "Expression vibrato with sine wave"
   - cc {ch}.11.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
@@ -203,7 +194,7 @@ class TestFloatRangeParameters:
         doc = parser.parse_string(mml)
 
         # Verify the alias parses correctly
-        alias_def = doc.aliases[0]
+        alias_def = doc.aliases["h90_expression_vibrato"]
         assert alias_def.name == "h90_expression_vibrato"
         assert len(alias_def.parameters) == 4
 
