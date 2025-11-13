@@ -162,28 +162,29 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
+    @v_args(inline=False)
     def relative_time(self, items):
         """Handle relative_time parser rule.
 
         Grammar:
-            relative_time: "[+" duration "]"
-                         | "[+" MUSICAL_TIME_VALUE "]"
+            relative_time: RELATIVE_MUSICAL_TIME | "[+" duration "]"
 
         Args:
-            items: Can be either:
-                - duration (string like "2b" or variable_ref)
-                - MUSICAL_TIME_VALUE (token like "2.1.0")
+            items: List containing either:
+                - RELATIVE_MUSICAL_TIME token (like "[+2.1.0]")
+                - duration value from "[+" duration "]"
 
         Returns:
             Timing object with type="relative"
         """
         value = items[0]
 
-        # Check if it's a musical time value (MUSICAL_TIME_VALUE terminal)
-        if isinstance(value, Token) and value.type == "MUSICAL_TIME_VALUE":
-            time_str = str(value)
+        # Check if it's a RELATIVE_MUSICAL_TIME terminal (includes brackets)
+        if isinstance(value, Token) and value.type == "RELATIVE_MUSICAL_TIME":
+            # Extract the time value from the token (remove [+ and ])
+            time_str = str(value)[2:-1]  # Remove "[+" and "]"
             parts = time_str.split(".")
-            raw = f"[+{time_str}]"
+            raw = str(value)
             return Timing("relative", (int(parts[0]), int(parts[1]), int(parts[2])), raw)
 
         # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
@@ -206,9 +207,13 @@ class MMDTransformer(Transformer):
             import re
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
-                num, unit = match.groups()
+                num_str, unit = match.groups()
+                # Convert to float first, then to int if it's a whole number
+                num = float(num_str)
+                if num.is_integer():
+                    num = int(num)
                 raw = f"[+{value}]"
-                return Timing("relative", (float(num), unit), raw)
+                return Timing("relative", (num, unit), raw)
 
         # Fallback for unexpected format
         raw = f"[+{value}]"
@@ -312,25 +317,29 @@ class MMDTransformer(Transformer):
     def duration(self, *args):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT ("s" | "ms" | "b" | "t") | INT ("s" | "ms" | "b" | "t")
+        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT
 
         With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
         For this rule, we receive:
-        - args[0]: The number (FLOAT or INT token value)
-        - args[1]: The unit string literal (if Lark passes it, version-dependent)
+        - args[0]: The number (FLOAT or INT value)
+        - args[1]: The TIME_UNIT token (Token object)
 
         Examples:
-        - "1.25b" → args = [1.25, "b"] or args = [1.25]
-        - "500ms" → args = [500, "ms"] or args = [500]
-        - "2b" → args = [2, "b"] or args = [2]
+        - "1.25b" → args = [1.25, Token('TIME_UNIT', 'b')]
+        - "500ms" → args = [500, Token('TIME_UNIT', 'ms')]
+        - "2b" → args = [2, Token('TIME_UNIT', 'b')]
         """
         if len(args) >= 1:
             number = args[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Unit is either explicitly passed or defaults to beats
-            unit = args[1] if len(args) > 1 else "b"
+            # Extract unit from TIME_UNIT token (or default to "b")
+            if len(args) > 1:
+                unit_token = args[1]
+                unit = str(unit_token) if isinstance(unit_token, Token) else str(unit_token)
+            else:
+                unit = "b"
             return f"{number}{unit}"
         return "1b"  # Default
 

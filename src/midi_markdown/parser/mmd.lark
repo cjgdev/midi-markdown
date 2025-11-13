@@ -55,8 +55,8 @@ timing: ABSOLUTE_TIME
       | relative_time
       | simultaneous
 
-relative_time: "[+" duration "]"
-             | "[+" MUSICAL_TIME_VALUE "]"
+relative_time: RELATIVE_MUSICAL_TIME  // Match [+2.1.0] as single token first
+             | "[+" duration "]"
 
 simultaneous: "[@]"
 
@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT ("s" | "ms" | "b" | "t")
-        | INT ("s" | "ms" | "b" | "t")
-        | random_expr ("s" | "ms" | "b" | "t")
+duration: FLOAT TIME_UNIT
+        | INT TIME_UNIT
+        | random_expr TIME_UNIT
         | variable_ref
         | param_ref
 
@@ -379,7 +379,10 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.0]
+
+// Time unit for durations (ms must come before s to match correctly)
+TIME_UNIT: "ms" | "s" | "b" | "t"
 
 // Numbers
 // Terminal Priority System:
@@ -397,9 +400,10 @@ MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
+//   "2.1.0" should NOT match as FLOAT, but as MUSICAL_TIME_VALUE
 NUMBER: INT | FLOAT
 INT.2: /[+-]?\d+/
-FLOAT.3: /[+-]?\d+\.\d+/
+FLOAT.3: /[+-]?\d+\.\d+(?!\.\d)/  // Negative lookahead: don't match if followed by another .digit (for musical time 2.1.0)
 
 // Identifiers and Names
 NOTE_ON: "note_on"
