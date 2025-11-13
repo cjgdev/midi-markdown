@@ -234,18 +234,20 @@ class LoopExpander:
         return resolved
 
 
-def parse_interval(interval_str: str) -> LoopInterval:
+def parse_interval(interval_str: str | tuple) -> LoopInterval:
     """
-    Parse an interval string into a LoopInterval object.
+    Parse an interval string or tuple into a LoopInterval object.
 
     Supported formats:
     - "2b" or "2 beats" -> 2 beats
     - "480t" or "480 ticks" -> 480 ticks
     - "500ms" -> 500 milliseconds
     - "1.2.0" -> 1 bar, 2 beats, 0 ticks (BBT)
+    - (2.0, 'b') -> 2 beats (tuple from parser)
+    - (500.0, 'ms') -> 500 milliseconds (tuple from parser)
 
     Args:
-        interval_str: Interval specification string
+        interval_str: Interval specification string or (value, unit) tuple
 
     Returns:
         LoopInterval object
@@ -253,6 +255,15 @@ def parse_interval(interval_str: str) -> LoopInterval:
     Raises:
         ValueError: If format is invalid
     """
+    # Handle tuple format from parser: (value, unit)
+    if isinstance(interval_str, tuple):
+        if len(interval_str) == 2:
+            value, unit = interval_str
+            # Convert tuple to string format: "value+unit"
+            interval_str = f"{value}{unit}"
+        else:
+            raise ValueError(f"Invalid interval format: {interval_str}")
+
     interval_str = interval_str.strip().lower()
 
     # BBT format: digits.digits.digits (bars.beats.ticks)

@@ -378,11 +378,10 @@ class CommandExpander:
         if interval_spec is None:
             interval = LoopInterval(value=1.0, interval_type=IntervalType.BEATS)
         else:
-            interval_str = (
-                str(interval_spec) if hasattr(interval_spec, "__str__") else str(interval_spec)
-            )
+            # interval_spec can be a tuple (from parser) or string
+            # parse_interval handles both
             try:
-                interval = parse_interval(interval_str)
+                interval = parse_interval(interval_spec)
             except ValueError as e:
                 raise InvalidLoopConfigError(
                     f"Invalid loop interval: {e}", line=line, file=self.source_file
@@ -484,12 +483,12 @@ class CommandExpander:
                 suggestion="Ensure sweep times are in chronological order",
             )
 
-        # Parse interval
-        interval_str = (
-            str(interval_spec) if hasattr(interval_spec, "__str__") else str(interval_spec)
-        )
+        # Parse interval (can be tuple from parser or string)
+        # parse_sweep_interval handles both
         try:
-            interval_ticks = parse_sweep_interval(interval_str, ppq=self.ppq, tempo=self.tempo)
+            interval_ticks = parse_sweep_interval(
+                interval_spec, ppq=self.ppq, tempo=self.tempo, time_signature=self.time_signature
+            )
         except ValueError as e:
             raise InvalidSweepConfigError(
                 f"Invalid sweep interval: {e}", line=line, file=self.source_file

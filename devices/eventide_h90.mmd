@@ -652,7 +652,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
 @end
 
 # Mix tremolo effect (rhythmic wet/dry modulation)
-@alias h90_mix_tremolo {ch} {center:64} {freq:1.0-8.0} {depth:30-80} "Mix tremolo with LFO"
+@alias h90_mix_tremolo {ch} {center=64} {freq:1.0-8.0} {depth:30-80} "Mix tremolo with LFO"
   - cc {ch}.84.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
@@ -661,7 +661,7 @@ manual: https://cdn.eventideaudio.com/manuals/h90/1.1/content/
   - cc {ch}.70.curve({start_val}, {end_val}, ease-in-out)
 @end
 
-@alias h90_perform1_vibrato {ch} {center:64} {freq:0.5-5.0} {depth:20-60} "Performance 1 vibrato"
+@alias h90_perform1_vibrato {ch} {center=64} {freq:0.5-5.0} {depth:20-60} "Performance 1 vibrato"
   - cc {ch}.70.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
