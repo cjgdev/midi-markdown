@@ -162,6 +162,7 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
+    @v_args(inline=True)
     def relative_time(self, value):
         """Handle relative_time parser rule.
 
@@ -311,30 +312,42 @@ class MMDTransformer(Transformer):
         """
         return value  # Preserve type for later handling
 
-    def duration(self, *args):
+    @v_args(inline=False)
+    def duration(self, children):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT
+        Grammar: duration: FLOAT TIME_UNIT | INT TIME_UNIT | random_expr TIME_UNIT | variable_ref | param_ref
 
-        With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
-        For this rule, we receive:
-        - args[0]: The number (FLOAT or INT token value)
-        - args[1]: The TIME_UNIT token
+        Note: This method uses @v_args(inline=False) to handle multiple alternatives
+        with different numbers of children.
+
+        Args:
+            children: List of matched children, can be:
+                - [number, unit] for FLOAT/INT TIME_UNIT alternatives
+                - [expression, unit] for random_expr TIME_UNIT alternative
+                - [ref] for variable_ref or param_ref alternatives
+
+        Returns:
+            String duration like "1b", "500ms" or variable/param ref
 
         Examples:
-        - "1.25b" → args = [1.25, Token('TIME_UNIT', 'b')]
-        - "500ms" → args = [500, Token('TIME_UNIT', 'ms')]
-        - "2b" → args = [2, Token('TIME_UNIT', 'b')]
+        - "1.25b" → ["1.25", Token('TIME_UNIT', 'b')] → "1.25b"
+        - "500ms" → [500, Token('TIME_UNIT', 'ms')] → "500ms"
+        - "2b" → [2, Token('TIME_UNIT', 'b')] → "2b"
+        - "${VAR}" → [('var', 'VAR')] → ('var', 'VAR')
         """
-        if len(args) >= 2:
-            number = args[0]
+        if len(children) >= 2:
+            number = children[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
             # Extract unit from Token
-            unit_token = args[1]
-            unit = str(unit_token) if hasattr(unit_token, '__str__') else str(unit_token)
+            from lark import Token
+            unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             return f"{number}{unit}"
+        elif len(children) == 1:
+            # variable_ref or param_ref - return as-is
+            return children[0]
         return "1b"  # Default
 
     @v_args(inline=False)
