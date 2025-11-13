@@ -245,7 +245,7 @@ jobs:
     needs: create-release
     runs-on: ubuntu-latest
     # Only publish to PyPI if PYPI_API_TOKEN secret is set
-    if: secrets.PYPI_API_TOKEN
+    if: ${{ secrets.PYPI_API_TOKEN != '' }}
 
     steps:
       - name: Checkout code
