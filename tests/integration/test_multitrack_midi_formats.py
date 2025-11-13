@@ -138,15 +138,18 @@ midi_format: 1
 
         # At 120 BPM: 1 second = 960 ticks
         # 00:00.000 = 0
-        # 00:01.000 = 960
+        # 00:01.000 = 960 (note_on)
+        # 00:01.500 = 1440 (note_off after 500ms)
         # 00:02.000 = 1920
-        # 00:03.000 = 2880
-        # Note: Current implementation does not generate note_off events
-        assert len(events) == 4
+        # 00:03.000 = 2880 (note_on)
+        # 00:03.500 = 3360 (note_off after 500ms)
+        assert len(events) == 6
         assert events[0]['time'] == 0      # Track 1: 00:00.000 CC
         assert events[1]['time'] == 960    # Track 2: 00:01.000 note_on
-        assert events[2]['time'] == 1920   # Track 1: 00:02.000 CC
-        assert events[3]['time'] == 2880   # Track 2: 00:03.000 note_on
+        assert events[2]['time'] == 1440   # Track 2: 00:01.500 note_off (500ms duration)
+        assert events[3]['time'] == 1920   # Track 1: 00:02.000 CC
+        assert events[4]['time'] == 2880   # Track 2: 00:03.000 note_on
+        assert events[5]['time'] == 3360   # Track 2: 00:03.500 note_off (500ms duration)
 
     @pytest.mark.integration
     def test_absolute_timing_format_2(self, parser: MMDParser):
