@@ -244,31 +244,50 @@ jobs:
     name: Publish to PyPI
     needs: create-release
     runs-on: ubuntu-latest
-    # Only publish to PyPI if PYPI_API_TOKEN secret is set
-    if: ${{ secrets.PYPI_API_TOKEN != '' }}
 
     steps:
+      - name: Check for PyPI token
+        id: check-token
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -n "$PYPI_TOKEN" ]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+            echo "✅ PYPI_API_TOKEN is configured"
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Skipping PyPI publish - PYPI_API_TOKEN not configured"
+            echo "To enable automatic publishing, add your PyPI API token to repository secrets"
+          fi
+
       - name: Checkout code
+        if: steps.check-token.outputs.available == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: steps.check-token.outputs.available == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Install uv
+        if: steps.check-token.outputs.available == 'true'
         run: pip install uv
 
       - name: Install build dependencies
+        if: steps.check-token.outputs.available == 'true'
         run: uv sync
 
       - name: Build distributions
+        if: steps.check-token.outputs.available == 'true'
         run: uv build
 
       - name: Display built distributions
+        if: steps.check-token.outputs.available == 'true'
         run: ls -lh dist/
 
       - name: Publish to PyPI
+        if: steps.check-token.outputs.available == 'true'
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
@@ -277,6 +296,7 @@ jobs:
           uv run twine upload dist/* --non-interactive --skip-existing
 
       - name: Verify PyPI upload
+        if: steps.check-token.outputs.available == 'true'
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
           echo "✅ Published midi-markdown $VERSION to PyPI"
