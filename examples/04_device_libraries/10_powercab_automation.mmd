@@ -1,0 +1,297 @@
+---
+title: "Line 6 PowerCab Plus - Speaker Automation"
+author: "MIDI Markdown Examples"
+description: |
+  Demonstrates Line 6 PowerCab Plus MIDI control including speaker model switching,
+  microphone simulation, mode changes, and real-time parameter automation.
+
+  WHAT IS POWERCAB?
+  PowerCab Plus is a smart powered FRFR speaker with onboard DSP for speaker modeling,
+  microphone simulation, and impulse response loading. Designed for guitar modelers
+  like Helix, but also works with tube amps and analog pedals.
+
+  THREE OPERATING MODES:
+  - Flat Mode: Full-range flat response (FRFR) for modelers
+  - Speaker Mode: 13 classic guitar speaker models with 16 microphone simulations
+  - IR Mode: User-loaded impulse responses (128 slots)
+
+  This example demonstrates:
+  - Preset recall via Program Change
+  - Real-time speaker/mic changes via Control Change
+  - Classic amp-speaker pairings
+  - Mode switching and parameter automation
+  - Integration techniques with Helix and third-party controllers
+
+ppq: 480
+default_channel: 1
+default_velocity: 100
+---
+
+@import "devices/line6_powercab.mmd"
+
+# ============================================
+# SONG STRUCTURE: PROGRESSIVE DEMONSTRATION
+# ============================================
+
+# --- INTRO: FLAT MODE (FRFR) ---
+[00:00.000]
+- marker "Intro - Flat FRFR Mode"
+- powercab_studio_frfr 1  # Flat FRFR mode for uncolored monitoring
+- powercab_volume 1 90     # Set moderate volume level
+
+# --- VERSE 1: FENDER CLEAN ---
+[00:08.000]
+- marker "Verse 1 - Fender Clean"
+- powercab_fender_clean 1  # Jarvis speaker + 67 Cond mic at 3 inches
+- powercab_led_blue 1      # Blue LED for visual identification
+
+# Subtle volume swell
+[00:12.000]
+- powercab_volume_fade 1 90 100
+
+# --- PRE-CHORUS: BRITISH CRUNCH ---
+[00:20.000]
+- marker "Pre-Chorus - British Crunch"
+- powercab_speaker_green 1   # Greenback speaker
+[@]
+- powercab_mic_57 1          # SM57-style mic
+[@]
+- powercab_mic_standard 1    # 2 inches
+[@]
+- powercab_led_yellow 1      # Yellow LED
+
+# --- CHORUS: MODERN HIGH-GAIN ---
+[00:32.000]
+- marker "Chorus - High-Gain"
+- powercab_modern_highgain 1  # Shade speaker + 421 Dynamic at 1 inch
+- powercab_led_red 1           # Red LED
+- powercab_volume 1 105        # Boost for impact
+
+# --- BRIDGE: VOX JANGLE ---
+[00:48.000]
+- marker "Bridge - Vox Jangle"
+- powercab_vox_jangle 1    # Essex speaker + 87 Cond mic
+- powercab_led_cyan 1      # Cyan LED
+- powercab_volume 1 100
+
+# --- SOLO: SMOOTH LEAD ---
+[01:04.000]
+- marker "Solo - Lead Tone"
+- powercab_speaker_herald 1  # Herald speaker (detailed highs)
+[@]
+- powercab_mic_421 1         # 421 Dynamic
+[@]
+- powercab_mic_standard 1    # 2 inches start
+[@]
+- powercab_led_magenta 1
+
+# Dynamic mic distance sweep (simulates moving mic)
+[01:08.000]
+- powercab_mic_dist_sweep 1 2 10  # Sweep from 2" to 6"
+
+# --- FINAL CHORUS: MAXIMUM IMPACT ---
+[01:20.000]
+- marker "Final Chorus"
+- powercab_modern_highgain 1
+- powercab_led_red 1
+- powercab_volume 1 110
+
+# --- OUTRO: IR MODE WITH FADE ---
+[01:36.000]
+- marker "Outro - IR Mode"
+- powercab_mode_ir 1      # Switch to IR mode
+[+50ms]
+- powercab_ir 1 10        # User IR slot 10
+[@]
+- powercab_ir_lowcut 1 20  # Gentle low-cut
+[@]
+- powercab_ir_highcut 1 100  # Gentle high-cut
+[@]
+- powercab_led_white 1
+
+# Volume fade-out
+[01:44.000]
+- powercab_volume_fade 1 110 0
+
+# ============================================
+# ADVANCED EXAMPLES
+# ============================================
+
+# --- HF TRIM CONTROL (FLAT MODE) ---
+[01:52.000]
+- marker "HF Trim Demo"
+- powercab_mode_flat 1
+[+50ms]
+- powercab_voicing_frfr 1
+[@]
+- powercab_hf_neutral 1   # 0dB (value 100)
+
+[02:00.000]
+- powercab_hf_plus10 1    # +10dB boost (value 113)
+
+[02:04.000]
+- powercab_hf_neutral 1   # Back to neutral
+
+# --- INPUT ROUTING ---
+[02:08.000]
+- marker "Input Routing"
+- powercab_input1_inst 1   # Input 1 to Instrument level
+[@]
+- powercab_input1_vol 1 100  # 0dB reference
+
+# --- PRESET RECALL ---
+[02:16.000]
+- marker "Preset Recall"
+- powercab_preset_safe 1 5  # Load preset 5 (safe method with timing)
+
+# --- MICROPHONE DISTANCE CHANGES ---
+[02:24.000]
+- marker "Mic Distance Changes"
+- powercab_speaker_vintage 1
+[@]
+- powercab_mic_57 1
+
+[02:28.000]
+- powercab_mic_close 1      # 1 inch (aggressive)
+
+[02:32.000]
+- powercab_mic_balanced 1   # 3 inches (balanced)
+
+[02:36.000]
+- powercab_mic_far 1        # 12 inches (room sound)
+
+# --- COMPLETE MODE SETUPS ---
+[02:40.000]
+- marker "Complete Setups"
+
+# Full speaker mode setup
+[02:42.000]
+- powercab_speaker_setup 1 0 0 2  # Vintage + 57 Dynamic + 2"
+
+# Full IR mode setup
+[02:48.000]
+- powercab_ir_setup 1 25 30 90  # IR 25, Low Cut 30, High Cut 90
+
+# Full flat mode setup
+[02:54.000]
+- powercab_flat_setup 1 0 100  # FRFR voicing, HF at 0dB
+
+# --- POWERCAB 212 PLUS DUAL SPEAKER CONTROL ---
+# (Only functional on 212 Plus, ignored on 112 Plus)
+[03:00.000]
+- marker "212 Plus Features"
+- powercab212_dual_vintage 1  # Both speakers = Vintage 30
+
+[03:04.000]
+- powercab212_mix_vintage_green 1  # Mixed: Vintage + Greenback
+
+# --- USB AUDIO MODE ---
+[03:08.000]
+- marker "USB Audio Control"
+- powercab_usb_processed 1  # Send processed signal to DAW
+
+[03:12.000]
+- powercab_usb_normal 1     # Send dry signal to DAW
+
+# --- LOW CUT FILTER (SPEAKER OUTPUT ONLY) ---
+[03:16.000]
+- marker "Low Cut Filter"
+- powercab_lowcut_on 1      # Enable 80Hz HPF
+
+[03:20.000]
+- powercab_lowcut_off 1     # Disable filter
+
+# --- EMERGENCY RESET ---
+[03:24.000]
+- marker "Safety Reset"
+- powercab_reset_safe 1     # Reset to safe known state
+
+# Final end marker
+[03:28.000]
+- marker "End"
+
+# ============================================
+# INTEGRATION METHODS
+# ============================================
+
+# METHOD 1: HELIX + POWERCAB VIA L6 LINK
+# - Connect: Helix L6 LINK OUT → PowerCab L6 LINK IN (110Ω XLR cable)
+# - Firmware: Helix 2.80+ and PowerCab 2.0+ required
+# - Result: Audio + MIDI over single cable, automatic preset sync
+# - Setup: Set PowerCab MIDI channel to match Helix (default 1)
+# - Best for: Simplest integration, lowest latency
+
+# METHOD 2: HELIX + POWERCAB VIA MIDI DIN
+# - Connect: Helix MIDI OUT → PowerCab MIDI IN (5-pin DIN)
+# - Control: Helix Command Center sends CC/PC per snapshot
+# - Example: Snapshot 1 → CC22=3 (Jarvis), Snapshot 2 → CC22=1 (Green)
+# - Best for: Independent of audio routing, any modeler
+
+# METHOD 3: THIRD-PARTY MIDI CONTROLLER
+# - Compatible: Morningstar, RJM Mastermind, Disaster Area, Boss, etc.
+# - Connect: Controller MIDI OUT → PowerCab MIDI IN
+# - Control: Footswitches send PC (presets) or CC (parameters)
+# - Best for: Dedicated PowerCab control
+
+# METHOD 4: STEREO POWERCAB PAIR (DAISY-CHAIN)
+# - Connect: Controller → PowerCab #1 IN → PowerCab #2 IN
+# - Setup: Same MIDI channel, MIDI Thru enabled on #1
+# - Result: Both units respond to same messages
+# - L6 Link: Auto splits stereo (left → #1, right → #2)
+# - Best for: Stereo rigs, dual-amp setups
+
+# METHOD 5: TUBE AMP + POWERCAB
+# - Connect: Tube amp speaker out → PowerCab INPUT 1 (Line level)
+# - Mode: Speaker mode for cab simulation on XLR to FOH
+# - Control: MIDI controller switches models per song
+# - Result: Speaker as monitor, XLR to PA/recording
+# - Best for: Hybrid tube amp + digital control
+
+# ============================================
+# TROUBLESHOOTING QUICK REFERENCE
+# ============================================
+
+# ISSUE: First preset change goes to wrong preset
+# SOLUTION: Use powercab_preset_safe alias (includes initialization delay)
+
+# ISSUE: HF driver inconsistent behavior
+# SOLUTION: Send explicit CC5 values per preset, avoid expression pedals
+
+# ISSUE: Pops/clicks when changing parameters
+# SOLUTION: Use 50-100ms spacing ([+50ms] timing) between messages
+
+# ISSUE: MIDI not responding
+# SOLUTION: Check channel match, verify PC Receive enabled in Global Settings
+
+# ISSUE: L6 Link not working
+# SOLUTION: Update firmware (Helix 2.80+, PowerCab 2.0+), use 110Ω cable
+
+# ISSUE: Volume drop via L6 Link
+# SOLUTION: Adjust Helix output +10dB or PowerCab input CC1 +10dB
+
+# ISSUE: Speaker models 6-12 missing
+# SOLUTION: Update PowerCab Plus firmware to 2.0+ via Line 6 Updater
+
+# ============================================
+# MODEL COMPATIBILITY
+# ============================================
+
+# PowerCab 112 Plus: Single 12" speaker, mono, full MIDI (all features in this file)
+# PowerCab 212 Plus: Dual 12" speakers, stereo, full MIDI + CC102-104 for Speaker 1
+# PowerCab 112/212 (non-Plus): NO MIDI capability whatsoever (Plus required)
+# PowerCab CL (112/212): Limited MIDI (only CC7, CC68-71, no Program Change)
+
+# ============================================
+# RESOURCES
+# ============================================
+
+# Official Line 6:
+# - Manual: https://line6.com/support/manuals/powercab
+# - Software: https://line6.com/software/ (PowerCab Edit, Line 6 Updater)
+# - Forums: https://line6.com/support/forum/93-powercab/
+
+# MIDI Implementation:
+# - 29 Control Change assignments (CC1-7, CC20-31, CC102-104, CC111)
+# - 128 Program Change presets (PC 0-127)
+# - Default channel: 1 (configurable 1-16, plus Omni mode)
+# - Connections: 5-pin DIN, USB MIDI, L6 Link (digital XLR)

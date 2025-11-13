@@ -1,0 +1,656 @@
+---
+device: Line 6 PowerCab Plus (112/212)
+manufacturer: Line 6
+version: 2.0
+default_channel: 1
+documentation: https://line6.com/support/manuals/powercab
+firmware_notes: |
+  CRITICAL FIRMWARE REQUIREMENTS:
+  - PowerCab Plus firmware 2.0+ required for full 13 speaker models (adds 7 new models)
+  - Helix firmware 2.80+ required for L6 Link remote control without separate MIDI cable
+  - PowerCab firmware 1.x only supports 6 speaker models (values 0-5)
+
+  KNOWN BUGS AND WORKAROUNDS:
+  - HF Driver (CC5) behavior inconsistent across modes - use explicit CC5 values per preset
+  - HF Trim remains active in modes where it should be disabled (LF Raw, speaker models)
+  - PowerCab Edit software UI doesn't reflect actual HF driver state
+  - First preset change after power-on may switch to wrong preset (send PC twice or CC20 first)
+  - MIDI Clock issues reported when using with HX Stomp + HX Effects simultaneously
+
+  TIMING RECOMMENDATIONS:
+  - Allow 50-100ms spacing between MIDI messages for complex sequences
+  - Send mode-change CCs (CC20, CC21) BEFORE Program Change for complex transitions
+  - Use MIDI Instant Commands (not expression pedals) for HF Trim control to avoid pops/clicks
+
+  MODEL DIFFERENCES:
+  - PowerCab 112 Plus: Single 12" speaker, mono output
+  - PowerCab 212 Plus: Dual 12" speakers, true stereo, additional CCs (102-104) for Speaker 1 control
+  - PowerCab 112/212 (non-Plus): NO MIDI CAPABILITY - Plus designation essential for MIDI control
+  - PowerCab CL (112/212): Limited MIDI - only 7 CCs (CC7, CC68-71), no Program Change support
+
+  CONNECTION OPTIONS:
+  - 5-pin DIN MIDI IN/OUT/THRU (rear panel)
+  - USB MIDI (bidirectional, class-compliant, also serves as 16-bit/44.1-48kHz audio interface)
+  - L6 Link (digital XLR with 110Ω AES/EBU cable, carries audio + control with firmware 2.0+)
+
+  For PowerCab Edit software and firmware updates:
+  https://line6.com/software/
+---
+
+# ============================================
+# LINE 6 POWERCAB PLUS - MIDI LIBRARY
+# ============================================
+#
+# Complete MIDI implementation for PowerCab 112 Plus and 212 Plus powered speakers.
+# Provides comprehensive control over speaker modeling, microphone simulation, IRs,
+# and all audio parameters via 29 Control Change assignments and 128 presets.
+#
+# WHAT IS POWERCAB?
+# PowerCab Plus is a smart powered speaker system with onboard DSP for speaker modeling,
+# microphone simulation, and impulse response (IR) loading. It's designed as an FRFR
+# (Full Range Flat Response) solution for guitar modelers like Helix, but also offers
+# traditional guitar speaker simulation for use with tube amps or analog pedals.
+#
+# THREE OPERATING MODES (CC20):
+# - Flat Mode (0): Full-range flat response with configurable voicing (FRFR/LF Solo/LF Flat)
+# - Speaker Mode (1): 13 classic guitar speaker models with 16 microphone simulations
+# - IR Mode (2): User-loaded impulse responses (128 slots) with Low/High Cut filters
+#
+# TYPICAL USE CASES:
+# 1. Helix + PowerCab via L6 Link: Automatic preset sync, single-cable connection
+# 2. Multi-modeler rig: MIDI controller switches PowerCab speaker models per song/preset
+# 3. Tube amp + PowerCab: Load to speaker, use Speaker mode for recording XLR output
+# 4. Studio monitoring: Flat mode (FRFR) for uncolored playback, IR mode for cab simulation
+#
+# INTEGRATION PATTERNS:
+# - Use PC messages for complete preset recall (128 presets store full state)
+# - Use CC messages for real-time parameter changes (speaker model, mic, mode, etc.)
+# - Combine with Helix snapshots: Send CC messages via Command Center for per-snapshot speaker changes
+# - Daisy-chain multiple PowerCab units (MIDI Thru enabled) for stereo control on single channel
+#
+
+# ============================================
+# PRESET MANAGEMENT (PROGRAM CHANGE)
+# ============================================
+
+# Direct Preset Recall (PC 0-127 → Presets 000-127)
+# Each preset stores: Mode, speaker/IR selection, all parameters, LED color, voicing
+# PC numbering uses zero-indexing (PC 0 = Preset 000)
+
+@alias powercab_preset pc.{ch}.{preset:0-127} "Load preset (0-127, stores complete state)"
+
+# Preset with explicit timing (for reliable switching)
+@alias powercab_preset_safe {ch} {preset:0-127} "Load preset with safe timing for first switch"
+  # Workaround for "first preset switch goes to wrong preset" bug
+  # Send mode CC first to ensure MIDI reception initialized
+  [@]
+  - cc {ch}.20.0
+  [+50ms]
+  - pc {ch}.{preset}
+@end
+
+# ============================================
+# GLOBAL VOLUME AND ROUTING
+# ============================================
+
+# Master Volume (most important control for live performance)
+@alias powercab_volume cc.{ch}.7.{value:0-127} "Master volume level (0=silent, 127=max)"
+@alias powercab_volume_fade {ch} {start:0-127} {end:0-127} "Smooth volume fade"
+  - cc {ch}.7.curve({start}, {end}, ease-in-out)
+@end
+
+# Input 1 Volume (default input)
+@alias powercab_input1_vol cc.{ch}.1.{value:0-127} "Input 1 volume (100=0dB, 0=mute, 127=+12dB)"
+@alias powercab_input1_level cc.{ch}.30.{level=line:0,inst:127} "Input 1 level: Line or Instrument"
+@alias powercab_input1_line cc.{ch}.30.0 "Input 1: Line level"
+@alias powercab_input1_inst cc.{ch}.30.127 "Input 1: Instrument level"
+
+# Input 2 Volume and Mode
+@alias powercab_input2_vol cc.{ch}.2.{value:0-127} "Input 2 volume (100=0dB, 0=mute, 127=+12dB)"
+@alias powercab_input2_level cc.{ch}.31.{level=line:0,inst:127} "Input 2 level: Line or Instrument"
+@alias powercab_input2_line cc.{ch}.31.0 "Input 2: Line level"
+@alias powercab_input2_inst cc.{ch}.31.127 "Input 2: Instrument level"
+
+@alias powercab_input2_mode cc.{ch}.3.{mode:0-127} "Input 2 type: 0-40=Normal, 41-80=Monitor, 81-127=USB"
+@alias powercab_input2_normal cc.{ch}.3.20 "Input 2: Normal mode"
+@alias powercab_input2_monitor cc.{ch}.3.60 "Input 2: Monitor mode"
+@alias powercab_input2_usb cc.{ch}.3.100 "Input 2: USB mode"
+
+# Link Inputs (gangs Input 1 and Input 2 gain controls together)
+@alias powercab_link_inputs cc.{ch}.4.{state=off:0,on:127} "Link Input 1 & 2 gain levels"
+@alias powercab_link_inputs_on cc.{ch}.4.127 "Link inputs together"
+@alias powercab_link_inputs_off cc.{ch}.4.0 "Unlink inputs"
+
+# ============================================
+# HF DRIVER / HIGH FREQUENCY CONTROL
+# ============================================
+
+# CRITICAL PARAMETER: HF Trim controls compression driver gain (high-frequency tweeter)
+# WARNING: Known bugs - HF driver behavior inconsistent across modes
+# WORKAROUND: Use explicit CC5 values per preset, don't rely on expression pedal control
+#
+# Value 0 = OFF (completely disables HF driver)
+# Value 100 = 0dB (neutral, default)
+# Value 113 ≈ +10dB
+# Resolution: +/-1dB ≈ Value +/-2
+# Range: -96dB to +12dB
+#
+# FUNCTIONAL ONLY in Flat/FRFR and IR modes
+# Speaker mode disables HF driver completely (speaker models have baked-in high-freq response)
+
+@alias powercab_hf_trim cc.{ch}.5.{value:0-127} "HF Trim level (0=OFF, 100=0dB, 113≈+10dB)"
+@alias powercab_hf_off cc.{ch}.5.0 "Disable HF driver completely"
+@alias powercab_hf_neutral cc.{ch}.5.100 "HF driver at 0dB (neutral)"
+@alias powercab_hf_plus10 cc.{ch}.5.113 "HF driver at +10dB"
+
+# HF Trim automation (use with caution due to known bugs and potential pops/clicks)
+@alias powercab_hf_swell {ch} {start:0-127} {end:0-127} "Smooth HF Trim transition"
+  - cc {ch}.5.curve({start}, {end}, ease-in-out)
+@end
+
+# ============================================
+# USB AUDIO AND DIGITAL PROCESSING
+# ============================================
+
+# USB Audio Mode (affects signal sent to DAW via USB interface)
+@alias powercab_usb_mode cc.{ch}.6.{mode=normal:0,processed:127} "USB audio: Normal (dry) or Processed (with PowerCab DSP)"
+@alias powercab_usb_normal cc.{ch}.6.0 "USB audio: Normal (unprocessed, dry signal)"
+@alias powercab_usb_processed cc.{ch}.6.127 "USB audio: Processed (applies PowerCab DSP)"
+
+# Low Cut Filter (global 80Hz high-pass, only affects speaker output)
+# Does NOT affect XLR or L6 Link outputs
+@alias powercab_lowcut cc.{ch}.111.{state=off:0,on:127} "Low Cut filter 80Hz HPF (speaker output only)"
+@alias powercab_lowcut_on cc.{ch}.111.127 "Enable 80Hz Low Cut filter"
+@alias powercab_lowcut_off cc.{ch}.111.0 "Disable Low Cut filter"
+
+# ============================================
+# MODE SELECTION (FLAT / SPEAKER / IR)
+# ============================================
+
+# Primary Mode Selection (defines PowerCab's fundamental operating mode)
+@alias powercab_mode cc.{ch}.20.{mode=flat:0,speaker:1,ir:2} "Operating mode"
+@alias powercab_mode_flat cc.{ch}.20.0 "Flat mode: Full-range flat response (FRFR)"
+@alias powercab_mode_speaker cc.{ch}.20.1 "Speaker mode: Guitar speaker modeling"
+@alias powercab_mode_ir cc.{ch}.20.2 "IR mode: User impulse responses"
+
+# Voicing (Flat Mode Only - ignored in Speaker/IR modes)
+# Determines how the woofer and HF driver interact
+@alias powercab_voicing cc.{ch}.21.{voicing=frfr:0,lf_solo:1,lf_flat:2} "Voicing (Flat mode only)"
+@alias powercab_voicing_frfr cc.{ch}.21.0 "FRFR: Full-range with HF driver"
+@alias powercab_voicing_lf_solo cc.{ch}.21.1 "LF Solo: Woofer only, no EQ"
+@alias powercab_voicing_lf_flat cc.{ch}.21.2 "LF Flat: Woofer only with flat EQ"
+
+# ============================================
+# SPEAKER MODEL SELECTION (SPEAKER MODE)
+# ============================================
+
+# Speaker Model Selection (CC22, values 0-12 in firmware 2.0+)
+# Firmware 1.x: Values 0-5 only (6 models)
+# Firmware 2.0+: Values 0-12 (13 models, adds Natural/HF Off + 6 more)
+#
+# SPEAKER MODEL TABLE:
+# Value 0:  Vintage   (Celestion Vintage 30 - aggressive, tight low-end, pronounced midrange)
+# Value 1:  Green     (Celestion Greenback - British crunch, warm midrange)
+# Value 2:  Cream     (Celestion G12M-65 - balanced vintage tone)
+# Value 3:  Jarvis    (Jensen P12Q - American clean, chimey highs)
+# Value 4:  Bayou     (Eminence Swamp Thang - high headroom, deep bass)
+# Value 5:  Essex     (Blue Bell/Vox-style - bright, jangly British character)
+# Value 6:  Natural   (HF Off mode - natural speaker response, compression driver disabled)
+# Value 7:  Dino      (Eminence Cannabis Rex - smooth, balanced American tone)
+# Value 8:  Lecto     (Electro-Voice EVM 12L - high output, tight bass, aggressive)
+# Value 9:  Herald    (Celestion G12H(55) Heritage - extended low-end, detailed highs)
+# Value 10: Brown     (Celestion G12 EVH - designed for high-gain Van Halen tones)
+# Value 11: Shade     (Mesa/Boogie Black Shadow C90 - tight, focused, modern high-gain)
+# Value 12: Jetson    (Jensen C12K - vintage American tone, warm breakup)
+
+@alias powercab_speaker cc.{ch}.22.{model:0-12} "Speaker model (0-12, see documentation for model names)"
+
+# Named speaker model shortcuts (firmware 1.x - original 6 models)
+@alias powercab_speaker_vintage cc.{ch}.22.0 "Vintage (Celestion Vintage 30)"
+@alias powercab_speaker_green cc.{ch}.22.1 "Green (Celestion Greenback)"
+@alias powercab_speaker_cream cc.{ch}.22.2 "Cream (Celestion G12M-65)"
+@alias powercab_speaker_jarvis cc.{ch}.22.3 "Jarvis (Jensen P12Q - American clean)"
+@alias powercab_speaker_bayou cc.{ch}.22.4 "Bayou (Eminence Swamp Thang - deep bass)"
+@alias powercab_speaker_essex cc.{ch}.22.5 "Essex (Blue Bell/Vox - bright jangly)"
+
+# Named speaker model shortcuts (firmware 2.0+ - additional 7 models)
+@alias powercab_speaker_natural cc.{ch}.22.6 "Natural (HF Off - natural response, firmware 2.0+)"
+@alias powercab_speaker_dino cc.{ch}.22.7 "Dino (Eminence Cannabis Rex, firmware 2.0+)"
+@alias powercab_speaker_lecto cc.{ch}.22.8 "Lecto (EV EVM 12L - aggressive, firmware 2.0+)"
+@alias powercab_speaker_herald cc.{ch}.22.9 "Herald (Celestion G12H Heritage, firmware 2.0+)"
+@alias powercab_speaker_brown cc.{ch}.22.10 "Brown (Celestion G12 EVH, firmware 2.0+)"
+@alias powercab_speaker_shade cc.{ch}.22.11 "Shade (Mesa Black Shadow C90, firmware 2.0+)"
+@alias powercab_speaker_jetson cc.{ch}.22.12 "Jetson (Jensen C12K - vintage American, firmware 2.0+)"
+
+# ============================================
+# MICROPHONE SIMULATION (SPEAKER MODE XLR OUTPUT)
+# ============================================
+
+# Microphone Model Selection (CC23, values 0-15)
+# Affects XLR direct output ONLY when Mode = Speaker
+# Speaker output always uses full speaker simulation (not affected by mic selection)
+# Combines with speaker model + distance for comprehensive tone shaping on XLR output
+#
+# MICROPHONE MODEL TABLE:
+# Value 0:  57 Dynamic  (Shure SM57-style - industry standard, focused midrange)
+# Value 1:  409 Dynamic (Sennheiser MD409-style - full-range dynamic, clear highs)
+# Value 2:  421 Dynamic (Sennheiser MD421-style - versatile, smooth response)
+# Value 3:  30 Dynamic  (Heil PR30-style - extended low-end)
+# Value 4:  20 Dynamic  (Heil PR20-style - warm, natural tone)
+# Value 5:  121 Ribbon  (Royer R-121-style - smooth, natural highs, minimal proximity)
+# Value 6:  160 Ribbon  (Beyerdynamic M160-style - hypercardioid, detailed)
+# Value 7:  4038 Ribbon (Coles 4038-style - vintage British character)
+# Value 8:  414 Cond    (AKG C414-style - versatile large-diaphragm)
+# Value 9:  84 Cond     (Neumann KM84-style - small-diaphragm, accurate)
+# Value 10: 67 Cond     (Neumann U67-style - vintage warmth)
+# Value 11: 87 Cond     (Neumann U87-style - studio standard, balanced)
+# Value 12: 47 Cond     (Neumann U47-style - warm, present, classic tone)
+# Value 13: 112 Dynamic (AKG D112-style - bass-focused, punchy)
+# Value 14: 12 Dynamic  (AKG D12-style - vintage bass character)
+# Value 15: 7 Dynamic   (Shure SM7-style - broadcast quality, smooth)
+
+@alias powercab_mic cc.{ch}.23.{model:0-15} "Microphone model (XLR output, 0-15)"
+
+# Named microphone shortcuts - Dynamic mics
+@alias powercab_mic_57 cc.{ch}.23.0 "57 Dynamic (SM57-style - standard)"
+@alias powercab_mic_409 cc.{ch}.23.1 "409 Dynamic (MD409-style - clear highs)"
+@alias powercab_mic_421 cc.{ch}.23.2 "421 Dynamic (MD421-style - versatile)"
+@alias powercab_mic_30 cc.{ch}.23.3 "30 Dynamic (PR30-style - extended lows)"
+@alias powercab_mic_20 cc.{ch}.23.4 "20 Dynamic (PR20-style - warm)"
+
+# Named microphone shortcuts - Ribbon mics
+@alias powercab_mic_121 cc.{ch}.23.5 "121 Ribbon (R-121-style - smooth)"
+@alias powercab_mic_160 cc.{ch}.23.6 "160 Ribbon (M160-style - detailed)"
+@alias powercab_mic_4038 cc.{ch}.23.7 "4038 Ribbon (Coles 4038 - vintage British)"
+
+# Named microphone shortcuts - Condenser mics
+@alias powercab_mic_414 cc.{ch}.23.8 "414 Cond (C414-style - versatile)"
+@alias powercab_mic_84 cc.{ch}.23.9 "84 Cond (KM84-style - accurate)"
+@alias powercab_mic_67 cc.{ch}.23.10 "67 Cond (U67-style - vintage warmth)"
+@alias powercab_mic_87 cc.{ch}.23.11 "87 Cond (U87-style - studio standard)"
+@alias powercab_mic_47 cc.{ch}.23.12 "47 Cond (U47-style - classic warm)"
+
+# Named microphone shortcuts - Bass/broadcast mics
+@alias powercab_mic_112 cc.{ch}.23.13 "112 Dynamic (D112-style - bass punchy)"
+@alias powercab_mic_12 cc.{ch}.23.14 "12 Dynamic (D12-style - vintage bass)"
+@alias powercab_mic_7 cc.{ch}.23.15 "7 Dynamic (SM7-style - broadcast smooth)"
+
+# ============================================
+# MICROPHONE DISTANCE (SPEAKER MODE XLR OUTPUT)
+# ============================================
+
+# Mic Distance Selection (CC24, values 0-22)
+# Simulates moving microphone closer/farther from speaker cone
+# Value 0 = 1" (closest, most proximity effect, most direct sound)
+# Value 22 = 12" (farthest, less proximity, more room character)
+# Increments: 0.5" per step
+# Calculation: Distance (inches) = 1 + (CC Value × 0.5)
+#
+# EXAMPLES:
+# Value 0 = 1"   (closest, aggressive, proximity effect)
+# Value 2 = 2"   (standard close-mic position)
+# Value 4 = 3"   (balanced)
+# Value 10 = 6"  (moderate distance)
+# Value 22 = 12" (farthest, room sound)
+
+@alias powercab_mic_dist cc.{ch}.24.{distance:0-22} "Mic distance (0=1in, 22=12in, 0.5in increments)"
+@alias powercab_mic_close cc.{ch}.24.0 "Mic at 1 inch (closest, most proximity)"
+@alias powercab_mic_standard cc.{ch}.24.2 "Mic at 2 inches (standard close-mic)"
+@alias powercab_mic_balanced cc.{ch}.24.4 "Mic at 3 inches (balanced position)"
+@alias powercab_mic_moderate cc.{ch}.24.10 "Mic at 6 inches (moderate distance)"
+@alias powercab_mic_far cc.{ch}.24.22 "Mic at 12 inches (farthest, room sound)"
+
+# Expression pedal control for dynamic mic distance changes (e.g., during solos)
+@alias powercab_mic_dist_sweep {ch} {start:0-22} {end:0-22} "Sweep mic distance"
+  - cc {ch}.24.curve({start}, {end}, ease-in-out)
+@end
+
+# ============================================
+# USER IR MANAGEMENT (IR MODE)
+# ============================================
+
+# User IR Selection (CC25, values 0-127)
+# 128 IR slots available via PowerCab Edit software
+# IRs must be loaded via USB using PowerCab Edit (SysEx NOT supported)
+# Recommended organization: 0-20=clean cabs, 21-40=crunch, 41-60=high-gain, 61-127=user/3rd-party
+
+@alias powercab_ir cc.{ch}.25.{slot:0-127} "Select user IR (0-127, load via PowerCab Edit)"
+
+# IR bank shortcuts (user-defined organization)
+@alias powercab_ir_clean cc.{ch}.25.{slot:0-20} "IR bank: Clean (user convention)"
+@alias powercab_ir_crunch cc.{ch}.25.{slot:21-40} "IR bank: Crunch (user convention)"
+@alias powercab_ir_highgain cc.{ch}.25.{slot:41-60} "IR bank: High-gain (user convention)"
+@alias powercab_ir_user cc.{ch}.25.{slot:61-127} "IR bank: User/3rd-party (user convention)"
+
+# ============================================
+# IR MODE EQ (LOW CUT / HIGH CUT)
+# ============================================
+
+# IR Mode Only - Adjustable filters for tone shaping
+# Only functional when Mode = IR (value 2)
+
+@alias powercab_ir_lowcut cc.{ch}.26.{value:0-127} "IR mode: Low Cut (high-pass filter)"
+@alias powercab_ir_highcut cc.{ch}.27.{value:0-127} "IR mode: High Cut (low-pass filter)"
+
+# ============================================
+# PRESET LEVEL (PER-PRESET VOLUME TRIM)
+# ============================================
+
+# Preset Level (CC28) - Per-preset volume offset
+# Allows balancing volume across different presets
+# Stored in preset, recalled automatically on preset load
+
+@alias powercab_preset_level cc.{ch}.28.{value:0-127} "Preset level (per-preset volume trim)"
+
+# ============================================
+# LED RING COLOR (VISUAL PRESET IDENTIFICATION)
+# ============================================
+
+# LED Ring Color (CC29) - Visual preset identification on front panel
+# Useful for stage identification of preset types at a glance
+# Value 0 = Off
+# Color bands occupy ~18 value range each:
+# 1-18: White, 19-36: Red, 37-54: Blue, 55-72: Green, 73-90: Yellow, 91-108: Cyan, 109-127: Magenta
+
+@alias powercab_led cc.{ch}.29.{value:0-127} "LED ring color (0=Off, 1-18=White, 19-36=Red, etc.)"
+@alias powercab_led_off cc.{ch}.29.0 "LED ring: Off"
+@alias powercab_led_white cc.{ch}.29.10 "LED ring: White"
+@alias powercab_led_red cc.{ch}.29.28 "LED ring: Red"
+@alias powercab_led_blue cc.{ch}.29.46 "LED ring: Blue"
+@alias powercab_led_green cc.{ch}.29.64 "LED ring: Green"
+@alias powercab_led_yellow cc.{ch}.29.82 "LED ring: Yellow"
+@alias powercab_led_cyan cc.{ch}.29.100 "LED ring: Cyan"
+@alias powercab_led_magenta cc.{ch}.29.118 "LED ring: Magenta"
+
+# ============================================
+# POWERCAB 212 PLUS: DUAL SPEAKER CONTROL
+# ============================================
+
+# PowerCab 212 Plus has dual 12" speakers with independent control
+# Speaker 1 (physical left), Speaker 2 controlled via main CC22
+# These CCs only functional on 212 Plus, ignored on 112 Plus
+
+@alias powercab212_speaker1 cc.{ch}.102.{model:0-12} "212 Plus: Speaker 1 model (left speaker)"
+@alias powercab212_mic1 cc.{ch}.103.{model:0-15} "212 Plus: Mic Model 1 (left XLR)"
+@alias powercab212_dist1 cc.{ch}.104.{distance:0-22} "212 Plus: Mic Distance 1 (left, 1-12 inches)"
+
+# Stereo speaker combinations for 212 Plus
+@alias powercab212_dual_vintage {ch} "212 Plus: Dual Vintage 30 (classic stereo)"
+  - cc {ch}.102.0   # Speaker 1 (left) = Vintage
+  [@]
+  - cc {ch}.22.0    # Speaker 2 (right) = Vintage
+@end
+
+@alias powercab212_dual_green {ch} "212 Plus: Dual Greenback (British stereo)"
+  - cc {ch}.102.1   # Speaker 1 (left) = Green
+  [@]
+  - cc {ch}.22.1    # Speaker 2 (right) = Green
+@end
+
+@alias powercab212_mix_vintage_green {ch} "212 Plus: Mixed Vintage + Greenback"
+  - cc {ch}.102.0   # Speaker 1 (left) = Vintage 30
+  [@]
+  - cc {ch}.22.1    # Speaker 2 (right) = Greenback
+@end
+
+# ============================================
+# ADVANCED MACROS AND COMPLETE PRESETS
+# ============================================
+
+# Complete Speaker Setup (Mode + Speaker + Mic + Distance)
+@alias powercab_speaker_setup {ch} {speaker:0-12} {mic:0-15} {dist:0-22} "Complete speaker setup"
+  - cc {ch}.20.1         # Mode = Speaker
+  [+50ms]
+  - cc {ch}.22.{speaker} # Speaker model
+  [@]
+  - cc {ch}.23.{mic}     # Microphone model
+  [@]
+  - cc {ch}.24.{dist}    # Mic distance
+@end
+
+# Complete IR Setup (Mode + IR + Low/High Cut)
+@alias powercab_ir_setup {ch} {ir:0-127} {lowcut:0-127} {highcut:0-127} "Complete IR setup"
+  - cc {ch}.20.2        # Mode = IR
+  [+50ms]
+  - cc {ch}.25.{ir}     # User IR selection
+  [@]
+  - cc {ch}.26.{lowcut} # Low Cut
+  [@]
+  - cc {ch}.27.{highcut} # High Cut
+@end
+
+# Complete Flat Mode Setup (Mode + Voicing + HF Trim)
+@alias powercab_flat_setup {ch} {voicing:0-2} {hf_trim:0-127} "Complete Flat/FRFR setup"
+  - cc {ch}.20.0          # Mode = Flat
+  [+50ms]
+  - cc {ch}.21.{voicing}  # Voicing (FRFR/LF Solo/LF Flat)
+  [@]
+  - cc {ch}.5.{hf_trim}   # HF Trim level
+@end
+
+# Classic Amp-Speaker Pairings (Auto-matched combinations)
+@alias powercab_fender_clean {ch} "Fender clean: Jarvis speaker + 67 Cond mic at 3 inches"
+  - powercab_speaker_setup {ch} 3 10 4
+@end
+
+@alias powercab_marshall_crunch {ch} "Marshall crunch: Green speaker + 57 Dynamic at 2 inches"
+  - powercab_speaker_setup {ch} 1 0 2
+@end
+
+@alias powercab_vox_jangle {ch} "Vox jangle: Essex speaker + 87 Cond mic at 4 inches"
+  - powercab_speaker_setup {ch} 5 11 6
+@end
+
+@alias powercab_modern_highgain {ch} "Modern high-gain: Shade speaker + 421 Dynamic at 1 inch"
+  - powercab_speaker_setup {ch} 11 2 0
+@end
+
+@alias powercab_vintage_rock {ch} "Vintage rock: Cream speaker + 121 Ribbon at 3 inches"
+  - powercab_speaker_setup {ch} 2 5 4
+@end
+
+# Dual Amp Technique (coordinate with Helix snapshots via Command Center)
+# Example: Helix Snapshot 1 = Fender amp → PowerCab Jarvis speaker
+#          Helix Snapshot 2 = Marshall amp → PowerCab Green speaker
+@alias powercab_dual_amp_clean {ch} "Dual amp technique: Clean preset"
+  - powercab_speaker_jarvis {ch}
+  [@]
+  - powercab_mic_67 {ch}
+  [@]
+  - powercab_mic_dist 4
+  [@]
+  - powercab_led_blue {ch}
+@end
+
+@alias powercab_dual_amp_crunch {ch} "Dual amp technique: Crunch preset"
+  - powercab_speaker_green {ch}
+  [@]
+  - powercab_mic_57 {ch}
+  [@]
+  - powercab_mic_dist 2
+  [@]
+  - powercab_led_red {ch}
+@end
+
+# Live Performance Quick Changes
+@alias powercab_live_verse {ch} "Live: Verse tone (balanced, natural)"
+  - powercab_speaker_cream {ch}
+  [@]
+  - powercab_mic_87 {ch}
+  [@]
+  - powercab_mic_balanced {ch}
+  [@]
+  - powercab_led_green {ch}
+@end
+
+@alias powercab_live_chorus {ch} "Live: Chorus tone (aggressive, forward)"
+  - powercab_speaker_vintage {ch}
+  [@]
+  - powercab_mic_57 {ch}
+  [@]
+  - powercab_mic_close {ch}
+  [@]
+  - powercab_led_yellow {ch}
+@end
+
+@alias powercab_live_solo {ch} "Live: Solo tone (prominent, detailed)"
+  - powercab_speaker_herald {ch}
+  [@]
+  - powercab_mic_421 {ch}
+  [@]
+  - powercab_mic_standard {ch}
+  [@]
+  - powercab_led_magenta {ch}
+@end
+
+# Studio Recording Setups
+@alias powercab_studio_frfr {ch} "Studio: FRFR monitoring (uncolored)"
+  - powercab_mode_flat {ch}
+  [@]
+  - powercab_voicing_frfr {ch}
+  [@]
+  - powercab_hf_neutral {ch}
+  [@]
+  - powercab_led_white {ch}
+@end
+
+@alias powercab_studio_speaker_sim {ch} "Studio: Speaker sim for tube amp recording"
+  - powercab_mode_speaker {ch}
+  [+50ms]
+  - powercab_speaker_vintage {ch}
+  [@]
+  - powercab_mic_57 {ch}
+  [@]
+  - powercab_mic_standard {ch}
+  [@]
+  - powercab_usb_processed {ch}  # Send processed signal to DAW
+@end
+
+# Emergency/Utility Functions
+@alias powercab_reset_safe {ch} "Reset to safe known state (Flat FRFR)"
+  - powercab_mode_flat {ch}
+  [+50ms]
+  - powercab_voicing_frfr {ch}
+  [@]
+  - powercab_hf_neutral {ch}
+  [@]
+  - powercab_volume {ch} 100  # 0dB reference
+  [@]
+  - powercab_input1_vol {ch} 100
+  [@]
+  - powercab_input1_line {ch}
+  [@]
+  - powercab_led_white {ch}
+@end
+
+# ============================================
+# INTEGRATION EXAMPLES
+# ============================================
+
+# Example 1: Helix + PowerCab via L6 Link (automatic preset sync)
+# - Connect Helix L6 LINK OUT → PowerCab L6 LINK IN (110Ω XLR cable)
+# - Set PowerCab to same MIDI channel as Helix sends (default 1)
+# - Helix presets automatically sync PowerCab presets via L6 Link
+# - Use Helix Command Center to send CC messages for per-snapshot speaker changes
+
+# Example 2: Helix + PowerCab via MIDI DIN (manual control)
+# - Connect Helix MIDI OUT → PowerCab MIDI IN (5-pin DIN cable)
+# - Use Helix Command Center Instant Commands to send CCs per snapshot
+# - Example: Snapshot 1 sends CC22=3 (Jarvis), Snapshot 2 sends CC22=1 (Green)
+
+# Example 3: Third-party MIDI controller (Morningstar MC6, RJM Mastermind, etc.)
+# - Controller MIDI OUT → PowerCab MIDI IN
+# - Program footswitches to send PC messages (preset recall)
+# - Or program footswitches to send CC messages (real-time parameter changes)
+# - Example: FS1 = PC 0 (Preset 000), FS2 = PC 1 (Preset 001), etc.
+
+# Example 4: Stereo PowerCab 112 Plus pair via MIDI daisy-chain
+# - Modeler stereo outputs → Two PowerCab 112 Plus units (analog or L6 Link)
+# - Controller MIDI OUT → PowerCab #1 MIDI IN → PowerCab #2 MIDI IN (daisy-chain)
+# - Both units set to same MIDI channel
+# - Both respond to same PC/CC messages simultaneously
+# - L6 Link automatically splits stereo signal (left to #1, right to #2)
+
+# Example 5: PowerCab with tube amp (load box to speaker, XLR to FOH/recording)
+# - Tube amp speaker output → PowerCab INPUT 1 (set to Line level)
+# - PowerCab set to Speaker mode (speaker modeling)
+# - XLR output to FOH/interface (mic simulation applied)
+# - MIDI controller switches speaker models and mics for different songs
+# - Speaker output can be used as backline monitor
+
+# ============================================
+# TROUBLESHOOTING TIPS
+# ============================================
+
+# Issue: First preset change goes to wrong preset
+# Solution: Use powercab_preset_safe alias (sends CC20 first, then PC after 50ms)
+
+# Issue: HF driver behavior inconsistent
+# Solution: Always send explicit CC5 value per preset, don't rely on expression pedal
+
+# Issue: Pops/clicks when changing parameters
+# Solution: Use 50-100ms spacing between MIDI messages (see macro examples above)
+
+# Issue: MIDI not responding
+# Solution: Check MIDI channel matches, verify PC Receive enabled in Global Settings
+
+# Issue: L6 Link not working with Helix
+# Solution: Update to Helix 2.80+ and PowerCab 2.0+, use 110Ω XLR cable
+
+# Issue: Volume drop via L6 Link
+# Solution: Adjust Helix output block +10dB or PowerCab input gain +10dB
+
+# Issue: Speaker models 6-12 not available
+# Solution: Update PowerCab Plus firmware to 2.0+ via Line 6 Updater
+
+# ============================================
+# RECOMMENDED PRACTICES
+# ============================================
+
+# 1. GAIN STAGING
+#    - Set modeler to Line Level output (+4dB), not instrument level
+#    - Aim for PowerCab input LED to "tickle amber" at peaks (healthy signal level)
+#    - Don't vary input gain during performance—use strong steady signal
+#    - Adjust stage volume via CC7 (Master Volume) or CC28 (Preset Level)
+
+# 2. PRESET ORGANIZATION
+#    - Match PowerCab preset numbers to Helix preset numbers for simple sync
+#    - Or organize by speaker type (presets 0-9 = Vintage, 10-19 = Green, etc.)
+#    - Or organize by song (one or more presets per song)
+#    - Use LED ring colors (CC29) for visual preset identification on stage
+
+# 3. TIMING AND SEQUENCING
+#    - Allow 50-100ms between MIDI messages for complex sequences
+#    - Send mode-change CCs (CC20, CC21) BEFORE Program Change
+#    - Use [@] (simultaneous timing) for CCs that should change together
+#    - Use [+50ms] relative timing for sequential operations
+
+# 4. LIVE PERFORMANCE
+#    - Create backup connection method (analog if using L6 Link, vice versa)
+#    - Test all presets at venue volume before show
+#    - Use consistent naming across devices (Helix preset 1 = PowerCab preset 1)
+#    - Enable MIDI Thru when daisy-chaining multiple PowerCab units
+#    - Disable PC Send to prevent feedback loops with external controller
+
+# 5. STUDIO RECORDING
+#    - Use Flat FRFR mode for uncolored monitoring while tracking
+#    - Use Speaker mode + XLR output for direct recording with cab simulation
+#    - Use IR mode for custom/third-party impulse responses
+#    - Enable USB Processed mode to send PowerCab-processed signal to DAW
+#    - Load IRs via PowerCab Edit software (USB connection required)
+
+# ============================================
+# RESOURCES
+# ============================================
+
+# Official Line 6 Resources:
+# - PowerCab Manual: https://line6.com/support/manuals/powercab
+# - PowerCab Edit Software: https://line6.com/software/
+# - Firmware Updates: Line 6 Updater at https://line6.com/software/
+# - Community Forums: https://line6.com/support/forum/93-powercab/
+
+# MIDI Implementation:
+# - 29 Control Change assignments (CC1-7, CC20-31, CC102-104, CC111)
+# - 128 Program Change presets (PC 0-127)
+# - Default MIDI Channel: 1 (configurable 1-16, plus Omni mode)
+# - Connections: 5-pin DIN MIDI IN/OUT/THRU, USB MIDI, L6 Link (digital XLR)
