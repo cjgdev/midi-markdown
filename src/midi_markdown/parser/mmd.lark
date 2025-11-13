@@ -400,12 +400,12 @@ RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.
 //   "1.25" in "every 1.25b" → FLOAT (duration)
 //   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
-// INT pattern with negative lookahead to not match start of musical time (X.Y.Z)
-// This ensures 2.1.0 is not tokenized as INT "2" + ".1.0"
-INT.2: /[+-]?\d+(?!\.\d+\.\d+)/
-// FLOAT pattern with negative lookahead to not match musical time (X.Y.Z)
-// This ensures 2.1.0 is not tokenized as FLOAT "2.1" + ".0"
-FLOAT.3: /[+-]?\d+\.\d+(?!\.\d+)/
+// INT pattern - matches whole numbers
+// Priority 2 ensures INT is chosen over NUMBER union for whole numbers
+INT.2: /[+-]?\d+/
+// FLOAT pattern - matches decimal numbers
+// Priority 3 (lower than INT) ensures INT matches first for whole numbers
+FLOAT.3: /[+-]?\d+\.\d+/
 
 // Time Unit Terminals (must be before IDENTIFIER to avoid conflicts)
 // Priority 1 ensures they are matched before IDENTIFIER in duration contexts

@@ -249,6 +249,10 @@ class MMDTransformer(Transformer):
         """Convert INT tokens to int"""
         return int(token)
 
+    def FLOAT(self, token):
+        """Convert FLOAT tokens to float"""
+        return float(token)
+
     def NUMBER(self, token):
         """Convert NUMBER tokens to float"""
         return float(token)
