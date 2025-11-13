@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT UNIT
-        | INT UNIT
-        | random_expr UNIT
+duration: FLOAT TIME_UNIT
+        | INT TIME_UNIT
+        | random_expr TIME_UNIT
         | variable_ref
         | param_ref
 
@@ -381,6 +381,9 @@ ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
 MUSICAL_TIME_VALUE.1: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks), highest priority to match before FLOAT
 
+// Time Unit (ms must be before s to match correctly)
+TIME_UNIT.4: "ms" | "s" | "b" | "t"
+
 // Numbers
 // Terminal Priority System:
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
@@ -440,9 +443,6 @@ SYS_CLOCK_CONTINUE: "clock_continue"
 SYS_CLOCK_TICK: "clock_tick"
 SYS_ACTIVE_SENSING: "active_sensing"
 SYS_SYSTEM_RESET: "system_reset"
-
-// Time unit for durations (priority .4 to match before IDENTIFIER)
-UNIT.4: "ms" | "s" | "b" | "t" | "m"
 
 IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
 
