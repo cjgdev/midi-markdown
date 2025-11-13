@@ -2075,17 +2075,27 @@ class MMDTransformer(Transformer):
         # Process optional children
         for child in children[1:]:
             if child.data == "param_type":
-                # param_type: ":" INT "-" INT | ":" param_type_name
+                # param_type: ":" PARAM_RANGE | ":" param_type_name
                 type_children = list(child.children)
-                if len(type_children) == 2:
-                    # Range: min-max
+                child_value = str(type_children[0])
+
+                # Check if it's a range (contains hyphen)
+                if "-" in child_value:
+                    # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0")
                     param["type"] = "range"
-                    param["min"] = int(type_children[0])
-                    param["max"] = int(type_children[1])
+                    min_str, max_str = child_value.split("-", 1)
+
+                    # Try to parse as int first, then as float
+                    try:
+                        param["min"] = int(min_str)
+                        param["max"] = int(max_str)
+                    except ValueError:
+                        # If int conversion fails, must be float
+                        param["min"] = float(min_str)
+                        param["max"] = float(max_str)
                 else:
-                    # Named type: Since param_type_name is inline (?),
-                    # type_children[0] should be a Token with the literal value
-                    param["type"] = str(type_children[0])
+                    # Named type (PARAM_TYPE_NAME)
+                    param["type"] = child_value
                     # Set appropriate ranges
                     if param["type"] == "channel":
                         param["min"] = 1

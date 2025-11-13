@@ -407,7 +407,7 @@ class AliasResolver:
 
     def _validate_parameter(
         self, param_def: dict[str, Any], value: Any, alias_name: str, source_line: int
-    ) -> int:
+    ) -> int | float:
         """Validate a parameter value against its definition.
 
         Args:
@@ -417,7 +417,7 @@ class AliasResolver:
             source_line: Source line for error reporting
 
         Returns:
-            Validated integer value
+            Validated integer or float value
 
         Raises:
             AliasError: If validation fails
@@ -484,26 +484,31 @@ class AliasResolver:
                     f"in alias '{alias_name}': {e} at line {source_line}"
                 )
 
-        # Convert to integer for generic and other typed parameters
+        # Convert to numeric value (int or float) for generic and other typed parameters
+        # Try int first, then float if that fails
+        numeric_value: int | float
         try:
-            int_value = int(value)
+            numeric_value = int(value)
         except (ValueError, TypeError):
-            raise AliasError(
-                f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
-                f"- expected integer at line {source_line}"
-            )
+            try:
+                numeric_value = float(value)
+            except (ValueError, TypeError):
+                raise AliasError(
+                    f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
+                    f"- expected numeric value at line {source_line}"
+                )
 
         # Validate range
         min_val = param_def.get("min", 0)
         max_val = param_def.get("max", 127)
 
-        if not (min_val <= int_value <= max_val):
+        if not (min_val <= numeric_value <= max_val):
             raise AliasError(
-                f"Parameter '{param_name}' value {int_value} out of range [{min_val}-{max_val}] "
+                f"Parameter '{param_name}' value {numeric_value} out of range [{min_val}-{max_val}] "
                 f"in alias '{alias_name}' at line {source_line}"
             )
 
-        return int_value
+        return numeric_value
 
     def _substitute_parameters(self, template: str, param_values: dict[str, Any]) -> str:
         """Substitute parameter placeholders in a template string.
