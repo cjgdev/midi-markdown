@@ -5,7 +5,6 @@ Complex integration tests for complete MML documents including performance tests
 and multi-feature scenarios.
 """
 
-import pytest
 
 
 class TestComplexDocuments:

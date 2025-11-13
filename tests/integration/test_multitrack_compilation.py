@@ -5,7 +5,6 @@ Tests for multi-track MMD file compilation, event generation, and timing validat
 This test suite exposes and validates fixes for multi-track timing bugs.
 """
 
-
 from midi_markdown.core.compiler import compile_ast_to_ir
 from midi_markdown.parser.parser import MMDParser
 

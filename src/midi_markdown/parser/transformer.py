@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import yaml
-from lark import Transformer, v_args, Token
+from lark import Token, Transformer, v_args
 
 from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
 from midi_markdown.expansion.variables import SymbolTable
@@ -196,7 +196,7 @@ class MMDTransformer(Transformer):
                 # Variable reference - store as-is for later resolution
                 raw = f"[+${{{value[1]}}}]"
                 return Timing("relative", value, raw)
-            elif value[0] == "param_ref":
+            if value[0] == "param_ref":
                 # Parameter reference (in alias body) - store as-is
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
@@ -204,6 +204,7 @@ class MMDTransformer(Transformer):
         elif isinstance(value, str):
             # String duration like "2b" - parse the value and unit
             import re
+
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
                 num, unit = match.groups()
