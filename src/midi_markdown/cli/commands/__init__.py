@@ -10,7 +10,14 @@ from .check import check
 from .compile import compile
 from .examples import examples
 from .inspect import inspect
-from .library import library_info, library_list, library_validate
+from .library import (
+    library_create,
+    library_info,
+    library_install,
+    library_list,
+    library_search,
+    library_validate,
+)
 from .play import play
 from .ports import ports
 from .repl import create_repl_command
@@ -24,8 +31,11 @@ __all__ = [
     "create_repl_command",
     "examples",
     "inspect",
+    "library_create",
     "library_info",
+    "library_install",
     "library_list",
+    "library_search",
     "library_validate",
     "play",
     "ports",
