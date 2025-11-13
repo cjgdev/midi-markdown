@@ -162,33 +162,36 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
+    @v_args(inline=False)
     def relative_time(self, items):
         """Handle relative_time parser rule.
 
         Grammar:
-            relative_time: "[+" duration "]"
-                         | "[+" MUSICAL_TIME_VALUE "]"
+            relative_time: RELATIVE_MUSICAL_TIME | "[+" duration "]"
 
         Args:
-            items: Can be either:
-                - duration (string like "2b" or variable_ref)
-                - MUSICAL_TIME_VALUE (token like "2.1.0")
+            items: List containing either:
+                - RELATIVE_MUSICAL_TIME token (like "[+2.1.0]")
+                - duration tuple (number, unit)
+                - variable_ref tuple ('var', name)
+                - param_ref tuple ('param_ref', {...})
 
         Returns:
             Timing object with type="relative"
         """
         value = items[0]
 
-        # Check if it's a musical time value (MUSICAL_TIME_VALUE terminal)
-        if isinstance(value, Token) and value.type == "MUSICAL_TIME_VALUE":
-            time_str = str(value)
+        # Check if it's a RELATIVE_MUSICAL_TIME terminal (includes brackets)
+        if isinstance(value, Token) and value.type == "RELATIVE_MUSICAL_TIME":
+            # Extract the time value from the token (remove [+ and ])
+            time_str = str(value)[2:-1]  # Remove "[+" and "]"
             parts = time_str.split(".")
-            raw = f"[+{time_str}]"
+            raw = str(value)
             return Timing("relative", (int(parts[0]), int(parts[1]), int(parts[2])), raw)
 
         # Otherwise it's a duration (could be literal, variable_ref, or param_ref)
         # Duration can be:
-        # - A string like "2b", "500ms", "1.5s"
+        # - A tuple (number, unit) from the duration transformer
         # - A variable_ref tuple like ('var', 'VAR_NAME')
         # - A param_ref tuple like ('param_ref', {...})
         if isinstance(value, tuple):
@@ -201,15 +204,24 @@ class MMDTransformer(Transformer):
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
                 return Timing("relative", value, raw)
+            elif len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
+                # Duration tuple (number, unit) from duration transformer
+                num, unit = value
+                raw = f"[+{int(num) if num == int(num) else num}{unit}]"
+                return Timing("relative", value, raw)
         elif isinstance(value, str):
-            # String duration like "2b" - parse the value and unit
+            # String duration like "2b" - parse the value and unit (legacy path)
             import re
 
             match = re.match(r"^([\d.]+)(ms|[smbt])$", value)
             if match:
-                num, unit = match.groups()
+                num_str, unit = match.groups()
+                # Convert to float first, then to int if it's a whole number
+                num = float(num_str)
+                if num.is_integer():
+                    num = int(num)
                 raw = f"[+{value}]"
-                return Timing("relative", (float(num), unit), raw)
+                return Timing("relative", (num, unit), raw)
 
         # Fallback for unexpected format
         raw = f"[+{value}]"
@@ -236,6 +248,10 @@ class MMDTransformer(Transformer):
     def INT(self, token):
         """Convert INT tokens to int"""
         return int(token)
+
+    def FLOAT(self, token):
+        """Convert FLOAT tokens to float"""
+        return float(token)
 
     def NUMBER(self, token):
         """Convert NUMBER tokens to float"""
@@ -310,30 +326,47 @@ class MMDTransformer(Transformer):
         """
         return value  # Preserve type for later handling
 
-    def duration(self, *args):
+    @v_args(inline=False)
+    def duration(self, children):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT ("s" | "ms" | "b" | "t") | INT ("s" | "ms" | "b" | "t")
+        Grammar: duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+                        | variable_ref
+                        | param_ref
 
-        With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
-        For this rule, we receive:
-        - args[0]: The number (FLOAT or INT token value)
-        - args[1]: The unit string literal (if Lark passes it, version-dependent)
+        Note: This method uses @v_args(inline=False) to handle multiple alternatives
+        with different numbers of children.
+
+        Args:
+            children: List of matched children, can be:
+                - [number, unit] for FLOAT/INT/random_expr with TIME_UNIT alternatives
+                - [ref] for variable_ref or param_ref alternatives
+
+        Returns:
+            - Tuple (number, unit) for duration values to avoid string unpacking
+            - Tuple ('var', name) or ('param_ref', {...}) for variables/params
 
         Examples:
-        - "1.25b" → args = [1.25, "b"] or args = [1.25]
-        - "500ms" → args = [500, "ms"] or args = [500]
-        - "2b" → args = [2, "b"] or args = [2]
+        - "1.25b" → [1.25, Token('TIME_UNIT_B', 'b')] → (1.25, "b")
+        - "500ms" → [500, Token('TIME_UNIT_MS', 'ms')] → (500, "ms")
+        - "2b" → [2, Token('TIME_UNIT_B', 'b')] → (2, "b")
+        - "${VAR}" → [('var', 'VAR')] → ('var', 'VAR')
         """
-        if len(args) >= 1:
-            number = args[0]
+        if len(children) >= 2:
+            number = children[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Unit is either explicitly passed or defaults to beats
-            unit = args[1] if len(args) > 1 else "b"
-            return f"{number}{unit}"
-        return "1b"  # Default
+            # Extract unit from Token
+            unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
+            # Return tuple to avoid string unpacking by @v_args(inline=True)
+            return (float(number) if isinstance(number, (int, float)) else number, unit)
+        elif len(children) == 1:
+            # variable_ref or param_ref - return as-is
+            return children[0]
+        return (1.0, "b")  # Default
 
     @v_args(inline=False)
     def note_command(self, args):
@@ -961,6 +994,27 @@ class MMDTransformer(Transformer):
             return Track(name=str(args[0]), channel=int(args[1]))
         return Track(name=str(args[0]))
 
+    def loop_body(self, *items):
+        """Handle loop_body - returns list of loop items.
+
+        Grammar: loop_body: (loop_item _NL*)*
+
+        Returns:
+            List of loop items (commands, timings, or nested loops)
+        """
+        # Filter out None values (from optional items)
+        return [item for item in items if item is not None]
+
+    def loop_item(self, item):
+        """Handle loop_item - returns the single item.
+
+        Grammar: loop_item: timing | command | loop_stmt
+
+        Returns:
+            Single item (Timing, MIDICommand, or loop dict)
+        """
+        return item
+
     def loop_stmt(self, *args):
         """
         Handle all loop_stmt variants.
@@ -986,12 +1040,16 @@ class MMDTransformer(Transformer):
             i += 1
 
         # Check for interval (duration) - can be string or Duration object
-        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track)):
+        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track, list)):
             interval = args[i]
             i += 1
 
-        # Rest are statements
-        statements = list(args[i:])
+        # Rest are statements (now properly transformed via loop_body)
+        # If we have a list (from loop_body), use it; otherwise collect remaining args
+        if i < len(args) and isinstance(args[i], list):
+            statements = args[i]
+        else:
+            statements = list(args[i:])
 
         return {
             "type": "loop",
@@ -2017,17 +2075,27 @@ class MMDTransformer(Transformer):
         # Process optional children
         for child in children[1:]:
             if child.data == "param_type":
-                # param_type: ":" INT "-" INT | ":" param_type_name
+                # param_type: ":" PARAM_RANGE | ":" param_type_name
                 type_children = list(child.children)
-                if len(type_children) == 2:
-                    # Range: min-max
+                child_value = str(type_children[0])
+
+                # Check if it's a range (contains hyphen)
+                if "-" in child_value:
+                    # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0")
                     param["type"] = "range"
-                    param["min"] = int(type_children[0])
-                    param["max"] = int(type_children[1])
+                    min_str, max_str = child_value.split("-", 1)
+
+                    # Try to parse as int first, then as float
+                    try:
+                        param["min"] = int(min_str)
+                        param["max"] = int(max_str)
+                    except ValueError:
+                        # If int conversion fails, must be float
+                        param["min"] = float(min_str)
+                        param["max"] = float(max_str)
                 else:
-                    # Named type: Since param_type_name is inline (?),
-                    # type_children[0] should be a Token with the literal value
-                    param["type"] = str(type_children[0])
+                    # Named type (PARAM_TYPE_NAME)
+                    param["type"] = child_value
                     # Set appropriate ranges
                     if param["type"] == "channel":
                         param["min"] = 1

@@ -79,7 +79,7 @@ class TestBasicMIDICommands:
         cmd = doc.events[0]["commands"][0]
         assert cmd.type == "note_on"
         assert "duration" in cmd.params
-        assert cmd.params["duration"] == "1b"
+        assert cmd.params["duration"] == (1.0, "b")
 
     # ========================================================================
     # Pitch Bend Tests

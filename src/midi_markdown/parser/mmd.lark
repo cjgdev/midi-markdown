@@ -55,8 +55,8 @@ timing: ABSOLUTE_TIME
       | relative_time
       | simultaneous
 
-relative_time: "[+" duration "]"
-             | "[+" MUSICAL_TIME_VALUE "]"
+relative_time: RELATIVE_MUSICAL_TIME  // Match [+2.1.0] as single token first
+             | "[+" duration "]"
 
 simultaneous: "[@]"
 
@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT ("s" | "ms" | "b" | "t")
-        | INT ("s" | "ms" | "b" | "t")
-        | random_expr ("s" | "ms" | "b" | "t")
+duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
+        | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
         | variable_ref
         | param_ref
 
@@ -228,7 +228,7 @@ param_ref: "{" param_spec "}"
 
 param_spec: IDENTIFIER param_type? param_default? param_enum?
 
-param_type: ":" INT "-" INT
+param_type: ":" PARAM_RANGE
           | ":" PARAM_TYPE_NAME
 
 PARAM_TYPE_NAME: "note" | "channel" | "bool" | "percent" | "velocity"
@@ -379,13 +379,14 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.0]
 
 // Numbers
 // Terminal Priority System:
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
 //   - INT.2: Matches whole numbers (e.g., "42", "127", "-8192")
 //   - FLOAT.3: Matches decimal numbers (e.g., "1.25", "0.5", "2.75")
+//           BUT NOT if followed by another dot (to allow MUSICAL_TIME_VALUE to match)
 //   - NUMBER: Union type accepting either INT or FLOAT
 //
 // Why priorities are needed:
@@ -397,9 +398,21 @@ MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
+//   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
+// INT pattern - matches whole numbers
+// Priority 2 ensures INT is chosen over NUMBER union for whole numbers
 INT.2: /[+-]?\d+/
+// FLOAT pattern - matches decimal numbers
+// Priority 3 (lower than INT) ensures INT matches first for whole numbers
 FLOAT.3: /[+-]?\d+\.\d+/
+
+// Time Unit Terminals (must be before IDENTIFIER to avoid conflicts)
+// Priority 1 ensures they are matched before IDENTIFIER in duration contexts
+TIME_UNIT_MS.1: "ms"
+TIME_UNIT_S.1: "s"
+TIME_UNIT_B.1: "b"
+TIME_UNIT_T.1: "t"
 
 // Identifiers and Names
 NOTE_ON: "note_on"
@@ -447,6 +460,11 @@ KEY_NAME: /[A-G][#b]?/
 
 // Hex for SysEx (priority .4 to match before IDENTIFIER)
 HEX_BYTE.4: /[0-9A-Fa-f]{2}/
+
+// Parameter range terminal - matches "min-max" where min and max can be int or float
+// Priority .5 to ensure it matches before other patterns
+// Examples: "0-127", "0.5-8.0", "10-50"
+PARAM_RANGE.5: /\d+(?:\.\d+)?-\d+(?:\.\d+)?/
 
 // String
 STRING: /"[^"]*"/
