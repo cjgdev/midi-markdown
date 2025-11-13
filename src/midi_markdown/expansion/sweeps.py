@@ -291,13 +291,13 @@ def parse_ramp_type(ramp_str: str) -> RampType:
 
 
 def parse_sweep_interval(
-    interval_str: str,
+    interval_str: str | tuple,
     ppq: int = 480,
     tempo: float = 120.0,
     time_signature: tuple[int, int] = (4, 4),
 ) -> int:
     """
-    Parse an interval string into MIDI ticks.
+    Parse an interval string or tuple into MIDI ticks.
 
     Reuses interval parsing from loops module for consistency.
 
@@ -306,9 +306,11 @@ def parse_sweep_interval(
     - "480t" or "480 ticks" -> 480 ticks
     - "500ms" -> 500 milliseconds
     - "1.2.0" -> 1 bar, 2 beats, 0 ticks (BBT)
+    - (2.0, 'b') -> 2 beats (tuple from parser)
+    - (500.0, 'ms') -> 500 milliseconds (tuple from parser)
 
     Args:
-        interval_str: Interval specification string
+        interval_str: Interval specification string or (value, unit) tuple
         ppq: Pulses per quarter note
         tempo: Current tempo in BPM
         time_signature: Time signature as (numerator, denominator) tuple
