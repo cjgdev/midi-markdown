@@ -227,13 +227,14 @@ ppq: 480
 - text "Using @define to control loop parameters"
 
 @define PATTERN_REPEATS 4
-@define PATTERN_INTERVAL 2b
+@define PATTERN_INTERVAL "2b"
 @define BASE_NOTE 60
+@define BASE_NOTE_PLUS_4 ${BASE_NOTE} + 4
 
 @loop ${PATTERN_REPEATS} times every ${PATTERN_INTERVAL}
   - note_on 1.${BASE_NOTE} 85 1b
   [+0.5b]
-  - note_on 1.${ BASE_NOTE + 4 } 85 0.5b
+  - note_on 1.${BASE_NOTE_PLUS_4} 85 0.5b
 @end
 
 

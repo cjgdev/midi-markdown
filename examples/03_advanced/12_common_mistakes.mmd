@@ -34,13 +34,13 @@ ppq: 480
 # - bad_preset_load 1 42  # Would load at 5 seconds, not 10!
 
 # ✓ CORRECT: Use relative timing or let caller control timing
-@alias good_preset_load {ch}.{preset} "Load preset (CORRECT)"
+@alias good_preset_load {ch} {preset} "Load preset (CORRECT)"
   [+50ms]  # Relative timing is OK - adds delay to caller's time
   - pc {ch}.{preset}
 @end
 
 # OR: No timing at all (inherits from caller)
-@alias simple_preset_load {ch}.{preset} "Load preset (SIMPLE)"
+@alias simple_preset_load {ch} {preset} "Load preset (SIMPLE)"
   - pc {ch}.{preset}
 @end
 

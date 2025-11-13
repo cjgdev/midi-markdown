@@ -238,37 +238,41 @@ class TestExampleParsing:
         # Should have defines
         assert len(doc.defines) >= 3
 
-        # Should have many events
-        assert len(doc.events) >= 50, "Should be a substantial song"
+        # Should have many events across all tracks
+        total_events = sum(len(track.events) for track in doc.tracks)
+        assert total_events >= 50, "Should be a substantial song"
 
-        # Extract markers
+        # Extract markers from all tracks
         markers = []
-        for event in doc.events:
-            if event["type"] == "timed_event":
-                for cmd in event["commands"]:
-                    if cmd.type == "marker":
-                        markers.append(cmd.params["text"])
+        for track in doc.tracks:
+            for event in track.events:
+                if isinstance(event, dict) and event.get("type") == "timed_event":
+                    for cmd in event["commands"]:
+                        if cmd.type == "marker":
+                            markers.append(cmd.params["text"])
 
         # Should have song structure
         assert len(markers) >= 6, "Should have multiple sections"
 
-        # Extract channels used
+        # Extract channels used from all tracks
         channels = set()
-        for event in doc.events:
-            if event["type"] == "timed_event":
-                for cmd in event["commands"]:
-                    if cmd.channel is not None:
-                        channels.add(cmd.channel)
+        for track in doc.tracks:
+            for event in track.events:
+                if isinstance(event, dict) and event.get("type") == "timed_event":
+                    for cmd in event["commands"]:
+                        if cmd.channel is not None:
+                            channels.add(cmd.channel)
 
         # Should use multiple channels
         assert len(channels) >= 3, "Should use 3+ channels"
 
         # Should have various command types
         command_types = set()
-        for event in doc.events:
-            if event["type"] == "timed_event":
-                for cmd in event["commands"]:
-                    command_types.add(cmd.type)
+        for track in doc.tracks:
+            for event in track.events:
+                if isinstance(event, dict) and event.get("type") == "timed_event":
+                    for cmd in event["commands"]:
+                        command_types.add(cmd.type)
 
         assert "note_on" in command_types
         assert "cc" in command_types  # Parser uses "cc" not "control_change"
@@ -282,7 +286,7 @@ class TestExampleTiming:
     def test_timing_monotonicity(self, parser):
         """Verify all examples have monotonically increasing timing"""
         # Examples organized by instrument/channel rather than chronologically
-        skip_examples = ["05_multi_channel", "09_comprehensive"]
+        skip_examples = ["01_multi_channel_basic", "05_multi_channel", "09_comprehensive"]
 
         for example_file in EXAMPLES_DIR.rglob("*.mmd"):
             # Skip examples with non-chronological organization
@@ -323,12 +327,22 @@ class TestExampleContent:
     def test_all_examples_have_events(self, parser):
         """All examples should have at least one event"""
         for example_file in EXAMPLES_DIR.rglob("*.mmd"):
+            # Skip library files (only contain alias definitions)
+            if "shared" in example_file.parts:
+                continue
+
             doc = parser.parse_file(example_file)
-            assert len(doc.events) > 0, f"{example_file.name} has no events"
+            # Check doc.events (single-track) or doc.tracks (multi-track)
+            has_events = len(doc.events) > 0 or any(len(track.events) > 0 for track in doc.tracks)
+            assert has_events, f"{example_file.name} has no events"
 
     def test_all_examples_have_tempo(self, parser):
         """All examples should set tempo (either in frontmatter or as command)"""
         for example_file in EXAMPLES_DIR.rglob("*.mmd"):
+            # Skip library files (only contain alias definitions)
+            if "shared" in example_file.parts:
+                continue
+
             doc = parser.parse_file(example_file)
 
             # Check frontmatter first
@@ -336,6 +350,7 @@ class TestExampleContent:
 
             # If not in frontmatter, check for tempo command in events
             if not has_tempo:
+                # Check doc.events (for single-track files)
                 for event in doc.events:
                     # Skip Token objects (SECTION_HEADER, etc.)
                     if not isinstance(event, dict):
@@ -347,5 +362,19 @@ class TestExampleContent:
                                 break
                     if has_tempo:
                         break
+
+                # Check doc.tracks (for multi-track files)
+                if not has_tempo:
+                    for track in doc.tracks:
+                        for event in track.events:
+                            if isinstance(event, dict) and event.get("type") == "timed_event":
+                                for cmd in event["commands"]:
+                                    if cmd.type == "tempo":
+                                        has_tempo = True
+                                        break
+                            if has_tempo:
+                                break
+                        if has_tempo:
+                            break
 
             assert has_tempo, f"{example_file.name} does not set tempo"
