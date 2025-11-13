@@ -55,8 +55,8 @@ timing: ABSOLUTE_TIME
       | relative_time
       | simultaneous
 
-relative_time: "[+" duration "]"
-             | "[+" MUSICAL_TIME_VALUE "]"
+relative_time: "[+" MUSICAL_TIME_VALUE "]"
+             | "[+" duration "]"
 
 simultaneous: "[@]"
 
@@ -92,9 +92,9 @@ channel_note: INT "." note_value
 note_value: NOTE_NAME | param | random_expr
 velocity: modulated_value
 
-duration: FLOAT ("s" | "ms" | "b" | "t")
-        | INT ("s" | "ms" | "b" | "t")
-        | random_expr ("s" | "ms" | "b" | "t")
+duration: FLOAT UNIT
+        | INT UNIT
+        | random_expr UNIT
         | variable_ref
         | param_ref
 
@@ -379,13 +379,14 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+MUSICAL_TIME_VALUE.1: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks), highest priority to match before FLOAT
 
 // Numbers
 // Terminal Priority System:
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
 //   - INT.2: Matches whole numbers (e.g., "42", "127", "-8192")
 //   - FLOAT.3: Matches decimal numbers (e.g., "1.25", "0.5", "2.75")
+//           BUT NOT if followed by another dot (to allow MUSICAL_TIME_VALUE to match)
 //   - NUMBER: Union type accepting either INT or FLOAT
 //
 // Why priorities are needed:
@@ -397,9 +398,10 @@ MUSICAL_TIME_VALUE: /\d+\.\d+\.\d+/  // Musical time value for relative timing (
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
+//   "2.1.0" in "[+2.1.0]" → MUSICAL_TIME_VALUE (not FLOAT)
 NUMBER: INT | FLOAT
-INT.2: /[+-]?\d+/
-FLOAT.3: /[+-]?\d+\.\d+/
+INT.2: /[+-]?\d+(?!\.\d+\.\d+\])/    // Negative lookahead: don't match if part of musical time pattern followed by ]
+FLOAT.3: /[+-]?\d+\.\d+(?!\.\d+\])/  // Negative lookahead: don't match if musical time pattern followed by ]
 
 // Identifiers and Names
 NOTE_ON: "note_on"
@@ -438,6 +440,9 @@ SYS_CLOCK_CONTINUE: "clock_continue"
 SYS_CLOCK_TICK: "clock_tick"
 SYS_ACTIVE_SENSING: "active_sensing"
 SYS_SYSTEM_RESET: "system_reset"
+
+// Time unit for durations (priority .4 to match before IDENTIFIER)
+UNIT.4: "ms" | "s" | "b" | "t" | "m"
 
 IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
 

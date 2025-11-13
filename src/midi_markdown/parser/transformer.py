@@ -162,7 +162,8 @@ class MMDTransformer(Transformer):
         # Default fallback (should not reach here with correct grammar)
         return Timing("relative", (0, "s"), str(token))
 
-    def relative_time(self, items):
+    @v_args(inline=True)
+    def relative_time(self, value):
         """Handle relative_time parser rule.
 
         Grammar:
@@ -170,15 +171,13 @@ class MMDTransformer(Transformer):
                          | "[+" MUSICAL_TIME_VALUE "]"
 
         Args:
-            items: Can be either:
+            value: Can be either:
                 - duration (string like "2b" or variable_ref)
                 - MUSICAL_TIME_VALUE (token like "2.1.0")
 
         Returns:
             Timing object with type="relative"
         """
-        value = items[0]
-
         # Check if it's a musical time value (MUSICAL_TIME_VALUE terminal)
         if isinstance(value, Token) and value.type == "MUSICAL_TIME_VALUE":
             time_str = str(value)
@@ -309,29 +308,36 @@ class MMDTransformer(Transformer):
         """
         return value  # Preserve type for later handling
 
-    def duration(self, *args):
+    @v_args(inline=False)
+    def duration(self, children):
         """Handle duration rule.
 
-        Grammar: duration: FLOAT ("s" | "ms" | "b" | "t") | INT ("s" | "ms" | "b" | "t")
+        Grammar: duration: FLOAT UNIT | INT UNIT | random_expr UNIT | variable_ref | param_ref
 
-        With @v_args(inline=True), Lark passes matched tokens/values as separate arguments.
-        For this rule, we receive:
-        - args[0]: The number (FLOAT or INT token value)
-        - args[1]: The unit string literal (if Lark passes it, version-dependent)
+        Note: This method uses @v_args(inline=False) to handle multiple alternatives
+        with different numbers of children.
 
-        Examples:
-        - "1.25b" → args = [1.25, "b"] or args = [1.25]
-        - "500ms" → args = [500, "ms"] or args = [500]
-        - "2b" → args = [2, "b"] or args = [2]
+        Args:
+            children: List of matched children, can be:
+                - [number, unit] for FLOAT/INT UNIT alternatives
+                - [expression, unit] for random_expr UNIT alternative
+                - [ref] for variable_ref or param_ref alternatives
+
+        Returns:
+            String duration like "1b", "500ms" or variable/param ref
         """
-        if len(args) >= 1:
-            number = args[0]
+        if len(children) >= 2:
+            number = children[0]
             # Convert float to int if it's a whole number
             if isinstance(number, float) and number.is_integer():
                 number = int(number)
-            # Unit is either explicitly passed or defaults to beats
-            unit = args[1] if len(args) > 1 else "b"
+            # Extract unit from Token
+            from lark import Token
+            unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             return f"{number}{unit}"
+        elif len(children) == 1:
+            # variable_ref or param_ref - return as-is
+            return children[0]
         return "1b"  # Default
 
     @v_args(inline=False)
