@@ -55,7 +55,8 @@ timing: ABSOLUTE_TIME
       | relative_time
       | simultaneous
 
-relative_time: "[+" duration "]"
+relative_time: RELATIVE_MUSICAL_TIME  // Match [+2.1.0] as single token first
+             | "[+" duration "]"
 
 simultaneous: "[@]"
 
@@ -94,7 +95,6 @@ velocity: modulated_value
 duration: FLOAT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
         | INT (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
         | random_expr (TIME_UNIT_S | TIME_UNIT_MS | TIME_UNIT_B | TIME_UNIT_T)
-        | MUSICAL_TIME_VALUE
         | variable_ref
         | param_ref
 
@@ -379,15 +379,14 @@ SECTION_HEADER: /##[^\n]+/
 // Timing Terminals (must be before INT to avoid conflicts)
 ABSOLUTE_TIME: "[" /\d{2}:\d{2}\.\d{3}/ "]"
 MUSICAL_TIME: "[" /\d+\.\d+\.\d+/ "]"
-// Musical time value has priority 0 (highest) to match before FLOAT (priority 3)
-// This ensures [+2.1.0] is parsed as musical time, not [+2.1] + .0]
-MUSICAL_TIME_VALUE.0: /\d+\.\d+\.\d+/  // Musical time value for relative timing (bars.beats.ticks)
+RELATIVE_MUSICAL_TIME: "[+" /\d+\.\d+\.\d+/ "]"  // Relative musical time [+2.1.0]
 
 // Numbers
 // Terminal Priority System:
 //   - Lower numbers = higher priority (INT.2 has priority over FLOAT.3)
 //   - INT.2: Matches whole numbers (e.g., "42", "127", "-8192")
 //   - FLOAT.3: Matches decimal numbers (e.g., "1.25", "0.5", "2.75")
+//           BUT NOT if followed by another dot (to allow MUSICAL_TIME_VALUE to match)
 //   - NUMBER: Union type accepting either INT or FLOAT
 //
 // Why priorities are needed:
@@ -399,6 +398,7 @@ MUSICAL_TIME_VALUE.0: /\d+\.\d+\.\d+/  // Musical time value for relative timing
 // Examples:
 //   "80" in "note_on 1.60 80 1b" → INT (velocity)
 //   "1.25" in "every 1.25b" → FLOAT (duration)
+//   "2.1.0" should NOT match as FLOAT inside [+2.1.0], handled by RELATIVE_MUSICAL_TIME
 NUMBER: INT | FLOAT
 // INT pattern with negative lookahead to not match start of musical time (X.Y.Z)
 // This ensures 2.1.0 is not tokenized as INT "2" + ".1.0"
