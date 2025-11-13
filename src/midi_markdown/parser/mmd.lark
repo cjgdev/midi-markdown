@@ -87,11 +87,12 @@ note_command: "-" NOTE_ON channel_note velocity duration?
             | "-" NOTE_OFF channel_note velocity duration?
 
 channel_note: INT "." note_value
-note_value: NOTE_NAME | param
-velocity: param
+note_value: NOTE_NAME | param | random_expr
+velocity: modulated_value
 
 duration: FLOAT ("s" | "ms" | "b" | "t")
         | INT ("s" | "ms" | "b" | "t")
+        | random_expr ("s" | "ms" | "b" | "t")
 
 // Program Change
 program_change: "-" ("program_change" | "pc") param "." param
@@ -244,7 +245,7 @@ alias_call: "-" IDENTIFIER alias_args?
 
 alias_args: (alias_arg)+
 
-alias_arg: INT | FLOAT | IDENTIFIER | STRING | percent
+alias_arg: INT | FLOAT | IDENTIFIER | STRING | percent | variable_ref
 
 // ============================================================================
 // Advanced Features
@@ -310,7 +311,7 @@ variable_ref: "${" IDENTIFIER "}"
 ramp_expr: "ramp" "(" INT "," INT ("," ramp_type)? ")"
 ramp_type: "linear" | "exponential" | "logarithmic" | "ease-in" | "ease-out" | "ease-in-out"
 
-random_expr: "random" "(" (INT | note_value) "," (INT | note_value) ("," "seed" "=" INT)? ")"
+random_expr: "random" "(" (INT | FLOAT | note_value) "," (INT | FLOAT | note_value) ("," "seed" "=" INT)? ")"
 
 // Bezier Curve Expression (Stage 7 - Enhanced Modulation)
 curve_expr: "curve" "(" number "," number "," curve_type ")"
@@ -336,6 +337,7 @@ envelope_type: ENVELOPE_TYPE_NAME
 ?envelope_params: adsr_params | ar_params | ad_params
 
 ENVELOPE_TYPE_NAME: "adsr" | "ar" | "ad"
+ENVELOPE_CURVE_TYPE: "linear" | "exponential"
 
 // ADSR: attack, decay, sustain, release
 adsr_params: "attack" "=" number "," "decay" "=" number "," "sustain" "=" number "," "release" "=" number ("," envelope_curve)?
@@ -346,7 +348,7 @@ ar_params: "attack" "=" number "," "release" "=" number ("," envelope_curve)?
 // AD: attack, decay
 ad_params: "attack" "=" number "," "decay" "=" number ("," envelope_curve)?
 
-envelope_curve: "curve" "=" ("linear" | "exponential")
+envelope_curve: "curve" "=" ENVELOPE_CURVE_TYPE
 
 // Number can be INT or FLOAT
 number: INT | FLOAT

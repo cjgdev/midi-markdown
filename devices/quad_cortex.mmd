@@ -407,16 +407,16 @@ midi_pc_calculator: https://support.neuraldsp.com/help/quad-cortex-midi-pc-calcu
 @end
 
 # Expression vibrato using wave modulation (LFO)
-@alias qc_exp1_vibrato {ch} {center:0-127} {freq:0.1-10.0} {depth:0-100} "EXP1 vibrato with sine wave"
+@alias qc_exp1_vibrato {ch} {center:0-127} {freq} {depth:0-100} "EXP1 vibrato with sine wave (freq: 0.1-10.0 Hz)"
   - cc {ch}.1.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
-@alias qc_exp2_vibrato {ch} {center:0-127} {freq:0.1-10.0} {depth:0-100} "EXP2 vibrato with sine wave"
+@alias qc_exp2_vibrato {ch} {center:0-127} {freq} {depth:0-100} "EXP2 vibrato with sine wave (freq: 0.1-10.0 Hz)"
   - cc {ch}.2.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
 # Expression tremolo effect (volume modulation)
-@alias qc_exp1_tremolo {ch} {center:64} {freq:2.0-8.0} {depth:20-80} "EXP1 tremolo effect"
+@alias qc_exp1_tremolo {ch} {center:64} {freq} {depth:20-80} "EXP1 tremolo effect (freq: 2.0-8.0 Hz)"
   - cc {ch}.1.wave(sine, {center}, freq={freq}, depth={depth})
 @end
 
