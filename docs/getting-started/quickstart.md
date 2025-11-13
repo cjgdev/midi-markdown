@@ -119,17 +119,17 @@ Work through the progressive examples:
 
 ```bash
 # Start with the basics
-uv run mmdc compile examples/00_basics/00_hello_world.mmd
-uv run mmdc compile examples/00_basics/01_minimal_midi.mmd
-uv run mmdc compile examples/00_basics/02_simple_click_track.mmd
+uv run mmdc compile examples/00_basics/01_hello_world.mmd
+uv run mmdc compile examples/00_basics/02_minimal_midi.mmd
+uv run mmdc compile examples/00_basics/03_simple_click_track.mmd
 
 # Move to intermediate
-uv run mmdc compile examples/01_timing/04_tempo_changes.mmd
-uv run mmdc compile examples/02_midi_features/05_multi_channel_basic.mmd
+uv run mmdc compile examples/01_timing/01_tempo_changes.mmd
+uv run mmdc compile examples/02_midi_features/01_multi_channel_basic.mmd
 
 # Explore advanced features
-uv run mmdc compile examples/03_advanced/09_comprehensive_song.mmd
-uv run mmdc compile examples/04_device_libraries/13_device_import.mmd
+uv run mmdc compile examples/03_advanced/10_comprehensive_song.mmd
+uv run mmdc compile examples/04_device_libraries/01_device_import.mmd
 ```
 
 See [examples-guide.md](examples-guide.md) for a complete learning path.

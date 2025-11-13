@@ -289,7 +289,7 @@ Parameters are enclosed in braces: `{parameter_spec}`
 
 ## Computed Values
 
-**Status**: Stage 6 (In Development)
+**Status**: ✅ Complete (Phase 6)
 
 Computed values allow defining variables with calculated values based on parameters.
 
@@ -487,7 +487,7 @@ All commands expanded from an alias inherit the timing of the alias call.
 
 ## Import System
 
-**Status**: Stage 8 (Planned)
+**Status**: ✅ Complete
 
 The import system allows loading aliases from external files.
 

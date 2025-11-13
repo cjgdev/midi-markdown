@@ -811,10 +811,10 @@ Try these improvements:
 ### Explore Examples
 
 Check out the `examples/` directory for more inspiration:
-- `examples/03_advanced/09_comprehensive_song.mmd` - Full version of this tutorial
-- `examples/03_advanced/10_loops_and_patterns.mmd` - Using `@loop` for repetition
-- `examples/03_advanced/11_sweep_automation.mmd` - Advanced CC automation
-- `examples/01_timing/12_musical_timing.mmd` - Musical time (bars.beats.ticks)
+- `examples/03_advanced/10_comprehensive_song.mmd` - Full version of this tutorial
+- `examples/03_advanced/01_loops_and_patterns.mmd` - Using `@loop` for repetition
+- `examples/03_advanced/02_sweep_automation.mmd` - Advanced CC automation
+- `examples/01_timing/02_musical_timing.mmd` - Musical time (bars.beats.ticks)
 
 ---
 

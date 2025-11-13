@@ -1412,34 +1412,36 @@ mmdc compile song.mmd -D TEMPO=140 -D PRESET=5
 
 ### Device Library Management
 
+**Implemented:**
 ```bash
-# List installed libraries
+# List available libraries (✅ Implemented)
 mmdc library list
 
-# Search for libraries
-mmdc library search "eventide"
-
-# Install library from repository
-mmdc library install eventide-h90
-
-# Create new library template
-mmdc library create my_device.mmd
-
-# Validate library
+# Validate library (✅ Implemented)
 mmdc library validate devices/quad_cortex.mmd
 
-# Show library info
+# Show library info (✅ Implemented)
 mmdc library info quad_cortex
+```
+
+**Planned (Future):**
+```bash
+# Search for libraries (🚧 Planned)
+mmdc library search "eventide"
+
+# Install library from repository (🚧 Planned)
+mmdc library install eventide-h90
+
+# Create new library template (🚧 Planned)
+mmdc library create my_device.mmd
 ```
 
 ### Interactive Mode
 
+**Implemented:**
 ```bash
-# Start REPL
+# Start REPL (✅ Implemented)
 mmdc repl
-
-# REPL with device preset
-mmdc repl --device cortex --channel 1
 
 # REPL commands:
 > load devices/quad_cortex.mmd
@@ -1449,26 +1451,46 @@ mmdc repl --device cortex --channel 1
 > quit
 ```
 
-### Conversion Tools
-
+**Planned (Future):**
 ```bash
-# Convert MIDI to MMD (reverse engineering)
-mmdc import song.mid -o song.mmd
-
-# Export to JSON
-mmdc export song.mmd --format json
-
-# Merge multiple MMD files
-mmdc merge song1.mmd song2.mmd -o combined.mmd
+# REPL with device preset (🚧 Planned)
+mmdc repl --device cortex --channel 1
 ```
 
-### Live Mode
+### Output Formats
 
+**Implemented:**
 ```bash
-# Send MIDI in real-time
-mmdc play song.mmd --live --port "IAC Driver"
+# Export to JSON (✅ Implemented via compile)
+mmdc compile song.mmd --format json -o events.json
 
-# Monitor MIDI input and generate MML
+# Export to CSV (✅ Implemented via compile)
+mmdc compile song.mmd --format csv -o events.csv
+
+# Table display (✅ Implemented via compile)
+mmdc compile song.mmd --format table
+```
+
+### Real-Time Playback
+
+**Implemented:**
+```bash
+# Send MIDI in real-time with TUI (✅ Implemented)
+mmdc play song.mmd --port 0
+
+# List MIDI ports (✅ Implemented)
+mmdc ports
+```
+
+**Planned (Future):**
+```bash
+# Convert MIDI to MMD (🚧 Planned)
+mmdc import song.mid -o song.mmd
+
+# Merge multiple MMD files (🚧 Planned)
+mmdc merge song1.mmd song2.mmd -o combined.mmd
+
+# Monitor MIDI input and generate MMD (🚧 Planned)
 mmdc learn --device cortex --channel 1 -o learned.mmd
 ```
 

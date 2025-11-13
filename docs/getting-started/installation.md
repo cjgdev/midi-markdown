@@ -99,7 +99,7 @@ mkdir -p output
 
 ```bash
 # Compile a simple example
-uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/test.mid
+uv run mmdc compile examples/00_basics/01_hello_world.mmd -o output/test.mid
 
 # Should output:
 # ✅ Compilation successful
@@ -330,7 +330,7 @@ python3 --version
 uv run mmdc version
 
 # ✓ Can compile examples
-uv run mmdc compile examples/00_basics/00_hello_world.mmd -o output/test.mid
+uv run mmdc compile examples/00_basics/01_hello_world.mmd -o output/test.mid
 
 # ✓ Tests pass
 uv run pytest -m unit

@@ -48,6 +48,138 @@ Claude Code skills are specialized knowledge modules that help Claude assist you
 - Integration with other tools (UV, Just)
 - Common workflows and error handling
 
+### mmd-debugging
+
+**Purpose**: Troubleshoot and debug MIDI Markdown files including validation errors, timing issues, value ranges, and syntax problems.
+
+**Activated when:**
+- Encountering MMD errors or validation failures
+- Debugging unexpected behavior in MMD files
+- Diagnosing timing, value range, or syntax issues
+
+**Features:**
+- Systematic debugging workflow
+- Error category identification (parse, validation, expansion, compilation)
+- Common error patterns and fixes
+- Quick fixes for typical mistakes
+- Diagnostic tool guidance
+
+### device-library-creation
+
+**Purpose**: Create custom MIDI device libraries for hardware with aliases, parameters, and documentation.
+
+**Activated when:**
+- Creating device-specific aliases for guitar processors, synthesizers, effects units
+- Documenting MIDI implementations
+- Building reusable command libraries
+
+**Features:**
+- Step-by-step device library creation guide
+- Alias pattern best practices
+- Parameter type documentation (numeric, note, percent, enum)
+- Testing and validation workflows
+- Common device patterns and examples
+
+## Device-Specific Skills
+
+The following skills provide specialized guidance for popular MIDI hardware:
+
+### quad-cortex-usage
+
+**Purpose**: Guide for using the Neural DSP Quad Cortex device library in MMD files.
+
+**Activated when:**
+- Working with Quad Cortex presets, scenes, or expression control
+- Implementing Quad Cortex MIDI automation
+- Troubleshooting Quad Cortex MIDI timing or control issues
+
+**Key Topics:**
+- Preset loading sequences (setlist + preset group + program change)
+- Scene switching (8 scenes: A-H)
+- Expression pedal control (4 expression inputs)
+- Stomp switch automation (8 footswitches)
+- Timing considerations (100-130ms latency for complex presets)
+
+### h90-usage
+
+**Purpose**: Guide for using the Eventide H90 Harmonizer device library in MMD files.
+
+**Activated when:**
+- Working with H90 program changes, HotSwitches, or effects routing
+- Implementing H90 expression or parameter automation
+- Troubleshooting H90 MIDI control issues
+
+**Key Topics:**
+- Program change and algorithm selection
+- HotSwitch and bypass control
+- Routing modes (series, parallel, A-only, B-only)
+- Expression and rotary knob control
+- Firmware-specific workarounds (1.9.4+ PC+CC bug)
+
+### helix-usage
+
+**Purpose**: Guide for using the Line 6 Helix Floor/LT/Rack device library in MMD files.
+
+**Activated when:**
+- Working with Helix presets, snapshots, or expression control
+- Implementing full Helix automation (11 footswitches, 8 snapshots)
+- Troubleshooting Helix MIDI timing or Command Center setup
+
+**Key Topics:**
+- Setlist and preset management
+- Snapshot control (8 snapshots: 1-8)
+- Expression pedal automation (2 expression inputs)
+- Footswitch control (11 FS assignments)
+- Looper and transport control
+
+### hx-stomp-usage
+
+**Purpose**: Guide for using the Line 6 HX Stomp device library in MMD files.
+
+**Activated when:**
+- Working with HX Stomp's 3-snapshot limitation
+- Implementing compact HX Stomp automation
+- USB MIDI setup and Mode switching
+
+**Key Topics:**
+- 3-snapshot workarounds (most limited snapshot count)
+- USB-only MIDI connectivity
+- All Bypass and Mode switching
+- Direct PC addressing (no bank system)
+- Compact form factor considerations
+
+### hx-effects-usage
+
+**Purpose**: Guide for using the Line 6 HX Effects device library in MMD files.
+
+**Activated when:**
+- Working with HX Effects processor (effects-only, no amp/cab modeling)
+- Implementing 4-snapshot control
+- 5-pin DIN MIDI and amp integration workflows
+
+**Key Topics:**
+- Sequential preset addressing (32 banks × 4 presets = 128 total)
+- 4-snapshot control
+- 5-pin DIN MIDI advantages
+- Effects-only design for external amp integration
+- Bank + preset navigation
+
+### hx-stomp-xl-usage
+
+**Purpose**: Guide for using the Line 6 HX Stomp XL device library in MMD files.
+
+**Activated when:**
+- Working with HX Stomp XL (middle ground between HX Stomp and full Helix)
+- Implementing 4-snapshot and 8-footswitch control
+- Comparing Stomp XL capabilities with other HX/Helix models
+
+**Key Topics:**
+- 4-snapshot control (more than HX Stomp, less than full Helix)
+- 8 footswitch assignments
+- USB MIDI and All Bypass control
+- Best balance of features vs size
+- Comparison with HX Stomp and full Helix
+
 ## Installation
 
 ### Prerequisites
