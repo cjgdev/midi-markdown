@@ -271,9 +271,7 @@ class SafeComputationEngine:
                 f"Undefined variable {e} in expression: {expr_str}\n"
                 f"Available variables: {available_vars}"
             )
-            raise ComputationError(
-                msg
-            )
+            raise ComputationError(msg)
         except Exception as e:
             msg = f"Error evaluating expression '{expr_str}': {e}"
             raise ComputationError(msg)
@@ -296,9 +294,7 @@ class SafeComputationEngine:
                     f"Forbidden operation: {node_type.__name__}. "
                     f"Only basic arithmetic operations are allowed."
                 )
-                raise ComputationError(
-                    msg
-                )
+                raise ComputationError(msg)
 
             # Special check for function calls - only whitelisted functions
             if isinstance(node, ast.Call):
@@ -309,15 +305,11 @@ class SafeComputationEngine:
                             f"Function '{func_name}' is not allowed. "
                             f"Allowed functions: {', '.join(sorted(self.ALLOWED_FUNCTIONS))}"
                         )
-                        raise ComputationError(
-                            msg
-                        )
+                        raise ComputationError(msg)
                 else:
                     # Function call that's not a simple name (e.g., obj.method())
                     msg = "Only simple function calls are allowed (no attribute access)"
-                    raise ComputationError(
-                        msg
-                    )
+                    raise ComputationError(msg)
 
             # Block attribute access (prevents obj.__class__, etc.)
             if isinstance(node, ast.Attribute):
@@ -349,9 +341,7 @@ class SafeComputationEngine:
                 f"Operation limit exceeded ({self.MAX_OPERATIONS} operations). "
                 f"Expression is too complex."
             )
-            raise ComputationError(
-                msg
-            )
+            raise ComputationError(msg)
 
         # Handle different node types
         if isinstance(node, ast.Constant):  # Python 3.8+ literal values

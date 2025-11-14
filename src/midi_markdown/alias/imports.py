@@ -113,9 +113,7 @@ class ImportManager:
                 f"Circular import detected: {chain_str}\n\n"
                 f"File '{filepath.name}' is already being imported in this chain."
             )
-            raise CircularImportError(
-                msg
-            )
+            raise CircularImportError(msg)
 
     def load_library(
         self, filepath: Path, import_chain: list[str] | None = None
@@ -156,9 +154,7 @@ class ImportManager:
                 f"Import failed: File not found: {filepath}\n\n"
                 f"Import chain: {' → '.join([*import_chain, filepath_str])}"
             )
-            raise ImportError(
-                msg
-            )
+            raise ImportError(msg)
 
         # Parse the file
         try:
@@ -171,9 +167,7 @@ class ImportManager:
                 f"Error: {e}\n\n"
                 f"Import chain: {' → '.join([*import_chain, filepath_str])}"
             )
-            raise ImportError(
-                msg
-            )
+            raise ImportError(msg)
 
         # Add to chain for nested imports
         new_chain = [*import_chain, filepath_str]
@@ -198,9 +192,7 @@ class ImportManager:
                         f"Import chain: {' → '.join([*new_chain, str(nested_path)])}\n\n"
                         f"Suggestion: Rename one of the aliases or use different device libraries."
                     )
-                    raise ImportError(
-                        msg
-                    )
+                    raise ImportError(msg)
                 merged_aliases[alias_name] = alias_def
 
         # Cache the result
@@ -244,9 +236,7 @@ class ImportManager:
                         f"Second import: {import_path}\n\n"
                         f"Suggestion: Use different device libraries or rename aliases."
                     )
-                    raise ImportError(
-                        msg
-                    )
+                    raise ImportError(msg)
                 merged_aliases[alias_name] = alias_def
 
         return merged_aliases

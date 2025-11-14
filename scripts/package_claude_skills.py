@@ -322,13 +322,11 @@ def main():
 
     args = parser.parse_args()
 
-
     try:
         archives = create_skill_archive(args.source, args.output, args.version)
 
         for _format_name, _archive_path in archives.items():
             pass
-
 
     except Exception:
         return 1

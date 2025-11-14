@@ -280,7 +280,9 @@ class Validator:
             )
 
         if not isinstance(value, int):
-            msg = f"CC value must be an integer or ramp/random expression, got {type(value).__name__}"
+            msg = (
+                f"CC value must be an integer or ramp/random expression, got {type(value).__name__}"
+            )
             raise ValidationError(
                 msg,
                 error_code="E201",

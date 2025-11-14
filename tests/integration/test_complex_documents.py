@@ -6,7 +6,6 @@ and multi-feature scenarios.
 """
 
 
-
 class TestComplexDocuments:
     """Test complex, complete MML documents"""
 

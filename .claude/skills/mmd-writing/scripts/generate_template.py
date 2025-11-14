@@ -309,7 +309,6 @@ def generate_template(template_type: str, **kwargs):
     return template.format(**params)
 
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Generate MMD file templates",

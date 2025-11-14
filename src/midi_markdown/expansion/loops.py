@@ -189,7 +189,6 @@ class LoopExpander:
             # Resolve any variable references in the command
             return self._resolve_command_variables(event, symbols)
 
-
         # If command is a tree, it needs to be converted by the parser
         # For now, return None - this will be handled by EventGenerator integration
         return None
@@ -312,9 +311,7 @@ def parse_interval(interval_str: str | tuple) -> LoopInterval:
             raise ValueError(msg) from e
 
     # Beats: ends with 'b' or 'beats' or 'beat'
-    if (
-        interval_str.endswith(("b", "beats", "beat"))
-    ):
+    if interval_str.endswith(("b", "beats", "beat")):
         suffix = (
             "b"
             if interval_str.endswith("b")

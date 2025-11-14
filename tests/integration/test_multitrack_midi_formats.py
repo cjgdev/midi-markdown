@@ -58,6 +58,7 @@ midi_format: 0
 
         # Parse generated MIDI to verify timing
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 0  # Format 0
@@ -69,11 +70,7 @@ midi_format: 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type in ["control_change", "note_on", "note_off"]:
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"type": msg.type, "time": current_tick, "channel": msg.channel})
 
         # Verify timing (at 120 BPM, 480 PPQ)
         # 00:00.000 = 0 ticks
@@ -84,11 +81,11 @@ midi_format: 0
         note_events = [e for e in events if e["type"] == "note_on"]
 
         assert len(cc_events) == 2
-        assert cc_events[0]["time"] == 0      # 00:00.000
-        assert cc_events[1]["time"] == 960    # 00:01.000
+        assert cc_events[0]["time"] == 0  # 00:00.000
+        assert cc_events[1]["time"] == 960  # 00:01.000
 
         assert len(note_events) == 2
-        assert note_events[0]["time"] == 480   # 00:00.500
+        assert note_events[0]["time"] == 480  # 00:00.500
         assert note_events[1]["time"] == 1440  # 00:01.500
 
     @pytest.mark.integration
@@ -120,6 +117,7 @@ midi_format: 1
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 1  # Format 1
@@ -130,11 +128,7 @@ midi_format: 1
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type in ["control_change", "note_on", "note_off"]:
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"type": msg.type, "time": current_tick, "channel": msg.channel})
 
         # At 120 BPM: 1 second = 960 ticks
         # 00:00.000 = 0
@@ -144,12 +138,12 @@ midi_format: 1
         # 00:03.000 = 2880 (note_on)
         # 00:03.500 = 3360 (note_off after 500ms)
         assert len(events) == 6
-        assert events[0]["time"] == 0      # Track 1: 00:00.000 CC
-        assert events[1]["time"] == 960    # Track 2: 00:01.000 note_on
-        assert events[2]["time"] == 1440   # Track 2: 00:01.500 note_off (500ms duration)
-        assert events[3]["time"] == 1920   # Track 1: 00:02.000 CC
-        assert events[4]["time"] == 2880   # Track 2: 00:03.000 note_on
-        assert events[5]["time"] == 3360   # Track 2: 00:03.500 note_off (500ms duration)
+        assert events[0]["time"] == 0  # Track 1: 00:00.000 CC
+        assert events[1]["time"] == 960  # Track 2: 00:01.000 note_on
+        assert events[2]["time"] == 1440  # Track 2: 00:01.500 note_off (500ms duration)
+        assert events[3]["time"] == 1920  # Track 1: 00:02.000 CC
+        assert events[4]["time"] == 2880  # Track 2: 00:03.000 note_on
+        assert events[5]["time"] == 3360  # Track 2: 00:03.500 note_off (500ms duration)
 
     @pytest.mark.integration
     def test_absolute_timing_format_2(self, parser: MMDParser):
@@ -180,6 +174,7 @@ midi_format: 2
         midi_bytes = generate_midi_file(ir_program, midi_format=2)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 2  # Format 2
@@ -190,14 +185,10 @@ midi_format: 2
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type in ["control_change", "note_on", "note_off"]:
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"type": msg.type, "time": current_tick, "channel": msg.channel})
 
         # Both tracks start at 00:00.000
-        assert events[0]["time"] == 0      # Both channels at 0
+        assert events[0]["time"] == 0  # Both channels at 0
         assert events[0]["channel"] in [0, 1]  # Either channel 1 or 2 (0-indexed)
 
 
@@ -235,6 +226,7 @@ time_signature: [4, 4]
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Collect events
@@ -243,11 +235,7 @@ time_signature: [4, 4]
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "note": msg.note,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "note": msg.note, "channel": msg.channel})
 
         # Musical timing at 4/4, 480 PPQ:
         # [1.1.0] = bar 1, beat 1 = 0 ticks
@@ -259,12 +247,12 @@ time_signature: [4, 4]
         drum_events = [e for e in events if e["channel"] == 9]  # Channel 10 = index 9
 
         assert len(bass_events) == 2
-        assert bass_events[0]["time"] == 0      # [1.1.0]
-        assert bass_events[1]["time"] == 1920   # [2.1.0]
+        assert bass_events[0]["time"] == 0  # [1.1.0]
+        assert bass_events[1]["time"] == 1920  # [2.1.0]
 
         assert len(drum_events) == 2
-        assert drum_events[0]["time"] == 0      # [1.1.0]
-        assert drum_events[1]["time"] == 960    # [1.3.0]
+        assert drum_events[0]["time"] == 0  # [1.1.0]
+        assert drum_events[1]["time"] == 960  # [1.3.0]
 
     @pytest.mark.integration
     def test_musical_timing_format_1(self, parser: MMDParser):
@@ -301,6 +289,7 @@ time_signature: [4, 4]
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 1
@@ -311,10 +300,7 @@ time_signature: [4, 4]
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "channel": msg.channel})
 
         # [1.1.0] = 0 ticks
         # [2.1.0] = 4 beats * 480 = 1920 ticks
@@ -363,6 +349,7 @@ time_signature: [3, 4]
         midi_bytes = generate_midi_file(ir_program, midi_format=2)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 2
@@ -376,18 +363,14 @@ time_signature: [3, 4]
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "note": msg.note,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "note": msg.note, "channel": msg.channel})
 
         # Verify 3/4 timing
         bass_events = [e for e in events if e["note"] == 40]
         assert len(bass_events) == 3
-        assert bass_events[0]["time"] == 0     # [1.1.0]
-        assert bass_events[1]["time"] == 480   # [1.2.0]
-        assert bass_events[2]["time"] == 960   # [1.3.0]
+        assert bass_events[0]["time"] == 0  # [1.1.0]
+        assert bass_events[1]["time"] == 480  # [1.2.0]
+        assert bass_events[2]["time"] == 960  # [1.3.0]
 
 
 class TestMultiTrackRelativeTiming:
@@ -424,6 +407,7 @@ midi_format: 0
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         events = []
@@ -431,11 +415,7 @@ midi_format: 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "control_change":
-                events.append({
-                    "time": current_tick,
-                    "channel": msg.channel,
-                    "value": msg.value
-                })
+                events.append({"time": current_tick, "channel": msg.channel, "value": msg.value})
 
         # Track 1: 0, 500ms (480 ticks), 1000ms (960 ticks)
         # Track 2: 0, 1s (960 ticks), 2s (1920 ticks)
@@ -444,13 +424,13 @@ midi_format: 0
 
         assert len(track1_events) == 3
         assert track1_events[0]["time"] == 0
-        assert track1_events[1]["time"] == 480    # +500ms
-        assert track1_events[2]["time"] == 960    # +500ms
+        assert track1_events[1]["time"] == 480  # +500ms
+        assert track1_events[2]["time"] == 960  # +500ms
 
         assert len(track2_events) == 3
         assert track2_events[0]["time"] == 0
-        assert track2_events[1]["time"] == 960    # +1s
-        assert track2_events[2]["time"] == 1920   # +1s
+        assert track2_events[1]["time"] == 960  # +1s
+        assert track2_events[2]["time"] == 1920  # +1s
 
     @pytest.mark.integration
     def test_relative_timing_format_1(self, parser: MMDParser):
@@ -482,6 +462,7 @@ tempo: 120
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         events = []
@@ -489,11 +470,7 @@ tempo: 120
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "note": msg.note,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "note": msg.note, "channel": msg.channel})
 
         # Track 1: 0, +480 (1b), +480 (1b) = 0, 480, 960
         # Track 2: 0, +960 (2b) = 0, 960
@@ -540,6 +517,7 @@ midi_format: 0
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         events = []
@@ -547,11 +525,7 @@ midi_format: 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "note": msg.note,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "note": msg.note, "channel": msg.channel})
 
         # All note_on events should be at tick 0
         assert len(events) == 4
@@ -588,6 +562,7 @@ tempo: 120
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         events = []
@@ -595,11 +570,9 @@ tempo: 120
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "control_change":
-                events.append({
-                    "time": current_tick,
-                    "channel": msg.channel,
-                    "control": msg.control
-                })
+                events.append(
+                    {"time": current_tick, "channel": msg.channel, "control": msg.control}
+                )
 
         # All CC events should be at 00:02.000 = 1920 ticks
         assert len(events) == 5
@@ -647,6 +620,7 @@ midi_format: 0
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Find tempo messages
@@ -655,10 +629,7 @@ midi_format: 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "set_tempo":
-                tempo_changes.append({
-                    "time": current_tick,
-                    "tempo": msg.tempo
-                })
+                tempo_changes.append({"time": current_tick, "tempo": msg.tempo})
 
         # Verify tempo changes are present
         assert len(tempo_changes) >= 2
@@ -703,6 +674,7 @@ tempo: 100
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Collect events
@@ -711,10 +683,7 @@ tempo: 100
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type in ["note_on", "set_tempo"]:
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick
-                })
+                events.append({"type": msg.type, "time": current_tick})
 
         # Verify tempo change is in the timeline
         tempo_events = [e for e in events if e["type"] == "set_tempo"]
@@ -753,6 +722,7 @@ midi_format: 0
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Collect all note_on events
@@ -762,11 +732,7 @@ midi_format: 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on":
-                events.append({
-                    "time": current_tick,
-                    "note": msg.note,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "note": msg.note, "channel": msg.channel})
 
         # Verify we have 4 note_on events
         assert len(events) == 4
@@ -817,6 +783,7 @@ midi_format: 1
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Verify all three channels have events
@@ -825,10 +792,7 @@ midi_format: 1
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "note_on" and msg.velocity > 0:
-                events.append({
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "channel": msg.channel})
 
         # Verify we have events from all three channels
         channels = {e["channel"] for e in events}
@@ -879,6 +843,7 @@ time_signature: [4, 4]
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Verify events from all three timing paradigms
@@ -887,11 +852,7 @@ time_signature: [4, 4]
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type in ["control_change", "note_on"]:
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"type": msg.type, "time": current_tick, "channel": msg.channel})
 
         # Track 1 (absolute): 0, 1920 ticks
         track1_events = [e for e in events if e["channel"] == 0]
@@ -959,6 +920,7 @@ time_signature: [3, 4]
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 1
@@ -971,11 +933,7 @@ time_signature: [3, 4]
             if msg.type in ["note_on", "control_change"]:
                 if msg.type == "note_on" and msg.velocity == 0:
                     continue  # Skip note_off as note_on velocity 0
-                events.append({
-                    "type": msg.type,
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"type": msg.type, "time": current_tick, "channel": msg.channel})
 
         # Verify we have events from all 4 channels
         channels = {e["channel"] for e in events}
@@ -985,7 +943,9 @@ time_signature: [3, 4]
         assert 3 in channels  # Channel 4
 
         # Verify simultaneous events are at time 0
-        simultaneous_events = [e for e in events if e["channel"] == 3 and e["type"] == "control_change"]
+        simultaneous_events = [
+            e for e in events if e["channel"] == 3 and e["type"] == "control_change"
+        ]
         assert len(simultaneous_events) == 3
         for event in simultaneous_events:
             assert event["time"] == 0
@@ -1020,6 +980,7 @@ midi_format: 0
         midi_bytes = generate_midi_file(ir_program, midi_format=0)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Should only have events from tracks 1 and 3
@@ -1059,6 +1020,7 @@ midi_format: 1
         midi_bytes = generate_midi_file(ir_program, midi_format=1)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         # Verify three events at different times
@@ -1067,15 +1029,12 @@ midi_format: 1
         for msg in mid.tracks[0]:
             current_tick += msg.time
             if msg.type == "control_change":
-                events.append({
-                    "time": current_tick,
-                    "channel": msg.channel
-                })
+                events.append({"time": current_tick, "channel": msg.channel})
 
         assert len(events) == 3
-        assert events[0]["time"] == 0      # 00:00.000
-        assert events[1]["time"] == 960    # 00:01.000
-        assert events[2]["time"] == 1920   # 00:02.000
+        assert events[0]["time"] == 0  # 00:00.000
+        assert events[1]["time"] == 960  # 00:01.000
+        assert events[2]["time"] == 1920  # 00:02.000
 
     @pytest.mark.integration
     def test_many_tracks_format_2(self, parser: MMDParser):
@@ -1103,6 +1062,7 @@ midi_format: 2
         midi_bytes = generate_midi_file(ir_program, midi_format=2)
 
         import io
+
         mid = MidiFile(file=io.BytesIO(midi_bytes))
 
         assert mid.type == 2

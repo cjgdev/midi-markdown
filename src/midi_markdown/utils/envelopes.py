@@ -101,9 +101,7 @@ class ADSREnvelope:
             raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
             msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         self.attack_time = float(attack_time)
         self.decay_time = float(decay_time)
@@ -222,9 +220,7 @@ class ADSREnvelope:
         min_time = self.attack_time + self.decay_time
         if time_seconds < min_time:
             msg = f"Note off time ({time_seconds}s) must be >= attack + decay ({min_time}s)"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
         self.note_off_time = float(time_seconds)
 
     def total_duration(self) -> float | None:
@@ -301,9 +297,7 @@ class AREnvelope:
             raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
             msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         self.attack_time = float(attack_time)
         self.release_time = float(release_time)
@@ -420,9 +414,7 @@ class ADEnvelope:
             raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
             msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         self.attack_time = float(attack_time)
         self.decay_time = float(decay_time)

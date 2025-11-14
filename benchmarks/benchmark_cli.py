@@ -335,7 +335,6 @@ class TestCLIOptions:
         assert result_csv.returncode == 0
         assert result_json.returncode == 0
 
-
         # Clean up
         if csv_file.exists():
             csv_file.unlink()

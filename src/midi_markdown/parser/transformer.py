@@ -2008,6 +2008,7 @@ class MMDTransformer(Transformer):
             # Check if type_spec is a range (INT-INT)
             # Use regex to properly handle negative numbers
             import re
+
             range_match = re.match(r"^(-?\d+)\s*-\s*(-?\d+)$", type_spec.strip())
             if range_match:
                 # Parse range: 0-127, -24-24, etc.
@@ -2083,7 +2084,10 @@ class MMDTransformer(Transformer):
                 # Check if it's a range (contains hyphen)
                 # Use regex to properly handle negative numbers
                 import re
-                range_match = re.match(r"^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$", child_value.strip())
+
+                range_match = re.match(
+                    r"^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$", child_value.strip()
+                )
                 if range_match:
                     # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0", "-24-24")
                     param["type"] = "range"

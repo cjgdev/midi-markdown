@@ -515,6 +515,48 @@ just test-cov      # Coverage maintained/improved
 
 ---
 
+<claude_hooks>
+
+## Claude Code Hooks
+
+**Automated quality gates ensure all GitHub Actions CI checks pass.**
+
+### Active Hooks
+
+**Auto-format after edits** (`PostToolUse` → Edit/Write):
+- Automatically runs `ruff format` on Python files
+- Ensures consistent code style immediately
+
+**Pre-commit checks** (`PreToolUse` → git commit):
+- Runs `.claude/hooks/pre-commit.sh` before commits
+- ✅ Step 1: Format check (`ruff format --check`)
+- ✅ Step 2: Linting (`ruff check src tests`)
+- ✅ Step 3: Type checking (`mypy src`)
+- ✅ Step 4: Smoke tests (78 core tests in ~7s)
+
+**Commits only proceed if all checks pass** - preventing CI failures.
+
+### Testing Hooks
+
+```bash
+# Test pre-commit hook manually
+./.claude/hooks/pre-commit.sh
+
+# Expected: All 4 steps pass in ~18 seconds
+```
+
+### Documentation
+
+- **[.claude/SUMMARY.md](.claude/SUMMARY.md)** - Implementation summary & test results
+- **[.claude/HOOKS_SETUP.md](.claude/HOOKS_SETUP.md)** - Complete setup guide
+- **[.claude/hooks/README.md](.claude/hooks/README.md)** - Hook documentation
+
+**Hooks mirror GitHub Actions** - Same checks locally (18s) as in CI (3-5min).
+
+</claude_hooks>
+
+---
+
 <reference>
 
 ## Reference Documentation

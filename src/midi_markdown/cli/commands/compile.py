@@ -248,9 +248,7 @@ def compile(
                                 f"and in {input_file}\n\n"
                                 f"Suggestion: Rename the alias in your file or use a different device library."
                             )
-                            raise Exception(
-                                msg
-                            )
+                            raise Exception(msg)
                         doc.aliases[alias_name] = alias_def
 
                     if verbose:

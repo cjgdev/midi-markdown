@@ -219,9 +219,7 @@ class CommandExpander:
 
         if not name:
             msg = "Define statement missing variable name"
-            raise ExpansionError(
-                msg, line=line, file=self.source_file
-            )
+            raise ExpansionError(msg, line=line, file=self.source_file)
 
         try:
             # Resolve value (may be expression, variable reference, or literal)
@@ -233,9 +231,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Failed to process @define {name}: {e}"
-            raise ExpansionError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise ExpansionError(msg, line=line, file=self.source_file) from e
 
     def _resolve_value(self, value: Any) -> Any:
         """
@@ -381,9 +377,7 @@ class CommandExpander:
                 interval = parse_interval(interval_spec)
             except ValueError as e:
                 msg = f"Invalid loop interval: {e}"
-                raise InvalidLoopConfigError(
-                    msg, line=line, file=self.source_file
-                ) from e
+                raise InvalidLoopConfigError(msg, line=line, file=self.source_file) from e
 
         # Determine start time
         start_time = self._resolve_timing(start_time_spec) if start_time_spec else self.current_time
@@ -443,9 +437,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Loop expansion failed: {e}"
-            raise InvalidLoopConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidLoopConfigError(msg, line=line, file=self.source_file) from e
 
     # ========================================================================
     # Pass 2: Sweep Processing
@@ -491,9 +483,7 @@ class CommandExpander:
             )
         except ValueError as e:
             msg = f"Invalid sweep interval: {e}"
-            raise InvalidSweepConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidSweepConfigError(msg, line=line, file=self.source_file) from e
 
         # Calculate steps
         total_duration = end_time - start_time
@@ -573,9 +563,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Sweep expansion failed: {e}"
-            raise InvalidSweepConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidSweepConfigError(msg, line=line, file=self.source_file) from e
 
     # ========================================================================
     # Pass 2: Command Processing
@@ -935,9 +923,7 @@ class CommandExpander:
                 value = event.get("data1")
                 if value is not None and (value < -8192 or value > 8191):
                     msg = "data1"
-                    raise ValueRangeError(
-                        msg, value, -8192, 8191, line=line, file=self.source_file
-                    )
+                    raise ValueRangeError(msg, value, -8192, 8191, line=line, file=self.source_file)
             elif event_type not in ["tempo", "marker", "text", "lyric", "time_signature"]:
                 for key in ["data1", "data2", "velocity", "note"]:
                     value = event.get(key)

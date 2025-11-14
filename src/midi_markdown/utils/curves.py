@@ -123,7 +123,6 @@ class BezierCurve:
             + t_cubed * self.p3
         )
 
-
     def __repr__(self) -> str:
         """String representation of the Bezier curve."""
         return f"BezierCurve(p0={self.p0}, p1={self.p1}, p2={self.p2}, p3={self.p3})"

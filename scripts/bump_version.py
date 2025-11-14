@@ -183,7 +183,6 @@ class VersionBumper:
                 sys.exit(1)
 
 
-
 def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(

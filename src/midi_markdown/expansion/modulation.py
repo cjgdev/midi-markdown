@@ -186,9 +186,7 @@ def expand_envelope_expression(
             or expr.release is None
         ):
             msg = "ADSR envelope requires attack, decay, sustain, and release parameters"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         envelope: ADSREnvelope | AREnvelope | ADEnvelope = ADSREnvelope(
             attack_time=expr.attack,
