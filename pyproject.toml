@@ -368,6 +368,8 @@ pretty = true
 # Allow dynamic typing where needed
 allow_untyped_globals = true
 allow_redefinition = true
+# Exclude tests and benchmarks from type checking (covered by pytest)
+exclude = ["tests/", "benchmarks/", "scripts/", ".claude/"]
 
 # Missing library stubs
 [[tool.mypy.overrides]]
@@ -380,6 +382,10 @@ module = [
     "readchar.*",
     "yaml.*",
     "lark.*",
+    "pytest.*",
+    "pytest",
+    "_pytest.*",
+    "pexpect.*",
 ]
 ignore_missing_imports = true
 
