@@ -198,6 +198,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "PLC0415", # Lazy imports for CLI performance
     "ARG001",  # Unused function arguments (CLI interface, future features)
     "PLR2004", # Magic values (UI thresholds, formatting constants)
+    "TCH003",  # Move stdlib imports into TYPE_CHECKING (Typer needs runtime annotations)
 ]
 "src/midi_markdown/parser/transformer.py" = [
     "N802",    # Uppercase function names (required by Lark grammar rules)

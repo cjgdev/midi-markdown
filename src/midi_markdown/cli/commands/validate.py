@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -14,9 +15,6 @@ from midi_markdown.cli.progress import (
     create_validation_progress,
     should_show_progress,
 )
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def validate(
