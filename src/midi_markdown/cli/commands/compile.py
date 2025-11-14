@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Annotated
+from pathlib import Path
+from typing import Annotated
 
 import typer
 from lark.exceptions import UnexpectedCharacters, UnexpectedToken
@@ -24,9 +25,6 @@ from midi_markdown.cli.progress import (
 )
 from midi_markdown.constants import DEFAULT_TIME_SIGNATURE
 from midi_markdown.expansion.expander import CommandExpander
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def compile(

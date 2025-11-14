@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -12,9 +13,6 @@ from midi_markdown.codegen import export_to_csv, export_to_json
 from midi_markdown.core import compile_ast_to_ir
 from midi_markdown.diagnostics import display_events_table
 from midi_markdown.parser.parser import MMDParser
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def inspect(
