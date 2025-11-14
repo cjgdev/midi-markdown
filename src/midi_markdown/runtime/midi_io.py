@@ -36,10 +36,20 @@ class MIDIOutputManager:
         """Initialize MIDI output manager.
 
         Creates rtmidi.MidiOut instance. No port is opened by default.
+
+        Raises:
+            SystemError: If MIDI backend initialization fails (e.g., ALSA sequencer unavailable)
         """
-        self.midiout = rtmidi.MidiOut()
+        # Initialize attributes first in case __init__ raises exception
         self.current_port: int | None = None
         self.port_name: str | None = None
+
+        try:
+            self.midiout = rtmidi.MidiOut()
+        except SystemError:
+            # Re-raise SystemError to let callers know initialization failed
+            # This can happen in headless CI environments without ALSA/CoreMIDI/etc
+            raise
 
     def list_ports(self) -> list[str]:
         """Get list of available MIDI output ports.
