@@ -294,10 +294,15 @@ class EventScheduler:
             >>> target = time.perf_counter() + 1.5
             >>> self._precise_wait(target)
         """
-        # Sleep in small chunks to allow stop flag checks
+        # Sleep in small chunks to allow stop flag and pause checks
         while time.perf_counter() < target_time:
             if self._stop_flag.is_set():
                 break
+
+            # Check for pause state - if paused, wait until resumed
+            if self.state == "paused":
+                time.sleep(0.01)  # Sleep 10ms while paused
+                continue
 
             remaining = target_time - time.perf_counter()
 
@@ -314,3 +319,7 @@ class EventScheduler:
         while time.perf_counter() < target_time:
             if self._stop_flag.is_set():
                 break
+            # Check pause in busy-wait loop too
+            if self.state == "paused":
+                time.sleep(0.001)  # Brief sleep if paused
+                continue

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
@@ -15,6 +16,12 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 runner = CliRunner()
+
+
+def strip_ansi(text: str) -> str:
+    """Strip ANSI escape codes from text."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    return ansi_escape.sub('', text)
 
 
 @pytest.fixture
@@ -91,9 +98,11 @@ class TestPlayCLI:
         result = runner.invoke(app, ["play", "--help"])
 
         assert result.exit_code == 0
-        assert "Play MML file" in result.output
-        assert "--port" in result.output
-        assert "--list-ports" in result.output
+        # Strip ANSI codes for reliable string matching
+        clean_output = strip_ansi(result.output)
+        assert "Play MML file" in clean_output
+        assert "--port" in clean_output
+        assert "--list-ports" in clean_output
 
     def test_play_list_ports(self, mock_midi_manager: MagicMock) -> None:
         """Test --list-ports shows available MIDI ports."""

@@ -534,7 +534,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    pass
+                    print(csv_output)
                 else:
                     # Write to file
                     output.write_text(csv_output)
@@ -550,7 +550,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    pass
+                    print(json_output)
                 else:
                     # Write to file
                     output.write_text(json_output)
@@ -566,7 +566,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    pass
+                    print(json_output)
                 else:
                     # Write to file
                     output.write_text(json_output)
