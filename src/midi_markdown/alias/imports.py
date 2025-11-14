@@ -113,7 +113,8 @@ class ImportManager:
 
         if filepath_normalized in normalized_chain:
             # Build the cycle string for error message using original chain
-            filepath_str = str(filepath)
+            # Use as_posix() to ensure forward slashes on all platforms (Windows uses \)
+            filepath_str = filepath.as_posix()
             cycle_chain = [*import_chain, filepath_str]
             chain_str = " → ".join(cycle_chain)
             msg = (
