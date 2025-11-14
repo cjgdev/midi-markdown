@@ -311,7 +311,8 @@ class EventScheduler:
                     was_paused = True
                 time.sleep(0.01)  # Sleep 10ms while paused
                 continue
-            elif was_paused:
+
+            if was_paused:
                 # Just resumed from pause - adjust target_time for pause duration
                 if pause_start is not None:
                     pause_duration = time.perf_counter() - pause_start
