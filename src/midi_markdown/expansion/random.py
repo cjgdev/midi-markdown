@@ -66,9 +66,7 @@ class RandomValueExpander:
         # Validate range
         if min_val > max_val:
             msg = f"random() min value ({min_val}) cannot be greater than max value ({max_val})"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         # Set seed if provided
         if expr.seed is not None:

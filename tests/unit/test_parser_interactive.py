@@ -26,7 +26,7 @@ class TestParseInteractive:
         # This might be complete or incomplete depending on grammar
         # The grammar should accept "- cc 1.7" as incomplete
         # For now, let's test what actually happens
-        assert isinstance(result, (Exception, MMDDocument, type(None)))
+        assert isinstance(result, Exception | MMDDocument | type(None))
 
     def test_parse_interactive_valid(self):
         """Test valid complete input returns MMDDocument."""
@@ -69,7 +69,7 @@ title: Test
         parser = MMDParser()
         _complete, result = parser.parse_interactive("")
         # Empty input should be considered complete (empty document)
-        assert isinstance(result, (MMDDocument, Exception))
+        assert isinstance(result, MMDDocument | Exception)
 
     def test_parse_interactive_only_frontmatter(self):
         """Test input with only frontmatter."""

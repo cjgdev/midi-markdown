@@ -828,9 +828,7 @@ def show_alias_error(
         console.print(f"\n[red]{emoji}error[{error_code}]:[/red] {message}")
 
     # Add call chain visualization for recursion and depth errors
-    if isinstance(error, (AliasRecursionError, AliasMaxDepthError)) and hasattr(
-        error, "call_chain"
-    ):
+    if isinstance(error, AliasRecursionError | AliasMaxDepthError) and hasattr(error, "call_chain"):
         console.print()
         call_chain_table = _create_call_chain_table(
             error.call_chain, error.alias_name, no_color=no_color

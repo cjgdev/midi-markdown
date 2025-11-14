@@ -392,7 +392,9 @@ class TestCurveAdvancedEdgeCases:
 
     def test_curve_with_zero_steps(self):
         """Test curve expansion with zero steps."""
-        expr = CurveExpression(start_value=0, end_value=127, curve_type="linear", control_points=None)
+        expr = CurveExpression(
+            start_value=0, end_value=127, curve_type="linear", control_points=None
+        )
         # Zero steps should return empty list
         values = expand_curve_expression(expr, num_steps=0)
         assert len(values) == 0
@@ -418,7 +420,9 @@ class TestCurveAdvancedEdgeCases:
 
     def test_curve_with_large_step_count(self):
         """Test curve with very large number of steps."""
-        expr = CurveExpression(start_value=0, end_value=127, curve_type="linear", control_points=None)
+        expr = CurveExpression(
+            start_value=0, end_value=127, curve_type="linear", control_points=None
+        )
         values = expand_curve_expression(expr, num_steps=10000)
         assert len(values) == 10000
         # First and last should still be correct
@@ -448,7 +452,9 @@ class TestCurveAdvancedEdgeCases:
 
     def test_curve_bezier_with_none_control_points(self):
         """Test bezier curve with None control points (fallback to linear)."""
-        expr = CurveExpression(start_value=0, end_value=127, curve_type="bezier", control_points=None)
+        expr = CurveExpression(
+            start_value=0, end_value=127, curve_type="bezier", control_points=None
+        )
         values = expand_curve_expression(expr, num_steps=10)
         # Should fallback to linear
         assert len(values) == 10
@@ -457,7 +463,9 @@ class TestCurveAdvancedEdgeCases:
 
     def test_curve_with_custom_midi_range(self):
         """Test curve with non-standard MIDI range."""
-        expr = CurveExpression(start_value=0, end_value=200, curve_type="linear", control_points=None)
+        expr = CurveExpression(
+            start_value=0, end_value=200, curve_type="linear", control_points=None
+        )
         # Custom range: 10-100
         values = expand_curve_expression(expr, num_steps=10, min_val=10, max_val=100)
         # Values should be clamped to [10, 100]
@@ -476,18 +484,14 @@ class TestWaveAdvancedEdgeCases:
 
     def test_wave_with_depth_over_100(self):
         """Test wave with depth > 100% (should clamp to range)."""
-        expr = WaveExpression(
-            wave_type="sine", base_value=64, frequency=1.0, phase=None, depth=200
-        )
+        expr = WaveExpression(wave_type="sine", base_value=64, frequency=1.0, phase=None, depth=200)
         values = expand_wave_expression(expr, duration_seconds=1.0, sample_rate=10)
         # Should clamp to MIDI range [0, 127]
         assert all(0 <= v <= 127 for v in values)
 
     def test_wave_with_base_value_outside_range(self):
         """Test wave with base value outside MIDI range."""
-        expr = WaveExpression(
-            wave_type="sine", base_value=150, frequency=1.0, phase=None, depth=50
-        )
+        expr = WaveExpression(wave_type="sine", base_value=150, frequency=1.0, phase=None, depth=50)
         values = expand_wave_expression(expr, duration_seconds=1.0, sample_rate=10)
         # Should clamp all values to [0, 127]
         assert all(0 <= v <= 127 for v in values)
@@ -524,9 +528,7 @@ class TestWaveAdvancedEdgeCases:
 
     def test_wave_with_phase_wrap_around(self):
         """Test wave with phase > 1.0 (should wrap around)."""
-        expr = WaveExpression(
-            wave_type="sine", base_value=64, frequency=1.0, phase=1.5, depth=50
-        )
+        expr = WaveExpression(wave_type="sine", base_value=64, frequency=1.0, phase=1.5, depth=50)
         values = expand_wave_expression(expr, duration_seconds=1.0, sample_rate=10)
         # Phase should wrap, still generate valid values
         assert len(values) == 10
@@ -610,7 +612,9 @@ class TestEnvelopeAdvancedEdgeCases:
         )
         # Note off at 0.5s (halfway through attack)
         # This should still work but might not be typical
-        values = expand_envelope_expression(expr, duration_seconds=2.0, note_off_time=0.5, sample_rate=10)
+        values = expand_envelope_expression(
+            expr, duration_seconds=2.0, note_off_time=0.5, sample_rate=10
+        )
         assert len(values) == 20
         assert all(0 <= v <= 127 for v in values)
 
@@ -664,7 +668,9 @@ class TestModulationContextHandling:
 
     def test_curve_with_missing_num_steps(self):
         """Test curve expansion with missing num_steps (should use default)."""
-        expr = CurveExpression(start_value=0, end_value=127, curve_type="linear", control_points=None)
+        expr = CurveExpression(
+            start_value=0, end_value=127, curve_type="linear", control_points=None
+        )
         context = {"min_val": 0, "max_val": 127}
         # Should use default num_steps=10
         values = expand_modulation_expression(expr, context)

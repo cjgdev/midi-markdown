@@ -74,9 +74,7 @@ def note_to_midi(note_name: str) -> int:
 
     except ValueError:
         msg = f"Invalid note name '{note_name}': invalid octave '{note_name[octave_start:]}'"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
 
     # Calculate MIDI number (C4 = MIDI_MIDDLE_C = 60)
     # MIDI numbers: C-1=0, C0=12, C1=24, ..., C4=60, ..., G9=127
@@ -88,9 +86,7 @@ def note_to_midi(note_name: str) -> int:
             f"Note '{note_name}' (MIDI {midi_num}) is out of valid MIDI range "
             f"[{MIDI_NOTE_MIN}-{MIDI_NOTE_MAX}]. Valid octave range is -1 to 9."
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
 
     return midi_num
 
@@ -194,12 +190,8 @@ def bool_to_midi(value: str | bool | int) -> int:
             f"Invalid boolean string '{value}': must be one of "
             f"true/false, on/off, yes/no, or 1/0 (case-insensitive)"
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
 
     # Unknown type
     msg = f"Invalid boolean value type {type(value).__name__}: expected bool, int, or str"
-    raise ValueError(
-        msg
-    )
+    raise ValueError(msg)

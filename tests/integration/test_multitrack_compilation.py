@@ -43,9 +43,9 @@ title: "Single Track Test"
         # Second note should be at 1 second (120 BPM default, 480 PPQ)
         # 1 second = 960 ticks at 120 BPM
         expected_time = 960
-        assert note_on_events[1].time == expected_time, (
-            f"Second note at {note_on_events[1].time}, expected {expected_time}"
-        )
+        assert (
+            note_on_events[1].time == expected_time
+        ), f"Second note at {note_on_events[1].time}, expected {expected_time}"
 
     def test_two_tracks_compilation(self):
         """Test that two @track blocks compile with correct timing."""
@@ -110,14 +110,14 @@ title: "Staggered Tracks"
         assert note_on_events[0].time == 0, f"First event at {note_on_events[0].time}, expected 0"
         assert note_on_events[0].channel == 10
 
-        assert note_on_events[1].time == 960, (
-            f"Second event at {note_on_events[1].time}, expected 960"
-        )
+        assert (
+            note_on_events[1].time == 960
+        ), f"Second event at {note_on_events[1].time}, expected 960"
         assert note_on_events[1].channel == 2
 
-        assert note_on_events[2].time == 1920, (
-            f"Third event at {note_on_events[2].time}, expected 1920"
-        )
+        assert (
+            note_on_events[2].time == 1920
+        ), f"Third event at {note_on_events[2].time}, expected 1920"
         assert note_on_events[2].channel == 1
 
 
@@ -342,9 +342,9 @@ title: "Track with Loop"
         # Verify spacing (1 beat = 480 ticks at 120 BPM)
         for i, event in enumerate(sorted(note_on_events, key=lambda e: e.time)):
             expected_time = i * 480
-            assert event.time == expected_time, (
-                f"Event {i} at {event.time}, expected {expected_time}"
-            )
+            assert (
+                event.time == expected_time
+            ), f"Event {i} at {event.time}, expected {expected_time}"
 
     def test_simultaneous_timing_in_tracks(self):
         """Test simultaneous [@] timing marker in tracks."""

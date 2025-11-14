@@ -1,0 +1,67 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+
+repos:
+  # Ruff - Python linter and formatter (replaces Black, isort, flake8, etc.)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      # Run the formatter
+      - id: ruff-format
+        name: Format code with Ruff
+
+      # Run the linter with auto-fix
+      - id: ruff
+        name: Lint code with Ruff
+        args: [--fix, --unsafe-fixes]
+
+  # Optional: mypy for type checking
+  # Uncomment to enable type checking in pre-commit
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.11.0
+  #   hooks:
+  #     - id: mypy
+  #       name: Type check with mypy
+  #       additional_dependencies:
+  #         - types-pyyaml>=6.0.0
+  #       args: [--config-file=pyproject.toml]
+  #       files: ^src/
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML syntax
+        exclude: ^mkdocs\.yml$
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+
+# Global settings
+default_language_version:
+  python: python3.12
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+      \.git/|
+      \.venv/|
+      venv/|
+      build/|
+      dist/|
+      \.eggs/|
+      \.mypy_cache/|
+      \.ruff_cache/|
+      \.pytest_cache/|
+      __pycache__/|
+      .*\.egg-info/
+  )$

@@ -45,9 +45,9 @@ class TestDocumentValidation:
         errors = validator.validate(doc)
 
         assert len(errors) > 0, "Expected validation errors for invalid channel"
-        assert any("Channel" in str(e) and "out of range" in str(e) for e in errors), (
-            f"Expected channel range error, got: {[str(e) for e in errors]}"
-        )
+        assert any(
+            "Channel" in str(e) and "out of range" in str(e) for e in errors
+        ), f"Expected channel range error, got: {[str(e) for e in errors]}"
 
     def test_channel_zero_detected(self, parser, validator):
         """Test that channel 0 is detected as invalid."""
@@ -76,9 +76,9 @@ title: Test
         errors = validator.validate(doc)
 
         assert len(errors) > 0, "Expected validation errors for invalid velocity"
-        assert any("Velocity" in str(e) and "out of range" in str(e) for e in errors), (
-            f"Expected velocity range error, got: {[str(e) for e in errors]}"
-        )
+        assert any(
+            "Velocity" in str(e) and "out of range" in str(e) for e in errors
+        ), f"Expected velocity range error, got: {[str(e) for e in errors]}"
 
     def test_velocity_negative_detected(self, parser, validator):
         """Test that negative velocity is detected."""
@@ -107,9 +107,9 @@ title: Test
         errors = validator.validate(doc)
 
         assert len(errors) > 0, "Expected validation errors for invalid CC value"
-        assert any("CC value" in str(e) and "out of range" in str(e) for e in errors), (
-            f"Expected CC value range error, got: {[str(e) for e in errors]}"
-        )
+        assert any(
+            "CC value" in str(e) and "out of range" in str(e) for e in errors
+        ), f"Expected CC value range error, got: {[str(e) for e in errors]}"
 
     def test_invalid_cc_controller_detected(self, parser, validator):
         """Test that invalid CC controller number is detected."""
@@ -207,9 +207,9 @@ title: Test
         # 3. Invalid CC controller (128)
         # 4. Invalid CC value (255)
         # 5. Invalid program (130)
-        assert len(errors) >= 4, (
-            f"Expected at least 4 errors, got {len(errors)}: {[str(e) for e in errors]}"
-        )
+        assert (
+            len(errors) >= 4
+        ), f"Expected at least 4 errors, got {len(errors)}: {[str(e) for e in errors]}"
 
     # ============================================
     # Line Number Tests
@@ -229,9 +229,9 @@ title: Test
 
         assert len(errors) > 0
         # At least one error should have a line number
-        assert any(e.line is not None for e in errors), (
-            "Expected at least one error with line number"
-        )
+        assert any(
+            e.line is not None for e in errors
+        ), "Expected at least one error with line number"
 
     # ============================================
     # Track Validation Tests
@@ -304,6 +304,6 @@ title: Edge Values
         doc = parser.parse_string(source)
         errors = validator.validate(doc)
 
-        assert len(errors) == 0, (
-            f"Edge values should be valid, got errors: {[str(e) for e in errors]}"
-        )
+        assert (
+            len(errors) == 0
+        ), f"Edge values should be valid, got errors: {[str(e) for e in errors]}"

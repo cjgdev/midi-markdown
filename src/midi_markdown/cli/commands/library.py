@@ -318,37 +318,48 @@ def library_search(
                 desc_match = query_lower in description.lower() if description else False
 
             if name_match or manufacturer_match or device_match or desc_match:
-                matches.append({
-                    "name": name,
-                    "file": lib_file.name,
-                    "doc": doc,
-                    "match_type": (
-                        "name" if name_match
-                        else "manufacturer" if manufacturer_match
-                        else "device" if device_match
-                        else "description"
-                    ),
-                })
+                matches.append(
+                    {
+                        "name": name,
+                        "file": lib_file.name,
+                        "doc": doc,
+                        "match_type": (
+                            "name"
+                            if name_match
+                            else "manufacturer"
+                            if manufacturer_match
+                            else "device"
+                            if device_match
+                            else "description"
+                        ),
+                    }
+                )
         except Exception:
             # If parsing fails, still search by name
             if query_lower in name.lower():
-                matches.append({
-                    "name": name,
-                    "file": lib_file.name,
-                    "doc": None,
-                    "match_type": "name",
-                })
+                matches.append(
+                    {
+                        "name": name,
+                        "file": lib_file.name,
+                        "doc": None,
+                        "match_type": "name",
+                    }
+                )
 
     # Display results
     console.print()
     if not matches:
         console.print(f"[yellow]No libraries found matching:[/yellow] [bold]{query}[/bold]")
         console.print()
-        console.print("[dim]💡 Try different search terms or use[/dim] [cyan]midimarkup library list[/cyan]")
+        console.print(
+            "[dim]💡 Try different search terms or use[/dim] [cyan]midimarkup library list[/cyan]"
+        )
         console.print()
         return
 
-    console.print(f"[green]Found {len(matches)} matching librar{'y' if len(matches) == 1 else 'ies'}:[/green]")
+    console.print(
+        f"[green]Found {len(matches)} matching librar{'y' if len(matches) == 1 else 'ies'}:[/green]"
+    )
     console.print()
 
     # Create results table
@@ -634,5 +645,7 @@ def library_install(
     console.print("  - Automatic dependency resolution")
     console.print("  - Version management")
     console.print()
-    console.print("[dim]Follow progress at:[/dim] [cyan]https://github.com/cjgdev/midi-markdown/issues[/cyan]")
+    console.print(
+        "[dim]Follow progress at:[/dim] [cyan]https://github.com/cjgdev/midi-markdown/issues[/cyan]"
+    )
     console.print()

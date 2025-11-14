@@ -81,9 +81,7 @@ class WaveGenerator:
                 f"Invalid wave_type '{wave_type}'. "
                 "Must be 'sine', 'triangle', 'square', or 'sawtooth'"
             )
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         self.wave_type = wave_type
         self.frequency_hz = float(frequency_hz)

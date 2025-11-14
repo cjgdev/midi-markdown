@@ -168,7 +168,7 @@ class REPLState:
             if isinstance(ts, str) and "/" in ts:
                 numerator, denominator = ts.split("/")
                 self.time_signature = (int(numerator), int(denominator))
-            elif isinstance(ts, (list, tuple)):
+            elif isinstance(ts, list | tuple):
                 # Expect time signature as [numerator, denominator]
                 if len(ts) >= 2:
                     self.time_signature = (int(ts[0]), int(ts[1]))
