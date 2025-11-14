@@ -10,7 +10,6 @@ from __future__ import annotations
 import sys
 from contextlib import contextmanager
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from lark.exceptions import UnexpectedCharacters, UnexpectedInput, UnexpectedToken
@@ -21,6 +20,8 @@ from midi_markdown.expansion.errors import ExpansionError
 from midi_markdown.utils.validation.errors import ValidationError
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from midi_markdown.runtime.player import RealtimePlayer
 
 

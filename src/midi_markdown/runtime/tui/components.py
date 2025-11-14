@@ -13,7 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 from rich.panel import Panel
-from rich.progress import BarColumn, Progress, TaskID, TextColumn
+from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
 from rich.text import Text
 
@@ -63,7 +63,7 @@ def render_progress_bar(position_ms: float, total_duration_ms: float) -> Progres
     current_time = f"{current_sec // 60:02d}:{current_sec % 60:02d}"
     total_time = f"{total_sec // 60:02d}:{total_sec % 60:02d}"
 
-    task_id: TaskID = progress.add_task(
+    progress.add_task(
         f"[cyan]{current_time}[/cyan] / {total_time}",
         total=total_duration_ms,
         completed=position_ms,

@@ -36,14 +36,16 @@ class VersionBumper:
         content = self.pyproject_path.read_text()
         match = re.search(r'^version\s*=\s*"([^"]+)"', content, re.MULTILINE)
         if not match:
-            raise ValueError("Could not find version in pyproject.toml")
+            msg = "Could not find version in pyproject.toml"
+            raise ValueError(msg)
         return match.group(1)
 
     def parse_version(self, version: str) -> tuple[int, int, int]:
         """Parse semantic version string into tuple."""
         match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:-.*)?$", version)
         if not match:
-            raise ValueError(f"Invalid semantic version: {version}")
+            msg = f"Invalid semantic version: {version}"
+            raise ValueError(msg)
         return int(match.group(1)), int(match.group(2)), int(match.group(3))
 
     def bump_version(self, current: str, bump_type: str) -> str:
@@ -73,7 +75,6 @@ class VersionBumper:
             flags=re.MULTILINE,
         )
         self.pyproject_path.write_text(updated)
-        print(f"✓ Updated {self.pyproject_path}")
 
     def update_init(self, new_version: str) -> None:
         """Update version in __init__.py."""
@@ -86,7 +87,6 @@ class VersionBumper:
             flags=re.MULTILINE,
         )
         self.init_path.write_text(updated)
-        print(f"✓ Updated {self.init_path}")
 
     def update_changelog(self, new_version: str) -> None:
         """Update CHANGELOG.md with new version section."""
@@ -95,7 +95,6 @@ class VersionBumper:
 
         # Check if version already exists
         if f"## [{new_version}]" in content:
-            print(f"⚠ Version {new_version} already exists in CHANGELOG.md")
             return
 
         # Replace [Unreleased] with new version section
@@ -105,7 +104,6 @@ class VersionBumper:
         if match:
             unreleased_content = match.group(1).strip()
             if not unreleased_content or unreleased_content == "":
-                print("⚠ No unreleased changes found in CHANGELOG.md")
                 unreleased_content = "### Changed\n- Version bump"
 
             new_section = f"""## [Unreleased]
@@ -126,9 +124,8 @@ class VersionBumper:
             updated = self._update_changelog_links(updated, new_version)
 
             self.changelog_path.write_text(updated)
-            print(f"✓ Updated {self.changelog_path}")
         else:
-            print("⚠ Could not find [Unreleased] section in CHANGELOG.md")
+            pass
 
     def _update_changelog_links(self, content: str, new_version: str) -> str:
         """Update version comparison links in CHANGELOG.md."""
@@ -167,33 +164,24 @@ class VersionBumper:
         ]
 
         commands = [
-            ["git", "add"] + files,
+            ["git", "add", *files],
             ["git", "commit", "-m", f"Release version {version}"],
             ["git", "tag", "-a", f"v{version}", "-m", f"Release {version}"],
         ]
 
         if dry_run:
-            print("\n🔍 Dry run - would execute:")
             for cmd in commands:
-                print(f"  {' '.join(cmd)}")
-            print(f"\nTo push: git push origin main && git push origin v{version}")
+                pass
             return
 
         for cmd in commands:
             try:
-                result = subprocess.run(
+                subprocess.run(
                     cmd, cwd=self.project_root, capture_output=True, text=True, check=True
                 )
-                print(f"✓ {' '.join(cmd[:2])}")
-            except subprocess.CalledProcessError as e:
-                print(f"✗ Failed: {' '.join(cmd)}")
-                print(f"  Error: {e.stderr}")
+            except subprocess.CalledProcessError:
                 sys.exit(1)
 
-        print(f"\n✅ Version {version} committed and tagged!")
-        print("\nTo push changes:")
-        print("  git push origin main")
-        print(f"  git push origin v{version}")
 
 
 def main() -> None:
@@ -248,41 +236,30 @@ Examples:
     try:
         # Get current version
         current = bumper.get_current_version()
-        print(f"Current version: {current}")
 
         # Calculate new version
         new_version = bumper.bump_version(current, version_arg)
-        print(f"New version: {new_version}")
 
         if args.dry_run:
-            print("\n🔍 Dry run mode - no files will be modified")
             return
 
         # Confirm
         response = input(f"\nBump version {current} -> {new_version}? [y/N] ")
         if response.lower() not in ["y", "yes"]:
-            print("Aborted.")
             sys.exit(0)
 
         # Update files
-        print("\nUpdating files...")
         bumper.update_pyproject(new_version)
         bumper.update_init(new_version)
         bumper.update_changelog(new_version)
 
         # Git operations
         if not args.no_git:
-            print("\nCreating git commit and tag...")
             bumper.git_commit_and_tag(new_version, dry_run=args.dry_run)
         else:
-            print("\n⚠ Skipping git operations (--no-git)")
-            print("Don't forget to commit and tag manually:")
-            print("  git add pyproject.toml src/midi_markdown/__init__.py CHANGELOG.md")
-            print(f"  git commit -m 'Release version {new_version}'")
-            print(f"  git tag -a v{new_version} -m 'Release {new_version}'")
+            pass
 
-    except Exception as e:
-        print(f"✗ Error: {e}", file=sys.stderr)
+    except Exception:
         sys.exit(1)
 
 

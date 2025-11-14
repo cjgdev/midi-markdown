@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..core.ir import EventType, IRProgram, MIDIEvent
+    from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
 
 
 def export_to_csv(ir_program: IRProgram, include_header: bool = True) -> str:
@@ -85,9 +85,7 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
 
     # Channel voice events (note_on, note_off, cc, pc, pitch_bend, etc.)
     if (
-        event_type_name == "note_on"
-        or event_type_name == "note_off"
-        or event_type_name == "control_change"
+        event_type_name in {"note_on", "note_off", "control_change"}
     ):
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
 
@@ -164,9 +162,7 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
 
     # System common messages
     if (
-        event_type_name == "mtc_quarter_frame"
-        or event_type_name == "song_position"
-        or event_type_name == "song_select"
+        event_type_name in {"mtc_quarter_frame", "song_position", "song_select"}
     ):
         return f"{track}, {time}, {event_name}, {event.data1}"
 
@@ -187,7 +183,7 @@ def _event_type_to_midicsv_name(event_type: EventType) -> str:
         Channel events get "_c" suffix (e.g., "Note_on_c")
         Meta events use simple names (e.g., "Tempo")
     """
-    from ..core.ir import EventType
+    from midi_markdown.core.ir import EventType
 
     # Channel voice messages (all get "_c" suffix)
     channel_events = {

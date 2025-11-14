@@ -13,7 +13,7 @@ class TestValidator:
     # ============================================
 
     @pytest.mark.parametrize(
-        "value,min_val,max_val",
+        ("value", "min_val", "max_val"),
         [
             (0, 0, 127),  # Default range min
             (64, 0, 127),  # Default range mid
@@ -29,7 +29,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,min_val,max_val,error_match",
+        ("value", "min_val", "max_val", "error_match"),
         [
             (-1, 0, 127, "out of range"),  # Below default range
             (128, 0, 127, "out of range"),  # Above default range
@@ -63,7 +63,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (0, "out of range"),  # Below range
             (17, "out of range"),  # Above range
@@ -82,7 +82,7 @@ class TestValidator:
     # ============================================
 
     @pytest.mark.parametrize(
-        "note,expected",
+        ("note", "expected"),
         [
             (0, 0),  # Min note number
             (60, 60),  # Middle C
@@ -99,7 +99,7 @@ class TestValidator:
         assert Validator.validate_note(note) == expected
 
     @pytest.mark.parametrize(
-        "note,error_match",
+        ("note", "error_match"),
         [
             (-1, "out of range"),  # Below range
             (128, "out of range"),  # Above range
@@ -132,7 +132,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-1, "out of range"),  # Below range
             (128, "out of range"),  # Above range
@@ -163,7 +163,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-1, "out of range"),  # Below range
             (128, "out of range"),  # Above range
@@ -192,7 +192,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-1, "out of range"),  # Below range
             (128, "out of range"),  # Above range
@@ -223,7 +223,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-1, "out of range"),  # Below range
             (128, "out of range"),  # Above range
@@ -252,7 +252,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-8193, "out of range"),  # Below range
             (8192, "out of range"),  # Above range
@@ -283,7 +283,7 @@ class TestValidator:
         # Should not raise
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (0, "out of range"),  # Zero
             (301, "out of range"),  # Above max

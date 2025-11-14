@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -11,6 +10,9 @@ from typer.testing import CliRunner
 
 from midi_markdown.cli.main import app
 from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 runner = CliRunner()
 
@@ -98,8 +100,7 @@ class TestPlayCLI:
         result = runner.invoke(app, ["play", "--list-ports"])
 
         if result.exit_code != 0:
-            print(f"Exit code: {result.exit_code}")
-            print(f"Output: {result.output}")
+            pass
         assert result.exit_code == 0
         assert "Available MIDI output ports" in result.output
         assert "Test Port 1" in result.output
@@ -178,7 +179,8 @@ class TestPlayCLI:
 
         # Mock RealtimePlayer to raise exception
         def mock_player_error(ir_program: Any, port: Any) -> None:
-            raise RuntimeError("Port 'Test Port' not found")
+            msg = "Port 'Test Port' not found"
+            raise RuntimeError(msg)
 
         monkeypatch.setattr(play_module, "RealtimePlayer", mock_player_error)
 

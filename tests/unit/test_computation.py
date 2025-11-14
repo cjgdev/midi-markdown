@@ -24,7 +24,7 @@ class TestSafeComputationEngine:
     # ============================================
 
     @pytest.mark.parametrize(
-        "expression,expected",
+        ("expression", "expected"),
         [
             ("10 + 5", 15),
             ("20 - 8", 12),
@@ -86,7 +86,7 @@ class TestSafeComputationEngine:
     # ============================================
 
     @pytest.mark.parametrize(
-        "expression,expected",
+        ("expression", "expected"),
         [
             ("int(3.7)", 3),
             ("int(-2.5)", -2),

@@ -119,7 +119,8 @@ class MMDTransformer(Transformer):
             self.symbol_table.define(var_name, resolved_value)
         except ValueError as e:
             # Re-raise with line number if available
-            raise ValueError(f"Error in @define {var_name}: {e}")
+            msg = f"Error in @define {var_name}: {e}"
+            raise ValueError(msg)
 
         # Still return tuple for doc.defines
         return ("define", var_name, resolved_value)
@@ -204,7 +205,7 @@ class MMDTransformer(Transformer):
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
                 return Timing("relative", value, raw)
-            elif len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
+            if len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
                 # Duration tuple (number, unit) from duration transformer
                 num, unit = value
                 raw = f"[+{int(num) if num == int(num) else num}{unit}]"
@@ -363,7 +364,7 @@ class MMDTransformer(Transformer):
             unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             # Return tuple to avoid string unpacking by @v_args(inline=True)
             return (float(number) if isinstance(number, (int, float)) else number, unit)
-        elif len(children) == 1:
+        if len(children) == 1:
             # variable_ref or param_ref - return as-is
             return children[0]
         return (1.0, "b")  # Default
@@ -587,10 +588,7 @@ class MMDTransformer(Transformer):
         """
         # If we get a list (from sysex_bytes), it's already been processed
         # If we get individual tokens, collect them
-        if len(args) == 1 and isinstance(args[0], list):
-            hex_bytes = args[0]
-        else:
-            hex_bytes = args
+        hex_bytes = args[0] if len(args) == 1 and isinstance(args[0], list) else args
         return MIDICommand(type="sysex", params={"bytes": [str(b) for b in hex_bytes]})
 
     def channel_reset(self, *args):
@@ -694,7 +692,7 @@ class MMDTransformer(Transformer):
 
         # Parse remaining arguments
         for arg in args[2:]:
-            if isinstance(arg, str) and (arg.startswith('"') or arg.startswith("'")):
+            if isinstance(arg, str) and (arg.startswith(('"', "'"))):
                 description = arg.strip("\"'")
             elif isinstance(arg, dict):
                 computed = arg
@@ -714,8 +712,7 @@ class MMDTransformer(Transformer):
         # Lark passes the regex match as multiple args (one per character)
         # Rejoin them to get the full command string
         # The args tuple contains the matched text from the regex: /[^\n]+/
-        command_str = "".join(str(arg) for arg in args).strip()
-        return command_str
+        return "".join(str(arg) for arg in args).strip()
 
     def alias_body_content(self, *items):
         """Handle alias_body_content - unwrap the single child.
@@ -898,7 +895,8 @@ class MMDTransformer(Transformer):
             Dict with 'left', 'operator', 'right' keys
         """
         if len(args) != 3:
-            raise ValueError(f"Expected 3 args for alias_condition, got {len(args)}: {args}")
+            msg = f"Expected 3 args for alias_condition, got {len(args)}: {args}"
+            raise ValueError(msg)
 
         left_arg = args[0]
         operator_arg = args[1]
@@ -1046,10 +1044,7 @@ class MMDTransformer(Transformer):
 
         # Rest are statements (now properly transformed via loop_body)
         # If we have a list (from loop_body), use it; otherwise collect remaining args
-        if i < len(args) and isinstance(args[i], list):
-            statements = args[i]
-        else:
-            statements = list(args[i:])
+        statements = args[i] if i < len(args) and isinstance(args[i], list) else list(args[i:])
 
         return {
             "type": "loop",
@@ -1302,17 +1297,20 @@ class MMDTransformer(Transformer):
                 control_points = None
             elif len(curve_type_arg.children) == 0:
                 # Empty tree - shouldn't happen with updated grammar
-                raise ValueError(f"Unexpected empty curve_type tree: {curve_type_arg}")
+                msg = f"Unexpected empty curve_type tree: {curve_type_arg}"
+                raise ValueError(msg)
             else:
                 # Shouldn't happen, but handle gracefully
-                raise ValueError(f"Unexpected curve_type structure: {curve_type_arg}")
+                msg = f"Unexpected curve_type structure: {curve_type_arg}"
+                raise ValueError(msg)
         elif isinstance(curve_type_arg, Token):
             # Direct Token (CURVE_TYPE_NAME from updated grammar)
             curve_type = str(curve_type_arg)
             control_points = None
         else:
             # Unknown type
-            raise ValueError(f"Unexpected curve_type type: {type(curve_type_arg)}")
+            msg = f"Unexpected curve_type type: {type(curve_type_arg)}"
+            raise ValueError(msg)
 
         return CurveExpression(
             start_value=start_value,
@@ -1748,17 +1746,18 @@ class MMDTransformer(Transformer):
             input_params.update(self.symbol_table.CONSTANTS)
 
             # Evaluate the expression
-            result = self.computation_engine.evaluate_expression(python_expr, input_params)
+            return self.computation_engine.evaluate_expression(python_expr, input_params)
 
             # Return the result (SafeComputationEngine handles int/float conversion)
-            return result
 
         except ComputationError as e:
             # Enhance error message with context
-            raise ValueError(f"Expression evaluation error: {e}") from e
+            msg = f"Expression evaluation error: {e}"
+            raise ValueError(msg) from e
         except Exception as e:
             # Catch any other errors and provide helpful message
-            raise ValueError(f"Failed to evaluate expression: {e}") from e
+            msg = f"Failed to evaluate expression: {e}"
+            raise ValueError(msg) from e
 
     def _parse_absolute_time(self, time_str: str) -> float:
         """Parse mm:ss.mmm format to seconds"""
@@ -1920,15 +1919,14 @@ class MMDTransformer(Transformer):
         ):
             return value
 
-        if isinstance(value, str):
-            if value.startswith("+") or value.startswith("-"):
-                # String with explicit sign: treat as offset from center
-                return int(value)
+        if isinstance(value, str) and (value.startswith(("+", "-"))):
+            # String with explicit sign: treat as offset from center
+            return int(value)
 
         # Convert to int and return as-is (let validator check range)
         return int(value)
 
-    def _extract_params(self, template) -> List[Dict[str, Any]]:
+    def _extract_params(self, template) -> list[dict[str, Any]]:
         """
         Extract parameter definitions from alias template string.
 
@@ -1956,7 +1954,7 @@ class MMDTransformer(Transformer):
 
         return params
 
-    def _parse_single_param_spec(self, spec: str) -> Dict[str, Any]:
+    def _parse_single_param_spec(self, spec: str) -> dict[str, Any]:
         """
         Parse a single parameter specification string.
 
@@ -2010,7 +2008,7 @@ class MMDTransformer(Transformer):
             # Check if type_spec is a range (INT-INT)
             # Use regex to properly handle negative numbers
             import re
-            range_match = re.match(r'^(-?\d+)\s*-\s*(-?\d+)$', type_spec.strip())
+            range_match = re.match(r"^(-?\d+)\s*-\s*(-?\d+)$", type_spec.strip())
             if range_match:
                 # Parse range: 0-127, -24-24, etc.
                 min_val, max_val = range_match.groups()
@@ -2038,7 +2036,7 @@ class MMDTransformer(Transformer):
 
         return param
 
-    def _parse_params(self, params_tree) -> List[Dict[str, Any]]:
+    def _parse_params(self, params_tree) -> list[dict[str, Any]]:
         """
         Parse parameter specifications from Lark tree (for macro aliases).
 
@@ -2055,7 +2053,7 @@ class MMDTransformer(Transformer):
 
         return params
 
-    def _parse_param_spec_tree(self, param_spec_tree) -> Dict[str, Any]:
+    def _parse_param_spec_tree(self, param_spec_tree) -> dict[str, Any]:
         """
         Parse a param_spec tree node into a parameter dictionary.
 
@@ -2085,7 +2083,7 @@ class MMDTransformer(Transformer):
                 # Check if it's a range (contains hyphen)
                 # Use regex to properly handle negative numbers
                 import re
-                range_match = re.match(r'^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$', child_value.strip())
+                range_match = re.match(r"^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$", child_value.strip())
                 if range_match:
                     # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0", "-24-24")
                     param["type"] = "range"

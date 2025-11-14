@@ -68,7 +68,8 @@ class LoopInterval:
             total_beats = (bars * beats_per_bar) + beats
             return int((total_beats * ppq) + ticks)
 
-        raise ValueError(f"Unknown interval type: {self.interval_type}")
+        msg = f"Unknown interval type: {self.interval_type}"
+        raise ValueError(msg)
 
 
 @dataclass
@@ -186,9 +187,8 @@ class LoopExpander:
             event["time"] = time
 
             # Resolve any variable references in the command
-            event = self._resolve_command_variables(event, symbols)
+            return self._resolve_command_variables(event, symbols)
 
-            return event
 
         # If command is a tree, it needs to be converted by the parser
         # For now, return None - this will be handled by EventGenerator integration
@@ -262,7 +262,8 @@ def parse_interval(interval_str: str | tuple) -> LoopInterval:
             # Convert tuple to string format: "value+unit"
             interval_str = f"{value}{unit}"
         else:
-            raise ValueError(f"Invalid interval format: {interval_str}")
+            msg = f"Invalid interval format: {interval_str}"
+            raise ValueError(msg)
 
     interval_str = interval_str.strip().lower()
 
@@ -278,38 +279,41 @@ def parse_interval(interval_str: str | tuple) -> LoopInterval:
                 ticks = int(parts[2])
                 return LoopInterval(value=(bars, beats, ticks), interval_type=IntervalType.BBT)
             except ValueError:
-                raise ValueError(f"Invalid BBT format: {interval_str}")
+                msg = f"Invalid BBT format: {interval_str}"
+                raise ValueError(msg)
 
     # Milliseconds: ends with 'ms'
     if interval_str.endswith("ms"):
         try:
             value = float(interval_str[:-2])
             if value <= 0:
-                raise ValueError(f"Duration must be positive, got {value}ms")
+                msg = f"Duration must be positive, got {value}ms"
+                raise ValueError(msg)
             return LoopInterval(value=value, interval_type=IntervalType.MILLISECONDS)
         except ValueError as e:
             if "positive" in str(e):
                 raise  # Re-raise our custom error
-            raise ValueError(f"Invalid milliseconds format: {interval_str}") from e
+            msg = f"Invalid milliseconds format: {interval_str}"
+            raise ValueError(msg) from e
 
     # Ticks: ends with 't' or 'ticks'
-    if interval_str.endswith("t") or interval_str.endswith("ticks"):
+    if interval_str.endswith(("t", "ticks")):
         suffix = "t" if interval_str.endswith("t") else "ticks"
         try:
             value = float(interval_str[: -len(suffix)].strip())
             if value <= 0:
-                raise ValueError(f"Duration must be positive, got {value}t")
+                msg = f"Duration must be positive, got {value}t"
+                raise ValueError(msg)
             return LoopInterval(value=value, interval_type=IntervalType.TICKS)
         except ValueError as e:
             if "positive" in str(e):
                 raise  # Re-raise our custom error
-            raise ValueError(f"Invalid ticks format: {interval_str}") from e
+            msg = f"Invalid ticks format: {interval_str}"
+            raise ValueError(msg) from e
 
     # Beats: ends with 'b' or 'beats' or 'beat'
     if (
-        interval_str.endswith("b")
-        or interval_str.endswith("beats")
-        or interval_str.endswith("beat")
+        interval_str.endswith(("b", "beats", "beat"))
     ):
         suffix = (
             "b"
@@ -319,20 +323,24 @@ def parse_interval(interval_str: str | tuple) -> LoopInterval:
         try:
             value = float(interval_str[: -len(suffix)].strip())
             if value <= 0:
-                raise ValueError(f"Duration must be positive, got {value}b")
+                msg = f"Duration must be positive, got {value}b"
+                raise ValueError(msg)
             return LoopInterval(value=value, interval_type=IntervalType.BEATS)
         except ValueError as e:
             if "positive" in str(e):
                 raise  # Re-raise our custom error
-            raise ValueError(f"Invalid beats format: {interval_str}") from e
+            msg = f"Invalid beats format: {interval_str}"
+            raise ValueError(msg) from e
 
     # Default: try to parse as number of beats
     try:
         value = float(interval_str)
         if value <= 0:
-            raise ValueError(f"Duration must be positive, got {value}")
+            msg = f"Duration must be positive, got {value}"
+            raise ValueError(msg)
         return LoopInterval(value=value, interval_type=IntervalType.BEATS)
     except ValueError as e:
         if "positive" in str(e):
             raise  # Re-raise our custom error
-        raise ValueError(f"Invalid interval format: {interval_str}") from e
+        msg = f"Invalid interval format: {interval_str}"
+        raise ValueError(msg) from e

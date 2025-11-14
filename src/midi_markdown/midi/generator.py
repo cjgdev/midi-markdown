@@ -5,12 +5,15 @@ Writes MIDI events to standard MIDI files.
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from mido import Message, MetaMessage, MidiFile, MidiTrack
 
 from midi_markdown.constants import DEFAULT_PPQ, MIDI_FORMAT_MULTI_TRACK
 from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class MIDIGenerator:

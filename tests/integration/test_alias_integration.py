@@ -154,7 +154,6 @@ title: Timing Test
         assert cc_events[1].time == 0
 
         # Second two CCs should be at 1 second (480 ticks at 120 BPM, 480 PPQ)
-        expected_time = 480  # 1 second at 120 BPM = 2 beats = 960 ticks
         # Actually: 1 second = 60/120 * 2 = 1 beat... wait let me recalculate
         # At 120 BPM: 1 beat = 0.5 seconds, so 1 second = 2 beats = 2 * 480 = 960 ticks
         assert cc_events[2].time == 960

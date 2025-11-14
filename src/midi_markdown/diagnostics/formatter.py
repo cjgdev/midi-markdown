@@ -9,7 +9,7 @@ from rich.table import Table
 from rich.text import Text
 
 if TYPE_CHECKING:
-    from ..core.ir import EventType, IRProgram, MIDIEvent
+    from midi_markdown.core.ir import EventType, IRProgram, MIDIEvent
 
 
 def display_events_table(
@@ -114,7 +114,7 @@ def format_event_details(event: MIDIEvent) -> str:
     """
     event_type = event.type.name.lower()
 
-    if event_type == "note_on" or event_type == "note_off":
+    if event_type in {"note_on", "note_off"}:
         note_name = _note_number_to_name(event.data1)
         return f"{note_name} (#{event.data1}) vel:{event.data2}"
 
@@ -149,7 +149,7 @@ def format_event_details(event: MIDIEvent) -> str:
             return f"{num}/{denom}"
         return f"{event.data1}/{2**event.data2 if event.data2 else 4}"
 
-    if event_type == "marker" or event_type == "text":
+    if event_type in {"marker", "text"}:
         text = event.metadata.get("text", "") if event.metadata else ""
         return f'"{text}"'
 

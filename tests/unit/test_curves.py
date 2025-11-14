@@ -279,7 +279,7 @@ class TestBezierCurveEdgeCases:
 
         # Middle values might be wild, but should be finite
         mid = curve.interpolate(0.5)
-        assert not (mid != mid)  # Check not NaN
+        assert mid == mid  # Check not NaN
 
     def test_float_control_points(self):
         """Test curve with floating-point control points."""

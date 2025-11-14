@@ -6,13 +6,15 @@ compilation, validation, and other time-consuming operations.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from rich.console import Console
+
     from midi_markdown.parser.ast_nodes import MMDDocument
 
 

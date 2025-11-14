@@ -271,9 +271,11 @@ def validate_midi_value(
         ValueError: If value is out of range or not an integer
     """
     if not isinstance(value, int):
-        raise ValueError(f"{param_name} must be an integer")
+        msg = f"{param_name} must be an integer"
+        raise ValueError(msg)
     if not (min_val <= value <= max_val):
-        raise ValueError(f"{param_name} {value} out of range [{min_val}, {max_val}]")
+        msg = f"{param_name} {value} out of range [{min_val}, {max_val}]"
+        raise ValueError(msg)
     return True
 
 
@@ -295,15 +297,13 @@ def timing_to_ticks(
         # Convert seconds to ticks
         seconds = timing.value
         microseconds_per_quarter = 60_000_000 / tempo
-        ticks = int((seconds * 1_000_000) / microseconds_per_quarter * ppq)
-        return ticks
+        return int((seconds * 1_000_000) / microseconds_per_quarter * ppq)
 
     if timing.type == "musical":
         bar, beat, tick = timing.value
         # Calculate based on time signature
         beats_per_bar = time_signature[0]
-        ticks = ((bar - 1) * beats_per_bar + (beat - 1)) * ppq + tick
-        return ticks
+        return ((bar - 1) * beats_per_bar + (beat - 1)) * ppq + tick
 
     if timing.type == "relative":
         # Relative timing needs previous event context

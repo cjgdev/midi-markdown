@@ -89,7 +89,7 @@ class RecordingMIDIPort:
 
         # Match scheduled times to actual times
         latencies = []
-        for scheduled, recorded in zip(scheduled_times, messages):
+        for scheduled, recorded in zip(scheduled_times, messages, strict=False):
             latency = abs(recorded.actual_time_ms - scheduled)
             latencies.append(latency)
 
@@ -144,9 +144,6 @@ class TestSchedulerLatency:
         # Calculate statistics
         stats = port.get_latency_stats(scheduled_times)
 
-        print(f"\n10ms intervals - Avg latency: {stats['avg']:.2f}ms")
-        print(f"10ms intervals - Max latency: {stats['max']:.2f}ms")
-        print(f"10ms intervals - Events sent: {stats['count']}")
 
         # Verify targets
         assert stats["avg"] < 5.0, f"Average latency {stats['avg']:.2f}ms exceeds 5ms"
@@ -190,9 +187,6 @@ class TestSchedulerLatency:
 
         stats = port.get_latency_stats(scheduled_times)
 
-        print(f"\n5ms intervals - Avg latency: {stats['avg']:.2f}ms")
-        print(f"5ms intervals - Max latency: {stats['max']:.2f}ms")
-        print(f"5ms intervals - Events sent: {stats['count']}")
 
         assert stats["avg"] < 5.0, f"Average latency {stats['avg']:.2f}ms exceeds 5ms"
         assert stats["max"] < 10.0, f"Max latency {stats['max']:.2f}ms exceeds 10ms"
@@ -233,8 +227,6 @@ class TestSchedulerLatency:
 
         stats = port.get_latency_stats(scheduled_times)
 
-        print(f"\nSimultaneous events - Avg latency: {stats['avg']:.2f}ms")
-        print(f"Simultaneous events - Events sent: {stats['count']}")
 
         assert stats["avg"] < 5.0
         assert stats["count"] == 15  # 5 chords × 3 notes
@@ -277,11 +269,8 @@ class TestSchedulerPerformance:
         time.sleep(2.5)
         scheduler.stop()
 
-        elapsed = time.perf_counter() - start
+        time.perf_counter() - start
 
-        print(f"\nHigh density - Events sent: {len(port.messages)}")
-        print(f"High density - Time elapsed: {elapsed:.2f}s")
-        print(f"High density - Events/second: {len(port.messages) / elapsed:.1f}")
 
         # Should handle all events
         assert len(port.messages) >= 480, f"Only sent {len(port.messages)}/500 events"
@@ -318,7 +307,6 @@ class TestSchedulerPerformance:
         time.sleep(5.5)
         scheduler.stop()
 
-        print(f"\nLong sequence - Events sent: {len(port.messages)}/100")
 
         # Should complete most events (allow some margin)
         assert len(port.messages) >= 95
@@ -360,8 +348,7 @@ class TestSchedulerPauseResume:
         time.sleep(0.3)
         scheduler.pause()
 
-        events_before_pause = len(port.messages)
-        print(f"\nPause/Resume - Events before pause: {events_before_pause}")
+        len(port.messages)
 
         # Pause for 500ms
         time.sleep(0.5)
@@ -374,7 +361,6 @@ class TestSchedulerPauseResume:
         scheduler.stop()
 
         total_events = len(port.messages)
-        print(f"Pause/Resume - Total events sent: {total_events}/20")
 
         # Should have sent most events
         assert total_events >= 15

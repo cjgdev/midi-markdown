@@ -34,7 +34,6 @@ class TestCompilerPerformance:
 
         assert result is not None
         assert len(result.events) > 0
-        print(f"\nSmall compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_compile_medium_to_ir(self, benchmark, parsed_medium_document):
         """Benchmark AST → IR compilation for medium file.
@@ -45,7 +44,6 @@ class TestCompilerPerformance:
 
         assert result is not None
         assert len(result.events) > 0
-        print(f"\nMedium compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_compile_large_to_ir(self, benchmark, parsed_large_document):
         """Benchmark AST → IR compilation for large file.
@@ -56,7 +54,6 @@ class TestCompilerPerformance:
 
         assert result is not None
         assert len(result.events) > 0
-        print(f"\nLarge compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
 
 @pytest.mark.benchmark
@@ -72,7 +69,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0  # Should have MIDI bytes
-        print(f"\nSmall MIDI gen time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_generate_midi_file_medium(self, benchmark, medium_ir_program):
         """Benchmark IR → MIDI file generation for medium program.
@@ -83,7 +79,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nMedium MIDI gen time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_generate_midi_file_large(self, benchmark, large_ir_program):
         """Benchmark IR → MIDI file generation for large program.
@@ -94,7 +89,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nLarge MIDI gen time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_generate_csv_export(self, benchmark, medium_ir_program):
         """Benchmark CSV export generation.
@@ -105,7 +99,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nCSV export time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_generate_json_export(self, benchmark, medium_ir_program):
         """Benchmark JSON export generation.
@@ -116,7 +109,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nJSON export time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_generate_json_simplified_export(self, benchmark, medium_ir_program):
         """Benchmark simplified JSON export generation.
@@ -127,7 +119,6 @@ class TestCodegenPerformance:
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nJSON simplified export time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
 
 @pytest.mark.benchmark
@@ -145,14 +136,12 @@ class TestFullPipeline:
             parser = MMDParser()
             ast = parser.parse_file(str(small_mmd_file))
             ir = compile_ast_to_ir(ast, ppq=480)
-            midi_bytes = generate_midi_file(ir)
-            return midi_bytes
+            return generate_midi_file(ir)
 
         result = benchmark(full_pipeline)
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nSmall full pipeline time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_full_pipeline_medium(self, benchmark, medium_mmd_file):
         """Benchmark full pipeline for medium file.
@@ -165,14 +154,12 @@ class TestFullPipeline:
             parser = MMDParser()
             ast = parser.parse_file(str(medium_mmd_file))
             ir = compile_ast_to_ir(ast, ppq=480)
-            midi_bytes = generate_midi_file(ir)
-            return midi_bytes
+            return generate_midi_file(ir)
 
         result = benchmark(full_pipeline)
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nMedium full pipeline time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_full_pipeline_large(self, benchmark, large_mmd_file):
         """Benchmark full pipeline for large file.
@@ -185,14 +172,12 @@ class TestFullPipeline:
             parser = MMDParser()
             ast = parser.parse_file(str(large_mmd_file))
             ir = compile_ast_to_ir(ast, ppq=480)
-            midi_bytes = generate_midi_file(ir)
-            return midi_bytes
+            return generate_midi_file(ir)
 
         result = benchmark(full_pipeline)
 
         assert result is not None
         assert len(result) > 0
-        print(f"\nLarge full pipeline time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
 
 @pytest.mark.benchmark
@@ -227,7 +212,6 @@ ppq: 480
         result = benchmark(compile_ast_to_ir, ast, ppq=480)
 
         assert result is not None
-        print(f"\nMulti-track compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_compile_with_many_aliases(self, benchmark):
         """Benchmark compilation with heavy alias usage."""
@@ -255,7 +239,6 @@ ppq: 480
         result = benchmark(compile_ast_to_ir, ast, ppq=480)
 
         assert result is not None
-        print(f"\nAlias-heavy compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_compile_with_sweeps(self, benchmark):
         """Benchmark compilation with sweep automation."""
@@ -280,4 +263,3 @@ ppq: 480
 
         assert result is not None
         assert len(result.events) >= 200  # Should have generated sweep events
-        print(f"\nSweep compile time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")

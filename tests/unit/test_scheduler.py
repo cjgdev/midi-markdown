@@ -133,7 +133,6 @@ class TestEventScheduler:
         scheduler.load_events(events)
 
         scheduler.start()
-        first_start_time = scheduler.start_time
         first_state = scheduler.state
 
         time.sleep(0.05)
@@ -162,7 +161,6 @@ class TestEventScheduler:
         assert scheduler.state == "paused"
         assert scheduler.pause_time is not None
 
-        pause_start = scheduler.pause_time
         time.sleep(0.1)  # Paused for 100ms
 
         scheduler.resume()

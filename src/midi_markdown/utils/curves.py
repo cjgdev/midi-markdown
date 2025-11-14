@@ -116,14 +116,13 @@ class BezierCurve:
         t_cubed = t_squared * t
 
         # Apply Bezier formula
-        result = (
+        return (
             one_minus_t_cubed * self.p0
             + 3.0 * one_minus_t_squared * t * self.p1
             + 3.0 * one_minus_t * t_squared * self.p2
             + t_cubed * self.p3
         )
 
-        return result
 
     def __repr__(self) -> str:
         """String representation of the Bezier curve."""

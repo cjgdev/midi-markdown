@@ -87,7 +87,8 @@ class MMDParser:
             # The transformer should return an MMDDocument
             if isinstance(result, MMDDocument):
                 return result
-            raise ValueError(f"Parser did not return MMDDocument, got {type(result)}")
+            msg = f"Parser did not return MMDDocument, got {type(result)}"
+            raise ValueError(msg)
         except Exception as e:
             self._format_parse_error(e, content, filename)
             raise
@@ -128,7 +129,7 @@ class MMDParser:
         except UnexpectedToken as e:
             # Check if this is incomplete input (unexpected end of input)
             # Lark signals end-of-input with token type '$END' or empty token
-            if e.token is None or e.token.type == "$END" or e.token.type == "":
+            if e.token is None or e.token.type in {"$END", ""}:
                 return False, None
             # Otherwise it's a complete but invalid input
             return True, e
@@ -144,12 +145,8 @@ class MMDParser:
         # Extract line information if available
         if hasattr(error, "line") and hasattr(error, "column"):
             lines = content.split("\n")
-            error_line = lines[error.line - 1] if error.line <= len(lines) else ""
+            lines[error.line - 1] if error.line <= len(lines) else ""
 
-            print(f"\nError: Parse error at line {error.line}:{error.column} in {filename}")
-            print(f"  {error_line}")
-            print(f"  {' ' * (error.column - 1)}^")
-            print(f"\n{error}")
 
 
 # ============================================================================

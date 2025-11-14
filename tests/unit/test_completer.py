@@ -502,7 +502,7 @@ class TestContextAwareCompletion:
         # Variable reference closed - should not suggest variables
         doc2 = Document("- cc 1.10.${velocity} ", cursor_position=22)
         completions2 = list(completer.get_completions(doc2, None))
-        completion_texts2 = [c.text for c in completions2]
+        [c.text for c in completions2]
 
         # After closing }, back to MIDI command context
         assert any(c.text in ["note_on", "cc", "pc"] for c in completions2)

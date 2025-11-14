@@ -5,8 +5,7 @@ from __future__ import annotations
 import sys
 import threading
 import time
-from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from rich.console import Console
@@ -22,6 +21,9 @@ from midi_markdown.runtime.tui import (
     TUIDisplayManager,
     TUIState,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def play(

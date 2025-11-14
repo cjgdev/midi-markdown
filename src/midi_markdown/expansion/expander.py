@@ -10,7 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ..alias.computation import ComputationError, SafeComputationEngine
+from midi_markdown.alias.computation import ComputationError, SafeComputationEngine
+
 from .errors import (
     ExpansionError,
     InvalidLoopConfigError,
@@ -162,27 +163,19 @@ class CommandExpander:
 
     def _is_define_node(self, node: Any) -> bool:
         """Check if node is a @define statement."""
-        if isinstance(node, dict) and node.get("type") == "define":
-            return True
-        return False
+        return bool(isinstance(node, dict) and node.get("type") == "define")
 
     def _is_loop_node(self, node: Any) -> bool:
         """Check if node is a @loop statement."""
-        if isinstance(node, dict) and node.get("type") == "loop":
-            return True
-        return False
+        return bool(isinstance(node, dict) and node.get("type") == "loop")
 
     def _is_sweep_node(self, node: Any) -> bool:
         """Check if node is a @sweep statement."""
-        if isinstance(node, dict) and node.get("type") == "sweep":
-            return True
-        return False
+        return bool(isinstance(node, dict) and node.get("type") == "sweep")
 
     def _is_timed_event_node(self, node: Any) -> bool:
         """Check if node is a timed event block."""
-        if isinstance(node, dict) and node.get("type") == "timed_event":
-            return True
-        return False
+        return bool(isinstance(node, dict) and node.get("type") == "timed_event")
 
     def _is_command_node(self, node: Any) -> bool:
         """Check if node is a MIDI command."""
@@ -225,8 +218,9 @@ class CommandExpander:
         line = node.get("line", 0)
 
         if not name:
+            msg = "Define statement missing variable name"
             raise ExpansionError(
-                "Define statement missing variable name", line=line, file=self.source_file
+                msg, line=line, file=self.source_file
             )
 
         try:
@@ -238,8 +232,9 @@ class CommandExpander:
             self.stats.defines_processed += 1
 
         except Exception as e:
+            msg = f"Failed to process @define {name}: {e}"
             raise ExpansionError(
-                f"Failed to process @define {name}: {e}", line=line, file=self.source_file
+                msg, line=line, file=self.source_file
             ) from e
 
     def _resolve_value(self, value: Any) -> Any:
@@ -307,7 +302,8 @@ class CommandExpander:
                 return left * right
             if op == "div":
                 if right == 0:
-                    raise ExpansionError("Division by zero")
+                    msg = "Division by zero"
+                    raise ExpansionError(msg)
                 return left / right
             if op == "mod":
                 return left % right
@@ -339,11 +335,11 @@ class CommandExpander:
             input_params.update(self.symbol_table.CONSTANTS)
 
             # Evaluate
-            result = self.computation_engine.evaluate_expression(python_expr, input_params)
-            return result
+            return self.computation_engine.evaluate_expression(python_expr, input_params)
 
         except ComputationError as e:
-            raise ExpansionError(f"Expression evaluation failed: {e}") from e
+            msg = f"Expression evaluation failed: {e}"
+            raise ExpansionError(msg) from e
 
     # ========================================================================
     # Pass 2: Loop Processing
@@ -367,8 +363,9 @@ class CommandExpander:
 
         # Validate count
         if count <= 0:
+            msg = f"Loop count must be positive, got {count}"
             raise InvalidLoopConfigError(
-                f"Loop count must be positive, got {count}",
+                msg,
                 line=line,
                 file=self.source_file,
                 suggestion="Use a positive integer for loop count",
@@ -383,8 +380,9 @@ class CommandExpander:
             try:
                 interval = parse_interval(interval_spec)
             except ValueError as e:
+                msg = f"Invalid loop interval: {e}"
                 raise InvalidLoopConfigError(
-                    f"Invalid loop interval: {e}", line=line, file=self.source_file
+                    msg, line=line, file=self.source_file
                 ) from e
 
         # Determine start time
@@ -444,8 +442,9 @@ class CommandExpander:
             self.current_time = start_time + (count * interval_ticks)
 
         except Exception as e:
+            msg = f"Loop expansion failed: {e}"
             raise InvalidLoopConfigError(
-                f"Loop expansion failed: {e}", line=line, file=self.source_file
+                msg, line=line, file=self.source_file
             ) from e
 
     # ========================================================================
@@ -476,8 +475,9 @@ class CommandExpander:
 
         # Validate times
         if end_time <= start_time:
+            msg = f"Sweep end time ({end_time}) must be after start time ({start_time})"
             raise InvalidSweepConfigError(
-                f"Sweep end time ({end_time}) must be after start time ({start_time})",
+                msg,
                 line=line,
                 file=self.source_file,
                 suggestion="Ensure sweep times are in chronological order",
@@ -490,8 +490,9 @@ class CommandExpander:
                 interval_spec, ppq=self.ppq, tempo=self.tempo, time_signature=self.time_signature
             )
         except ValueError as e:
+            msg = f"Invalid sweep interval: {e}"
             raise InvalidSweepConfigError(
-                f"Invalid sweep interval: {e}", line=line, file=self.source_file
+                msg, line=line, file=self.source_file
             ) from e
 
         # Calculate steps
@@ -571,8 +572,9 @@ class CommandExpander:
             self.current_time = end_time
 
         except Exception as e:
+            msg = f"Sweep expansion failed: {e}"
             raise InvalidSweepConfigError(
-                f"Sweep expansion failed: {e}", line=line, file=self.source_file
+                msg, line=line, file=self.source_file
             ) from e
 
     # ========================================================================
@@ -686,8 +688,9 @@ class CommandExpander:
                 try:
                     resolved[key] = self.random_expander.expand_random(value)
                 except (ValueError, TypeError) as e:
+                    msg = f"Failed to expand random expression: {e}"
                     raise ExpansionError(
-                        f"Failed to expand random expression: {e}",
+                        msg,
                         line=event.get("line", 0),
                         file=self.source_file,
                     ) from e
@@ -720,8 +723,9 @@ class CommandExpander:
                 try:
                     resolved.append(self.random_expander.expand_random(item))
                 except (ValueError, TypeError) as e:
+                    msg = f"Failed to expand random expression in list: {e}"
                     raise ExpansionError(
-                        f"Failed to expand random expression in list: {e}",
+                        msg,
                         line=0,
                         file=self.source_file,
                     ) from e
@@ -743,7 +747,7 @@ class CommandExpander:
         similar = []
         name_lower = name.lower()
 
-        for var_name in self.symbol_table.symbols.keys():
+        for var_name in self.symbol_table.symbols:
             if (
                 var_name.lower() == name_lower
                 or name_lower in var_name.lower()
@@ -921,7 +925,8 @@ class CommandExpander:
             # Validate channel
             channel = event.get("channel")
             if channel is not None and (channel < 1 or channel > 16):
-                raise ValueRangeError("channel", channel, 1, 16, line=line, file=self.source_file)
+                msg = "channel"
+                raise ValueRangeError(msg, channel, 1, 16, line=line, file=self.source_file)
 
             # Validate MIDI values (0-127)
             # Skip validation for event types with different ranges
@@ -929,8 +934,9 @@ class CommandExpander:
                 # Pitch bend has special range: -8192 to +8191
                 value = event.get("data1")
                 if value is not None and (value < -8192 or value > 8191):
+                    msg = "data1"
                     raise ValueRangeError(
-                        "data1", value, -8192, 8191, line=line, file=self.source_file
+                        msg, value, -8192, 8191, line=line, file=self.source_file
                     )
             elif event_type not in ["tempo", "marker", "text", "lyric", "time_signature"]:
                 for key in ["data1", "data2", "velocity", "note"]:
@@ -943,8 +949,9 @@ class CommandExpander:
                 prev_time = sorted_events[i - 1].get("time", 0)
                 curr_time = event.get("time", 0)
                 if curr_time < prev_time:
+                    msg = f"Event time {curr_time} is before previous event time {prev_time}"
                     raise TimingConflictError(
-                        f"Event time {curr_time} is before previous event time {prev_time}",
+                        msg,
                         event_time=curr_time,
                         line=line,
                         file=self.source_file,

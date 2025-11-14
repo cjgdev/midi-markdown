@@ -38,7 +38,8 @@ def note_to_midi(note_name: str) -> int:
         69
     """
     if not note_name:
-        raise ValueError("Note name cannot be empty")
+        msg = "Note name cannot be empty"
+        raise ValueError(msg)
 
     note_map = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 
@@ -46,7 +47,8 @@ def note_to_midi(note_name: str) -> int:
     base_note = note_name[0].upper()
 
     if base_note not in note_map:
-        raise ValueError(f"Invalid note name '{note_name}': base note must be A-G")
+        msg = f"Invalid note name '{note_name}': base note must be A-G"
+        raise ValueError(msg)
 
     octave_start = 1
     modifier = 0
@@ -62,19 +64,18 @@ def note_to_midi(note_name: str) -> int:
     # Get octave
     try:
         if octave_start >= len(note_name):
-            raise ValueError(f"Invalid note name '{note_name}': missing octave number")
+            msg = f"Invalid note name '{note_name}': missing octave number"
+            raise ValueError(msg)
 
         octave_str = note_name[octave_start:]
 
         # Handle negative octaves (e.g., C-1)
-        if octave_str.startswith("-"):
-            octave = int(octave_str)
-        else:
-            octave = int(octave_str)
+        octave = int(octave_str) if octave_str.startswith("-") else int(octave_str)
 
     except ValueError:
+        msg = f"Invalid note name '{note_name}': invalid octave '{note_name[octave_start:]}'"
         raise ValueError(
-            f"Invalid note name '{note_name}': invalid octave '{note_name[octave_start:]}'"
+            msg
         )
 
     # Calculate MIDI number (C4 = MIDI_MIDDLE_C = 60)
@@ -83,9 +84,12 @@ def note_to_midi(note_name: str) -> int:
 
     # Validate range
     if not (MIDI_NOTE_MIN <= midi_num <= MIDI_NOTE_MAX):
-        raise ValueError(
+        msg = (
             f"Note '{note_name}' (MIDI {midi_num}) is out of valid MIDI range "
             f"[{MIDI_NOTE_MIN}-{MIDI_NOTE_MAX}]. Valid octave range is -1 to 9."
+        )
+        raise ValueError(
+            msg
         )
 
     return midi_num
@@ -116,10 +120,12 @@ def percent_to_midi(value: int | float) -> int:
     try:
         numeric_value = float(value)
     except (ValueError, TypeError):
-        raise ValueError(f"Invalid percent value '{value}': must be a number")
+        msg = f"Invalid percent value '{value}': must be a number"
+        raise ValueError(msg)
 
     if not (0 <= numeric_value <= 100):
-        raise ValueError(f"Percent value {numeric_value} is out of valid range [0-100]")
+        msg = f"Percent value {numeric_value} is out of valid range [0-100]"
+        raise ValueError(msg)
 
     # Scale 0-100 to 0-127
     midi_value = int(numeric_value * 127 / 100)
@@ -169,7 +175,8 @@ def bool_to_midi(value: str | bool | int) -> int:
             return 127
         if value == 0:
             return 0
-        raise ValueError(f"Invalid boolean integer value {value}: must be 0 or 1")
+        msg = f"Invalid boolean integer value {value}: must be 0 or 1"
+        raise ValueError(msg)
 
     # Handle string type
     if isinstance(value, str):
@@ -183,12 +190,16 @@ def bool_to_midi(value: str | bool | int) -> int:
         if normalized in ("false", "off", "no", "0"):
             return 0
 
-        raise ValueError(
+        msg = (
             f"Invalid boolean string '{value}': must be one of "
             f"true/false, on/off, yes/no, or 1/0 (case-insensitive)"
         )
+        raise ValueError(
+            msg
+        )
 
     # Unknown type
+    msg = f"Invalid boolean value type {type(value).__name__}: expected bool, int, or str"
     raise ValueError(
-        f"Invalid boolean value type {type(value).__name__}: expected bool, int, or str"
+        msg
     )

@@ -30,7 +30,7 @@ title: Test BPM Conversion
 
         # Find the tempo_cc call
         event = doc.events[0]
-        alias_call = event["commands"][0]
+        event["commands"][0]
 
         # Resolve the alias
         expanded = resolver.resolve(

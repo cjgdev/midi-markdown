@@ -4,28 +4,29 @@ from __future__ import annotations
 
 import os
 import time
-from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from lark.exceptions import UnexpectedCharacters, UnexpectedToken
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from midi_markdown.constants import DEFAULT_TIME_SIGNATURE
-from midi_markdown.expansion.expander import CommandExpander
-
-from ..errors import (
+from midi_markdown.cli.errors import (
     show_expansion_error,
     show_parse_error,
     show_success,
     show_validation_error,
 )
-from ..progress import (
+from midi_markdown.cli.progress import (
     CompilationProgress,
     create_compilation_progress,
     should_show_progress,
 )
+from midi_markdown.constants import DEFAULT_TIME_SIGNATURE
+from midi_markdown.expansion.expander import CommandExpander
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def compile(
@@ -151,7 +152,7 @@ def compile(
 
     # Auto-detect limited console encodings (e.g., Windows charmap)
     # and disable emoji to prevent UnicodeEncodeError
-    from ..encoding_utils import should_disable_emoji
+    from midi_markdown.cli.encoding_utils import should_disable_emoji
 
     no_emoji = should_disable_emoji(no_emoji)
 
@@ -224,7 +225,7 @@ def compile(
             if isinstance(progress, CompilationProgress):
                 progress.parsing_complete()
             elif not verbose and hasattr(progress, "add_task"):
-                task = progress.add_task("Processing...", total=None)
+                progress.add_task("Processing...", total=None)
 
             # 2. Process imports (load device libraries)
             if doc.imports:
@@ -244,10 +245,13 @@ def compile(
                     # Check for conflicts with document's own aliases
                     for alias_name, alias_def in imported_aliases.items():
                         if alias_name in doc.aliases:
-                            raise Exception(
+                            msg = (
                                 f"Alias name conflict: '{alias_name}' is defined both in imported library "
                                 f"and in {input_file}\n\n"
                                 f"Suggestion: Rename the alias in your file or use a different device library."
+                            )
+                            raise Exception(
+                                msg
                             )
                         doc.aliases[alias_name] = alias_def
 
@@ -532,7 +536,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    print(csv_output)
+                    pass
                 else:
                     # Write to file
                     output.write_text(csv_output)
@@ -548,7 +552,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    print(json_output)
+                    pass
                 else:
                     # Write to file
                     output.write_text(json_output)
@@ -564,7 +568,7 @@ def compile(
 
                 if output is None:
                     # Write to stdout (plain print, no formatting)
-                    print(json_output)
+                    pass
                 else:
                     # Write to file
                     output.write_text(json_output)

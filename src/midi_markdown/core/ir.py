@@ -135,7 +135,8 @@ def string_to_event_type(type_str: str) -> EventType:
 
     event_type = type_map.get(type_str)
     if event_type is None:
-        raise ValueError(f"Unknown event type: {type_str}")
+        msg = f"Unknown event type: {type_str}"
+        raise ValueError(msg)
     return event_type
 
 

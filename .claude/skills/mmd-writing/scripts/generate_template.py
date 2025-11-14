@@ -274,10 +274,8 @@ tempo: {tempo}
 
 def list_templates():
     """List available templates."""
-    print("Available templates:")
-    print()
     for name, template in TEMPLATES.items():
-        lines = template.strip().split("\n")
+        template.strip().split("\n")
         desc = f"  {name:15} - "
         if name == "basic":
             desc += "Basic MMD file with frontmatter and one note"
@@ -291,14 +289,11 @@ def list_templates():
             desc += "Automation examples (volume, filter, pan)"
         elif name == "minimal":
             desc += "Absolute minimum MMD file"
-        print(desc)
 
 
 def generate_template(template_type: str, **kwargs):
     """Generate a template with given parameters."""
     if template_type not in TEMPLATES:
-        print(f"Error: Unknown template type: {template_type}")
-        print(f"Available: {', '.join(TEMPLATES.keys())}")
         sys.exit(1)
 
     # Set defaults
@@ -311,9 +306,8 @@ def generate_template(template_type: str, **kwargs):
     }
 
     template = TEMPLATES[template_type]
-    output = template.format(**params)
+    return template.format(**params)
 
-    return output
 
 
 def main():
@@ -362,9 +356,8 @@ Examples:
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Template written to: {args.output}")
     else:
-        print(output)
+        pass
 
 
 if __name__ == "__main__":

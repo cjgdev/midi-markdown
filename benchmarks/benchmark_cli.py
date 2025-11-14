@@ -34,19 +34,17 @@ class TestCLIStartup:
         """
 
         def run_help():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "--help"],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_help)
 
         assert result.returncode == 0
         assert "MIDI Markdown Language" in result.stdout or "Usage:" in result.stdout
-        print(f"\nCLI --help time: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_cli_version_speed(self, benchmark):
         """Benchmark version command execution.
@@ -55,37 +53,33 @@ class TestCLIStartup:
         """
 
         def run_version():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "version"],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_version)
 
         assert result.returncode == 0
-        print(f"\nCLI version time: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_cli_list_commands(self, benchmark):
         """Benchmark command listing performance."""
 
         def run_list():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "--help"],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_list)
 
         assert result.returncode == 0
         # Check that main commands are listed
         assert "compile" in result.stdout.lower() or "Commands:" in result.stdout
-        print(f"\nCLI list commands time: {benchmark.stats.get('mean', 0):.3f}s")
 
 
 @pytest.mark.benchmark
@@ -122,7 +116,6 @@ class TestCompileCommand:
         result = benchmark(run_compile)
 
         assert result.returncode == 0
-        print(f"\nCompile small file: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_compile_medium_file(self, medium_mmd_file, tmp_path):
         """Test compile command with medium file (not benchmarked in loop).
@@ -146,11 +139,10 @@ class TestCompileCommand:
             text=True,
             check=False,
         )
-        elapsed = time.perf_counter() - start
+        time.perf_counter() - start
 
         assert result.returncode == 0
         assert output_file.exists()
-        print(f"\nCompile medium file: {elapsed:.3f}s")
 
         # Clean up
         if output_file.exists():
@@ -171,18 +163,16 @@ class TestValidateCommand:
         """
 
         def run_validate():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "validate", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_validate)
 
         assert result.returncode == 0
-        print(f"\nValidate small file: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_check_syntax_only(self, benchmark, small_mmd_file):
         """Benchmark check command (syntax only, no validation).
@@ -194,18 +184,16 @@ class TestValidateCommand:
         """
 
         def run_check():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "check", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_check)
 
         assert result.returncode == 0
-        print(f"\nCheck syntax only: {benchmark.stats.get('mean', 0):.3f}s")
 
 
 @pytest.mark.benchmark
@@ -221,19 +209,17 @@ class TestInspectCommand:
         """
 
         def run_inspect():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "inspect", str(small_mmd_file)],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_inspect)
 
         # Inspect should succeed and show events
         assert result.returncode == 0
-        print(f"\nInspect file: {benchmark.stats.get('mean', 0):.3f}s")
 
 
 @pytest.mark.benchmark
@@ -263,10 +249,9 @@ class TestCLIOptions:
             text=True,
             check=False,
         )
-        elapsed = time.perf_counter() - start
+        time.perf_counter() - start
 
         assert result.returncode == 0
-        print(f"\nCompile with -v: {elapsed:.3f}s")
 
         # Clean up
         if output_file.exists():
@@ -292,10 +277,9 @@ class TestCLIOptions:
             text=True,
             check=False,
         )
-        elapsed = time.perf_counter() - start
+        time.perf_counter() - start
 
         assert result.returncode == 0
-        print(f"\nCompile with --no-color: {elapsed:.3f}s")
 
         # Clean up
         if output_file.exists():
@@ -325,7 +309,7 @@ class TestCLIOptions:
             text=True,
             check=False,
         )
-        csv_time = time.perf_counter() - start
+        time.perf_counter() - start
 
         # JSON export
         json_file = tmp_path / "output.json"
@@ -346,13 +330,11 @@ class TestCLIOptions:
             text=True,
             check=False,
         )
-        json_time = time.perf_counter() - start
+        time.perf_counter() - start
 
         assert result_csv.returncode == 0
         assert result_json.returncode == 0
 
-        print(f"\nCompile to CSV: {csv_time:.3f}s")
-        print(f"Compile to JSON: {json_time:.3f}s")
 
         # Clean up
         if csv_file.exists():
@@ -372,18 +354,16 @@ class TestCLIErrorHandling:
         """
 
         def run_invalid():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "compile", "nonexistent.mmd"],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_invalid)
 
         assert result.returncode != 0  # Should fail
-        print(f"\nError handling time: {benchmark.stats.get('mean', 0):.3f}s")
 
     def test_error_invalid_syntax(self, benchmark, tmp_path):
         """Test CLI handles syntax errors gracefully."""
@@ -400,15 +380,13 @@ title: Invalid
         )
 
         def run_invalid_syntax():
-            result = subprocess.run(
+            return subprocess.run(
                 ["uv", "run", "mmdc", "compile", str(invalid_file)],
                 capture_output=True,
                 text=True,
                 check=False,
             )
-            return result
 
         result = benchmark(run_invalid_syntax)
 
         assert result.returncode != 0
-        print(f"\nSyntax error handling: {benchmark.stats.get('mean', 0):.3f}s")

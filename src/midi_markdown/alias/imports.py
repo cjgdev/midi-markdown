@@ -10,9 +10,10 @@ This module handles:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from ..parser.ast_nodes import AliasDefinition
+if TYPE_CHECKING:
+    from midi_markdown.parser.ast_nodes import AliasDefinition
 
 
 class ImportError(Exception):
@@ -106,11 +107,14 @@ class ImportManager:
 
         if filepath_str in import_chain:
             # Build the cycle string for error message
-            cycle_chain = import_chain + [filepath_str]
+            cycle_chain = [*import_chain, filepath_str]
             chain_str = " → ".join(cycle_chain)
-            raise CircularImportError(
+            msg = (
                 f"Circular import detected: {chain_str}\n\n"
                 f"File '{filepath.name}' is already being imported in this chain."
+            )
+            raise CircularImportError(
+                msg
             )
 
     def load_library(
@@ -148,9 +152,12 @@ class ImportManager:
 
         # Check file exists
         if not filepath.exists():
-            raise ImportError(
+            msg = (
                 f"Import failed: File not found: {filepath}\n\n"
-                f"Import chain: {' → '.join(import_chain + [filepath_str])}"
+                f"Import chain: {' → '.join([*import_chain, filepath_str])}"
+            )
+            raise ImportError(
+                msg
             )
 
         # Parse the file
@@ -159,14 +166,17 @@ class ImportManager:
                 content = f.read()
             doc = self.parser.parse_string(content)
         except Exception as e:
-            raise ImportError(
+            msg = (
                 f"Import failed: Error parsing {filepath}\n"
                 f"Error: {e}\n\n"
-                f"Import chain: {' → '.join(import_chain + [filepath_str])}"
+                f"Import chain: {' → '.join([*import_chain, filepath_str])}"
+            )
+            raise ImportError(
+                msg
             )
 
         # Add to chain for nested imports
-        new_chain = import_chain + [filepath_str]
+        new_chain = [*import_chain, filepath_str]
 
         # Start with aliases defined in this file
         merged_aliases = doc.aliases.copy()
@@ -180,13 +190,16 @@ class ImportManager:
             for alias_name, alias_def in nested_aliases.items():
                 if alias_name in merged_aliases:
                     # Conflict: same alias defined in multiple imports
-                    existing = merged_aliases[alias_name]
-                    raise ImportError(
+                    merged_aliases[alias_name]
+                    msg = (
                         f"Alias name conflict: '{alias_name}' is defined in multiple imports\n\n"
                         f"First definition: (from earlier import or current file)\n"
                         f"Second definition: {nested_path}\n\n"
-                        f"Import chain: {' → '.join(new_chain + [str(nested_path)])}\n\n"
+                        f"Import chain: {' → '.join([*new_chain, str(nested_path)])}\n\n"
                         f"Suggestion: Rename one of the aliases or use different device libraries."
+                    )
+                    raise ImportError(
+                        msg
                     )
                 merged_aliases[alias_name] = alias_def
 
@@ -225,11 +238,14 @@ class ImportManager:
             # Merge with conflict detection at top level
             for alias_name, alias_def in library_aliases.items():
                 if alias_name in merged_aliases:
-                    raise ImportError(
+                    msg = (
                         f"Alias name conflict: '{alias_name}' is defined in multiple imports\n\n"
                         f"First import: (earlier import)\n"
                         f"Second import: {import_path}\n\n"
                         f"Suggestion: Use different device libraries or rename aliases."
+                    )
+                    raise ImportError(
+                        msg
                     )
                 merged_aliases[alias_name] = alias_def
 

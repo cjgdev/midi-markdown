@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from .ir import IRProgram, MIDIEvent, create_ir_program, string_to_event_type
 
 if TYPE_CHECKING:
-    from ..parser.ast_nodes import MMDDocument
+    from midi_markdown.parser.ast_nodes import MMDDocument
 
 
 def compile_ast_to_ir(
@@ -43,7 +43,7 @@ def compile_ast_to_ir(
         >>> print(f"Duration: {ir.duration_seconds}s, Events: {ir.event_count}")
     """
     # Import here to avoid circular dependency
-    from ..expansion.expander import CommandExpander
+    from midi_markdown.expansion.expander import CommandExpander
 
     # Get tempo and time signature from frontmatter
     tempo = document.frontmatter.get("tempo", 120)

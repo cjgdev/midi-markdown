@@ -140,7 +140,7 @@ class TestDeviceLibraryWorkflow:
         # Step 3: Validate the library
         lib_file = devices_dir / f"{lib_name}.mmd"
         result = runner.invoke(app, ["library", "validate", str(lib_file)])
-        assert result.exit_code == 0 or result.exit_code == 1  # May fail validation
+        assert result.exit_code in {0, 1}  # May fail validation
         assert "Validation" in result.stdout
 
 
@@ -190,7 +190,7 @@ class TestCLIConsistency:
         ]
 
         for command in commands:
-            result = runner.invoke(app, command + ["--help"])
+            result = runner.invoke(app, [*command, "--help"])
             assert result.exit_code == 0, f"Command {' '.join(command)} --help failed"
             assert len(result.stdout) > 50, f"Command {' '.join(command)} help is too short"
 

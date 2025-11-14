@@ -287,7 +287,8 @@ def parse_ramp_type(ramp_str: str) -> RampType:
 
     if ramp_str in ramp_map:
         return ramp_map[ramp_str]
-    raise ValueError(f"Invalid ramp type: {ramp_str}")
+    msg = f"Invalid ramp type: {ramp_str}"
+    raise ValueError(msg)
 
 
 def parse_sweep_interval(

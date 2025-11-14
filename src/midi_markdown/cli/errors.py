@@ -12,20 +12,24 @@ This module provides structured error display with:
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from lark.exceptions import UnexpectedCharacters, UnexpectedToken
-from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from ..expansion.errors import (
+from midi_markdown.expansion.errors import (
     ExpansionError,
     InvalidLoopConfigError,
     InvalidSweepConfigError,
     UndefinedVariableError,
     ValueRangeError,
 )
-from ..utils.validation import ValidationError
+
+if TYPE_CHECKING:
+    from rich.console import Console
+
+    from midi_markdown.utils.validation import ValidationError
 
 # Error code mapping
 ERROR_CODES = {
@@ -357,10 +361,7 @@ def show_parse_error(
             typo_suggestion = generate_suggestion(token_value, all_valid, threshold=2)
             if typo_suggestion:
                 # Append typo suggestion to expected tokens message
-                if suggestion:
-                    suggestion = f"{suggestion}\n  {typo_suggestion}"
-                else:
-                    suggestion = typo_suggestion
+                suggestion = f"{suggestion}\n  {typo_suggestion}" if suggestion else typo_suggestion
 
     else:  # UnexpectedCharacters
         error_code = ERROR_CODES["unexpected_char"]
@@ -726,10 +727,7 @@ def show_success(
     stats_text = "\n".join(stats_lines)
 
     # Format title with elapsed time
-    if "elapsed" in stats:
-        elapsed_str = f" ({stats['elapsed']:.2f}s)"
-    else:
-        elapsed_str = ""
+    elapsed_str = f" ({stats['elapsed']:.2f}s)" if "elapsed" in stats else ""
 
     # Format success message
     if no_color:

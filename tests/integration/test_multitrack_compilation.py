@@ -250,11 +250,16 @@ title: "Relative Timing in Tracks"
         # Sorted: 0 (ch1), 0 (ch2), 500 (ch1), 1000 (ch1), 1000 (ch2)
 
         # At 120 BPM: 500ms = 480 ticks, 1s = 960 ticks
-        assert cc_events[0].time == 0 and cc_events[0].channel == 1
-        assert cc_events[1].time == 0 and cc_events[1].channel == 2
-        assert cc_events[2].time == 480 and cc_events[2].channel == 1
-        assert cc_events[3].time == 960 and cc_events[3].channel == 1
-        assert cc_events[4].time == 960 and cc_events[4].channel == 2
+        assert cc_events[0].time == 0
+        assert cc_events[0].channel == 1
+        assert cc_events[1].time == 0
+        assert cc_events[1].channel == 2
+        assert cc_events[2].time == 480
+        assert cc_events[2].channel == 1
+        assert cc_events[3].time == 960
+        assert cc_events[3].channel == 1
+        assert cc_events[4].time == 960
+        assert cc_events[4].channel == 2
 
 
 class TestMultiTrackWithTopLevelEvents:
@@ -371,9 +376,17 @@ title: "Simultaneous Events in Tracks"
         assert len(cc_events) == 4
 
         # Track 1: both at time 0
-        assert cc_events[0].time == 0 and cc_events[0].channel == 1 and cc_events[0].data1 == 7
-        assert cc_events[1].time == 0 and cc_events[1].channel == 1 and cc_events[1].data1 == 10
+        assert cc_events[0].time == 0
+        assert cc_events[0].channel == 1
+        assert cc_events[0].data1 == 7
+        assert cc_events[1].time == 0
+        assert cc_events[1].channel == 1
+        assert cc_events[1].data1 == 10
 
         # Track 2: both at time 960 (1 second)
-        assert cc_events[2].time == 960 and cc_events[2].channel == 2 and cc_events[2].data1 == 7
-        assert cc_events[3].time == 960 and cc_events[3].channel == 2 and cc_events[3].data1 == 10
+        assert cc_events[2].time == 960
+        assert cc_events[2].channel == 2
+        assert cc_events[2].data1 == 7
+        assert cc_events[3].time == 960
+        assert cc_events[3].channel == 2
+        assert cc_events[3].data1 == 10

@@ -10,6 +10,7 @@ archive for easy installation.
 import argparse
 import json
 import shutil
+import sys
 import tarfile
 import zipfile
 from pathlib import Path
@@ -30,7 +31,8 @@ def create_skill_archive(source_dir: Path, output_dir: Path, version: str) -> di
     skills_dir = source_dir / ".claude" / "skills"
 
     if not skills_dir.exists():
-        raise FileNotFoundError(f"Skills directory not found: {skills_dir}")
+        msg = f"Skills directory not found: {skills_dir}"
+        raise FileNotFoundError(msg)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -38,11 +40,11 @@ def create_skill_archive(source_dir: Path, output_dir: Path, version: str) -> di
     skill_files = list(skills_dir.glob("*.md"))
 
     if not skill_files:
-        raise FileNotFoundError(f"No skill files found in {skills_dir}")
+        msg = f"No skill files found in {skills_dir}"
+        raise FileNotFoundError(msg)
 
-    print(f"Found {len(skill_files)} skill files:")
     for skill_file in skill_files:
-        print(f"  - {skill_file.name}")
+        pass
 
     archives = {}
 
@@ -65,11 +67,10 @@ This package contains Claude Code skills for working with MIDI Markdown (MMD) fi
         with open(skill_file) as f:
             lines = f.readlines()
             for i, line in enumerate(lines):
-                if line.strip().startswith("## Purpose"):
-                    if i + 1 < len(lines):
-                        purpose = lines[i + 1].strip()
-                        readme_content += purpose + "\n"
-                        break
+                if line.strip().startswith("## Purpose") and i + 1 < len(lines):
+                    purpose = lines[i + 1].strip()
+                    readme_content += purpose + "\n"
+                    break
             else:
                 readme_content += "MMD skill\n"
 
@@ -261,22 +262,18 @@ pause
 
     # Create tar.gz archive (for Linux/macOS)
     tar_path = output_dir / f"claude-skills-mmd-{version}.tar.gz"
-    print(f"\nCreating tar.gz archive: {tar_path.name}")
     with tarfile.open(tar_path, "w:gz") as tar:
         tar.add(temp_dir, arcname=temp_dir.name)
     archives["tar.gz"] = tar_path
-    print(f"  ✓ Created {tar_path}")
 
     # Create zip archive (for Windows)
     zip_path = output_dir / f"claude-skills-mmd-{version}.zip"
-    print(f"Creating zip archive: {zip_path.name}")
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file_path in temp_dir.rglob("*"):
             if file_path.is_file():
                 arcname = file_path.relative_to(output_dir)
                 zipf.write(file_path, arcname)
     archives["zip"] = zip_path
-    print(f"  ✓ Created {zip_path}")
 
     # Clean up temp directory
     shutil.rmtree(temp_dir)
@@ -301,7 +298,6 @@ pause
     manifest_path = output_dir / f"claude-skills-mmd-{version}.manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2))
     archives["manifest"] = manifest_path
-    print(f"  ✓ Created manifest: {manifest_path.name}")
 
     return archives
 
@@ -326,38 +322,19 @@ def main():
 
     args = parser.parse_args()
 
-    print("=" * 60)
-    print("MIDI Markdown Claude Skills Packager")
-    print("=" * 60)
-    print(f"Source directory: {args.source}")
-    print(f"Output directory: {args.output}")
-    print(f"Version: {args.version}")
-    print()
 
     try:
         archives = create_skill_archive(args.source, args.output, args.version)
 
-        print()
-        print("=" * 60)
-        print("✅ Packaging complete!")
-        print("=" * 60)
-        print()
-        print("Created archives:")
-        for format_name, archive_path in archives.items():
-            print(f"  - {archive_path.name} ({archive_path.stat().st_size:,} bytes)")
+        for _format_name, _archive_path in archives.items():
+            pass
 
-        print()
-        print("Next steps:")
-        print("  1. Test the archives by extracting and installing")
-        print("  2. Upload archives as release assets")
-        print("  3. Update documentation with download links")
 
-    except Exception as e:
-        print(f"\n❌ Error: {e}")
+    except Exception:
         return 1
 
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

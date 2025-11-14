@@ -49,19 +49,24 @@ class ConditionalEvaluator:
             True
         """
         if not isinstance(condition, dict):
-            raise AliasError(f"Invalid condition format: {condition}")
+            msg = f"Invalid condition format: {condition}"
+            raise AliasError(msg)
 
         if "left" not in condition or "operator" not in condition or "right" not in condition:
-            raise AliasError(f"Condition missing required keys (left/operator/right): {condition}")
+            msg = f"Condition missing required keys (left/operator/right): {condition}"
+            raise AliasError(msg)
 
         left = self._resolve_value(condition["left"], param_values)
         right = self._resolve_value(condition["right"], param_values)
         operator = condition["operator"]
 
         if operator not in self.VALID_OPERATORS:
-            raise AliasError(
+            msg = (
                 f"Invalid comparison operator '{operator}'. "
                 f"Valid operators: {', '.join(sorted(self.VALID_OPERATORS))}"
+            )
+            raise AliasError(
+                msg
             )
 
         return self._apply_operator(left, operator, right)
@@ -121,10 +126,12 @@ class ConditionalEvaluator:
             if operator == ">=":
                 return left >= right
             # Should never reach here due to validation above
-            raise AliasError(f"Unknown operator: {operator}")
+            msg = f"Unknown operator: {operator}"
+            raise AliasError(msg)
 
         except TypeError as e:
-            raise AliasError(f"Type error comparing {left!r} {operator} {right!r}: {e}")
+            msg = f"Type error comparing {left!r} {operator} {right!r}: {e}"
+            raise AliasError(msg)
 
     def select_branch(self, branches: list, param_values: dict[str, Any]) -> list | None:
         """Select the first matching conditional branch.
