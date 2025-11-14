@@ -1,4 +1,40 @@
 {
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$TOOL_ARGS\" == *\".py\"* ]]; then uv run ruff format \"$(echo \"$TOOL_ARGS\" | grep -oP 'file_path[^,}]+'  | cut -d'\"' -f4)\"; fi",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$TOOL_ARGS\" == *\".py\"* ]]; then uv run ruff format \"$(echo \"$TOOL_ARGS\" | grep -oP 'file_path[^,}]+' | cut -d'\"' -f4)\"; fi",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash(git commit*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-commit.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(ruff check:*)",
