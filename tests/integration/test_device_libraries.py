@@ -25,7 +25,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "quad_cortex.mmd"
         assert library_path.exists(), "Quad Cortex library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
@@ -45,7 +45,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "eventide_h90.mmd"
         assert library_path.exists(), "Eventide H90 library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
@@ -63,7 +63,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "helix.mmd"
         assert library_path.exists(), "Line 6 Helix library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
@@ -83,7 +83,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "hx_effects.mmd"
         assert library_path.exists(), "HX Effects library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
@@ -101,7 +101,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "hx_stomp.mmd"
         assert library_path.exists(), "HX Stomp library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
@@ -119,7 +119,7 @@ class TestDeviceLibraries:
         library_path = devices_dir / "hx_stomp_xl.mmd"
         assert library_path.exists(), "HX Stomp XL library not found"
 
-        with open(library_path) as f:
+        with open(library_path, encoding="utf-8") as f:
             content = f.read()
 
         # Should parse without errors
