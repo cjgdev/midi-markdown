@@ -93,8 +93,8 @@ jobs:
       - name: Check distributions
         run: |
           ls -lh dist/
-          uv pip install twine
-          uv run twine check dist/*
+          uv tool install twine
+          uv tool run twine check dist/*
 
       - name: Test wheel installation
         run: |

@@ -296,8 +296,8 @@ jobs:
 
       - name: Check distributions
         run: |
-          uv pip install twine
-          uv run twine check dist/*
+          uv tool install twine
+          uv tool run twine check dist/*
 
       - name: Publish to PyPI (Trusted Publishing)
         uses: pypa/gh-action-pypi-publish@release/v1
