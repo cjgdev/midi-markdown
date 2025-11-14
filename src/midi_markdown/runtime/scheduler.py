@@ -280,11 +280,12 @@ class EventScheduler:
                     self.on_event_sent(event.metadata)
 
     def _precise_wait(self, target_time: float) -> None:
-        """Hybrid sleep/busy-wait for precise timing.
+        """Hybrid sleep/busy-wait for precise timing with pause support.
 
         This method achieves sub-5ms timing precision by:
         1. Using time.sleep() for coarse delays > 10ms (efficient, low CPU)
         2. Using busy-wait loop for fine delays < 10ms (precise, higher CPU)
+        3. Adjusting target_time when resuming from pause to account for pause duration
 
         Args:
             target_time: Target time from perf_counter()
@@ -294,15 +295,34 @@ class EventScheduler:
             >>> target = time.perf_counter() + 1.5
             >>> self._precise_wait(target)
         """
+        was_paused = False
+        pause_start = None
+
         # Sleep in small chunks to allow stop flag and pause checks
-        while time.perf_counter() < target_time:
+        while True:
             if self._stop_flag.is_set():
                 break
 
             # Check for pause state - if paused, wait until resumed
             if self.state == "paused":
+                if not was_paused:
+                    # Just entered pause state - record when we paused
+                    pause_start = time.perf_counter()
+                    was_paused = True
                 time.sleep(0.01)  # Sleep 10ms while paused
                 continue
+
+            if was_paused:
+                # Just resumed from pause - adjust target_time for pause duration
+                if pause_start is not None:
+                    pause_duration = time.perf_counter() - pause_start
+                    target_time += pause_duration
+                was_paused = False
+                pause_start = None
+
+            # Check if we've reached the target time
+            if time.perf_counter() >= target_time:
+                break
 
             remaining = target_time - time.perf_counter()
 

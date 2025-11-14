@@ -318,22 +318,25 @@ class TestEventScheduler:
         """Test pause while waiting for event."""
         scheduler = EventScheduler(mock_midi_output)
 
-        events = [ScheduledEvent(200.0, [0x90, 60, 80], {})]
+        # Use longer event time to ensure we have time to pause before it's sent
+        events = [ScheduledEvent(1000.0, [0x90, 60, 80], {})]  # 1 second instead of 200ms
 
         scheduler.load_events(events)
         scheduler.start()
 
-        time.sleep(0.05)  # Let scheduler start
+        time.sleep(0.1)  # Let scheduler start
 
         scheduler.pause()
         assert scheduler.state == "paused"
 
-        time.sleep(0.1)
+        time.sleep(0.2)  # Paused time
 
         scheduler.resume()
         assert scheduler.state == "playing"
 
-        time.sleep(0.3)
+        # Wait for event to be sent (should be ~900ms after resume: 1000ms - 100ms elapsed)
+        # Add extra margin for CI
+        time.sleep(1.2)
         scheduler.stop()
 
         # Event should still have been sent
