@@ -103,10 +103,18 @@ class ImportManager:
             ... )
             CircularImportError: Circular import detected: A.mmd → B.mmd → C.mmd → A.mmd
         """
-        filepath_str = str(filepath)
+        # Normalize filepath for comparison (resolve to absolute path)
+        # This ensures consistent comparison across platforms (Windows vs Unix)
+        filepath_normalized = str(filepath.resolve())
 
-        if filepath_str in import_chain:
-            # Build the cycle string for error message
+        # Normalize all paths in the chain for comparison
+        # This handles path separator differences (/ vs \) and case sensitivity
+        normalized_chain = [str(Path(p).resolve()) for p in import_chain]
+
+        if filepath_normalized in normalized_chain:
+            # Build the cycle string for error message using original chain
+            # Use as_posix() to ensure forward slashes on all platforms (Windows uses \)
+            filepath_str = filepath.as_posix()
             cycle_chain = [*import_chain, filepath_str]
             chain_str = " → ".join(cycle_chain)
             msg = (
@@ -158,7 +166,7 @@ class ImportManager:
 
         # Parse the file
         try:
-            with open(filepath) as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             doc = self.parser.parse_string(content)
         except Exception as e:
