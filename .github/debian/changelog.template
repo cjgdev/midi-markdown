@@ -1,0 +1,6 @@
+midi-markdown (VERSION-1~ppa1~ubuntuSERIES.1) SERIES; urgency=medium
+
+  * New upstream release VERSION
+  * See https://github.com/cjgdev/midi-markdown/releases/tag/vVERSION
+
+ -- Christopher Gilbert <your.email@example.com>  DATE

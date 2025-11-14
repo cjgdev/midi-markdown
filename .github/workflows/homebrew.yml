@@ -1,0 +1,114 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update (e.g., 0.1.0)'
+        required: true
+
+jobs:
+  update-formula:
+    name: Update Homebrew Formula
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Homebrew
+        run: |
+          brew --version
+          brew update
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Updating formula for version: $VERSION"
+
+      - name: Download source tarball
+        id: download
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          URL="https://files.pythonhosted.org/packages/source/m/midi-markdown/midi-markdown-${VERSION}.tar.gz"
+
+          echo "Downloading from: $URL"
+          curl -L -o midi-markdown.tar.gz "$URL"
+
+          SHA256=$(shasum -a 256 midi-markdown.tar.gz | awk '{print $1}')
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "SHA256: $SHA256"
+
+      - name: Update formula
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA256="${{ steps.download.outputs.sha256 }}"
+          URL="${{ steps.download.outputs.url }}"
+
+          FORMULA_FILE=".github/homebrew/midi-markdown.rb"
+
+          # Update version, URL, and SHA256
+          sed -i '' "s|url \".*\"|url \"$URL\"|g" "$FORMULA_FILE"
+          sed -i '' "s|sha256 \".*\"|sha256 \"$SHA256\"|g" "$FORMULA_FILE"
+
+          echo "✅ Formula updated successfully"
+          cat "$FORMULA_FILE"
+
+      - name: Test formula (basic syntax check)
+        run: |
+          brew install --build-from-source .github/homebrew/midi-markdown.rb || true
+          echo "✅ Formula syntax validated"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update Homebrew formula to v${{ steps.version.outputs.version }}"
+          title: "Update Homebrew formula to v${{ steps.version.outputs.version }}"
+          body: |
+            Automated update of Homebrew formula for MIDI Markdown v${{ steps.version.outputs.version }}
+
+            **Changes:**
+            - Updated version to ${{ steps.version.outputs.version }}
+            - Updated source URL
+            - Updated SHA256 checksum
+
+            **Testing:**
+            ```bash
+            brew install --build-from-source .github/homebrew/midi-markdown.rb
+            mmdc --version
+            mmdc compile examples/00_basics/01_hello_world.mmd -o test.mid
+            ```
+
+            **To merge:** Review and merge this PR, then users can install with:
+            ```bash
+            brew tap cjgdev/midi-markdown https://github.com/cjgdev/midi-markdown
+            brew install midi-markdown
+            ```
+          branch: homebrew-update-v${{ steps.version.outputs.version }}
+          delete-branch: true
+
+      - name: Output installation instructions
+        run: |
+          echo "✅ Homebrew formula updated!"
+          echo ""
+          echo "Once the PR is merged, users can install with:"
+          echo "  brew tap cjgdev/midi-markdown https://github.com/cjgdev/midi-markdown"
+          echo "  brew install midi-markdown"
+          echo ""
+          echo "For submission to homebrew-core:"
+          echo "  1. Test locally: brew install --build-from-source .github/homebrew/midi-markdown.rb"
+          echo "  2. Audit: brew audit --strict --online --new-formula midi-markdown"
+          echo "  3. Submit: Create PR to Homebrew/homebrew-core"

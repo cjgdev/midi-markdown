@@ -1,0 +1,39 @@
+Source: midi-markdown
+Section: sound
+Priority: optional
+Maintainer: Christopher Gilbert <your.email@example.com>
+Build-Depends: debhelper (>= 12),
+               dh-python,
+               python3-all (>= 3.12),
+               python3-setuptools,
+               python3-pip
+Standards-Version: 4.6.0
+Homepage: https://github.com/cjgdev/midi-markdown
+Vcs-Browser: https://github.com/cjgdev/midi-markdown
+Vcs-Git: https://github.com/cjgdev/midi-markdown.git
+
+Package: midi-markdown
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3 (>= 3.12),
+         python3-mido,
+         python3-rtmidi,
+         python3-yaml,
+         python3-typer,
+         python3-rich,
+         python3-lark,
+         python3-prompt-toolkit
+Description: Human-readable MIDI markup language compiler
+ MIDI Markdown (MMD) is a text-based format for creating and automating
+ MIDI sequences, designed specifically for live performance automation.
+ .
+ Features:
+  * Device-specific aliases for semantic MIDI programming
+  * Real-time MIDI playback with interactive TUI
+  * Multiple timing paradigms (absolute, musical, relative)
+  * Advanced automation (loops, sweeps, variables, expressions)
+  * 300+ pre-built aliases for 6 popular devices
+  * Comprehensive MIDI 1.0 command support
+ .
+ This package provides the mmdc command-line compiler and all core libraries.

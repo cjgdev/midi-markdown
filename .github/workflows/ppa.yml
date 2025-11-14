@@ -1,0 +1,149 @@
+name: Build Debian/Ubuntu Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 0.1.0)'
+        required: true
+
+jobs:
+  build-deb:
+    name: Build .deb for Ubuntu ${{ matrix.ubuntu }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu: [focal, jammy, noble]  # 20.04, 22.04, 24.04
+        include:
+          - ubuntu: focal
+            codename: focal
+            series: "20.04"
+          - ubuntu: jammy
+            codename: jammy
+            series: "22.04"
+          - ubuntu: noble
+            codename: noble
+            series: "24.04"
+
+    container:
+      image: ubuntu:${{ matrix.ubuntu }}
+
+    steps:
+      - name: Install base dependencies
+        run: |
+          apt-get update
+          apt-get install -y git curl ca-certificates gnupg2
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          apt-get install -y \
+            debhelper \
+            dh-python \
+            python3-all \
+            python3-setuptools \
+            python3-pip \
+            python3-stdeb \
+            python3-dev \
+            build-essential \
+            devscripts \
+            dput
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Copy debian packaging files
+        run: |
+          cp -r .github/debian debian/
+
+          # Generate changelog from template
+          VERSION="${{ steps.version.outputs.version }}"
+          DATE=$(date -R)
+
+          sed -e "s/VERSION/$VERSION/g" \
+              -e "s/SERIES/${{ matrix.codename }}/g" \
+              -e "s/DATE/$DATE/g" \
+              debian/changelog.template > debian/changelog
+
+          cat debian/changelog
+
+      - name: Build source package
+        run: |
+          debuild -S -sa -d
+          ls -lh ../*.dsc ../*.tar.* ../*.changes
+
+      - name: Build binary package
+        run: |
+          debuild -b -us -uc
+          ls -lh ../*.deb
+
+      - name: Test package installation
+        run: |
+          dpkg -i ../*.deb || apt-get install -f -y
+          mmdc --version
+          mmdc --help
+
+      - name: Upload .deb artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-ubuntu-${{ matrix.ubuntu }}-${{ steps.version.outputs.version }}
+          path: ../*.deb
+          retention-days: 30
+
+      - name: Upload source package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-ubuntu-${{ matrix.ubuntu }}-${{ steps.version.outputs.version }}
+          path: |
+            ../*.dsc
+            ../*.tar.*
+            ../*.changes
+          retention-days: 30
+
+  publish-instructions:
+    name: Generate PPA Publishing Instructions
+    needs: build-deb
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Output PPA instructions
+        run: |
+          echo "✅ Debian packages built successfully!"
+          echo ""
+          echo "=== To publish to Launchpad PPA ==="
+          echo ""
+          echo "1. Set up GPG key (one-time):"
+          echo "   gpg --full-generate-key"
+          echo "   gpg --list-keys"
+          echo "   gpg --send-keys YOUR_KEY_ID"
+          echo ""
+          echo "2. Sign packages:"
+          echo "   debsign -k YOUR_KEY_ID ../*_source.changes"
+          echo ""
+          echo "3. Upload to PPA:"
+          echo "   dput ppa:cjgdev/midi-markdown ../*_source.changes"
+          echo ""
+          echo "4. Wait for build (10 min - 2 hours)"
+          echo ""
+          echo "=== User installation ==="
+          echo ""
+          echo "sudo add-apt-repository ppa:cjgdev/midi-markdown"
+          echo "sudo apt update"
+          echo "sudo apt install midi-markdown"
+          echo ""
+          echo "=== Downloaded artifacts ==="
+          echo "Binary .deb files are available as GitHub Actions artifacts"
+          echo "Users can download and install with: sudo dpkg -i midi-markdown_*.deb"

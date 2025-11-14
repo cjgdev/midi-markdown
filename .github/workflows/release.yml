@@ -9,7 +9,12 @@ permissions:
   contents: write  # Required for creating releases
 
 jobs:
+  test:
+    name: Run tests before release
+    uses: ./.github/workflows/test.yml
+
   build-executables:
+    needs: test
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -33,14 +38,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
 
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install dependencies
-        run: |
-          uv sync
-          uv pip install --group build
+        run: uv sync --group build
 
       - name: Build executable with PyInstaller
         run: uv run pyinstaller mmdc.spec --clean --noconfirm
@@ -244,60 +250,69 @@ jobs:
     name: Publish to PyPI
     needs: create-release
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/midi-markdown
+    permissions:
+      id-token: write  # Required for Trusted Publishing
+      contents: read
 
     steps:
-      - name: Check for PyPI token
-        id: check-token
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          if [ -n "$PYPI_TOKEN" ]; then
-            echo "available=true" >> $GITHUB_OUTPUT
-            echo "✅ PYPI_API_TOKEN is configured"
-          else
-            echo "available=false" >> $GITHUB_OUTPUT
-            echo "⏭️ Skipping PyPI publish - PYPI_API_TOKEN not configured"
-            echo "To enable automatic publishing, add your PyPI API token to repository secrets"
-          fi
-
       - name: Checkout code
-        if: steps.check-token.outputs.available == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
-        if: steps.check-token.outputs.available == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
 
       - name: Install uv
-        if: steps.check-token.outputs.available == 'true'
-        run: pip install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install build dependencies
-        if: steps.check-token.outputs.available == 'true'
         run: uv sync
 
+      - name: Verify version consistency
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          uv pip install tomli
+          PKG_VERSION=$(uv run python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "❌ Version mismatch: tag=$TAG_VERSION, package=$PKG_VERSION"
+            echo "Please update pyproject.toml version to match the git tag"
+            exit 1
+          fi
+          echo "✅ Version consistency verified: $TAG_VERSION"
+
       - name: Build distributions
-        if: steps.check-token.outputs.available == 'true'
         run: uv build
 
       - name: Display built distributions
-        if: steps.check-token.outputs.available == 'true'
-        run: ls -lh dist/
+        run: |
+          ls -lh dist/
+          echo "=== Package contents ==="
+          tar -tzf dist/*.tar.gz | head -20
 
-      - name: Publish to PyPI
-        if: steps.check-token.outputs.available == 'true'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Check distributions
         run: |
           uv pip install twine
-          uv run twine upload dist/* --non-interactive --skip-existing
+          uv run twine check dist/*
+
+      - name: Publish to PyPI (Trusted Publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
+          verbose: true
 
       - name: Verify PyPI upload
-        if: steps.check-token.outputs.available == 'true'
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
           echo "✅ Published midi-markdown $VERSION to PyPI"
-          echo "View at: https://pypi.org/project/midi-markdown/$VERSION/"
+          echo "📦 View at: https://pypi.org/project/midi-markdown/$VERSION/"
+          echo ""
+          echo "Install with:"
+          echo "  pip install midi-markdown==$VERSION"
+          echo "  pipx install midi-markdown==$VERSION"

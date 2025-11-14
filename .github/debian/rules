@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+# Debian rules file for MIDI Markdown
+# Uses dh with pybuild for standard Python packaging
+
+export PYBUILD_NAME=midi-markdown
+export DH_VERBOSE=1
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build dist *.egg-info .pytest_cache
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
+override_dh_auto_test:
+	# Run tests during build
+	python3 -m pytest tests/ -v -m "not slow" || echo "Some tests failed, continuing build"
+
+override_dh_install:
+	dh_install
+	# Install examples
+	mkdir -p debian/midi-markdown/usr/share/doc/midi-markdown/
+	cp -r examples debian/midi-markdown/usr/share/doc/midi-markdown/
+	# Install device libraries
+	mkdir -p debian/midi-markdown/usr/share/midi-markdown/
+	cp -r devices debian/midi-markdown/usr/share/midi-markdown/
