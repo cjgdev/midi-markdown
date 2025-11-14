@@ -135,15 +135,18 @@ def inspect(
 
         elif format == "csv":
             # Export to CSV and print to stdout
-            export_to_csv(ir_program, include_header=True)
+            csv_output = export_to_csv(ir_program, include_header=True)
             # Print directly to stdout (bypass Rich console for clean CSV)
+            print(csv_output)
 
         elif format == "json":
             # Export to JSON (complete format)
-            export_to_json(ir_program, format="complete", pretty=True)
+            json_output = export_to_json(ir_program, format="complete", pretty=True)
             # Print directly to stdout
+            print(json_output)
 
         elif format == "json-simple":
             # Export to JSON (simplified format)
-            export_to_json(ir_program, format="simplified", pretty=True)
+            json_output = export_to_json(ir_program, format="simplified", pretty=True)
             # Print directly to stdout
+            print(json_output)
