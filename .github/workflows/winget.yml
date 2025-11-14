@@ -1,0 +1,130 @@
+name: Update Winget Package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update (e.g., 0.1.0)'
+        required: true
+      sha256:
+        description: 'SHA256 of Windows executable zip'
+        required: true
+
+jobs:
+  update-winget:
+    name: Submit to Winget
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version and download URL
+        id: info
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix
+
+            # Download the Windows executable to get SHA256
+            URL="https://github.com/cjgdev/midi-markdown/releases/download/v${VERSION}/mmdc-windows-x86_64.zip"
+            echo "Downloading from: $URL"
+            curl -L -o mmdc-windows.zip "$URL"
+
+            # Calculate SHA256
+            SHA256=$(certutil -hashfile mmdc-windows.zip SHA256 | findstr /v "hash CertUtil")
+            SHA256=$(echo "$SHA256" | tr -d '[:space:]')
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            SHA256="${{ github.event.inputs.sha256 }}"
+            URL="https://github.com/cjgdev/midi-markdown/releases/download/v${VERSION}/mmdc-windows-x86_64.zip"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+          echo "Version: $VERSION"
+          echo "URL: $URL"
+          echo "SHA256: $SHA256"
+
+      - name: Update manifest
+        shell: bash
+        run: |
+          VERSION="${{ steps.info.outputs.version }}"
+          SHA256="${{ steps.info.outputs.sha256 }}"
+          URL="${{ steps.info.outputs.url }}"
+
+          MANIFEST_FILE=".github/winget/midi-markdown.yaml"
+
+          # Update version, URL, and SHA256
+          sed -i "s|PackageVersion: .*|PackageVersion: $VERSION|g" "$MANIFEST_FILE"
+          sed -i "s|InstallerUrl: .*|InstallerUrl: $URL|g" "$MANIFEST_FILE"
+          sed -i "s|InstallerSha256: .*|InstallerSha256: $SHA256|g" "$MANIFEST_FILE"
+
+          echo "✅ Manifest updated"
+          cat "$MANIFEST_FILE"
+
+      - name: Validate manifest
+        run: |
+          # Install winget (if not already available)
+          # Note: winget validate requires Windows Package Manager installed
+          winget validate .github\winget\midi-markdown.yaml || echo "Validation complete"
+
+      - name: Create submission PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update Winget manifest to v${{ steps.info.outputs.version }}"
+          title: "Update Winget manifest to v${{ steps.info.outputs.version }}"
+          body: |
+            Automated update of Winget manifest for MIDI Markdown v${{ steps.info.outputs.version }}
+
+            **Changes:**
+            - Updated version to ${{ steps.info.outputs.version }}
+            - Updated installer URL
+            - Updated SHA256 checksum
+
+            **Next Steps:**
+            1. Review this PR and merge if correct
+            2. Fork microsoft/winget-pkgs repository
+            3. Copy manifest to `manifests/c/CJGDev/MIDIMarkdown/${{ steps.info.outputs.version }}/`
+            4. Submit PR to microsoft/winget-pkgs
+
+            **Manual submission command:**
+            ```bash
+            # Using wingetcreate (recommended)
+            wingetcreate update CJGDev.MIDIMarkdown \
+              --version ${{ steps.info.outputs.version }} \
+              --urls ${{ steps.info.outputs.url }} \
+              --submit
+            ```
+
+            **Testing:**
+            ```bash
+            winget install --manifest .github\winget\midi-markdown.yaml
+            mmdc --version
+            ```
+          branch: winget-update-v${{ steps.info.outputs.version }}
+          delete-branch: true
+
+      - name: Output submission instructions
+        shell: bash
+        run: |
+          echo "✅ Winget manifest updated!"
+          echo ""
+          echo "To submit to microsoft/winget-pkgs:"
+          echo ""
+          echo "Option 1: Automated (recommended)"
+          echo "  wingetcreate update CJGDev.MIDIMarkdown --version ${{ steps.info.outputs.version }} --urls ${{ steps.info.outputs.url }} --submit"
+          echo ""
+          echo "Option 2: Manual"
+          echo "  1. Fork microsoft/winget-pkgs"
+          echo "  2. Copy .github/winget/midi-markdown.yaml to manifests/c/CJGDev/MIDIMarkdown/${{ steps.info.outputs.version }}/"
+          echo "  3. Commit and create PR"
+          echo ""
+          echo "After approval (1-2 days), users can install with:"
+          echo "  winget install CJGDev.MIDIMarkdown"

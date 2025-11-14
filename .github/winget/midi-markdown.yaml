@@ -1,0 +1,58 @@
+# Winget manifest for MIDI Markdown
+# This is a template - actual manifests are submitted to microsoft/winget-pkgs
+#
+# Installation after publication:
+#   winget install midi-markdown
+#
+# Manual installation for testing:
+#   winget install --manifest .github/winget/midi-markdown.yaml
+
+PackageIdentifier: CJGDev.MIDIMarkdown
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Christopher Gilbert
+PublisherUrl: https://github.com/cjgdev
+PublisherSupportUrl: https://github.com/cjgdev/midi-markdown/issues
+Author: Christopher Gilbert
+PackageName: MIDI Markdown
+PackageUrl: https://github.com/cjgdev/midi-markdown
+License: MIT
+LicenseUrl: https://github.com/cjgdev/midi-markdown/blob/main/LICENSE
+Copyright: Copyright (c) 2025 Christopher Gilbert
+ShortDescription: Human-readable MIDI markup language compiler
+Description: |-
+  MIDI Markdown (MMD) is a human-readable, text-based format for creating
+  and automating MIDI sequences. Designed specifically for live performance
+  automation with devices like Neural DSP Quad Cortex and Eventide H90,
+  but supports all MIDI commands and devices.
+
+  Features:
+  - Device-specific aliases for semantic MIDI programming
+  - Real-time MIDI playback with interactive TUI
+  - Multiple timing paradigms (absolute, musical, relative)
+  - Advanced automation (loops, sweeps, variables, expressions)
+  - 300+ pre-built aliases for 6 popular devices
+  - Comprehensive MIDI 1.0 command support
+
+Tags:
+  - midi
+  - music
+  - automation
+  - compiler
+  - cli
+  - live-performance
+
+Moniker: mmdc
+
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://github.com/cjgdev/midi-markdown/releases/download/v0.1.0/mmdc-windows-x86_64.zip
+    InstallerSha256: PLACEHOLDER_SHA256
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: mmdc\mmdc.exe
+        PortableCommandAlias: mmdc
+
+ManifestType: singleton
+ManifestVersion: 1.6.0
