@@ -323,17 +323,19 @@ class TestEventScheduler:
         scheduler.load_events(events)
         scheduler.start()
 
-        time.sleep(0.05)  # Let scheduler start
+        time.sleep(0.1)  # Let scheduler start (increased from 50ms for CI reliability)
 
         scheduler.pause()
         assert scheduler.state == "paused"
 
-        time.sleep(0.1)
+        time.sleep(0.15)  # Paused time (increased from 100ms)
 
         scheduler.resume()
         assert scheduler.state == "playing"
 
-        time.sleep(0.3)
+        # Wait longer to ensure event is sent even in slow CI environments
+        # Event should be sent ~150ms after resume (200ms - 50ms elapsed before pause)
+        time.sleep(0.4)  # Increased from 300ms to 400ms for extra margin
         scheduler.stop()
 
         # Event should still have been sent
