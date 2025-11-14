@@ -112,7 +112,7 @@ MML supports multiple timing formats that can be mixed in the same document:
 
 ### Timing Units
 - `s` = seconds
-- `ms` = milliseconds  
+- `ms` = milliseconds
 - `b` = beats
 - `t` = ticks
 - Bars/beats use musical time notation
@@ -218,7 +218,7 @@ MML supports multiple timing formats that can be mixed in the same document:
 - sysex_file "path/to/patch_dump.syx"
 
 # Multi-line
-- sysex F0 00 01 06 
+- sysex F0 00 01 06
         02 03 04 05
         F7
 ```
@@ -438,7 +438,7 @@ Computed values support arithmetic operators (`+`, `-`, `*`, `/`, `%`), built-in
 - tempo 120
 - marker "Start"
 
-## Track 2: Automation  
+## Track 2: Automation
 @track automation channel=2
 [00:00.000]
 - cc 2.7.0
@@ -1504,7 +1504,7 @@ mmdc learn --device cortex --channel 1 -o learned.mmd
 Error: <ErrorType> at line <line>:<column> in <file>
   <line_content>
   <error_indicator>
-  
+
 <detailed_message>
 
 Suggestion: <helpful_suggestion>

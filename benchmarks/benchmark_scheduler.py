@@ -144,7 +144,6 @@ class TestSchedulerLatency:
         # Calculate statistics
         stats = port.get_latency_stats(scheduled_times)
 
-
         # Verify targets
         assert stats["avg"] < 5.0, f"Average latency {stats['avg']:.2f}ms exceeds 5ms"
         assert stats["max"] < 10.0, f"Max latency {stats['max']:.2f}ms exceeds 10ms"
@@ -187,7 +186,6 @@ class TestSchedulerLatency:
 
         stats = port.get_latency_stats(scheduled_times)
 
-
         assert stats["avg"] < 5.0, f"Average latency {stats['avg']:.2f}ms exceeds 5ms"
         assert stats["max"] < 10.0, f"Max latency {stats['max']:.2f}ms exceeds 10ms"
 
@@ -226,7 +224,6 @@ class TestSchedulerLatency:
         scheduler.stop()
 
         stats = port.get_latency_stats(scheduled_times)
-
 
         assert stats["avg"] < 5.0
         assert stats["count"] == 15  # 5 chords × 3 notes
@@ -271,7 +268,6 @@ class TestSchedulerPerformance:
 
         time.perf_counter() - start
 
-
         # Should handle all events
         assert len(port.messages) >= 480, f"Only sent {len(port.messages)}/500 events"
 
@@ -306,7 +302,6 @@ class TestSchedulerPerformance:
 
         time.sleep(5.5)
         scheduler.stop()
-
 
         # Should complete most events (allow some margin)
         assert len(port.messages) >= 95

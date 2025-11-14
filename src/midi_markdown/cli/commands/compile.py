@@ -248,9 +248,7 @@ def compile(
                                 f"and in {input_file}\n\n"
                                 f"Suggestion: Rename the alias in your file or use a different device library."
                             )
-                            raise Exception(
-                                msg
-                            )
+                            raise Exception(msg)
                         doc.aliases[alias_name] = alias_def
 
                     if verbose:
@@ -410,7 +408,7 @@ def compile(
             time_sig_value = DEFAULT_TIME_SIGNATURE
             if doc.frontmatter and "time_signature" in doc.frontmatter:
                 ts = doc.frontmatter["time_signature"]
-                if isinstance(ts, (list, tuple)) and len(ts) == 2:
+                if isinstance(ts, list | tuple) and len(ts) == 2:
                     time_sig_value = tuple(ts)
 
             from midi_markdown.expansion.errors import ExpansionError

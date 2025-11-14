@@ -9,6 +9,22 @@ default:
 install:
     uv sync
 
+# Install pre-commit hooks
+install-hooks:
+    uv run pre-commit install
+
+# Uninstall pre-commit hooks
+uninstall-hooks:
+    uv run pre-commit uninstall
+
+# Run pre-commit on all files (manual run)
+pre-commit:
+    uv run pre-commit run --all-files
+
+# Update pre-commit hooks to latest versions
+update-hooks:
+    uv run pre-commit autoupdate
+
 # Run all tests
 test:
     uv run pytest

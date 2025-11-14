@@ -219,9 +219,7 @@ class CommandExpander:
 
         if not name:
             msg = "Define statement missing variable name"
-            raise ExpansionError(
-                msg, line=line, file=self.source_file
-            )
+            raise ExpansionError(msg, line=line, file=self.source_file)
 
         try:
             # Resolve value (may be expression, variable reference, or literal)
@@ -233,9 +231,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Failed to process @define {name}: {e}"
-            raise ExpansionError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise ExpansionError(msg, line=line, file=self.source_file) from e
 
     def _resolve_value(self, value: Any) -> Any:
         """
@@ -248,7 +244,7 @@ class CommandExpander:
             Resolved value (int, float, or string)
         """
         # Literal values
-        if isinstance(value, (int, float, str)):
+        if isinstance(value, int | float | str):
             return value
 
         # Variable reference tuple: ('var', 'NAME')
@@ -381,9 +377,7 @@ class CommandExpander:
                 interval = parse_interval(interval_spec)
             except ValueError as e:
                 msg = f"Invalid loop interval: {e}"
-                raise InvalidLoopConfigError(
-                    msg, line=line, file=self.source_file
-                ) from e
+                raise InvalidLoopConfigError(msg, line=line, file=self.source_file) from e
 
         # Determine start time
         start_time = self._resolve_timing(start_time_spec) if start_time_spec else self.current_time
@@ -443,9 +437,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Loop expansion failed: {e}"
-            raise InvalidLoopConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidLoopConfigError(msg, line=line, file=self.source_file) from e
 
     # ========================================================================
     # Pass 2: Sweep Processing
@@ -491,9 +483,7 @@ class CommandExpander:
             )
         except ValueError as e:
             msg = f"Invalid sweep interval: {e}"
-            raise InvalidSweepConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidSweepConfigError(msg, line=line, file=self.source_file) from e
 
         # Calculate steps
         total_duration = end_time - start_time
@@ -543,7 +533,7 @@ class CommandExpander:
         else:
             # Default: linear sweep from current value to data2
             ramp = RampSpec(
-                RampType.LINEAR, 0.0, float(data2) if isinstance(data2, (int, float)) else 127.0
+                RampType.LINEAR, 0.0, float(data2) if isinstance(data2, int | float) else 127.0
             )
 
         sweep_def = SweepDefinition(
@@ -573,9 +563,7 @@ class CommandExpander:
 
         except Exception as e:
             msg = f"Sweep expansion failed: {e}"
-            raise InvalidSweepConfigError(
-                msg, line=line, file=self.source_file
-            ) from e
+            raise InvalidSweepConfigError(msg, line=line, file=self.source_file) from e
 
     # ========================================================================
     # Pass 2: Command Processing
@@ -783,7 +771,7 @@ class CommandExpander:
                 # Absolute time in seconds - convert to ticks
                 # ticks = seconds * (ppq * tempo / 60)
                 seconds = (
-                    float(timing.value) if isinstance(timing.value, (str, int)) else timing.value
+                    float(timing.value) if isinstance(timing.value, str | int) else timing.value
                 )
                 ticks_per_second = (self.ppq * self.tempo) / 60.0
                 return int(seconds * ticks_per_second)
@@ -810,9 +798,7 @@ class CommandExpander:
                     )
                     return int(absolute_ticks)
                 # Fallback for backwards compatibility or malformed input
-                value = (
-                    float(timing.value) if isinstance(timing.value, (str, int)) else timing.value
-                )
+                value = float(timing.value) if isinstance(timing.value, str | int) else timing.value
                 return int(value * self.ppq)
 
             if timing.type == "relative":
@@ -842,9 +828,7 @@ class CommandExpander:
                 else:
                     # Fallback for backwards compatibility
                     delta_seconds = (
-                        float(timing.value)
-                        if isinstance(timing.value, (str, int))
-                        else timing.value
+                        float(timing.value) if isinstance(timing.value, str | int) else timing.value
                     )
 
                 ticks_per_second = (self.ppq * self.tempo) / 60.0
@@ -935,9 +919,7 @@ class CommandExpander:
                 value = event.get("data1")
                 if value is not None and (value < -8192 or value > 8191):
                     msg = "data1"
-                    raise ValueRangeError(
-                        msg, value, -8192, 8191, line=line, file=self.source_file
-                    )
+                    raise ValueRangeError(msg, value, -8192, 8191, line=line, file=self.source_file)
             elif event_type not in ["tempo", "marker", "text", "lyric", "time_signature"]:
                 for key in ["data1", "data2", "velocity", "note"]:
                     value = event.get(key)

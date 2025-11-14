@@ -73,9 +73,7 @@ class SymbolTable:
                 f"Invalid variable name '{name}'. "
                 "Variables must be uppercase alphanumeric with underscores."
             )
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         # Auto-detect type if not provided
         if var_type is None:

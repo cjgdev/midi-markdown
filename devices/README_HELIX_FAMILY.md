@@ -348,42 +348,42 @@ devices:
 ## Troubleshooting Common Issues
 
 ### "Helix ignores my MIDI messages"
-**Cause:** 350ms dead time after preset changes (firmware 3.5x)  
+**Cause:** 350ms dead time after preset changes (firmware 3.5x)
 **Solution:**
 - Add 350ms delay after ALL Program Change messages
 - Use firmware 3.10+ for CC69 buffering
 - Organize songs with snapshots to avoid preset changes
 
 ### "Snapshots don't switch reliably"
-**Cause:** Missing delays or old firmware  
+**Cause:** Missing delays or old firmware
 **Solution:**
 - Update to firmware 3.10+ for automatic CC69 buffering
 - Add 50ms delay after PC if using older firmware
 - Check MIDI Base Channel matches in Global Settings
 
 ### "Footswitch toggles unpredictable"
-**Cause:** Footswitches always TOGGLE (Helix limitation)  
+**Cause:** Footswitches always TOGGLE (Helix limitation)
 **Solution:**
 - Don't expect absolute on/off control
 - Send toggle commands, not state commands
 - Program external controller accordingly
 
 ### "Expression pedal jerky/glitchy"
-**Cause:** MIDI controller sending stepped values  
+**Cause:** MIDI controller sending stepped values
 **Solution:**
 - Ensure external controller sends smooth CC curves
 - Update to modern firmware (3.x)
 - Test with MIDI monitor to verify CC stream
 
 ### "HX Stomp has no 5-pin MIDI"
-**Cause:** Design limitation (USB-only)  
+**Cause:** Design limitation (USB-only)
 **Solution:**
 - Use MIDI Solutions USB MIDI Host adapter
 - Use controller with USB-C capability
 - Consider HX Effects if 5-pin DIN required
 
 ### "Can't connect MIDI hardware to HX Stomp/XL"
-**Cause:** No MIDI Thru, USB-only  
+**Cause:** No MIDI Thru, USB-only
 **Solution:**
 - Use external MIDI interface/hub
 - Use USB MIDI Host adapter for 5-pin conversion
@@ -439,9 +439,9 @@ devices:
 
 ## Profile Maintenance
 
-**Current Version:** 1.0.0  
-**Last Updated:** December 2024  
-**Tested Firmware:** 3.80  
+**Current Version:** 1.0.0
+**Last Updated:** December 2024
+**Tested Firmware:** 3.80
 **MML Specification:** 1.0.0
 
 **Change Log:**

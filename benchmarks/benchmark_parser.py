@@ -52,7 +52,6 @@ class TestParserPerformance:
         assert result is not None
         assert len(result.events) > 0
 
-
     def test_parse_large_file_speed(self, benchmark, large_mmd_file):
         """Benchmark parsing large file (>1000 events).
 
@@ -65,7 +64,6 @@ class TestParserPerformance:
         # Verify parse succeeded
         assert result is not None
         assert len(result.events) > 0
-
 
     def test_parse_string_performance(self, benchmark):
         """Benchmark parsing from string (in-memory).
@@ -95,7 +93,6 @@ ppq: 480
 
         assert result is not None
         assert len(result.events) > 0
-
 
     def test_parser_with_loops(self, benchmark):
         """Benchmark parser performance with loop constructs.

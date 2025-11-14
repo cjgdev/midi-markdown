@@ -84,9 +84,7 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
     event_type_name = event.type.name.lower()
 
     # Channel voice events (note_on, note_off, cc, pc, pitch_bend, etc.)
-    if (
-        event_type_name in {"note_on", "note_off", "control_change"}
-    ):
+    if event_type_name in {"note_on", "note_off", "control_change"}:
         return f"{track}, {time}, {event_name}, {event.channel}, {event.data1}, {event.data2}"
 
     if event_type_name == "program_change":
@@ -161,9 +159,7 @@ def _format_event_as_csv(event: MIDIEvent, track: int, ppq: int) -> str:
         return ""  # Skip if no data
 
     # System common messages
-    if (
-        event_type_name in {"mtc_quarter_frame", "song_position", "song_select"}
-    ):
+    if event_type_name in {"mtc_quarter_frame", "song_position", "song_select"}:
         return f"{track}, {time}, {event_name}, {event.data1}"
 
     # Unknown event type - skip

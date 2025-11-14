@@ -271,7 +271,7 @@ class MMLRepl:
 
         try:
             # 1. Parse/Syntax Errors (Lark exceptions)
-            if isinstance(error, (UnexpectedToken, UnexpectedCharacters, UnexpectedInput)):
+            if isinstance(error, UnexpectedToken | UnexpectedCharacters | UnexpectedInput):
                 self._handle_parse_error(error, source_text, console)
 
             # 2. Validation Errors (MIDI value range, channel, etc.)

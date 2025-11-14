@@ -699,4 +699,3 @@ random(C4, G4, seed=1)
 | Pitch Bend | `pitch_bend 1.random(0, 16384)` | ✅ Works |
 | Timing | `[+random(100ms, 500ms)]` | ❌ Not Supported |
 | Duration | `note_on 1.60.80 random(1b, 4b)` | ❌ Not Supported |
-

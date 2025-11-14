@@ -218,7 +218,7 @@ class TestOutputFormats:
         import json
 
         data = json.loads(output_file.read_text())
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 @pytest.mark.integration

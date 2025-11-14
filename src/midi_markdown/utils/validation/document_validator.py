@@ -47,7 +47,7 @@ class DocumentValidator:
         """
         for event in events:
             # Skip section headers and other non-command tokens
-            if not isinstance(event, (dict, object)) or not hasattr(event, "__dict__"):
+            if not isinstance(event, dict | object) or not hasattr(event, "__dict__"):
                 if not isinstance(event, dict):
                     continue
 

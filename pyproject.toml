@@ -40,6 +40,7 @@ dev = [
     "ruff>=0.6.0",
     "mypy>=1.11.0",
     "types-pyyaml>=6.0.0",
+    "pre-commit>=3.5.0",
 ]
 docs = [
     "mkdocs>=1.6.0",
@@ -140,6 +141,7 @@ select = [
 
 ignore = [
     "E501",    # Line too long (handled by formatter)
+    "ISC001",  # Implicit string concatenation (conflicts with formatter)
     "PLR0913", # Too many arguments
     "TRY003",  # Avoid specifying long messages outside exception class
     "ERA001",  # Commented out code (sometimes useful for documentation)

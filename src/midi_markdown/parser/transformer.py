@@ -205,7 +205,7 @@ class MMDTransformer(Transformer):
                 param_name = value[1].get("name", "unknown")
                 raw = f"[+{{{param_name}}}]"
                 return Timing("relative", value, raw)
-            if len(value) == 2 and isinstance(value[0], (int, float)) and isinstance(value[1], str):
+            if len(value) == 2 and isinstance(value[0], int | float) and isinstance(value[1], str):
                 # Duration tuple (number, unit) from duration transformer
                 num, unit = value
                 raw = f"[+{int(num) if num == int(num) else num}{unit}]"
@@ -363,7 +363,7 @@ class MMDTransformer(Transformer):
             # Extract unit from Token
             unit = str(children[1]) if isinstance(children[1], Token) else str(children[1])
             # Return tuple to avoid string unpacking by @v_args(inline=True)
-            return (float(number) if isinstance(number, (int, float)) else number, unit)
+            return (float(number) if isinstance(number, int | float) else number, unit)
         if len(children) == 1:
             # variable_ref or param_ref - return as-is
             return children[0]
@@ -390,7 +390,7 @@ class MMDTransformer(Transformer):
         # Only convert to int if it's not a tuple (variable) or RandomExpression
         velocity_int = (
             int(velocity_val)
-            if not isinstance(velocity_val, (tuple, RandomExpression))
+            if not isinstance(velocity_val, tuple | RandomExpression)
             else velocity_val
         )
 
@@ -491,7 +491,7 @@ class MMDTransformer(Transformer):
             pressure_val = args[1]
             if not isinstance(
                 pressure_val,
-                (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression, tuple),
+                RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression | tuple,
             ):
                 pressure_val = int(pressure_val)
             return MIDICommand(type="channel_pressure", channel=int(args[0]), data1=pressure_val)
@@ -503,7 +503,7 @@ class MMDTransformer(Transformer):
         pressure_val = args[2]
         if not isinstance(
             pressure_val,
-            (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression, tuple),
+            RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression | tuple,
         ):
             pressure_val = int(pressure_val)
         return MIDICommand(type="poly_pressure", channel=channel, data1=note, data2=pressure_val)
@@ -1038,7 +1038,7 @@ class MMDTransformer(Transformer):
             i += 1
 
         # Check for interval (duration) - can be string or Duration object
-        if i < len(args) and not isinstance(args[i], (dict, MIDICommand, Track, list)):
+        if i < len(args) and not isinstance(args[i], dict | MIDICommand | Track | list):
             interval = args[i]
             i += 1
 
@@ -1512,7 +1512,7 @@ class MMDTransformer(Transformer):
             return value.strip("\"'")
 
         # If it's a simple number, return it
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return value
 
         # Handle Lark Tree objects (expressions from grammar)
@@ -1546,7 +1546,7 @@ class MMDTransformer(Transformer):
             if isinstance(expr_tree, Tree):
                 return self._eval_tree(expr_tree)
 
-        if isinstance(expr_tree, (int, float)):
+        if isinstance(expr_tree, int | float):
             return expr_tree
 
         if not isinstance(expr_tree, tuple) or len(expr_tree) == 0:
@@ -1860,7 +1860,7 @@ class MMDTransformer(Transformer):
     def _parse_cc_value(self, value) -> int | dict:
         """Parse CC value (can be int, percent, ramp, etc.)"""
         # Handle Token objects and strings
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return int(value)
         if isinstance(value, str):
             try:
@@ -1880,7 +1880,7 @@ class MMDTransformer(Transformer):
 
         # Pass through modulation expression objects unchanged
         if isinstance(
-            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            value, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             return value
         if isinstance(value, dict) and value.get("type") in ("ramp", "random"):
@@ -1915,7 +1915,7 @@ class MMDTransformer(Transformer):
 
         # Check for modulation expressions - pass through for later expansion
         if isinstance(
-            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            value, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             return value
 
@@ -2008,6 +2008,7 @@ class MMDTransformer(Transformer):
             # Check if type_spec is a range (INT-INT)
             # Use regex to properly handle negative numbers
             import re
+
             range_match = re.match(r"^(-?\d+)\s*-\s*(-?\d+)$", type_spec.strip())
             if range_match:
                 # Parse range: 0-127, -24-24, etc.
@@ -2083,7 +2084,10 @@ class MMDTransformer(Transformer):
                 # Check if it's a range (contains hyphen)
                 # Use regex to properly handle negative numbers
                 import re
-                range_match = re.match(r"^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$", child_value.strip())
+
+                range_match = re.match(
+                    r"^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$", child_value.strip()
+                )
                 if range_match:
                     # PARAM_RANGE: "min-max" (e.g., "0-127", "0.5-8.0", "-24-24")
                     param["type"] = "range"

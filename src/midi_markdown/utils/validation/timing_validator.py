@@ -56,7 +56,7 @@ class TimingValidator:
 
         for event in events:
             # Skip non-event tokens (like SECTION_HEADER)
-            if not isinstance(event, (dict, object)) or not hasattr(event, "__dict__"):
+            if not isinstance(event, dict | object) or not hasattr(event, "__dict__"):
                 if not isinstance(event, dict):
                     continue
 

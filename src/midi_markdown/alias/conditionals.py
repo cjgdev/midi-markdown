@@ -65,9 +65,7 @@ class ConditionalEvaluator:
                 f"Invalid comparison operator '{operator}'. "
                 f"Valid operators: {', '.join(sorted(self.VALID_OPERATORS))}"
             )
-            raise AliasError(
-                msg
-            )
+            raise AliasError(msg)
 
         return self._apply_operator(left, operator, right)
 

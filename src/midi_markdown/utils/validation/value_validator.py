@@ -63,7 +63,7 @@ class Validator:
 
         # Allow modulation expressions - validation happens during expansion
         if isinstance(
-            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            value, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             return
 
@@ -178,7 +178,7 @@ class Validator:
 
         # Allow modulation expressions - validation happens during expansion
         if isinstance(
-            velocity, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            velocity, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             return
 
@@ -245,7 +245,7 @@ class Validator:
 
         # Allow modulation expression AST nodes (will be expanded later)
         if isinstance(
-            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            value, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             # Validation happens during expansion - just accept it here
             return
@@ -280,7 +280,9 @@ class Validator:
             )
 
         if not isinstance(value, int):
-            msg = f"CC value must be an integer or ramp/random expression, got {type(value).__name__}"
+            msg = (
+                f"CC value must be an integer or ramp/random expression, got {type(value).__name__}"
+            )
             raise ValidationError(
                 msg,
                 error_code="E201",
@@ -341,7 +343,7 @@ class Validator:
 
         # Allow modulation expressions - validation happens during expansion
         if isinstance(
-            value, (RandomExpression, CurveExpression, WaveExpression, EnvelopeExpression)
+            value, RandomExpression | CurveExpression | WaveExpression | EnvelopeExpression
         ):
             return
 
@@ -372,7 +374,7 @@ class Validator:
         Raises:
             ValidationError: If tempo is invalid
         """
-        if not isinstance(bpm, (int, float)):
+        if not isinstance(bpm, int | float):
             msg = f"Tempo must be a number, got {type(bpm).__name__}"
             raise ValidationError(
                 msg,
