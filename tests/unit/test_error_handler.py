@@ -76,7 +76,8 @@ def test_validation_error_exit_code():
 
     with patch("midi_markdown.cli.errors.show_validation_error"):
         with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-            raise ValidationError("Invalid MIDI value")
+            msg = "Invalid MIDI value"
+            raise ValidationError(msg)
 
         assert exc_info.value.code == 3
 
@@ -88,7 +89,8 @@ def test_expansion_error_exit_code():
 
     with patch("midi_markdown.cli.errors.show_expansion_error"):
         with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-            raise ExpansionError("Variable not defined")
+            msg = "Variable not defined"
+            raise ExpansionError(msg)
 
         assert exc_info.value.code == 1
 
@@ -100,7 +102,8 @@ def test_alias_error_exit_code():
 
     with patch("midi_markdown.cli.errors.show_alias_error"):
         with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-            raise AliasError("Alias not found")
+            msg = "Alias not found"
+            raise AliasError(msg)
 
         assert exc_info.value.code == 1
 
@@ -112,7 +115,8 @@ def test_file_not_found_exit_code():
 
     with patch("midi_markdown.cli.errors.show_file_not_found_error"):
         with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-            raise FileNotFoundError("test.mmd")
+            msg = "test.mmd"
+            raise FileNotFoundError(msg)
 
         assert exc_info.value.code == 4
 
@@ -124,7 +128,8 @@ def test_runtime_error_exit_code():
 
     with patch("midi_markdown.cli.errors.show_runtime_error"):
         with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-            raise RuntimeError("MIDI port not found")
+            msg = "MIDI port not found"
+            raise RuntimeError(msg)
 
         assert exc_info.value.code == 5
 
@@ -135,7 +140,8 @@ def test_generic_exception_exit_code():
     ctx = ErrorContext(mode="compile", console=console)
 
     with pytest.raises(SystemExit) as exc_info, cli_error_handler(ctx):
-        raise ValueError("Unexpected error")
+        msg = "Unexpected error"
+        raise ValueError(msg)
 
     assert exc_info.value.code == 1
 
@@ -146,7 +152,8 @@ def test_debug_mode_shows_traceback():
     ctx = ErrorContext(mode="compile", debug=True, console=console)
 
     with pytest.raises(SystemExit), cli_error_handler(ctx):
-        raise ValueError("Test error")
+        msg = "Test error"
+        raise ValueError(msg)
 
     # Verify console.print_exception was called
     console.print_exception.assert_called_once()
@@ -158,7 +165,8 @@ def test_no_debug_shows_hint():
     ctx = ErrorContext(mode="compile", debug=False, console=console)
 
     with pytest.raises(SystemExit), cli_error_handler(ctx):
-        raise ValueError("Test error")
+        msg = "Test error"
+        raise ValueError(msg)
 
     # Verify hint message was printed
     printed_messages = [call[0][0] for call in console.print.call_args_list]

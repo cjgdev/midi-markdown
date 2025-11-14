@@ -8,8 +8,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..parser.ast_nodes import AliasDefinition, MIDICommand
-from ..utils.parameter_types import bool_to_midi, note_to_midi, percent_to_midi
+from midi_markdown.parser.ast_nodes import AliasDefinition, MIDICommand
+from midi_markdown.utils.parameter_types import bool_to_midi, note_to_midi, percent_to_midi
+
 from .computation import ComputationError, SafeComputationEngine
 from .conditionals import ConditionalEvaluator
 from .errors import AliasError, AliasMaxDepthError, AliasRecursionError
@@ -103,9 +104,12 @@ class AliasResolver:
         try:
             # Look up alias definition
             if alias_name not in self.aliases:
-                raise AliasError(
+                msg = (
                     f"Undefined alias '{alias_name}' at line {source_line}. "
                     f"Available aliases: {', '.join(self.aliases.keys()) or 'none'}"
+                )
+                raise AliasError(
+                    msg
                 )
 
             alias_def = self.aliases[alias_name]
@@ -129,8 +133,9 @@ class AliasResolver:
                         param_values[var_name] = computed_value
 
                 except ComputationError as e:
+                    msg = f"Computation error in alias '{alias_name}' at line {source_line}: {e}"
                     raise AliasError(
-                        f"Computation error in alias '{alias_name}' at line {source_line}: {e}"
+                        msg
                     )
 
             # Select commands based on conditionals (Stage 7)
@@ -142,9 +147,12 @@ class AliasResolver:
                 )
 
                 if selected_commands is None:
-                    raise AliasError(
+                    msg = (
                         f"No conditional branch matched in alias '{alias_name}' "
                         f"at line {source_line}. Parameter values: {param_values}"
+                    )
+                    raise AliasError(
+                        msg
                     )
 
                 # Use selected commands
@@ -154,7 +162,7 @@ class AliasResolver:
                 commands_to_expand = alias_def.commands
 
             # Expand commands - track timing for relative offsets
-            from ..parser.ast_nodes import Timing
+            from midi_markdown.parser.ast_nodes import Timing
 
             expanded_commands = []
             accumulated_timing = None  # Track relative timing to apply to next command
@@ -178,22 +186,29 @@ class AliasResolver:
                         accumulated_timing = item
                     elif item.type == "absolute":
                         # Absolute timing not allowed in aliases
-                        raise AliasError(
+                        msg = (
                             f"Absolute timing (e.g., [mm:ss.mmm]) is not supported in alias '{alias_name}'. "
                             f"Use relative timing (e.g., [+100ms], [+1b]) instead to preserve reusability. "
                             f"See docs/dev-guides/anti-patterns.md for details."
                         )
+                        raise AliasError(
+                            msg
+                        )
                     elif item.type == "musical":
                         # Musical timing not allowed in aliases
-                        raise AliasError(
+                        msg = (
                             f"Musical timing (e.g., [bars.beats.ticks]) is not supported in alias '{alias_name}'. "
                             f"Use relative timing (e.g., [+100ms], [+1b]) instead to preserve reusability. "
                             f"See docs/dev-guides/anti-patterns.md for details."
                         )
+                        raise AliasError(
+                            msg
+                        )
                     else:
                         # Unknown timing type
+                        msg = f"Unknown timing type '{item.type}' in alias '{alias_name}'"
                         raise AliasError(
-                            f"Unknown timing type '{item.type}' in alias '{alias_name}'"
+                            msg
                         )
                     continue
 
@@ -239,8 +254,9 @@ class AliasResolver:
                         nested_args = expanded_cmd.params.get("arguments", [])
 
                         if nested_alias_name is None:
+                            msg = f"alias_call command missing alias_name at line {source_line}"
                             raise AliasError(
-                                f"alias_call command missing alias_name at line {source_line}"
+                                msg
                             )
 
                         # Recursively resolve the nested alias
@@ -324,10 +340,7 @@ class AliasResolver:
         arguments = []
         if args_str:
             # Try space-separated first, then dot-separated
-            if " " in args_str:
-                arguments = args_str.split()
-            else:
-                arguments = args_str.split(".")
+            arguments = args_str.split() if " " in args_str else args_str.split(".")
 
         # Recursively resolve the nested alias
         try:
@@ -371,15 +384,21 @@ class AliasResolver:
 
         # Check argument count
         if len(arguments) < required_count:
-            raise AliasError(
+            msg = (
                 f"Alias '{alias_def.name}' requires at least {required_count} arguments, "
                 f"got {len(arguments)} at line {source_line}"
             )
+            raise AliasError(
+                msg
+            )
 
         if len(arguments) > total_count:
-            raise AliasError(
+            msg = (
                 f"Alias '{alias_def.name}' accepts at most {total_count} arguments, "
                 f"got {len(arguments)} at line {source_line}"
+            )
+            raise AliasError(
+                msg
             )
 
         # Bind each parameter
@@ -392,9 +411,12 @@ class AliasResolver:
             elif param_def.get("default") is not None:
                 value = param_def["default"]
             else:
-                raise AliasError(
+                msg = (
                     f"Missing required parameter '{param_name}' for alias '{alias_def.name}' "
                     f"at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
 
             # Validate and convert value
@@ -430,30 +452,38 @@ class AliasResolver:
             if isinstance(value, str):
                 if value not in param_def["enum_values"]:
                     valid_options = ", ".join(param_def["enum_values"].keys())
-                    raise AliasError(
+                    msg = (
                         f"Invalid value '{value}' for enum parameter '{param_name}' "
                         f"in alias '{alias_name}'. Valid options: {valid_options} "
                         f"at line {source_line}"
                     )
+                    raise AliasError(
+                        msg
+                    )
                 return param_def["enum_values"][value]
             # Numeric value for enum - validate it's in the enum values
             if value not in param_def["enum_values"].values():
-                raise AliasError(
+                msg = (
                     f"Invalid numeric value {value} for enum parameter '{param_name}' "
                     f"in alias '{alias_name}' at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
             return int(value)
 
         # Handle note parameter - convert note names to MIDI numbers
-        if param_type == "note":
-            if isinstance(value, str):
-                try:
-                    return note_to_midi(value)
-                except ValueError as e:
-                    raise AliasError(
-                        f"Invalid note name '{value}' for parameter '{param_name}' "
-                        f"in alias '{alias_name}': {e} at line {source_line}"
-                    )
+        if param_type == "note" and isinstance(value, str):
+            try:
+                return note_to_midi(value)
+            except ValueError as e:
+                msg = (
+                    f"Invalid note name '{value}' for parameter '{param_name}' "
+                    f"in alias '{alias_name}': {e} at line {source_line}"
+                )
+                raise AliasError(
+                    msg
+                )
             # If numeric, fall through to validate as MIDI note number
 
         # Handle percent parameter - scale 0-100 to 0-127
@@ -461,17 +491,23 @@ class AliasResolver:
             try:
                 percent_value = int(value)
             except (ValueError, TypeError):
-                raise AliasError(
+                msg = (
                     f"Invalid percent value '{value}' for parameter '{param_name}' "
                     f"in alias '{alias_name}' - expected integer 0-100 at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
 
             try:
                 return percent_to_midi(percent_value)
             except ValueError as e:
-                raise AliasError(
+                msg = (
                     f"Invalid percent value for parameter '{param_name}' "
                     f"in alias '{alias_name}': {e} at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
 
         # Handle bool parameter - accept various boolean formats
@@ -479,9 +515,12 @@ class AliasResolver:
             try:
                 return bool_to_midi(value)
             except ValueError as e:
-                raise AliasError(
+                msg = (
                     f"Invalid boolean value '{value}' for parameter '{param_name}' "
                     f"in alias '{alias_name}': {e} at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
 
         # Convert to numeric value (int or float) for generic and other typed parameters
@@ -495,9 +534,12 @@ class AliasResolver:
             try:
                 numeric_value = float(value)
             except (ValueError, TypeError):
-                raise AliasError(
+                msg = (
                     f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
                     f"- expected numeric value at line {source_line}"
+                )
+                raise AliasError(
+                    msg
                 )
         else:
             # Try int first, then float
@@ -507,9 +549,12 @@ class AliasResolver:
                 try:
                     numeric_value = float(value)
                 except (ValueError, TypeError):
-                    raise AliasError(
+                    msg = (
                         f"Invalid value '{value}' for parameter '{param_name}' in alias '{alias_name}' "
                         f"- expected numeric value at line {source_line}"
+                    )
+                    raise AliasError(
+                        msg
                     )
 
         # Validate range
@@ -517,9 +562,12 @@ class AliasResolver:
         max_val = param_def.get("max", 127)
 
         if not (min_val <= numeric_value <= max_val):
-            raise AliasError(
+            msg = (
                 f"Parameter '{param_name}' value {numeric_value} out of range [{min_val}-{max_val}] "
                 f"in alias '{alias_name}' at line {source_line}"
+            )
+            raise AliasError(
+                msg
             )
 
         return numeric_value
@@ -565,7 +613,8 @@ class AliasResolver:
         command_str = command_str.strip().lstrip("-").strip()
 
         if not command_str:
-            raise AliasError(f"Empty command after alias expansion at line {source_line}")
+            msg = f"Empty command after alias expansion at line {source_line}"
+            raise AliasError(msg)
 
         # Check if command has the format "cmd.args" (no space) or "cmd args" (with space)
         if " " in command_str:
@@ -587,11 +636,13 @@ class AliasResolver:
         if cmd_type in ("cc", "control_change"):
             # Format: cc.channel.controller.value or cc channel.controller.value
             if not args_str:
-                raise AliasError(f"Invalid cc command: {command_str} at line {source_line}")
+                msg = f"Invalid cc command: {command_str} at line {source_line}"
+                raise AliasError(msg)
             values = args_str.split(".")
             if len(values) != 3:
+                msg = f"Invalid cc format: {command_str} - expected channel.cc.value at line {source_line}"
                 raise AliasError(
-                    f"Invalid cc format: {command_str} - expected channel.cc.value at line {source_line}"
+                    msg
                 )
             return MIDICommand(
                 type="control_change",
@@ -605,11 +656,13 @@ class AliasResolver:
         if cmd_type in ("pc", "program_change"):
             # Format: pc.channel.program or pc channel.program
             if not args_str:
-                raise AliasError(f"Invalid pc command: {command_str} at line {source_line}")
+                msg = f"Invalid pc command: {command_str} at line {source_line}"
+                raise AliasError(msg)
             values = args_str.split(".")
             if len(values) != 2:
+                msg = f"Invalid pc format: {command_str} - expected channel.program at line {source_line}"
                 raise AliasError(
-                    f"Invalid pc format: {command_str} - expected channel.program at line {source_line}"
+                    msg
                 )
             return MIDICommand(
                 type="program_change",
@@ -622,7 +675,8 @@ class AliasResolver:
         if cmd_type in ("note", "note_on"):
             # Format: note.channel.note.velocity [duration]
             if not args_str:
-                raise AliasError(f"Invalid note command: {command_str} at line {source_line}")
+                msg = f"Invalid note command: {command_str} at line {source_line}"
+                raise AliasError(msg)
             # Check if duration is specified (space-separated after values)
             duration = None
             if " " in args_str:
@@ -630,8 +684,9 @@ class AliasResolver:
 
             values = args_str.split(".")
             if len(values) < 3:
+                msg = f"Invalid note format: {command_str} - expected channel.note.velocity at line {source_line}"
                 raise AliasError(
-                    f"Invalid note format: {command_str} - expected channel.note.velocity at line {source_line}"
+                    msg
                 )
 
             params = {}
@@ -666,11 +721,12 @@ class AliasResolver:
         Raises:
             AliasError: If timing2 is not relative type or uses unsupported units
         """
-        from ..parser.ast_nodes import Timing
+        from midi_markdown.parser.ast_nodes import Timing
 
         if timing2.type != "relative":
+            msg = f"Cannot combine non-relative timing with accumulated relative timing: {timing2.raw}"
             raise AliasError(
-                f"Cannot combine non-relative timing with accumulated relative timing: {timing2.raw}"
+                msg
             )
 
         # Both timings are relative: (value, unit)
@@ -704,17 +760,24 @@ class AliasResolver:
             return value * 1000
         if unit == "b":
             # Beats to ms: depends on tempo
-            raise AliasError(
+            msg = (
                 "Cannot use beat-based relative timing in aliases "
                 "(no tempo context available). Use 'ms' or 's' units instead."
             )
+            raise AliasError(
+                msg
+            )
         if unit == "t":
             # Ticks to ms: depends on PPQ and tempo
-            raise AliasError(
+            msg = (
                 "Cannot use tick-based relative timing in aliases "
                 "(no PPQ/tempo context available). Use 'ms' or 's' units instead."
             )
-        raise AliasError(f"Unknown timing unit: {unit}")
+            raise AliasError(
+                msg
+            )
+        msg = f"Unknown timing unit: {unit}"
+        raise AliasError(msg)
 
     def _substitute_in_command(
         self, command: MIDICommand, param_values: dict[str, Any], timing: Any, source_line: int

@@ -496,7 +496,7 @@ class MMLRepl:
             # Aliases
             if self.state.aliases:
                 console.print(f"  [cyan]Aliases ({len(self.state.aliases)}):[/cyan]")
-                for name in self.state.aliases.keys():
+                for name in self.state.aliases:
                     console.print(f"    {name}")
             else:
                 console.print("  [dim]Aliases: (none)[/dim]")

@@ -9,11 +9,13 @@ from __future__ import annotations
 import ast
 import operator
 import signal
-from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .errors import ComputationError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class ComputationTimeoutError(ComputationError):
@@ -208,7 +210,8 @@ class SafeComputationEngine:
             return expr
 
         # Unknown type
-        raise ComputationError(f"Cannot convert Lark expression to Python: {type(expr)} {expr}")
+        msg = f"Cannot convert Lark expression to Python: {type(expr)} {expr}"
+        raise ComputationError(msg)
 
     def evaluate_expression(self, expr_str: str, input_params: dict[str, Any]) -> Any:
         """Evaluate a single expression safely.
@@ -235,7 +238,8 @@ class SafeComputationEngine:
         try:
             tree = ast.parse(expr_str, mode="eval")
         except SyntaxError as e:
-            raise ComputationError(f"Syntax error in expression '{expr_str}': {e}")
+            msg = f"Syntax error in expression '{expr_str}': {e}"
+            raise ComputationError(msg)
 
         # Validate AST for security
         self._validate_ast(tree)
@@ -255,20 +259,24 @@ class SafeComputationEngine:
         # Evaluate with timeout
         try:
             with self._timeout(self.MAX_EXECUTION_TIME):
-                result = self._eval_node(tree.body, namespace)
-            return result
+                return self._eval_node(tree.body, namespace)
         except ComputationTimeoutError:
             raise
         except ZeroDivisionError:
-            raise ComputationError(f"Division by zero in expression: {expr_str}")
+            msg = f"Division by zero in expression: {expr_str}"
+            raise ComputationError(msg)
         except KeyError as e:
             available_vars = ", ".join(sorted(namespace.keys()))
-            raise ComputationError(
+            msg = (
                 f"Undefined variable {e} in expression: {expr_str}\n"
                 f"Available variables: {available_vars}"
             )
+            raise ComputationError(
+                msg
+            )
         except Exception as e:
-            raise ComputationError(f"Error evaluating expression '{expr_str}': {e}")
+            msg = f"Error evaluating expression '{expr_str}': {e}"
+            raise ComputationError(msg)
 
     def _validate_ast(self, tree: ast.AST) -> None:
         """Validate AST contains only safe operations.
@@ -284,9 +292,12 @@ class SafeComputationEngine:
 
             # Check if node type is allowed
             if node_type not in self.ALLOWED_NODES:
-                raise ComputationError(
+                msg = (
                     f"Forbidden operation: {node_type.__name__}. "
                     f"Only basic arithmetic operations are allowed."
+                )
+                raise ComputationError(
+                    msg
                 )
 
             # Special check for function calls - only whitelisted functions
@@ -294,23 +305,29 @@ class SafeComputationEngine:
                 if isinstance(node.func, ast.Name):
                     func_name = node.func.id
                     if func_name not in self.ALLOWED_FUNCTIONS:
-                        raise ComputationError(
+                        msg = (
                             f"Function '{func_name}' is not allowed. "
                             f"Allowed functions: {', '.join(sorted(self.ALLOWED_FUNCTIONS))}"
                         )
+                        raise ComputationError(
+                            msg
+                        )
                 else:
                     # Function call that's not a simple name (e.g., obj.method())
+                    msg = "Only simple function calls are allowed (no attribute access)"
                     raise ComputationError(
-                        "Only simple function calls are allowed (no attribute access)"
+                        msg
                     )
 
             # Block attribute access (prevents obj.__class__, etc.)
             if isinstance(node, ast.Attribute):
-                raise ComputationError("Attribute access is not allowed for security reasons")
+                msg = "Attribute access is not allowed for security reasons"
+                raise ComputationError(msg)
 
             # Block imports
             if isinstance(node, (ast.Import, ast.ImportFrom)):
-                raise ComputationError("Import statements are not allowed")
+                msg = "Import statements are not allowed"
+                raise ComputationError(msg)
 
     def _eval_node(self, node: ast.AST, namespace: dict[str, Any]) -> Any:
         """Evaluate AST node recursively.
@@ -328,9 +345,12 @@ class SafeComputationEngine:
         # Increment operation counter
         self.operation_count += 1
         if self.operation_count > self.MAX_OPERATIONS:
-            raise ComputationError(
+            msg = (
                 f"Operation limit exceeded ({self.MAX_OPERATIONS} operations). "
                 f"Expression is too complex."
+            )
+            raise ComputationError(
+                msg
             )
 
         # Handle different node types
@@ -347,21 +367,24 @@ class SafeComputationEngine:
             right = self._eval_node(node.right, namespace)
             op_func = self.binary_ops.get(type(node.op))
             if op_func is None:
-                raise ComputationError(f"Unsupported operator: {type(node.op).__name__}")
+                msg = f"Unsupported operator: {type(node.op).__name__}"
+                raise ComputationError(msg)
             return op_func(left, right)
         if isinstance(node, ast.UnaryOp):
             # Unary operation
             operand = self._eval_node(node.operand, namespace)
             op_func = self.unary_ops.get(type(node.op))
             if op_func is None:
-                raise ComputationError(f"Unsupported operator: {type(node.op).__name__}")
+                msg = f"Unsupported operator: {type(node.op).__name__}"
+                raise ComputationError(msg)
             return op_func(operand)
         if isinstance(node, ast.Call):
             # Function call
             func_name = node.func.id
             func = namespace.get(func_name)
             if func is None:
-                raise ComputationError(f"Unknown function: {func_name}")
+                msg = f"Unknown function: {func_name}"
+                raise ComputationError(msg)
 
             # Evaluate arguments
             args = [self._eval_node(arg, namespace) for arg in node.args]
@@ -370,9 +393,11 @@ class SafeComputationEngine:
             try:
                 return func(*args)
             except TypeError as e:
-                raise ComputationError(f"Error calling {func_name}: {e}")
+                msg = f"Error calling {func_name}: {e}"
+                raise ComputationError(msg)
         else:
-            raise ComputationError(f"Unsupported AST node type: {type(node).__name__}")
+            msg = f"Unsupported AST node type: {type(node).__name__}"
+            raise ComputationError(msg)
 
     def _create_midi_functions(self) -> dict[str, Callable]:
         """Create MIDI helper functions.
@@ -430,7 +455,8 @@ class SafeComputationEngine:
         """
 
         def timeout_handler(signum, frame):
-            raise ComputationTimeoutError(f"Computation exceeded time limit of {seconds} seconds")
+            msg = f"Computation exceeded time limit of {seconds} seconds"
+            raise ComputationTimeoutError(msg)
 
         # Check if signal.alarm is available (Unix-like systems)
         if hasattr(signal, "alarm"):

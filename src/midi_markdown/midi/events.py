@@ -7,7 +7,7 @@ New code should import directly from midi_markdown.core.ir instead.
 from __future__ import annotations
 
 # Re-export from core for backward compatibility
-from ..core.ir import (
+from midi_markdown.core.ir import (
     EventType,
     IRProgram,
     MIDIEvent,

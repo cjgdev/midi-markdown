@@ -105,7 +105,7 @@ class TestTimingEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "time_str,expected",
+        ("time_str", "expected"),
         [
             ("00:00.000", 0.0),  # Minimum time value
             ("00:00.001", 0.001),  # Minimum fractional
@@ -126,7 +126,7 @@ class TestTimingEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "time_str,expected",
+        ("time_str", "expected"),
         [
             ("1.1.0", (1, 1, 0)),  # First bar, first beat
             ("1.1.479", (1, 1, 479)),  # Max tick boundary-1
@@ -146,7 +146,7 @@ class TestTimingEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "offset,expected",
+        ("offset", "expected"),
         [
             ("0b", (0, "b")),  # Zero beat offset
             ("0s", (0, "s")),  # Zero second offset

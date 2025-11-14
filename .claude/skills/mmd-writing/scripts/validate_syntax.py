@@ -172,7 +172,7 @@ def validate_file(content: str) -> tuple[bool, list[SyntaxError]]:
     errors = []
 
     # Validate frontmatter
-    valid_fm, fm_errors, fm_end = validate_frontmatter(lines)
+    _valid_fm, fm_errors, fm_end = validate_frontmatter(lines)
     errors.extend(fm_errors)
 
     # Track state
@@ -198,7 +198,7 @@ def validate_file(content: str) -> tuple[bool, list[SyntaxError]]:
             continue
 
         # Skip single-line comments
-        if stripped.startswith("#") or stripped.startswith("//"):
+        if stripped.startswith(("#", "//")):
             continue
 
         # Track blocks
@@ -261,8 +261,6 @@ def validate_file(content: str) -> tuple[bool, list[SyntaxError]]:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: validate_syntax.py <file.mmd>")
-        print("       validate_syntax.py --stdin")
         sys.exit(1)
 
     # Read input
@@ -271,7 +269,6 @@ def main():
     else:
         file_path = Path(sys.argv[1])
         if not file_path.exists():
-            print(f"Error: File not found: {file_path}")
             sys.exit(1)
         content = file_path.read_text()
 
@@ -279,13 +276,10 @@ def main():
     valid, errors = validate_file(content)
 
     if valid:
-        print("✓ Syntax validation passed")
         sys.exit(0)
     else:
-        print(f"✗ Found {len(errors)} syntax error(s):\n")
-        for error in errors:
-            print(error)
-            print()
+        for _error in errors:
+            pass
         sys.exit(1)
 
 

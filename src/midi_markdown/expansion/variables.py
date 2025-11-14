@@ -64,13 +64,17 @@ class SymbolTable:
         """
         # Check if constant
         if name in self.CONSTANTS:
-            raise ValueError(f"Cannot redefine built-in constant: {name}")
+            msg = f"Cannot redefine built-in constant: {name}"
+            raise ValueError(msg)
 
         # Validate name format
         if not name.isupper() or not name.replace("_", "").isalnum():
-            raise ValueError(
+            msg = (
                 f"Invalid variable name '{name}'. "
                 "Variables must be uppercase alphanumeric with underscores."
+            )
+            raise ValueError(
+                msg
             )
 
         # Auto-detect type if not provided
@@ -82,7 +86,8 @@ class SymbolTable:
             elif isinstance(value, str):
                 var_type = "string"
             else:
-                raise ValueError(f"Unsupported value type: {type(value)}")
+                msg = f"Unsupported value type: {type(value)}"
+                raise ValueError(msg)
 
         # Type conversion
         if var_type == "int":
@@ -133,7 +138,8 @@ class SymbolTable:
         """
         var = self.lookup(name)
         if var is None:
-            raise ValueError(f"Undefined variable: {name}")
+            msg = f"Undefined variable: {name}"
+            raise ValueError(msg)
         return var.value
 
     def exists(self, name: str) -> bool:

@@ -160,7 +160,7 @@ class TestExampleParsing:
         assert len(cc_messages) >= 20, "Should have substantial CC automation"
 
         # Check for different CC types (CC 7=volume, CC 10=pan, etc.)
-        cc_types = set(cc[1] for cc in cc_messages)
+        cc_types = {cc[1] for cc in cc_messages}
         assert 7 in cc_types, "Should have volume (CC 7) automation"
         assert 10 in cc_types, "Should have pan (CC 10) automation"
 

@@ -40,7 +40,7 @@ def version_callback(value: bool) -> None:
         console = Console()
         console.print(f"[bold]MIDI Markdown[/bold] v{__version__}")
         console.print("Human-readable MIDI markup language compiler")
-        raise typer.Exit()
+        raise typer.Exit
 
 
 # Create app instance

@@ -73,12 +73,16 @@ class WaveGenerator:
             ValueError: If frequency_hz <= 0 or invalid wave_type
         """
         if frequency_hz <= 0:
-            raise ValueError(f"Frequency must be positive, got {frequency_hz}")
+            msg = f"Frequency must be positive, got {frequency_hz}"
+            raise ValueError(msg)
 
         if wave_type not in ("sine", "triangle", "square", "sawtooth"):
-            raise ValueError(
+            msg = (
                 f"Invalid wave_type '{wave_type}'. "
                 "Must be 'sine', 'triangle', 'square', or 'sawtooth'"
+            )
+            raise ValueError(
+                msg
             )
 
         self.wave_type = wave_type

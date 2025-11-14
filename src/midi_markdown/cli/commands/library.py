@@ -153,10 +153,7 @@ def library_info(
         for alias_name, alias_def in sorted(doc.aliases.items()):
             # Build parameter signature
             params = alias_def.parameters if alias_def.parameters else []
-            if params:
-                param_str = ", ".join([p["name"] for p in params])
-            else:
-                param_str = "[dim]none[/dim]"
+            param_str = ", ".join([p["name"] for p in params]) if params else "[dim]none[/dim]"
 
             # Get description
             description = alias_def.description if alias_def.description else ""

@@ -88,16 +88,21 @@ class ADSREnvelope:
             ValueError: If time values are negative or sustain_level outside 0-1
         """
         if attack_time < 0:
-            raise ValueError(f"Attack time must be >= 0, got {attack_time}")
+            msg = f"Attack time must be >= 0, got {attack_time}"
+            raise ValueError(msg)
         if decay_time < 0:
-            raise ValueError(f"Decay time must be >= 0, got {decay_time}")
+            msg = f"Decay time must be >= 0, got {decay_time}"
+            raise ValueError(msg)
         if release_time < 0:
-            raise ValueError(f"Release time must be >= 0, got {release_time}")
+            msg = f"Release time must be >= 0, got {release_time}"
+            raise ValueError(msg)
         if not 0.0 <= sustain_level <= 1.0:
-            raise ValueError(f"Sustain level must be 0.0-1.0, got {sustain_level}")
+            msg = f"Sustain level must be 0.0-1.0, got {sustain_level}"
+            raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
+            msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
             raise ValueError(
-                f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
+                msg
             )
 
         self.attack_time = float(attack_time)
@@ -216,8 +221,9 @@ class ADSREnvelope:
         """
         min_time = self.attack_time + self.decay_time
         if time_seconds < min_time:
+            msg = f"Note off time ({time_seconds}s) must be >= attack + decay ({min_time}s)"
             raise ValueError(
-                f"Note off time ({time_seconds}s) must be >= attack + decay ({min_time}s)"
+                msg
             )
         self.note_off_time = float(time_seconds)
 
@@ -288,12 +294,15 @@ class AREnvelope:
             ValueError: If time values are negative or invalid curve_type
         """
         if attack_time < 0:
-            raise ValueError(f"Attack time must be >= 0, got {attack_time}")
+            msg = f"Attack time must be >= 0, got {attack_time}"
+            raise ValueError(msg)
         if release_time < 0:
-            raise ValueError(f"Release time must be >= 0, got {release_time}")
+            msg = f"Release time must be >= 0, got {release_time}"
+            raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
+            msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
             raise ValueError(
-                f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
+                msg
             )
 
         self.attack_time = float(attack_time)
@@ -342,10 +351,7 @@ class AREnvelope:
         if self.curve_type == "linear":
             return start + (end - start) * t
         # exponential
-        if end > start:
-            curved_t = 1.0 - math.exp(-4.0 * t)
-        else:
-            curved_t = math.exp(-4.0 * t)
+        curved_t = 1.0 - math.exp(-4.0 * t) if end > start else math.exp(-4.0 * t)
         return start + (end - start) * curved_t
 
     def total_duration(self) -> float:
@@ -407,12 +413,15 @@ class ADEnvelope:
             ValueError: If time values are negative or invalid curve_type
         """
         if attack_time < 0:
-            raise ValueError(f"Attack time must be >= 0, got {attack_time}")
+            msg = f"Attack time must be >= 0, got {attack_time}"
+            raise ValueError(msg)
         if decay_time < 0:
-            raise ValueError(f"Decay time must be >= 0, got {decay_time}")
+            msg = f"Decay time must be >= 0, got {decay_time}"
+            raise ValueError(msg)
         if curve_type not in ("linear", "exponential"):
+            msg = f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
             raise ValueError(
-                f"Invalid curve_type '{curve_type}'. Must be 'linear' or 'exponential'"
+                msg
             )
 
         self.attack_time = float(attack_time)
@@ -462,10 +471,7 @@ class ADEnvelope:
         if self.curve_type == "linear":
             return start + (end - start) * t
         # exponential
-        if end > start:
-            curved_t = 1.0 - math.exp(-4.0 * t)
-        else:
-            curved_t = math.exp(-4.0 * t)
+        curved_t = 1.0 - math.exp(-4.0 * t) if end > start else math.exp(-4.0 * t)
         return start + (end - start) * curved_t
 
     def total_duration(self) -> float:

@@ -18,11 +18,11 @@ Tests cover:
 """
 
 import pytest
-from mido import MidiFile, MidiTrack, Message, MetaMessage
+from mido import MidiFile
 
-from midi_markdown.parser.parser import MMDParser
-from midi_markdown.core.compiler import compile_ast_to_ir
 from midi_markdown.codegen.midi_file import generate_midi_file
+from midi_markdown.core.compiler import compile_ast_to_ir
+from midi_markdown.parser.parser import MMDParser
 
 
 class TestMultiTrackAbsoluteTiming:
@@ -68,11 +68,11 @@ midi_format: 0
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['control_change', 'note_on', 'note_off']:
+            if msg.type in ["control_change", "note_on", "note_off"]:
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "type": msg.type,
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # Verify timing (at 120 BPM, 480 PPQ)
@@ -80,16 +80,16 @@ midi_format: 0
         # 00:00.500 = 480 ticks (0.5 seconds * 960 ticks/sec)
         # 00:01.000 = 960 ticks
         # 00:01.500 = 1440 ticks
-        cc_events = [e for e in events if e['type'] == 'control_change']
-        note_events = [e for e in events if e['type'] == 'note_on']
+        cc_events = [e for e in events if e["type"] == "control_change"]
+        note_events = [e for e in events if e["type"] == "note_on"]
 
         assert len(cc_events) == 2
-        assert cc_events[0]['time'] == 0      # 00:00.000
-        assert cc_events[1]['time'] == 960    # 00:01.000
+        assert cc_events[0]["time"] == 0      # 00:00.000
+        assert cc_events[1]["time"] == 960    # 00:01.000
 
         assert len(note_events) == 2
-        assert note_events[0]['time'] == 480   # 00:00.500
-        assert note_events[1]['time'] == 1440  # 00:01.500
+        assert note_events[0]["time"] == 480   # 00:00.500
+        assert note_events[1]["time"] == 1440  # 00:01.500
 
     @pytest.mark.integration
     def test_absolute_timing_format_1(self, parser: MMDParser):
@@ -129,11 +129,11 @@ midi_format: 1
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['control_change', 'note_on', 'note_off']:
+            if msg.type in ["control_change", "note_on", "note_off"]:
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "type": msg.type,
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # At 120 BPM: 1 second = 960 ticks
@@ -144,12 +144,12 @@ midi_format: 1
         # 00:03.000 = 2880 (note_on)
         # 00:03.500 = 3360 (note_off after 500ms)
         assert len(events) == 6
-        assert events[0]['time'] == 0      # Track 1: 00:00.000 CC
-        assert events[1]['time'] == 960    # Track 2: 00:01.000 note_on
-        assert events[2]['time'] == 1440   # Track 2: 00:01.500 note_off (500ms duration)
-        assert events[3]['time'] == 1920   # Track 1: 00:02.000 CC
-        assert events[4]['time'] == 2880   # Track 2: 00:03.000 note_on
-        assert events[5]['time'] == 3360   # Track 2: 00:03.500 note_off (500ms duration)
+        assert events[0]["time"] == 0      # Track 1: 00:00.000 CC
+        assert events[1]["time"] == 960    # Track 2: 00:01.000 note_on
+        assert events[2]["time"] == 1440   # Track 2: 00:01.500 note_off (500ms duration)
+        assert events[3]["time"] == 1920   # Track 1: 00:02.000 CC
+        assert events[4]["time"] == 2880   # Track 2: 00:03.000 note_on
+        assert events[5]["time"] == 3360   # Track 2: 00:03.500 note_off (500ms duration)
 
     @pytest.mark.integration
     def test_absolute_timing_format_2(self, parser: MMDParser):
@@ -189,16 +189,16 @@ midi_format: 2
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['control_change', 'note_on', 'note_off']:
+            if msg.type in ["control_change", "note_on", "note_off"]:
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "type": msg.type,
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # Both tracks start at 00:00.000
-        assert events[0]['time'] == 0      # Both channels at 0
-        assert events[0]['channel'] in [0, 1]  # Either channel 1 or 2 (0-indexed)
+        assert events[0]["time"] == 0      # Both channels at 0
+        assert events[0]["channel"] in [0, 1]  # Either channel 1 or 2 (0-indexed)
 
 
 class TestMultiTrackMusicalTiming:
@@ -242,11 +242,11 @@ time_signature: [4, 4]
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'note': msg.note,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "note": msg.note,
+                    "channel": msg.channel
                 })
 
         # Musical timing at 4/4, 480 PPQ:
@@ -255,16 +255,16 @@ time_signature: [4, 4]
         # [2.1.0] = bar 2, beat 1 = 4 * 480 = 1920 ticks
 
         # Find bass and drum events
-        bass_events = [e for e in events if e['channel'] == 1]  # Channel 2 = index 1
-        drum_events = [e for e in events if e['channel'] == 9]  # Channel 10 = index 9
+        bass_events = [e for e in events if e["channel"] == 1]  # Channel 2 = index 1
+        drum_events = [e for e in events if e["channel"] == 9]  # Channel 10 = index 9
 
         assert len(bass_events) == 2
-        assert bass_events[0]['time'] == 0      # [1.1.0]
-        assert bass_events[1]['time'] == 1920   # [2.1.0]
+        assert bass_events[0]["time"] == 0      # [1.1.0]
+        assert bass_events[1]["time"] == 1920   # [2.1.0]
 
         assert len(drum_events) == 2
-        assert drum_events[0]['time'] == 0      # [1.1.0]
-        assert drum_events[1]['time'] == 960    # [1.3.0]
+        assert drum_events[0]["time"] == 0      # [1.1.0]
+        assert drum_events[1]["time"] == 960    # [1.3.0]
 
     @pytest.mark.integration
     def test_musical_timing_format_1(self, parser: MMDParser):
@@ -310,10 +310,10 @@ time_signature: [4, 4]
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # [1.1.0] = 0 ticks
@@ -322,15 +322,15 @@ time_signature: [4, 4]
         # [3.1.0] = 8 beats * 480 = 3840 ticks
 
         # First three events should be at tick 0 (simultaneous chord)
-        assert events[0]['time'] == 0
-        assert events[1]['time'] == 0
-        assert events[2]['time'] == 0
+        assert events[0]["time"] == 0
+        assert events[1]["time"] == 0
+        assert events[2]["time"] == 0
 
         # Melody starts at bar 2
-        melody_events = [e for e in events if e['channel'] == 2]  # Channel 3 = index 2
+        melody_events = [e for e in events if e["channel"] == 2]  # Channel 3 = index 2
         assert len(melody_events) == 2
-        assert melody_events[0]['time'] == 1920  # [2.1.0]
-        assert melody_events[1]['time'] == 2880  # [2.3.0]
+        assert melody_events[0]["time"] == 1920  # [2.1.0]
+        assert melody_events[1]["time"] == 2880  # [2.3.0]
 
     @pytest.mark.integration
     def test_musical_timing_format_2(self, parser: MMDParser):
@@ -375,19 +375,19 @@ time_signature: [3, 4]
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'note': msg.note,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "note": msg.note,
+                    "channel": msg.channel
                 })
 
         # Verify 3/4 timing
-        bass_events = [e for e in events if e['note'] == 40]
+        bass_events = [e for e in events if e["note"] == 40]
         assert len(bass_events) == 3
-        assert bass_events[0]['time'] == 0     # [1.1.0]
-        assert bass_events[1]['time'] == 480   # [1.2.0]
-        assert bass_events[2]['time'] == 960   # [1.3.0]
+        assert bass_events[0]["time"] == 0     # [1.1.0]
+        assert bass_events[1]["time"] == 480   # [1.2.0]
+        assert bass_events[2]["time"] == 960   # [1.3.0]
 
 
 class TestMultiTrackRelativeTiming:
@@ -430,27 +430,27 @@ midi_format: 0
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'control_change':
+            if msg.type == "control_change":
                 events.append({
-                    'time': current_tick,
-                    'channel': msg.channel,
-                    'value': msg.value
+                    "time": current_tick,
+                    "channel": msg.channel,
+                    "value": msg.value
                 })
 
         # Track 1: 0, 500ms (480 ticks), 1000ms (960 ticks)
         # Track 2: 0, 1s (960 ticks), 2s (1920 ticks)
-        track1_events = [e for e in events if e['channel'] == 0]
-        track2_events = [e for e in events if e['channel'] == 1]
+        track1_events = [e for e in events if e["channel"] == 0]
+        track2_events = [e for e in events if e["channel"] == 1]
 
         assert len(track1_events) == 3
-        assert track1_events[0]['time'] == 0
-        assert track1_events[1]['time'] == 480    # +500ms
-        assert track1_events[2]['time'] == 960    # +500ms
+        assert track1_events[0]["time"] == 0
+        assert track1_events[1]["time"] == 480    # +500ms
+        assert track1_events[2]["time"] == 960    # +500ms
 
         assert len(track2_events) == 3
-        assert track2_events[0]['time'] == 0
-        assert track2_events[1]['time'] == 960    # +1s
-        assert track2_events[2]['time'] == 1920   # +1s
+        assert track2_events[0]["time"] == 0
+        assert track2_events[1]["time"] == 960    # +1s
+        assert track2_events[2]["time"] == 1920   # +1s
 
     @pytest.mark.integration
     def test_relative_timing_format_1(self, parser: MMDParser):
@@ -488,26 +488,26 @@ tempo: 120
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'note': msg.note,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "note": msg.note,
+                    "channel": msg.channel
                 })
 
         # Track 1: 0, +480 (1b), +480 (1b) = 0, 480, 960
         # Track 2: 0, +960 (2b) = 0, 960
-        track1_events = [e for e in events if e['channel'] == 0]
-        track2_events = [e for e in events if e['channel'] == 1]
+        track1_events = [e for e in events if e["channel"] == 0]
+        track2_events = [e for e in events if e["channel"] == 1]
 
         assert len(track1_events) == 3
-        assert track1_events[0]['time'] == 0
-        assert track1_events[1]['time'] == 480
-        assert track1_events[2]['time'] == 960
+        assert track1_events[0]["time"] == 0
+        assert track1_events[1]["time"] == 480
+        assert track1_events[2]["time"] == 960
 
         assert len(track2_events) == 2
-        assert track2_events[0]['time'] == 0
-        assert track2_events[1]['time'] == 960
+        assert track2_events[0]["time"] == 0
+        assert track2_events[1]["time"] == 960
 
 
 class TestMultiTrackSimultaneousTiming:
@@ -546,17 +546,17 @@ midi_format: 0
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'note': msg.note,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "note": msg.note,
+                    "channel": msg.channel
                 })
 
         # All note_on events should be at tick 0
         assert len(events) == 4
         for event in events:
-            assert event['time'] == 0
+            assert event["time"] == 0
 
     @pytest.mark.integration
     def test_simultaneous_events_format_1(self, parser: MMDParser):
@@ -594,17 +594,17 @@ tempo: 120
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'control_change':
+            if msg.type == "control_change":
                 events.append({
-                    'time': current_tick,
-                    'channel': msg.channel,
-                    'control': msg.control
+                    "time": current_tick,
+                    "channel": msg.channel,
+                    "control": msg.control
                 })
 
         # All CC events should be at 00:02.000 = 1920 ticks
         assert len(events) == 5
         for event in events:
-            assert event['time'] == 1920
+            assert event["time"] == 1920
 
 
 class TestMultiTrackTempoChanges:
@@ -654,20 +654,20 @@ midi_format: 0
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'set_tempo':
+            if msg.type == "set_tempo":
                 tempo_changes.append({
-                    'time': current_tick,
-                    'tempo': msg.tempo
+                    "time": current_tick,
+                    "tempo": msg.tempo
                 })
 
         # Verify tempo changes are present
         assert len(tempo_changes) >= 2
 
         # First tempo at 00:00.000
-        assert tempo_changes[0]['time'] == 0
+        assert tempo_changes[0]["time"] == 0
 
         # Second tempo at 00:02.000 (1920 ticks at 120 BPM)
-        assert tempo_changes[1]['time'] == 1920
+        assert tempo_changes[1]["time"] == 1920
 
     @pytest.mark.integration
     def test_tempo_changes_format_1(self, parser: MMDParser):
@@ -710,14 +710,14 @@ tempo: 100
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['note_on', 'set_tempo']:
+            if msg.type in ["note_on", "set_tempo"]:
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick
+                    "type": msg.type,
+                    "time": current_tick
                 })
 
         # Verify tempo change is in the timeline
-        tempo_events = [e for e in events if e['type'] == 'set_tempo']
+        tempo_events = [e for e in events if e["type"] == "set_tempo"]
         assert len(tempo_events) >= 1
 
 
@@ -761,27 +761,27 @@ midi_format: 0
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on':
+            if msg.type == "note_on":
                 events.append({
-                    'time': current_tick,
-                    'note': msg.note,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "note": msg.note,
+                    "channel": msg.channel
                 })
 
         # Verify we have 4 note_on events
         assert len(events) == 4
 
         # Find sustained note (note 60 on channel 1)
-        sustain_events = [e for e in events if e['note'] == 60]
+        sustain_events = [e for e in events if e["note"] == 60]
         assert len(sustain_events) == 1
-        assert sustain_events[0]['time'] == 0
+        assert sustain_events[0]["time"] == 0
 
         # Verify melody notes (channel 2)
-        melody_events = [e for e in events if e['channel'] == 1]  # Channel 2 = index 1
+        melody_events = [e for e in events if e["channel"] == 1]  # Channel 2 = index 1
         assert len(melody_events) == 3
-        assert melody_events[0]['time'] == 0
-        assert melody_events[1]['time'] == 960
-        assert melody_events[2]['time'] == 1920
+        assert melody_events[0]["time"] == 0
+        assert melody_events[1]["time"] == 960
+        assert melody_events[2]["time"] == 1920
 
     @pytest.mark.integration
     def test_overlapping_notes_format_1(self, parser: MMDParser):
@@ -824,14 +824,14 @@ midi_format: 1
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0:
+            if msg.type == "note_on" and msg.velocity > 0:
                 events.append({
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # Verify we have events from all three channels
-        channels = set(e['channel'] for e in events)
+        channels = {e["channel"] for e in events}
         assert len(channels) == 3
         assert 0 in channels  # Channel 1
         assert 1 in channels  # Channel 2
@@ -886,31 +886,31 @@ time_signature: [4, 4]
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['control_change', 'note_on']:
+            if msg.type in ["control_change", "note_on"]:
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "type": msg.type,
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # Track 1 (absolute): 0, 1920 ticks
-        track1_events = [e for e in events if e['channel'] == 0]
+        track1_events = [e for e in events if e["channel"] == 0]
         assert len(track1_events) == 2
-        assert track1_events[0]['time'] == 0
-        assert track1_events[1]['time'] == 1920
+        assert track1_events[0]["time"] == 0
+        assert track1_events[1]["time"] == 1920
 
         # Track 2 (musical): 0 ([1.1.0]), 1920 ([2.1.0])
-        track2_events = [e for e in events if e['channel'] == 1]
+        track2_events = [e for e in events if e["channel"] == 1]
         assert len(track2_events) == 2
-        assert track2_events[0]['time'] == 0
-        assert track2_events[1]['time'] == 1920
+        assert track2_events[0]["time"] == 0
+        assert track2_events[1]["time"] == 1920
 
         # Track 3 (relative): 0, 480, 960
-        track3_events = [e for e in events if e['channel'] == 2]
+        track3_events = [e for e in events if e["channel"] == 2]
         assert len(track3_events) == 3
-        assert track3_events[0]['time'] == 0
-        assert track3_events[1]['time'] == 480
-        assert track3_events[2]['time'] == 960
+        assert track3_events[0]["time"] == 0
+        assert track3_events[1]["time"] == 480
+        assert track3_events[2]["time"] == 960
 
     @pytest.mark.integration
     def test_mixed_timing_format_1(self, parser: MMDParser):
@@ -968,27 +968,27 @@ time_signature: [3, 4]
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type in ['note_on', 'control_change']:
-                if msg.type == 'note_on' and msg.velocity == 0:
+            if msg.type in ["note_on", "control_change"]:
+                if msg.type == "note_on" and msg.velocity == 0:
                     continue  # Skip note_off as note_on velocity 0
                 events.append({
-                    'type': msg.type,
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "type": msg.type,
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         # Verify we have events from all 4 channels
-        channels = set(e['channel'] for e in events)
+        channels = {e["channel"] for e in events}
         assert 0 in channels  # Channel 1
         assert 1 in channels  # Channel 2
         assert 2 in channels  # Channel 3
         assert 3 in channels  # Channel 4
 
         # Verify simultaneous events are at time 0
-        simultaneous_events = [e for e in events if e['channel'] == 3 and e['type'] == 'control_change']
+        simultaneous_events = [e for e in events if e["channel"] == 3 and e["type"] == "control_change"]
         assert len(simultaneous_events) == 3
         for event in simultaneous_events:
-            assert event['time'] == 0
+            assert event["time"] == 0
 
 
 class TestMultiTrackEdgeCases:
@@ -1025,11 +1025,11 @@ midi_format: 0
         # Should only have events from tracks 1 and 3
         events = []
         for msg in mid.tracks[0]:
-            if msg.type == 'control_change':
-                events.append({'channel': msg.channel})
+            if msg.type == "control_change":
+                events.append({"channel": msg.channel})
 
         assert len(events) == 2
-        channels = set(e['channel'] for e in events)
+        channels = {e["channel"] for e in events}
         assert 0 in channels  # Channel 1
         assert 2 in channels  # Channel 3
         assert 1 not in channels  # Channel 2 (empty)
@@ -1066,16 +1066,16 @@ midi_format: 1
         current_tick = 0
         for msg in mid.tracks[0]:
             current_tick += msg.time
-            if msg.type == 'control_change':
+            if msg.type == "control_change":
                 events.append({
-                    'time': current_tick,
-                    'channel': msg.channel
+                    "time": current_tick,
+                    "channel": msg.channel
                 })
 
         assert len(events) == 3
-        assert events[0]['time'] == 0      # 00:00.000
-        assert events[1]['time'] == 960    # 00:01.000
-        assert events[2]['time'] == 1920   # 00:02.000
+        assert events[0]["time"] == 0      # 00:00.000
+        assert events[1]["time"] == 960    # 00:01.000
+        assert events[2]["time"] == 1920   # 00:02.000
 
     @pytest.mark.integration
     def test_many_tracks_format_2(self, parser: MMDParser):
@@ -1110,10 +1110,10 @@ midi_format: 2
         # Verify events from all 8 channels
         events = []
         for msg in mid.tracks[0]:
-            if msg.type == 'control_change':
-                events.append({'channel': msg.channel})
+            if msg.type == "control_change":
+                events.append({"channel": msg.channel})
 
-        channels = set(e['channel'] for e in events)
+        channels = {e["channel"] for e in events}
         assert len(channels) == 8
         for i in range(8):
             assert i in channels  # Channels 0-7 (1-8 in MMD)

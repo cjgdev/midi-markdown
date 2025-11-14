@@ -18,7 +18,7 @@ class TestNoteToMidi:
     """Tests for note name to MIDI conversion utility."""
 
     @pytest.mark.parametrize(
-        "note,expected",
+        ("note", "expected"),
         [
             # Natural notes
             ("C4", 60),
@@ -45,8 +45,7 @@ class TestNoteToMidi:
             ("C0", 12),
             ("C1", 24),
             ("C2", 36),
-            ("C3", 48),
-            ("C4", 60),  # Middle C
+            ("C3", 48),  # Middle C
             ("C5", 72),
             ("C6", 84),
             ("C7", 96),
@@ -59,7 +58,7 @@ class TestNoteToMidi:
         assert note_to_midi(note) == expected
 
     @pytest.mark.parametrize(
-        "note,error_match",
+        ("note", "error_match"),
         [
             ("H4", "base note must be A-G"),
             ("C10", "out of valid MIDI range"),
@@ -78,7 +77,7 @@ class TestPercentToMidi:
     """Tests for percent to MIDI conversion utility."""
 
     @pytest.mark.parametrize(
-        "percent,expected",
+        ("percent", "expected"),
         [
             (0, 0),  # Minimum
             (1, 1),  # Edge case low
@@ -94,7 +93,7 @@ class TestPercentToMidi:
         assert percent_to_midi(percent) == expected
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             (-1, "out of valid range"),
             (101, "out of valid range"),
@@ -160,7 +159,7 @@ class TestBoolToMidi:
         assert bool_to_midi(value) == 0
 
     @pytest.mark.parametrize(
-        "value,error_match",
+        ("value", "error_match"),
         [
             ("maybe", "Invalid boolean"),
             (2, "Invalid boolean"),

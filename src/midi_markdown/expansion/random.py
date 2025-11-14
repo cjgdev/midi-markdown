@@ -65,8 +65,9 @@ class RandomValueExpander:
 
         # Validate range
         if min_val > max_val:
+            msg = f"random() min value ({min_val}) cannot be greater than max value ({max_val})"
             raise ValueError(
-                f"random() min value ({min_val}) cannot be greater than max value ({max_val})"
+                msg
             )
 
         # Set seed if provided
@@ -113,13 +114,15 @@ class RandomValueExpander:
                 try:
                     return note_to_midi(value)
                 except ValueError as e:
-                    raise ValueError(f"Invalid note name or integer string '{value}': {e}") from e
+                    msg = f"Invalid note name or integer string '{value}': {e}"
+                    raise ValueError(msg) from e
 
         # Try to convert to int
         try:
             return int(value)
         except (ValueError, TypeError) as e:
-            raise TypeError(f"Cannot convert {type(value).__name__} to integer: {value}") from e
+            msg = f"Cannot convert {type(value).__name__} to integer: {value}"
+            raise TypeError(msg) from e
 
     def validate_midi_range(
         self, value: int, min_range: int = 0, max_range: int = 127, param_name: str = "value"
@@ -141,7 +144,8 @@ class RandomValueExpander:
             >>> expander.validate_midi_range(200)  # Raises ValueError
         """
         if not (min_range <= value <= max_range):
-            raise ValueError(f"{param_name} {value} out of MIDI range [{min_range}, {max_range}]")
+            msg = f"{param_name} {value} out of MIDI range [{min_range}, {max_range}]"
+            raise ValueError(msg)
 
 
 def expand_random_in_command(

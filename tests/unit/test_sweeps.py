@@ -122,7 +122,7 @@ class TestParseRampType:
     """Test ramp type string parsing."""
 
     @pytest.mark.parametrize(
-        "input_str,expected",
+        ("input_str", "expected"),
         [
             # Linear variations
             ("linear", RampType.LINEAR),

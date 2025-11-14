@@ -9,11 +9,12 @@ from __future__ import annotations
 import queue
 import threading
 import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from midi_markdown.runtime.midi_io import MIDIOutputManager
 
 

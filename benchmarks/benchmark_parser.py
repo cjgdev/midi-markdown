@@ -38,7 +38,6 @@ class TestParserPerformance:
 
         # Check performance (note: benchmark.stats available after run)
         # Small files should parse quickly
-        print(f"\nSmall file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_medium_file_speed(self, benchmark, medium_mmd_file):
         """Benchmark parsing medium file (100-500 events).
@@ -53,7 +52,6 @@ class TestParserPerformance:
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nMedium file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_large_file_speed(self, benchmark, large_mmd_file):
         """Benchmark parsing large file (>1000 events).
@@ -68,7 +66,6 @@ class TestParserPerformance:
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nLarge file parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_string_performance(self, benchmark):
         """Benchmark parsing from string (in-memory).
@@ -99,7 +96,6 @@ ppq: 480
         assert result is not None
         assert len(result.events) > 0
 
-        print(f"\nString parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parser_with_loops(self, benchmark):
         """Benchmark parser performance with loop constructs.
@@ -123,7 +119,6 @@ ppq: 480
 
         assert result is not None
         # Should have 1 loop construct (not expanded yet)
-        print(f"\nLoop parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parser_with_aliases(self, benchmark):
         """Benchmark parser performance with alias definitions.
@@ -151,7 +146,6 @@ ppq: 480
 
         assert result is not None
         assert len(result.aliases) > 0
-        print(f"\nAlias parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
 
 @pytest.mark.benchmark
@@ -172,7 +166,6 @@ class TestParserScalability:
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nMulti-channel parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_complex_timing(self, benchmark):
         """Benchmark parser with various timing formats."""
@@ -204,7 +197,6 @@ ppq: 480
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nComplex timing parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")
 
     def test_parse_with_comments(self, benchmark):
         """Benchmark parser with heavy comment usage."""
@@ -225,4 +217,3 @@ ppq: 480
         result = benchmark(parser.parse_string, mml_content)
 
         assert result is not None
-        print(f"\nComment-heavy parse time: {benchmark.stats.get('mean', 0) * 1000:.2f}ms")

@@ -7,12 +7,13 @@ note names, and meta-commands.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 from prompt_toolkit.completion import Completer, Completion
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from prompt_toolkit.completion import CompleteEvent
     from prompt_toolkit.document import Document
 
@@ -279,7 +280,7 @@ class MusicCompleter(Completer):
             Completion objects for matching aliases
         """
         word_lower = word.lower()
-        for alias_name in self.state.aliases.keys():
+        for alias_name in self.state.aliases:
             if alias_name.lower().startswith(word_lower):
                 yield Completion(
                     text=alias_name,
@@ -297,7 +298,7 @@ class MusicCompleter(Completer):
             Completion objects for matching variables
         """
         word_lower = word.lower()
-        for var_name in self.state.variables.keys():
+        for var_name in self.state.variables:
             if var_name.lower().startswith(word_lower):
                 # Show variable value in meta
                 value = self.state.variables[var_name]

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import threading
 import time
+from typing import TYPE_CHECKING
 
 from rich.console import Console, Group
 from rich.live import Live
@@ -19,7 +20,9 @@ from .components import (
     render_progress_bar,
     render_status_bar,
 )
-from .state import TUIState
+
+if TYPE_CHECKING:
+    from .state import TUIState
 
 
 class TUIDisplayManager:

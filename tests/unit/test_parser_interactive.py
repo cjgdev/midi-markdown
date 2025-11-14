@@ -22,7 +22,7 @@ class TestParseInteractive:
     def test_parse_interactive_incomplete_command(self):
         """Test incomplete command returns False."""
         parser = MMDParser()
-        complete, result = parser.parse_interactive("[00:01.000]\n- cc 1.7")
+        _complete, result = parser.parse_interactive("[00:01.000]\n- cc 1.7")
         # This might be complete or incomplete depending on grammar
         # The grammar should accept "- cc 1.7" as incomplete
         # For now, let's test what actually happens
@@ -67,7 +67,7 @@ title: Test
     def test_parse_interactive_empty_string(self):
         """Test empty string."""
         parser = MMDParser()
-        complete, result = parser.parse_interactive("")
+        _complete, result = parser.parse_interactive("")
         # Empty input should be considered complete (empty document)
         assert isinstance(result, (MMDDocument, Exception))
 

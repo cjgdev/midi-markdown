@@ -217,7 +217,7 @@ class TestMIDICommandEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "mml,expected_type,expected_data",
+        ("mml", "expected_type", "expected_data"),
         [
             ("- cc 1.7.0", "cc", {"data2": 0}),  # CC value minimum
             ("- cc 1.7.127", "cc", {"data2": 127}),  # CC value maximum
@@ -252,7 +252,7 @@ class TestMIDICommandEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "note,expected",
+        ("note", "expected"),
         [
             ("0", 0),  # Note number minimum (C-1)
             ("127", 127),  # Note number maximum (G9)
@@ -288,7 +288,7 @@ class TestMIDICommandEdgeCases:
     # ========================================================================
 
     @pytest.mark.parametrize(
-        "mml,cmd_type,data_field,expected",
+        ("mml", "cmd_type", "data_field", "expected"),
         [
             ("- channel_pressure 1.0", "channel_pressure", "data1", 0),  # Channel min
             ("- channel_pressure 1.127", "channel_pressure", "data1", 127),  # Channel max

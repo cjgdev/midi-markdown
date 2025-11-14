@@ -185,8 +185,9 @@ def expand_envelope_expression(
             or expr.sustain is None
             or expr.release is None
         ):
+            msg = "ADSR envelope requires attack, decay, sustain, and release parameters"
             raise ValueError(
-                "ADSR envelope requires attack, decay, sustain, and release parameters"
+                msg
             )
 
         envelope: ADSREnvelope | AREnvelope | ADEnvelope = ADSREnvelope(
@@ -200,7 +201,8 @@ def expand_envelope_expression(
 
     elif expr.envelope_type == "ar":
         if expr.attack is None or expr.release is None:
-            raise ValueError("AR envelope requires attack and release parameters")
+            msg = "AR envelope requires attack and release parameters"
+            raise ValueError(msg)
 
         envelope = AREnvelope(
             attack_time=expr.attack, release_time=expr.release, curve_type=expr.curve
@@ -208,12 +210,14 @@ def expand_envelope_expression(
 
     elif expr.envelope_type == "ad":
         if expr.attack is None or expr.decay is None:
-            raise ValueError("AD envelope requires attack and decay parameters")
+            msg = "AD envelope requires attack and decay parameters"
+            raise ValueError(msg)
 
         envelope = ADEnvelope(attack_time=expr.attack, decay_time=expr.decay, curve_type=expr.curve)
 
     else:
-        raise ValueError(f"Unknown envelope type: {expr.envelope_type}")
+        msg = f"Unknown envelope type: {expr.envelope_type}"
+        raise ValueError(msg)
 
     # Generate samples
     num_samples = int(duration_seconds * sample_rate)
@@ -272,4 +276,5 @@ def expand_modulation_expression(
             expr, duration_seconds, note_off_time, sample_rate, min_val, max_val
         )
 
-    raise TypeError(f"Unknown modulation expression type: {type(expr)}")
+    msg = f"Unknown modulation expression type: {type(expr)}"
+    raise TypeError(msg)

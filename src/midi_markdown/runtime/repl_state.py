@@ -170,5 +170,5 @@ class REPLState:
                 self.time_signature = (int(numerator), int(denominator))
             elif isinstance(ts, (list, tuple)):
                 # Expect time signature as [numerator, denominator]
-                if len(ts) >= 2:  # noqa: PLR2004
+                if len(ts) >= 2:
                     self.time_signature = (int(ts[0]), int(ts[1]))

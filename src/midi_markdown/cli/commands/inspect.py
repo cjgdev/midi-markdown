@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from rich.console import Console
 
 from midi_markdown.cli.error_handler import ErrorContext, cli_error_handler
+from midi_markdown.codegen import export_to_csv, export_to_json
+from midi_markdown.core import compile_ast_to_ir
+from midi_markdown.diagnostics import display_events_table
+from midi_markdown.parser.parser import MMDParser
 
-from ...codegen import export_to_csv, export_to_json
-from ...core import compile_ast_to_ir
-from ...diagnostics import display_events_table
-from ...parser.parser import MMDParser
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def inspect(
@@ -136,18 +137,15 @@ def inspect(
 
         elif format == "csv":
             # Export to CSV and print to stdout
-            csv_output = export_to_csv(ir_program, include_header=True)
+            export_to_csv(ir_program, include_header=True)
             # Print directly to stdout (bypass Rich console for clean CSV)
-            print(csv_output)
 
         elif format == "json":
             # Export to JSON (complete format)
-            json_output = export_to_json(ir_program, format="complete", pretty=True)
+            export_to_json(ir_program, format="complete", pretty=True)
             # Print directly to stdout
-            print(json_output)
 
         elif format == "json-simple":
             # Export to JSON (simplified format)
-            json_output = export_to_json(ir_program, format="simplified", pretty=True)
+            export_to_json(ir_program, format="simplified", pretty=True)
             # Print directly to stdout
-            print(json_output)

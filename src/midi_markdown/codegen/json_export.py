@@ -11,7 +11,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..core.ir import IRProgram
+    from midi_markdown.core.ir import IRProgram
 
 
 def export_to_json(
