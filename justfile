@@ -244,8 +244,8 @@ info:
 validate-devices:
     @echo "Validating device libraries..."
     @for file in devices/*.mmd; do \
-        echo "Checking $$file..."; \
-        uv run mmdc validate $$file || exit 1; \
+        echo "Checking $file..."; \
+        uv run mmdc validate "$file" || exit 1; \
     done
     @echo "All device libraries validated successfully!"
 
@@ -253,8 +253,8 @@ validate-devices:
 validate-examples:
     @echo "Validating example files..."
     @for file in examples/**/*.mmd; do \
-        echo "Checking $$file..."; \
-        uv run mmdc validate $$file || exit 1; \
+        echo "Checking $file..."; \
+        uv run mmdc validate "$file" || exit 1; \
     done
     @echo "All examples validated successfully!"
 
