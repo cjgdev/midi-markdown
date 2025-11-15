@@ -51,20 +51,41 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Updating formula for version: $VERSION"
 
+      - name: Wait for PyPI availability
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PYPI_API="https://pypi.org/pypi/midi-markdown/${VERSION}/json"
+
+          echo "⏳ Waiting for PyPI to publish version ${VERSION}..."
+          MAX_RETRIES=10
+          RETRY_DELAY=30
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            if curl -sf "$PYPI_API" > /dev/null; then
+              echo "✅ Package found on PyPI"
+              break
+            else
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "⏳ Package not yet available, retrying in ${RETRY_DELAY}s (attempt $i/$MAX_RETRIES)..."
+                sleep $RETRY_DELAY
+              else
+                echo "❌ Package not available on PyPI after $MAX_RETRIES attempts"
+                echo "Check: https://pypi.org/project/midi-markdown/${VERSION}/"
+                exit 1
+              fi
+            fi
+          done
+
       - name: Download source tarball
         id: download
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           URL="https://files.pythonhosted.org/packages/source/m/midi-markdown/midi-markdown-${VERSION}.tar.gz"
 
-          # Wait for PyPI to have the package available
-          echo "Waiting 60 seconds for PyPI package to be available..."
-          sleep 60
-
           echo "Downloading from: $URL"
-          # Retry logic for PyPI propagation
-          MAX_RETRIES=5
-          RETRY_DELAY=30
+          # Download with retry (network issues)
+          MAX_RETRIES=3
+          RETRY_DELAY=10
           for i in $(seq 1 $MAX_RETRIES); do
             if curl -f -L -o midi-markdown.tar.gz "$URL"; then
               echo "✅ Download successful"

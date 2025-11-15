@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:  # Allow manual triggering
+  workflow_call:     # Allow calling as reusable workflow
 
 jobs:
   build:
@@ -35,7 +36,9 @@ jobs:
           python-version: '3.12'
 
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install dependencies
         run: |
@@ -85,7 +88,7 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_name }}${{ matrix.asset_extension }}
-          retention-days: 30
+          retention-days: 7  # CI builds - short retention (releases are permanent)
 
       - name: Calculate checksums
         if: runner.os != 'Windows'
@@ -95,13 +98,16 @@ jobs:
 
       - name: Calculate checksums (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          certutil -hashfile ${{ matrix.artifact_name }}${{ matrix.asset_extension }} SHA256 > ${{ matrix.artifact_name }}.sha256
-          type ${{ matrix.artifact_name }}.sha256
+          $hash = (Get-FileHash -Algorithm SHA256 "${{ matrix.artifact_name }}${{ matrix.asset_extension }}").Hash.ToLower()
+          $filename = "${{ matrix.artifact_name }}${{ matrix.asset_extension }}"
+          "$hash  $filename" | Out-File -Encoding ASCII -NoNewline "${{ matrix.artifact_name }}.sha256"
+          Get-Content "${{ matrix.artifact_name }}.sha256"
 
       - name: Upload checksum
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}-checksum
           path: ${{ matrix.artifact_name }}.sha256
-          retention-days: 30
+          retention-days: 7  # CI builds - short retention (releases are permanent)
