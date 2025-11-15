@@ -163,8 +163,40 @@ Edit `.claude/settings.local.json` and remove hook configurations:
 
 - **[.claude/HOOKS_SETUP.md](.claude/HOOKS_SETUP.md)** - Complete setup guide
 - **[.claude/hooks/README.md](.claude/hooks/README.md)** - Hook documentation
+- **[.claude/WORKTREE_WORKFLOW.md](.claude/WORKTREE_WORKFLOW.md)** - Git worktree workflow for parallel development
+- **[.claude/WORKTREE_QUICKREF.md](.claude/WORKTREE_QUICKREF.md)** - Worktree quick reference
 - **[.github/workflows/test.yml](../.github/workflows/test.yml)** - CI configuration
 - **[justfile](../justfile)** - Development task runner
+
+## Parallel Development with Worktrees
+
+**New Feature**: Work on multiple features simultaneously with separate Claude Code instances!
+
+### Quick Start
+
+```bash
+# Create worktree using helper script
+./.claude/scripts/create-worktree.sh add-feature-name
+
+# Or manually
+git worktree add ../midi-markdown-feature -b claude/feature-sessionID
+
+# Work in worktree, then create PR
+cd ../midi-markdown-feature
+# (make changes)
+git push -u origin claude/feature-sessionID
+gh pr create --title "Feature" --body "Description"
+```
+
+### Benefits
+- 🚀 **Parallel development** - Multiple features at once
+- 🔄 **Context switching** - No need to stash or commit incomplete work
+- 🎯 **Isolation** - Each feature in its own directory
+- ✅ **Auto-approved** - `git push` to `claude/*` branches auto-approved
+
+### See Full Documentation
+- **[.claude/WORKTREE_WORKFLOW.md](.claude/WORKTREE_WORKFLOW.md)** - Complete guide
+- **[.claude/WORKTREE_QUICKREF.md](.claude/WORKTREE_QUICKREF.md)** - Quick reference
 
 ## Next Steps
 
