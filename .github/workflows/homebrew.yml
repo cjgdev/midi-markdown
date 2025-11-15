@@ -1,8 +1,12 @@
 name: Update Homebrew Formula
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       version:
@@ -13,6 +17,15 @@ jobs:
   update-formula:
     name: Update Homebrew Formula
     runs-on: macos-latest
+    # Only run if the release workflow succeeded and was triggered by a tag
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       startsWith(github.event.workflow_run.head_branch, 'refs/tags/v'))
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -28,9 +41,10 @@ jobs:
       - name: Extract version
         id: version
         run: |
-          if [ "${{ github.event_name }}" == "release" ]; then
-            VERSION="${{ github.event.release.tag_name }}"
-            VERSION="${VERSION#v}"  # Remove 'v' prefix
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            # Extract version from the tag that triggered the release workflow
+            TAG_REF="${{ github.event.workflow_run.head_branch }}"
+            VERSION="${TAG_REF#refs/tags/v}"  # Remove 'refs/tags/v' prefix
           else
             VERSION="${{ github.event.inputs.version }}"
           fi
@@ -43,8 +57,28 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           URL="https://files.pythonhosted.org/packages/source/m/midi-markdown/midi-markdown-${VERSION}.tar.gz"
 
+          # Wait for PyPI to have the package available
+          echo "Waiting 60 seconds for PyPI package to be available..."
+          sleep 60
+
           echo "Downloading from: $URL"
-          curl -L -o midi-markdown.tar.gz "$URL"
+          # Retry logic for PyPI propagation
+          MAX_RETRIES=5
+          RETRY_DELAY=30
+          for i in $(seq 1 $MAX_RETRIES); do
+            if curl -f -L -o midi-markdown.tar.gz "$URL"; then
+              echo "✅ Download successful"
+              break
+            else
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "⏳ Download failed, retrying in ${RETRY_DELAY}s (attempt $i/$MAX_RETRIES)..."
+                sleep $RETRY_DELAY
+              else
+                echo "❌ Download failed after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            fi
+          done
 
           SHA256=$(shasum -a 256 midi-markdown.tar.gz | awk '{print $1}')
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
