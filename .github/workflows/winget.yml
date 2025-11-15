@@ -49,9 +49,8 @@ jobs:
             echo "Downloading from: $URL"
             curl -L -o mmdc-windows.zip "$URL"
 
-            # Calculate SHA256
-            SHA256=$(certutil -hashfile mmdc-windows.zip SHA256 | findstr /v "hash CertUtil")
-            SHA256=$(echo "$SHA256" | tr -d '[:space:]')
+            # Calculate SHA256 using PowerShell
+            SHA256=$(powershell -Command "(Get-FileHash -Algorithm SHA256 mmdc-windows.zip).Hash")
           else
             # Manual workflow dispatch
             VERSION="${{ github.event.inputs.version }}"

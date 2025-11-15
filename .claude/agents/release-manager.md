@@ -340,36 +340,73 @@ Before running `just release`:
 
 The `release.yml` workflow triggers on git tags (`v*`):
 
+**Tag Format**: `v0.1.0` (with 'v' prefix) - version in pyproject.toml must match (without 'v')
+
 **Stages:**
 
 1. **Tests** (3-5 minutes)
-   - Runs full test suite on Linux, macOS, Windows
+   - Runs full test suite via reusable workflow
+   - Linux, macOS, Windows
    - Python 3.12, 3.13
    - Must pass before proceeding
 
 2. **Build Executables** (5-10 minutes)
+   - Uses reusable `build-executables.yml` workflow
    - Builds standalone binaries with PyInstaller
    - Linux (x86_64 tarball)
    - macOS (universal binary zip)
    - Windows (x86_64 zip)
-   - Calculates SHA256 checksums
+   - Calculates SHA256 checksums (normalized format across platforms)
+   - Tests executables before archiving
 
-3. **Create GitHub Release** (1 minute)
-   - Extracts release notes from CHANGELOG.md
-   - Creates GitHub Release
-   - Uploads executables and checksums
+3. **Create GitHub Release** (2-3 minutes)
+   - Downloads build artifacts
+   - **Smoke tests archived executables** (Linux, macOS structure validation)
+   - **Attestation**: Generates build provenance for security
+   - Extracts release notes from CHANGELOG.md using Python script
+   - Packages Claude Skills for download
+   - Verifies Claude Skills packages created successfully
+   - Creates GitHub Release with all artifacts
 
 4. **Publish to PyPI** (1-2 minutes)
+   - Verifies version consistency (tag vs pyproject.toml)
    - Builds Python wheel and source distribution
-   - Publishes to PyPI: https://pypi.org/project/midi-markdown/
+   - Validates with twine
+   - Publishes to PyPI using Trusted Publishing
    - Available via `pip install midi-markdown`
 
-5. **Update Package Managers** (2-5 minutes each)
-   - Updates Homebrew formula (macOS/Linux)
-   - Updates PPA repository (Ubuntu/Debian)
-   - Updates Winget manifest (Windows)
+5. **Update Package Managers** (5-10 minutes each, automated)
+   - **Homebrew**: Waits for PyPI availability, downloads source, updates formula, creates PR
+   - **PPA**: Builds .deb packages for Ubuntu 20.04/22.04/24.04
+   - **Winget**: Downloads Windows executable, calculates SHA256, creates manifest PR
 
-**Total time**: ~15-20 minutes
+**Total time**: ~15-25 minutes
+
+**All artifacts are available on the GitHub Release page when complete!**
+
+### New Release Features (Enhanced)
+
+**Security:**
+- ✅ Build provenance attestation for all release artifacts
+- ✅ Normalized SHA256 checksums across all platforms
+- ✅ Artifact verification before release publication
+
+**Quality:**
+- ✅ Smoke tests for archived executables (extract + test)
+- ✅ Version consistency verification (tag must match pyproject.toml)
+- ✅ Claude Skills package verification
+- ✅ PyPI availability checks before downstream workflows
+
+**Reliability:**
+- ✅ Reusable workflow for builds (no duplicate logic)
+- ✅ Robust changelog extraction using Python script
+- ✅ Retry logic for network operations
+- ✅ Clear error messages with actionable suggestions
+
+**Automation:**
+- ✅ All package manager updates trigger automatically
+- ✅ Homebrew, Winget, PPA workflows wait for PyPI availability
+- ✅ Standardized artifact retention (7 days for CI, permanent for releases)
 
 ## Monitoring Releases
 

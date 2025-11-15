@@ -6,7 +6,9 @@ on:
       - 'v*'  # Trigger on version tags like v0.1.0, v1.2.3, etc.
 
 permissions:
-  contents: write  # Required for creating releases
+  contents: write       # Required for creating releases
+  id-token: write      # Required for artifact attestation
+  attestations: write  # Required for artifact attestation
 
 jobs:
   test:
@@ -15,93 +17,7 @@ jobs:
 
   build-executables:
     needs: test
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: mmdc-linux-x86_64
-            asset_extension: .tar.gz
-          - os: windows-latest
-            artifact_name: mmdc-windows-x86_64
-            asset_extension: .zip
-          - os: macos-latest
-            artifact_name: mmdc-macos-universal
-            asset_extension: .zip
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync --group build
-
-      - name: Build executable with PyInstaller
-        run: uv run pyinstaller mmdc.spec --clean --noconfirm
-
-      - name: Test executable (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          ./dist/mmdc/mmdc --version
-          ./dist/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test.mid
-
-      - name: Test executable (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          .\dist\mmdc\mmdc.exe --version
-          .\dist\mmdc\mmdc.exe compile examples\00_basics\01_hello_world.mmd -o test.mid
-
-      - name: Create archive (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          cd dist
-          tar -czf ${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
-          cd ..
-          mv dist/${{ matrix.artifact_name }}${{ matrix.asset_extension }} .
-
-      - name: Create archive (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          cd dist
-          7z a ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc\
-          cd ..
-
-      - name: Create archive (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cd dist
-          zip -r ../${{ matrix.artifact_name }}${{ matrix.asset_extension }} mmdc/
-          cd ..
-
-      - name: Calculate checksums (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          shasum -a 256 ${{ matrix.artifact_name }}${{ matrix.asset_extension }} > ${{ matrix.artifact_name }}.sha256
-
-      - name: Calculate checksums (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          certutil -hashfile ${{ matrix.artifact_name }}${{ matrix.asset_extension }} SHA256 > ${{ matrix.artifact_name }}.sha256
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: |
-            ${{ matrix.artifact_name }}${{ matrix.asset_extension }}
-            ${{ matrix.artifact_name }}.sha256
-          retention-days: 7
+    uses: ./.github/workflows/build-executables.yml
 
   create-release:
     name: Create GitHub Release
@@ -131,6 +47,44 @@ jobs:
           find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.sha256" \) -exec mv {} release/ \;
           ls -lh release/
 
+      - name: Smoke test archived executables
+        run: |
+          echo "🧪 Testing archived executables..."
+
+          # Test Linux archive
+          echo "Testing Linux archive..."
+          mkdir -p test-linux
+          tar -xzf release/mmdc-linux-x86_64.tar.gz -C test-linux
+          test-linux/mmdc/mmdc --version || { echo "❌ Linux executable failed"; exit 1; }
+          test-linux/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test-linux.mid || { echo "❌ Linux compile failed"; exit 1; }
+          echo "✅ Linux archive OK"
+
+          # Test macOS archive
+          echo "Testing macOS archive..."
+          mkdir -p test-macos
+          unzip -q release/mmdc-macos-universal.zip -d test-macos
+          chmod +x test-macos/mmdc/mmdc
+          test-macos/mmdc/mmdc --version || { echo "❌ macOS executable failed"; exit 1; }
+          test-macos/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test-macos.mid || { echo "❌ macOS compile failed"; exit 1; }
+          echo "✅ macOS archive OK"
+
+          # Test Windows archive (basic validation only - can't execute on Linux runner)
+          echo "Testing Windows archive structure..."
+          mkdir -p test-windows
+          unzip -q release/mmdc-windows-x86_64.zip -d test-windows
+          if [ ! -f "test-windows/mmdc/mmdc.exe" ]; then
+            echo "❌ Windows executable not found in archive"
+            exit 1
+          fi
+          echo "✅ Windows archive structure OK"
+
+          echo "✅ All smoke tests passed"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: 'release/*.tar.gz,release/*.zip'
+
       - name: Extract version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
@@ -141,16 +95,41 @@ jobs:
             --source . \
             --output release \
             --version ${{ steps.get_version.outputs.VERSION }}
+
+      - name: Verify Claude Skills package
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          # Check both tar.gz and zip were created
+          if [ ! -f "release/claude-skills-mmd-${VERSION}.tar.gz" ]; then
+            echo "❌ Claude Skills tar.gz not found"
+            exit 1
+          fi
+          if [ ! -f "release/claude-skills-mmd-${VERSION}.zip" ]; then
+            echo "❌ Claude Skills zip not found"
+            exit 1
+          fi
+          # Verify archives are not empty
+          TAR_SIZE=$(stat -f%z "release/claude-skills-mmd-${VERSION}.tar.gz" 2>/dev/null || stat -c%s "release/claude-skills-mmd-${VERSION}.tar.gz")
+          ZIP_SIZE=$(stat -f%z "release/claude-skills-mmd-${VERSION}.zip" 2>/dev/null || stat -c%s "release/claude-skills-mmd-${VERSION}.zip")
+          if [ "$TAR_SIZE" -lt 1000 ]; then
+            echo "❌ Claude Skills tar.gz too small: ${TAR_SIZE} bytes"
+            exit 1
+          fi
+          if [ "$ZIP_SIZE" -lt 1000 ]; then
+            echo "❌ Claude Skills zip too small: ${ZIP_SIZE} bytes"
+            exit 1
+          fi
+          echo "✅ Claude Skills packages verified:"
           ls -lh release/claude-skills-mmd-*
 
       - name: Extract changelog for this version
         id: changelog
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          # Extract the section for this version from CHANGELOG.md
-          CHANGELOG_SECTION=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
-          # Save to file and output
-          echo "$CHANGELOG_SECTION" > /tmp/release_notes.md
+          # Extract changelog section using Python script (more robust than sed)
+          python scripts/extract_changelog.py --version "$VERSION" --output /tmp/release_notes.md
+          # Read and set output
+          CHANGELOG_SECTION=$(cat /tmp/release_notes.md)
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG_SECTION" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

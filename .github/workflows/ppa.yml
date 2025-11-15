@@ -44,7 +44,14 @@ jobs:
       - name: Install base dependencies
         run: |
           apt-get update
-          apt-get install -y git curl ca-certificates gnupg2
+          apt-get install -y git curl ca-certificates gnupg2 software-properties-common
+
+      - name: Install Python 3.12 (for older Ubuntu versions)
+        if: matrix.ubuntu == 'focal' || matrix.ubuntu == 'jammy'
+        run: |
+          add-apt-repository ppa:deadsnakes/ppa -y
+          apt-get update
+          apt-get install -y python3.12 python3.12-dev python3.12-distutils
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -112,7 +119,7 @@ jobs:
         with:
           name: deb-ubuntu-${{ matrix.ubuntu }}-${{ steps.version.outputs.version }}
           path: ../*.deb
-          retention-days: 30
+          retention-days: 7  # Release artifacts are attached to GitHub release
 
       - name: Upload source package artifacts
         uses: actions/upload-artifact@v4
@@ -122,7 +129,7 @@ jobs:
             ../*.dsc
             ../*.tar.*
             ../*.changes
-          retention-days: 30
+          retention-days: 7  # Release artifacts are attached to GitHub release
 
   publish-instructions:
     name: Generate PPA Publishing Instructions
