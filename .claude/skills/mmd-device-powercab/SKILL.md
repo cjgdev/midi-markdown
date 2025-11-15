@@ -1,5 +1,5 @@
 ---
-name: powercab-usage
+name: mmd-device-powercab
 description: Guide for using the Line 6 PowerCab Plus device library in MMD files. Use when the user mentions PowerCab, PowerCab Plus, Line 6 PowerCab, FRFR speaker, or needs help with speaker modeling, microphone simulation, IR loading, mode switching, or HF driver control for the PowerCab.
 ---
 
@@ -869,6 +869,6 @@ PowerCab Plus firmware 2.0+ recommended for full 13 speaker models
 
 - [MMD Syntax Reference](../../spec.md)
 - [Device Library Creation](../../docs/user-guide/device-libraries.md)
-- [Helix Usage](../helix-usage/SKILL.md)
+- [Helix Usage](../mmd-device-helix/SKILL.md)
 - [HX Stomp Usage](../hx-stomp-usage/SKILL.md)
 - [Timing System](../../docs/dev-guides/timing-system.md)

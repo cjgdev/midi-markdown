@@ -1,5 +1,5 @@
 ---
-name: hx-stomp-usage
+name: mmd-device-hx-stomp
 description: Guide for using the Line 6 HX Stomp device library in MMD files. Use when the user mentions HX Stomp, HX Stomp guitar processor, or needs help with HX Stomp's 3-snapshot limitation, USB MIDI setup, All Bypass control, Mode switching, or workarounds for limited snapshots.
 ---
 
@@ -482,7 +482,7 @@ Official Manual: https://line6.com/support/manuals/hxstomp
 
 ## See Also
 
-- [Helix Usage](../helix-usage/SKILL.md) - Full Helix, 8 snapshots
+- [Helix Usage](../mmd-device-helix/SKILL.md) - Full Helix, 8 snapshots
 - [HX Stomp XL Usage](../hx-stomp-xl-usage/SKILL.md) - 4 snapshots, 8 footswitches
 - [HX Effects Usage](../hx-effects-usage/SKILL.md) - Effects only, 4 snapshots
 - [MMD Syntax Reference](../../spec.md)

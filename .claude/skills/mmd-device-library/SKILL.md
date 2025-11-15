@@ -1,5 +1,5 @@
 ---
-name: device-library-creation
+name: mmd-device-library
 description: Create custom MIDI device libraries for MIDI Markdown with aliases, parameters, and documentation. Use when the user wants to create device-specific aliases for hardware (guitar processors, synthesizers, effects units), document MIDI implementations, or build reusable command libraries.
 ---
 
@@ -605,7 +605,7 @@ grep "@alias device_name" devices/my_device.mmd
 **Skills**:
 - **mmd-writing** - MMD syntax reference
 - **mmd-debugging** - Troubleshooting aliases
-- **mmdc-cli-usage** - Testing and validation
+- **mmd-cli** - Testing and validation
 
 **Resources**:
 - **devices/** - Existing device libraries (6 examples)

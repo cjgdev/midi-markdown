@@ -1,5 +1,5 @@
 ---
-name: helix-usage
+name: mmd-device-helix
 description: Guide for using the Line 6 Helix Floor/LT/Rack device library in MMD files. Use when the user mentions Helix, Line 6 Helix guitar processor, Helix Floor, Helix LT, Helix Rack, or needs help with setlist/preset loading, 8-snapshot control, expression automation, footswitch control, or looper functionality.
 ---
 

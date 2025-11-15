@@ -550,8 +550,8 @@ If after following this guide you're still stuck:
 
 **Skills**:
 - **mmd-writing** - MMD syntax reference
-- **mmdc-cli-usage** - CLI tools and options
-- **device-library-creation** - Creating device libraries
+- **mmd-cli** - CLI tools and options
+- **mmd-device-library** - Creating device libraries
 
 **Resources**:
 - **TROUBLESHOOTING.md** - Detailed error reference (in mmd-writing skill)
