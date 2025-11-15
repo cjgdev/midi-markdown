@@ -255,8 +255,16 @@ class MMDTransformer(Transformer):
         return float(token)
 
     def NUMBER(self, token):
-        """Convert NUMBER tokens to float"""
-        return float(token)
+        """Convert NUMBER tokens - preserve int vs float.
+
+        This is important because integer values (like 60) should remain
+        as int (60) not float (60.0), especially for note numbers and
+        other MIDI values that require integers.
+        """
+        value = float(token)
+        if value.is_integer():
+            return int(value)
+        return value
 
     def cc_value(self, value):
         """Extract CC value from rule"""
@@ -1180,15 +1188,18 @@ class MMDTransformer(Transformer):
         return ("func_call", str(func_name), list(args))
 
     def number(self, n):
-        """Transform NUMBER token to float.
+        """Transform NUMBER token - preserve int vs float.
+
+        The NUMBER terminal has already determined whether this should be
+        an int or float. Just return the value as-is.
 
         Args:
-            n: Numeric token (can include decimal point)
+            n: Numeric value (int or float from NUMBER terminal)
 
         Returns:
-            Float value
+            Original value with type preserved
         """
-        return float(n)
+        return n
 
     def integer(self, n):
         """Transform INT token to integer.

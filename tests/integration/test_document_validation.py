@@ -175,7 +175,7 @@ title: Test
 ---
 
 [00:00.000]
-- pb 1.10000
+- pb 1.20000
 """
         doc = parser.parse_string(source)
         errors = validator.validate(doc)

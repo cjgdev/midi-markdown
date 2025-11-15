@@ -241,9 +241,11 @@ class TestValidator:
     @pytest.mark.parametrize(
         "value",
         [
-            -8192,  # Min pitch bend
-            0,  # Center
-            8191,  # Max pitch bend
+            -8192,  # Min pitch bend (signed notation)
+            0,  # Center (signed notation)
+            8191,  # Max pitch bend (signed notation)
+            8192,  # Center (unsigned notation)
+            16383,  # Max pitch bend (unsigned notation)
         ],
     )
     def test_validate_pitch_bend_valid(self, value):
@@ -255,7 +257,7 @@ class TestValidator:
         ("value", "error_match"),
         [
             (-8193, "out of range"),  # Below range
-            (8192, "out of range"),  # Above range
+            (16384, "out of range"),  # Above range (was 8192, but that's valid now in unsigned notation)
             (0.5, "must be an integer"),  # Float
         ],
     )

@@ -7,14 +7,14 @@ ppq: 480
 
 # Multi-Channel Example (Basic)
 # Demonstrates multiple MIDI channels with basic automation
-# Note: @track blocks are parsed but not yet fully implemented for multi-track MIDI files
+# Events are organized chronologically for proper timing validation
 
 @define SYNTH_CHANNEL 1
 @define BASS_CHANNEL 2
 @define DRUMS_CHANNEL 10
 
 # ============================================
-# Setup and Structure
+# Song Structure and Setup
 # ============================================
 
 [00:00.000]
@@ -29,18 +29,8 @@ ppq: 480
 [@]
 - instrument_name "Analog Pad"
 
-[00:16.000]
-- marker "Verse 1"
-
-[00:32.000]
-- marker "Chorus"
-
-# ============================================
-# Lead Synth (Channel 1)
-# ============================================
-
-# Intro - gentle notes with volume control
-[00:00.000]
+# Lead Synth (Channel 1) - Intro: gentle notes with volume control
+[@]
 - cc 1.7.80
 [@]
 - note_on 1.E4 70 2000ms
@@ -51,20 +41,57 @@ ppq: 480
 [00:04.000]
 - note_on 1.B4 80 4000ms
 
-# Verse - increase volume
+# ============================================
+# Verse 1 Section
+# ============================================
+
 [00:16.000]
+- marker "Verse 1"
+
+# Lead Synth - increase volume
+[@]
 - cc 1.7.90
 [@]
 - note_on 1.E5 85 1000ms
 
+# Bass setup and first note
+[@]
+- cc 2.7.70
+[@]
+- note_on 2.E2 90 1000ms
+
+# Drums start
+[@]
+- note_on 10.C4 127 100ms
+
 [00:17.000]
 - note_on 1.D5 85 1000ms
+[@]
+- note_on 2.E2 90 1000ms
+[@]
+- note_on 10.C4 100 100ms
 
 [00:18.000]
 - note_on 1.C5 85 2000ms
+[@]
+- note_on 2.G2 90 1000ms
+[@]
+- note_on 10.C4 127 100ms
 
-# Chorus - full volume with chords
+[00:19.000]
+- note_on 2.A2 90 1000ms
+[@]
+- note_on 10.C4 100 100ms
+
+# ============================================
+# Chorus Section
+# ============================================
+
 [00:32.000]
+- marker "Chorus"
+
+# Lead Synth - full volume with chords
+[@]
 - cc 1.7.110
 [@]
 - note_on 1.E4 100 4000ms
@@ -73,29 +100,8 @@ ppq: 480
 [@]
 - note_on 1.B4 100 4000ms
 
-# ============================================
-# Bass (Channel 2)
-# ============================================
-
-# Bass setup
-[00:16.000]
-- cc 2.7.70
-
-# Simple bass line
+# Bass - boost bass
 [@]
-- note_on 2.E2 90 1000ms
-
-[00:17.000]
-- note_on 2.E2 90 1000ms
-
-[00:18.000]
-- note_on 2.G2 90 1000ms
-
-[00:19.000]
-- note_on 2.A2 90 1000ms
-
-# Chorus - boost bass
-[00:32.000]
 - cc 2.7.100
 [@]
 - note_on 2.E2 100 1000ms
@@ -108,22 +114,6 @@ ppq: 480
 
 [00:35.000]
 - note_on 2.E2 90 1000ms
-
-# ============================================
-# Drums (Channel 10)
-# ============================================
-
-[00:16.000]
-- note_on 10.C4 127 100ms
-
-[00:17.000]
-- note_on 10.C4 100 100ms
-
-[00:18.000]
-- note_on 10.C4 127 100ms
-
-[00:19.000]
-- note_on 10.C4 100 100ms
 
 [00:40.000]
 - text "Multi-channel demo"
