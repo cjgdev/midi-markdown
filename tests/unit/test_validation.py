@@ -257,7 +257,10 @@ class TestValidator:
         ("value", "error_match"),
         [
             (-8193, "out of range"),  # Below range
-            (16384, "out of range"),  # Above range (was 8192, but that's valid now in unsigned notation)
+            (
+                16384,
+                "out of range",
+            ),  # Above range (was 8192, but that's valid now in unsigned notation)
             (0.5, "must be an integer"),  # Float
         ],
     )
