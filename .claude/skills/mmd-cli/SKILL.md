@@ -1,13 +1,13 @@
 ---
-name: mmdc-cli-usage
-description: Use the MIDI Markdown Compiler (mmdc) CLI for compiling MMD to MIDI, validating syntax, real-time playback with TUI, and exporting to different formats (JSON, CSV, table). Use when the user wants to compile, validate, play, or inspect MMD files, or is troubleshooting compilation or validation errors.
+name: mmd-cli
+description: Use the MIDI Markdown Compiler (mmdc) CLI for compiling MMD to MIDI, validating syntax, real-time playback with TUI, exporting to different formats (JSON, CSV, table), and managing device libraries. Use when the user wants to compile, validate, play, inspect MMD files, or work with device libraries.
 ---
 
 # MMDC CLI Usage Skill
 
 ## Overview
 
-This skill helps you effectively use the MIDI Markdown Compiler (`mmdc`) command-line interface for compiling, validating, playing, and inspecting MMD files.
+This skill helps you effectively use the MIDI Markdown Compiler (`mmdc`) command-line interface for compiling, validating, playing, inspecting MMD files, and managing device libraries.
 
 ## Core Commands
 
@@ -70,6 +70,42 @@ mmdc inspect song.mmd --verbose
 mmdc inspect song.mmd --type note_on
 mmdc inspect song.mmd --type cc
 ```
+
+### Device Library Management
+
+```bash
+# List all installed device libraries
+mmdc library list
+
+# Show info about a specific library
+mmdc library info quad_cortex
+mmdc library info eventide_h90
+
+# Validate a device library file
+mmdc library validate devices/my_device.mmd
+mmdc library validate custom_library.mmd
+
+# Search for libraries
+mmdc library search "eventide"
+mmdc library search "helix"
+mmdc library search "neural"
+
+# Create a new device library template
+mmdc library create my_device
+mmdc library create my_synth --manufacturer "Acme" --device "Acme Synth Pro"
+mmdc library create my_fx --output my_library.mmd --channel 5
+
+# Install library from repository (planned feature)
+# mmdc library install eventide-h90
+```
+
+**Library Commands**:
+- `library list` - Shows all available device libraries with alias counts
+- `library info <name>` - Displays library metadata and all available aliases
+- `library validate <file>` - Checks library syntax and structure
+- `library search <query>` - Searches libraries by name, manufacturer, or description
+- `library create <name>` - Creates a new device library template
+- `library install <source>` - (Planned) Install from repository or URL
 
 ## Common Options
 
@@ -305,6 +341,11 @@ mmdc --version
 | Export JSON | `mmdc compile song.mmd --format json -o out.json` |
 | Export CSV | `mmdc compile song.mmd --format csv -o out.csv` |
 | Table display | `mmdc compile song.mmd --format table` |
+| List libraries | `mmdc library list` |
+| Library info | `mmdc library info quad_cortex` |
+| Validate library | `mmdc library validate devices/my_device.mmd` |
+| Search libraries | `mmdc library search "eventide"` |
+| Create library | `mmdc library create my_device` |
 
 ## Complete Examples
 

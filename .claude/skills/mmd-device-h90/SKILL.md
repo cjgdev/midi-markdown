@@ -1,5 +1,5 @@
 ---
-name: h90-usage
+name: mmd-device-h90
 description: Guide for using the Eventide H90 Harmonizer device library in MMD files. Use when the user mentions Eventide H90, H90 effects processor, H90 reverb/delay/modulation, or needs help with H90 program changes, HotSwitches, bypass control, expression automation, or firmware workarounds.
 ---
 

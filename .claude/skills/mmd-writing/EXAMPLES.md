@@ -469,4 +469,4 @@ Total: 49 working example files
 ---
 
 For syntax details, see REFERENCE.md in this skill directory.
-For CLI usage, see the mmdc-cli-usage skill.
+For CLI usage, see the mmd-cli skill.

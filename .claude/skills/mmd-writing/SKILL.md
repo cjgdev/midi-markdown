@@ -106,6 +106,27 @@ MMD supports four timing paradigms:
 - pb 1.8192                     # Alternative center
 - pb 1.+2000                    # Bend up
 - pb 1.-4096                    # Bend down
+
+# Pitch bend modulation (vibrato, sweeps, envelopes)
+- pb 1.wave(sine, 8192, freq=5.5, depth=5)     # Vibrato
+- pb 1.curve(-4096, 4096, ease-in-out)         # Pitch sweep
+- pb 1.envelope(ar, attack=0.5, release=1.0)   # Pitch envelope
+```
+
+**Aftertouch/Pressure**:
+```mmd
+# Channel Pressure (monophonic aftertouch)
+- channel_pressure 1.64
+- cp 1.64                       # Shorthand
+
+# Polyphonic Aftertouch (per-note pressure)
+- poly_pressure 1.C4.80
+- pp 1.C4.80                    # Shorthand
+
+# Pressure modulation (swells, envelopes)
+- cp 1.curve(0, 127, ease-in-out)              # Pressure swell
+- cp 1.envelope(adsr, attack=0.2, decay=0.1, sustain=0.8, release=0.3)
+- pp 1.60.wave(sine, 64, freq=3.0, depth=40)   # Per-note vibrato
 ```
 
 **Meta Events**:
@@ -335,7 +356,9 @@ mmdc play song.mmd --port 0
 
 ## Related Skills
 
-- **mmdc-cli-usage** - For compiling, validating, and playing MMD files
+- **mmd-cli** - For compiling, validating, playing MMD files, and managing device libraries
+- **mmd-device-library** - For creating custom device libraries
+- **mmd-debugging** - For troubleshooting MMD files
 
 ## Quick Syntax Reference
 
@@ -349,6 +372,8 @@ mmdc play song.mmd --port 0
 | Control change | `cc ch.controller.value` | `cc 1.7.127` |
 | Program change | `pc ch.program` | `pc 1.42` |
 | Pitch bend | `pb ch.value` | `pb 1.8192` |
+| Channel pressure | `cp ch.value` | `cp 1.64` |
+| Poly pressure | `pp ch.note.value` | `pp 1.C4.80` |
 | Variable | `@define NAME value` | `@define TEMPO 120` |
 | Variable use | `${NAME}` | `${TEMPO}` |
 | Loop | `@loop N times...@end` | See above |
