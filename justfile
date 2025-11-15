@@ -355,3 +355,24 @@ release TYPE: pre-release
     @git log -1 --stat
     @echo "\nTo push and trigger GitHub Actions:"
     @echo "  just release-push"
+
+# ============================================
+# Pull Request Management
+# ============================================
+
+# Create PR with filled template (interactive)
+pr TITLE="":
+    .github/scripts/create-pr-with-template.sh "{{TITLE}}"
+
+# Create PR with filled template (auto, no prompts)
+pr-auto TITLE="":
+    .github/scripts/create-pr-with-template.sh "{{TITLE}}" --auto
+
+# Generate filled PR template and save to file
+pr-template OUTPUT="pr-template.md":
+    .github/scripts/fill-pr-template.sh > {{OUTPUT}}
+    @echo "PR template generated: {{OUTPUT}}"
+
+# Show what would be in the PR template
+pr-preview:
+    @.github/scripts/fill-pr-template.sh
