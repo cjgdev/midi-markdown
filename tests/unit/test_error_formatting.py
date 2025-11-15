@@ -200,7 +200,7 @@ class TestValidationErrorWithSuggestions:
         from midi_markdown.utils.validation import Validator
 
         with pytest.raises(ValidationError) as exc_info:
-            Validator.validate_pitch_bend(10000)
+            Validator.validate_pitch_bend(20000)  # Beyond max of 16383
 
         error = exc_info.value
         assert error.error_code == "E210"

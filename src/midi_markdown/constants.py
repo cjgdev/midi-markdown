@@ -18,8 +18,9 @@ MIDI_NOTE_MAX = 127  # G9
 MIDI_MIDDLE_C = 60  # C4
 
 # Pitch Bend Range
+# Supports both signed (-8192 to +8191, center=0) and unsigned (0 to 16383, center=8192) notation
 PITCH_BEND_MIN = -8192
-PITCH_BEND_MAX = 8191
+PITCH_BEND_MAX = 16383  # Was 8191, but MIDI spec allows 0-16383 (unsigned) or -8192 to +8191 (signed)
 PITCH_BEND_CENTER = 0
 
 # Tempo Range (BPM)
