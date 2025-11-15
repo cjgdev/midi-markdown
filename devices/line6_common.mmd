@@ -191,15 +191,16 @@ compatible_devices:
 # TAP TEMPO HELPERS
 # ============================================
 
-# Send tap tempo sequence at specific BPM (4 taps)
-@alias line6_set_tempo_tap {ch} {bpm:40-300} "Set tempo via tap sequence (4 taps)"
-  {interval_ms = int(60000 / ${bpm})}
+# Send tap tempo sequence at specific interval (4 taps)
+# To calculate interval from BPM: interval_ms = 60000 / BPM
+# Example: For 120 BPM, use interval of 500ms
+@alias line6_set_tempo_tap {ch} {interval} "Set tempo via tap sequence (4 taps)"
   - cc {ch}.64.127
-  [+{interval_ms}ms]
+  [+{interval}]
   - cc {ch}.64.127
-  [+{interval_ms}ms]
+  [+{interval}]
   - cc {ch}.64.127
-  [+{interval_ms}ms]
+  [+{interval}]
   - cc {ch}.64.127
 @end
 
