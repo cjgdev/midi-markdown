@@ -158,7 +158,8 @@
       "Skill",
       "SlashCommand"
     ],
-    "deny": [
+    "deny": [],
+    "ask": [
       "Bash(rm -rf:*)",
       "Bash(git push:*)",
       "Bash(just release:*)",
@@ -178,7 +179,6 @@
       "Bash(uv remove:*)",
       "Bash(uv lock:*)",
       "Bash(sudo:*)"
-    ],
-    "ask": []
+    ]
   }
 }
