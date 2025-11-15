@@ -217,9 +217,9 @@ class TestExampleParsing:
         assert "sysex" in message_types, "Should have SysEx messages"
 
         # Should have system common
-        assert (
-            "mtc_quarter_frame" in message_types or "song_position" in message_types
-        ), "Should have system common messages"
+        assert "mtc_quarter_frame" in message_types or "song_position" in message_types, (
+            "Should have system common messages"
+        )
 
         # Should have real-time
         assert (
@@ -309,9 +309,9 @@ class TestExampleTiming:
 
             # Check monotonicity (allowing simultaneous events with same timestamp)
             for i in range(1, len(timings)):
-                assert (
-                    timings[i] >= timings[i - 1]
-                ), f"Non-monotonic timing in {example_file.name}: {timings[i]} < {timings[i - 1]} at position {i}"
+                assert timings[i] >= timings[i - 1], (
+                    f"Non-monotonic timing in {example_file.name}: {timings[i]} < {timings[i - 1]} at position {i}"
+                )
 
 
 class TestExampleContent:
