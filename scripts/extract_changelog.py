@@ -22,7 +22,8 @@ def extract_changelog_section(changelog_path: Path, version: str) -> str:
         ValueError: If version section is not found
     """
     if not changelog_path.exists():
-        raise FileNotFoundError(f"Changelog file not found: {changelog_path}")
+        msg = f"Changelog file not found: {changelog_path}"
+        raise FileNotFoundError(msg)
 
     content = changelog_path.read_text(encoding="utf-8")
 
@@ -50,16 +51,16 @@ def extract_changelog_section(changelog_path: Path, version: str) -> str:
             section_lines.append(line)
 
     if not found:
-        raise ValueError(
-            f"Version [{version}] not found in {changelog_path}\n"
-            f"Available versions: {find_available_versions(content)}"
-        )
+        available = find_available_versions(content)
+        msg = f"Version [{version}] not found in {changelog_path}\nAvailable versions: {available}"
+        raise ValueError(msg)
 
     # Strip leading/trailing whitespace
     result = "\n".join(section_lines).strip()
 
     if not result:
-        raise ValueError(f"Version [{version}] section is empty in {changelog_path}")
+        msg = f"Version [{version}] section is empty in {changelog_path}"
+        raise ValueError(msg)
 
     return result
 
@@ -78,20 +79,14 @@ def find_available_versions(content: str) -> list[str]:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Extract changelog section for a specific version"
-    )
-    parser.add_argument(
-        "--version", required=True, help="Version number (e.g., 0.1.0)"
-    )
+    parser = argparse.ArgumentParser(description="Extract changelog section for a specific version")
+    parser.add_argument("--version", required=True, help="Version number (e.g., 0.1.0)")
     parser.add_argument(
         "--changelog",
         default="CHANGELOG.md",
         help="Path to CHANGELOG.md (default: CHANGELOG.md)",
     )
-    parser.add_argument(
-        "--output", help="Output file (default: stdout)"
-    )
+    parser.add_argument("--output", help="Output file (default: stdout)")
 
     args = parser.parse_args()
 
