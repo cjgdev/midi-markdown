@@ -19,9 +19,97 @@ jobs:
     needs: test
     uses: ./.github/workflows/build-executables.yml
 
+  smoke-test:
+    name: Smoke test executables
+    needs: build-executables
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            archive: mmdc-linux-x86_64.tar.gz
+            executable: mmdc/mmdc
+          - os: macos-latest
+            platform: macos
+            archive: mmdc-macos-universal.zip
+            executable: mmdc/mmdc
+          - os: windows-latest
+            platform: windows
+            archive: mmdc-windows-x86_64.zip
+            executable: mmdc/mmdc.exe
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: executables-${{ matrix.platform }}
+          path: artifacts
+
+      - name: Extract executable (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p test-dir
+          cd test-dir
+          if [[ "${{ matrix.archive }}" == *.tar.gz ]]; then
+            tar -xzf ../artifacts/${{ matrix.archive }}
+          else
+            unzip -q ../artifacts/${{ matrix.archive }}
+          fi
+          chmod +x ${{ matrix.executable }}
+
+      - name: Extract executable (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path test-dir
+          Expand-Archive -Path "artifacts\${{ matrix.archive }}" -DestinationPath test-dir
+
+      - name: Test version command (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "🧪 Testing ${{ matrix.platform }} executable..."
+          test-dir/${{ matrix.executable }} --version
+
+      - name: Test version command (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Write-Host "🧪 Testing ${{ matrix.platform }} executable..."
+          & "test-dir\${{ matrix.executable }}" --version
+
+      - name: Test compile command (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          OUTPUT_FILE="${{ runner.temp }}/test-${{ matrix.platform }}.mid"
+          test-dir/${{ matrix.executable }} compile examples/00_basics/01_hello_world.mmd -o "$OUTPUT_FILE"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "❌ Output file not created"
+            exit 1
+          fi
+          echo "✅ ${{ matrix.platform }} executable smoke test passed"
+
+      - name: Test compile command (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $OutputFile = "${{ runner.temp }}\test-${{ matrix.platform }}.mid"
+          & "test-dir\${{ matrix.executable }}" compile examples/00_basics/01_hello_world.mmd -o $OutputFile
+          if (-not (Test-Path $OutputFile)) {
+            Write-Host "❌ Output file not created"
+            exit 1
+          }
+          Write-Host "✅ ${{ matrix.platform }} executable smoke test passed"
+
   create-release:
     name: Create GitHub Release
-    needs: build-executables
+    needs: smoke-test
     runs-on: ubuntu-latest
 
     steps:
@@ -46,39 +134,6 @@ jobs:
           mkdir -p release
           find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.sha256" \) -exec mv {} release/ \;
           ls -lh release/
-
-      - name: Smoke test archived executables
-        run: |
-          echo "🧪 Testing archived executables..."
-
-          # Test Linux archive
-          echo "Testing Linux archive..."
-          mkdir -p test-linux
-          tar -xzf release/mmdc-linux-x86_64.tar.gz -C test-linux
-          test-linux/mmdc/mmdc --version || { echo "❌ Linux executable failed"; exit 1; }
-          test-linux/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test-linux.mid || { echo "❌ Linux compile failed"; exit 1; }
-          echo "✅ Linux archive OK"
-
-          # Test macOS archive
-          echo "Testing macOS archive..."
-          mkdir -p test-macos
-          unzip -q release/mmdc-macos-universal.zip -d test-macos
-          chmod +x test-macos/mmdc/mmdc
-          test-macos/mmdc/mmdc --version || { echo "❌ macOS executable failed"; exit 1; }
-          test-macos/mmdc/mmdc compile examples/00_basics/01_hello_world.mmd -o /tmp/test-macos.mid || { echo "❌ macOS compile failed"; exit 1; }
-          echo "✅ macOS archive OK"
-
-          # Test Windows archive (basic validation only - can't execute on Linux runner)
-          echo "Testing Windows archive structure..."
-          mkdir -p test-windows
-          unzip -q release/mmdc-windows-x86_64.zip -d test-windows
-          if [ ! -f "test-windows/mmdc/mmdc.exe" ]; then
-            echo "❌ Windows executable not found in archive"
-            exit 1
-          fi
-          echo "✅ Windows archive structure OK"
-
-          echo "✅ All smoke tests passed"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v1
