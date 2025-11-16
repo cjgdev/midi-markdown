@@ -27,14 +27,17 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux
+            artifact_name: mmdc-linux-x86_64
             archive: mmdc-linux-x86_64.tar.gz
             executable: mmdc/mmdc
           - os: macos-latest
             platform: macos
+            artifact_name: mmdc-macos-universal
             archive: mmdc-macos-universal.zip
             executable: mmdc/mmdc
           - os: windows-latest
             platform: windows
+            artifact_name: mmdc-windows-x86_64
             archive: mmdc-windows-x86_64.zip
             executable: mmdc/mmdc.exe
     runs-on: ${{ matrix.os }}
@@ -46,7 +49,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: executables-${{ matrix.platform }}
+          name: ${{ matrix.artifact_name }}
           path: artifacts
 
       - name: Extract executable (Unix)
