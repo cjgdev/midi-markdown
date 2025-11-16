@@ -5,10 +5,12 @@ This module handles:
 - Loading and parsing device library files
 - Detecting circular imports
 - Merging alias definitions from multiple sources
+- Multi-path search (project-local → package data)
 """
 
 from __future__ import annotations
 
+from importlib.resources import files
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -22,6 +24,55 @@ class ImportError(Exception):
 
 class CircularImportError(ImportError):
     """Raised when circular import is detected."""
+
+
+def _get_package_data_paths() -> list[Path]:
+    """Get search paths for package data (device libraries).
+
+    Returns paths in priority order:
+    1. Development mode: <repo_root>/devices/
+    2. Editable install: <repo_root>/devices/
+    3. Installed package: site-packages/midi_markdown/data/devices/
+
+    Returns:
+        List of Path objects to search for device libraries
+    """
+    search_paths: list[Path] = []
+
+    # Try to get package data directory using importlib.resources
+    try:
+        package_files = files("midi_markdown")
+        if package_files is not None:
+            # For installed packages, device libraries are in data/devices/
+            data_devices = package_files / "data" / "devices"
+            if hasattr(data_devices, "joinpath"):
+                # Convert Traversable to Path if possible
+                try:
+                    data_devices_path = Path(str(data_devices))
+                    if data_devices_path.exists():
+                        search_paths.append(data_devices_path)
+                except (ValueError, OSError):
+                    pass
+    except (ImportError, AttributeError, TypeError):
+        pass
+
+    # Fallback: check if we're in development/editable mode
+    # Find the package installation directory
+    try:
+        # Import here to avoid circular imports at module level
+        import midi_markdown  # noqa: PLC0415
+
+        package_init = Path(midi_markdown.__file__).parent
+        # Check for repo root (editable install or development)
+        # Go up from src/midi_markdown to find devices/
+        repo_root = package_init.parent.parent
+        devices_dir = repo_root / "devices"
+        if devices_dir.exists() and devices_dir.is_dir():
+            search_paths.insert(0, devices_dir)  # Prioritize development path
+    except (ImportError, AttributeError):
+        pass
+
+    return search_paths
 
 
 class ImportManager:
@@ -55,35 +106,74 @@ class ImportManager:
         """Resolve import path to absolute path.
 
         Import paths can be:
-        - Relative: "devices/quad_cortex.mmd" (relative to current file)
+        - Relative: "devices/quad_cortex.mmd" (searched in multiple locations)
         - Absolute: "/usr/local/share/mml/devices/h90.mmd"
 
-        If current_file is None (e.g., stdin), relative paths resolve from cwd.
+        Search order for relative paths:
+        1. Relative to current file's directory (if current_file provided)
+        2. Package data directories (bundled device libraries)
+        3. Relative to current working directory
+
+        Note: This method returns the resolved path without checking existence.
+        The actual existence check happens in load_library().
 
         Args:
             import_path: Path from @import directive
             current_file: Path to file containing the import
 
         Returns:
-            Resolved absolute path
+            Resolved absolute path (may not exist yet)
 
         Example:
-            >>> manager.resolve_path("devices/foo.mmd", "/home/user/song.mmd")
-            Path("/home/user/devices/foo.mmd")
+            >>> manager.resolve_path("devices/quad_cortex.mmd", "/home/user/song.mmd")
+            Path("/home/user/devices/quad_cortex.mmd")
         """
         path = Path(import_path)
 
-        # If already absolute, use as-is
+        # If already absolute, use as-is (no existence check)
         if path.is_absolute():
             return path.resolve()
 
-        # Relative path - resolve relative to current file's directory
-        if current_file:
-            current_dir = Path(current_file).parent
-            return (current_dir / path).resolve()
+        # Relative path - prioritize project-local, then fall back to package data
+        #
+        # Strategy:
+        # 1. Determine primary location (relative to current file or CWD)
+        # 2. If file exists there, use it
+        # 3. If not, search package data directories
+        # 4. If still not found, return primary location (let load_library error)
 
-        # No current file (stdin) - resolve relative to cwd
-        return path.resolve()
+        # 1. Determine primary location
+        if current_file:
+            # Relative to current file's directory
+            primary_path = (Path(current_file).parent / path).resolve()
+        else:
+            # Relative to current working directory
+            primary_path = path.resolve()
+
+        # 2. If file exists at primary location, use it (project-local priority)
+        if primary_path.exists():
+            return primary_path
+
+        # 3. File doesn't exist locally - search package data directories
+        package_data_paths = _get_package_data_paths()
+        for data_path in package_data_paths:
+            # Try full path: data_path / devices/quad_cortex.mmd
+            package_candidate = (data_path / path).resolve()
+            if package_candidate.exists():
+                return package_candidate
+
+            # If path starts with "devices/", also try without that prefix
+            # (since package data path already points to devices/ directory)
+            path_str = str(path)
+            if path_str.startswith(("devices/", "devices\\")):
+                relative_to_devices = Path(path_str[8:])  # Strip "devices/" or "devices\"
+                package_candidate_stripped = (data_path / relative_to_devices).resolve()
+                if package_candidate_stripped.exists():
+                    return package_candidate_stripped
+
+        # 4. File doesn't exist anywhere - return primary location
+        # (load_library() will handle the error with better context)
+        return primary_path
 
     def check_circular_import(self, filepath: Path, import_chain: list[str]) -> None:
         """Check if importing this file would create a circular import.

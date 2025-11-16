@@ -26,11 +26,15 @@ class TestImportManager:
         assert resolved == Path(abs_path).resolve()
 
     def test_resolve_path_relative(self, manager):
-        """Test relative path resolution."""
-        import_path = "devices/quad_cortex.mmd"
+        """Test relative path resolution.
+
+        When the file doesn't exist locally or in package data,
+        should return path relative to current file.
+        """
+        import_path = "devices/fictional_device_xyz.mmd"
         current_file = "/home/user/songs/main.mmd"
         resolved = manager.resolve_path(import_path, current_file)
-        expected = Path("/home/user/songs/devices/quad_cortex.mmd").resolve()
+        expected = Path("/home/user/songs/devices/fictional_device_xyz.mmd").resolve()
         assert resolved == expected
 
     def test_resolve_path_no_current_file(self, manager):
