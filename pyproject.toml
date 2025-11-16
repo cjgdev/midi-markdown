@@ -76,6 +76,26 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/midi_markdown"]
 
+# Include device libraries as package data
+# This copies devices/*.mmd to src/midi_markdown/data/devices/ in the wheel
+[tool.hatch.build.targets.wheel.force-include]
+"devices" = "midi_markdown/data/devices"
+
+# Also include in source distribution
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/devices",
+    "/tests",
+    "/examples",
+    "/docs",
+    "/README.md",
+    "/LICENSE",
+    "/CLAUDE.md",
+    "/spec.md",
+    "/justfile",
+]
+
 # Ruff configuration
 [tool.ruff]
 line-length = 100
